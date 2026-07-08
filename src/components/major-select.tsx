@@ -5,8 +5,8 @@ import { MAJORS } from "@/lib/majors";
 
 const DEFAULT_MAJOR = "Undecided/Witness Protection";
 
-export function MajorSelect() {
-  const [selected, setSelected] = useState(DEFAULT_MAJOR);
+export function MajorSelect({ initialValue }: { initialValue?: string }) {
+  const [selected, setSelected] = useState(initialValue ?? DEFAULT_MAJOR);
   const description = MAJORS.find((m) => m.value === selected)?.description;
 
   return (

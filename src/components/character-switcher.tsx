@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { setActiveCharacterAction } from "@/actions/characters";
 
-type Character = { id: number; name: string; major: string | null };
+type Character = { id: number; name: string };
 
 export function CharacterSwitcher({
   characters,
@@ -25,12 +25,11 @@ export function CharacterSwitcher({
         name="characterId"
         defaultValue={activeCharacterId ?? characters[0].id}
         onChange={() => formRef.current?.requestSubmit()}
-        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500"
+        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 max-w-[140px]"
       >
         {characters.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
-            {c.major ? ` — ${c.major}` : ""}
           </option>
         ))}
       </select>

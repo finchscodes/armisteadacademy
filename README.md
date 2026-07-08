@@ -1,158 +1,79 @@
-# Ashbourne Academy — forum RPG
+# Armistead Academy — forum RPG
 
-A from-scratch forum roleplay site: users, characters, boards/threads/posts, an XP/level
-system, an auto-computed year progression, full pets, faceclaim image uploads, a
-lesson/homework/peer-grading loop, a site-wide activity feed, a live sidebar chat, and an
-admin dashboard — all tied into an auditable in-world economy.
+A from-scratch forum roleplay site: a spy academy with users, characters (locked legal
+names + editable code names/faceclaims), boards/threads/posts, XP/levels, auto-computed
+year progression, full pets, a lesson/homework/peer-grading loop, a site-wide activity
+feed, a live sidebar chat colored by job, a job list, and an admin dashboard — all tied
+into an auditable in-world economy.
 
 ## Stack
 
-- **Next.js 16** (App Router, Server Actions) + TypeScript
-- **Postgres** via **Drizzle ORM**
-- **Supabase Storage** for faceclaim image/gif uploads (server-side only, via the
-  service role key — never exposed to the browser)
-- **Tailwind v4** for styling, custom theme
-- Auth: hand-rolled, `bcryptjs` for password hashing + `jose` for signed JWT session
-  cookies
+Next.js 16 (App Router, Server Actions) + TypeScript, Postgres via Drizzle ORM, Supabase
+Storage for faceclaim uploads, Tailwind v4, hand-rolled auth (bcryptjs + jose).
 
 ## What's built right now
 
 **Accounts & characters**
 - Register / log in / log out, multi-character accounts with a "posting as" switcher
-- Character creation: code name, an uploaded faceclaim image/gif (PNG/JPG/GIF/WEBP, up
-  to 5MB), a major chosen from a fixed dropdown (13 options), and a bio/backstory
-- **Public profile pages** at `/c/[slug]` — anyone can view a character's major, year,
-  and backstory without logging in. Character names are clickable links everywhere
-  (chat, posts, threads, lessons)
-- **Year is earned, not chosen** — every character starts as a 1st Year and advances
-  automatically based on how many lessons they've taken (submitted homework for).
-  Thresholds live in `src/lib/year.ts` (`YEAR_THRESHOLDS`) — change the numbers there to
-  retune the whole progression. Faculty-major characters don't get a numeric year.
+  (name only now — no more cramped major/job text in that dropdown)
+- Character creation: a **locked legal name** (first/middle/last — set once, never
+  editable again, shown publicly on the profile), a **code name** and **faceclaim**
+  image/gif (both editable later), a major, and a bio
+- **Character edit page** at `/c/[slug]/edit` (owner only) — code name, faceclaim,
+  major, and bio can all be changed; legal name is shown but locked
+- Public profile pages at `/c/[slug]`
 
-**Home page**
-- A "Facebook-style" feed: your active character's card up top (level, XP, balance),
-  a site-wide feed of recent posts from everyone below it, and a live chat sidebar on
-  the right
-- Boards and lessons moved into a **Boards dropdown** in the nav bar (also still
-  browsable in full at `/boards`)
+**Jobs & roles** (`src/lib/roles.ts`)
+- The old 4-role system (member/instructor/staff/admin) is gone, replaced by the full
+  job list: Spymaster, Secretary, Field Agent, Head Staff, Instructor, Chief Editor,
+  Assistant Instructor, Enforcer, School Board Member, Writer, Media Team, Library
+  Handler, Gatekeeper, Operator — each with its own chat name color
+- **Two job titles are placeholders** — the spec had "Red: [blank]" and "Yellow: Head
+  Staff of ___" with no name given. I called them "Field Agent" and "Head Staff" for
+  now. Tell me the real names and I'll do a quick rename (just one file + a small
+  migration, not a big change).
+- **Spymaster is the only role with admin dashboard access** — deliberately a
+  single-person role, matching "only accessible to a specific person such as me"
+- **Job List page** at `/jobs` — everyone with a job, grouped by role, linked to their
+  characters
+- Instructor and Assistant Instructor can post lessons
 
-**Live chat**
-- A sidebar chat, separate from in-character forum threads, polling every 4 seconds
-  (`src/components/chat-sidebar.tsx`) — no websockets needed
-- Sending a chat message earns the same XP as posting in a thread
-- Names are colored by the sender's site role (see Roles below)
+**Home page, boards, chat** — unchanged in structure from last update (feed + character
+card + chat sidebar on the home page; Boards dropdown in the nav). The board structure
+itself is now the full Armistead layout you specified: Dormitories, First Floor, Second
+Floor, Third Floor, Grounds, Underground, Outside Armistead, each with their listed
+rooms. Classes/lessons are still on a placeholder Academics category, as you said
+they'd be handled later.
 
-**Roles & admin dashboard**
-- Four roles: `member`, `instructor`, `staff`, `admin` (`src/lib/roles.ts`)
-- **Instructor** and **staff** can post lessons; instructor names show in teal and staff
-  in steel-blue in chat; admin shows in claret red
-- **Admin dashboard** at `/admin/users` — search users, edit their username/email/role,
-  view their characters. Gated entirely server-side (`src/app/admin/layout.tsx`) to the
-  `admin` role only; there's a built-in safety net stopping the last admin from
-  demoting themselves with no one left to fix it
-- **Nobody has the `admin` role by default** — see Getting Set Up below for how to
-  make yourself the admin
+**Bug fix**: chat and thread posting redirecting you to `/characters` even with a
+character selected — this was a real bug (see `src/lib/session-character.ts`). The nav
+bar's "posting as" display had a fallback to your first character if its cookie was
+ever missing or stale, but the posting code didn't have that same fallback, so the UI
+and the actual posting logic disagreed. Fixed by giving posting the same fallback.
 
-**XP & levels, lessons & grading, pets, economy** — unchanged from before; see the
-Roadmap section below and inline comments in `src/lib/xp.ts`, `src/lib/majors.ts` for
-where to retune things.
+## What's NOT built yet (deferred — flagging why)
 
-**Schema in place, not yet wired to UI**: `shops`, `items`, `inventory`.
+**Rich text/HTML editor for lessons, bios, and articles, plus a community "articles"
+board with likes/comments.** This is a substantial separate feature — a WYSIWYG editor
+library, and importantly, **accepting and rendering arbitrary rich HTML from users is a
+real security risk (XSS)** if it's not paired with a proper sanitizer that strips
+scripts/event handlers/etc. I don't want to wire up raw HTML rendering without that
+sanitization layer in place, so this needs its own dedicated pass rather than being
+bolted on quickly. Let me know when you want to tackle it and I'll scope it properly.
 
-## Getting set up
+Also still just schema, not UI: `shops`, `items`, `inventory`.
 
-### 1. Database (Supabase SQL Editor — no CLI needed)
+## Getting set up / applying this update
 
-Run these files, in order, in Supabase's SQL Editor:
+See `supabase-setup/README.md` — it tells you exactly which SQL files to run depending
+on whether this is a fresh install or you're upgrading an existing database. **For your
+current site specifically, you need `06-armistead-boards.sql` and
+`07-legal-name-and-new-roles.sql`** — everything else you've already run.
 
-- `supabase-setup/01-schema.sql` — full schema (skip this one if you already ran the
-  original 01/02/03 files from before; instead run the incremental files below)
-- `supabase-setup/02-seed.sql` — starter boards, shop, and a staff login
-- `supabase-setup/04-chat-and-instructor-role.sql` — **run this if you already had the
-  database set up before this update** (adds chat, drops old faceclaim/year_or_role
-  columns, adds the instructor role)
-- `supabase-setup/05-storage-bucket.sql` — creates the public storage bucket faceclaim
-  uploads go into
+The `07` migration safely renames your existing roles: `staff` → `instructor`,
+`admin` → `spymaster`. Nobody loses access — if you already promoted yourself to
+`admin` earlier, you'll come out of this as `spymaster`, which is now the role that
+actually gates the admin dashboard.
 
-### 2. Make yourself admin
-
-Nobody has the `admin` role by default — including the seeded `professor` staff account.
-After you've registered your own account on the live site, run this in Supabase's SQL
-Editor (swap in your actual username):
-
-```sql
-update users set role = 'admin' where username = 'your_username_here';
-```
-
-You'll then see an **Admin** link in the nav bar.
-
-### 3. Environment variables
-
-```bash
-cp .env.example .env
-```
-
-Fill in:
-- `DATABASE_URL` — Supabase's Transaction pooler connection string
-- `SESSION_SECRET` — any long random string (`openssl rand -base64 32`)
-- `SUPABASE_URL` — your Supabase project URL (Project Settings → API)
-- `SUPABASE_SERVICE_ROLE_KEY` — the **service_role** secret key from that same page
-  (not the anon/public key — this one is server-only and must never be exposed to the
-  browser; Next.js keeps it that way automatically since it has no `NEXT_PUBLIC_`
-  prefix)
-
-On Vercel, add all four as Environment Variables the same way you did before.
-
-### 4. Local development (optional)
-
-```bash
-npm install
-npm run dev
-```
-
-Other scripts: `npm run db:push`, `npm run db:generate`, `npm run db:studio`,
-`npm run db:seed` — see inline comments in `package.json`.
-
-## Project structure additions since last time
-
-```
-src/
-  lib/
-    year.ts              # computed year-from-lessons-taken logic
-    roles.ts              # role permissions + chat name colors
-    feed.ts                 # site-wide recent-posts query for the home page
-    session-character.ts      # shared "require login + active character" guard
-    supabase-admin.ts           # server-only Supabase client (service role key)
-  actions/
-    uploads.ts            # faceclaim image upload to Supabase Storage
-    chat.ts                 # send/fetch sidebar chat messages
-    admin.ts                  # admin-only user search/edit (double-checks role
-                                 server-side on every call, not just hidden UI)
-  components/
-    faceclaim-upload.tsx   # image/gif upload widget with live preview
-    chat-sidebar.tsx         # polling chat sidebar
-    boards-dropdown.tsx        # nav dropdown for boards/lessons
-    character-card.tsx           # home page character summary card
-    feed-item.tsx                   # single feed post card
-    edit-user-form.tsx                # admin user edit form
-  app/
-    admin/                 # admin dashboard (layout.tsx gates all of it)
-    boards/                  # full board directory (moved off the home page)
-    api/chat/messages/         # GET endpoint the chat sidebar polls
-```
-
-## Roadmap — shops
-
-Still just schema (`shops`, `items`, `inventory`), not wired to UI. Same open question
-as before: should items be purely cosmetic, or have mechanical effects?
-
-Other things worth considering:
-- Chat has no rate limit — fine for a small community, worth revisiting if spam becomes
-  an issue
-- No in-app change-password flow yet (DB-only, via Supabase's Table Editor)
-- No character-edit page yet — faceclaim/major/bio can only be set at creation
-
-## Deploying
-
-Same as before: push to GitHub, import into Vercel, set the four environment variables
-above, deploy.
+No new environment variables this time — `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` from last update are all you need.

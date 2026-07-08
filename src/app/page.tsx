@@ -35,7 +35,7 @@ export default async function HomePage() {
           )
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
-            <h1 className="font-display text-2xl text-brass-400 mb-1">Ashbourne Academy</h1>
+            <h1 className="font-display text-2xl text-brass-400 mb-1">Armistead Academy</h1>
             <p className="text-ink-400 text-sm mb-4">
               A spy academy roleplay: forums, lessons, and an in-world economy.
             </p>

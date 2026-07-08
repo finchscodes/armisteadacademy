@@ -17,6 +17,47 @@ export default function NewCharacterPage() {
       </p>
 
       <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
+        <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">
+          <p className="text-xs uppercase tracking-wider text-ink-400 mb-3">
+            Legal name — set once, cannot be changed later
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="firstName">
+                First
+              </label>
+              <input
+                id="firstName"
+                name="firstName"
+                required
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="middleName">
+                Middle
+              </label>
+              <input
+                id="middleName"
+                name="middleName"
+                placeholder="Optional"
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="lastName">
+                Last
+              </label>
+              <input
+                id="lastName"
+                name="lastName"
+                required
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              />
+            </div>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="name">
             Code name
@@ -27,6 +68,9 @@ export default function NewCharacterPage() {
             required
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
           />
+          <p className="text-[11px] text-ink-400 mt-1">
+            This one you can change later, along with your faceclaim.
+          </p>
         </div>
 
         <FaceclaimUpload name="avatarUrl" />

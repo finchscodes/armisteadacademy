@@ -11,7 +11,17 @@ import { slugifyUnique } from "@/lib/slug";
 import { MAJOR_VALUES } from "@/lib/majors";
 import type { ActionState } from "./auth";
 
+const nameRegex = /^[a-zA-Z' -]+$/;
+
 const createCharacterSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(50).regex(nameRegex, "Letters only"),
+  middleName: z
+    .string()
+    .max(50)
+    .regex(nameRegex, "Letters only")
+    .optional()
+    .or(z.literal("")),
+  lastName: z.string().min(1, "Last name is required").max(50).regex(nameRegex, "Letters only"),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
   major: z.enum(MAJOR_VALUES, { message: "Pick a major" }),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
@@ -30,6 +40,9 @@ export async function createCharacterAction(
   }
 
   const parsed = createCharacterSchema.safeParse({
+    firstName: formData.get("firstName"),
+    middleName: formData.get("middleName") || undefined,
+    lastName: formData.get("lastName"),
     name: formData.get("name"),
     major: formData.get("major"),
     avatarUrl: formData.get("avatarUrl") || undefined,
@@ -40,13 +53,16 @@ export async function createCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { name, major, avatarUrl, bio } = parsed.data;
+  const { firstName, middleName, lastName, name, major, avatarUrl, bio } = parsed.data;
   const slug = slugifyUnique(name);
 
   const [character] = await db
     .insert(characters)
     .values({
       userId: session.userId,
+      firstName,
+      middleName: middleName || undefined,
+      lastName,
       name,
       slug,
       major,
@@ -65,6 +81,53 @@ export async function createCharacterAction(
 
   await setActiveCharacterId(character.id);
   redirect("/");
+}
+
+const updateCharacterSchema = z.object({
+  characterId: z.coerce.number().int(),
+  name: z.string().min(2, "Name must be at least 2 characters").max(64),
+  major: z.enum(MAJOR_VALUES, { message: "Pick a major" }),
+  avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  bio: z.string().max(4000).optional(),
+});
+
+export async function updateCharacterAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const parsed = updateCharacterSchema.safeParse({
+    characterId: formData.get("characterId"),
+    name: formData.get("name"),
+    major: formData.get("major"),
+    avatarUrl: formData.get("avatarUrl") || undefined,
+    bio: formData.get("bio") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, name, major, avatarUrl, bio } = parsed.data;
+
+  const [existing] = await db
+    .select({ id: characters.id, userId: characters.userId, slug: characters.slug })
+    .from(characters)
+    .where(eq(characters.id, characterId));
+
+  if (!existing || existing.userId !== session.userId) {
+    return { error: "You don't own this character" };
+  }
+
+  await db
+    .update(characters)
+    .set({ name, major, avatarUrl: avatarUrl || null, bio: bio || null })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/c/${existing.slug}`);
+  redirect(`/c/${existing.slug}`);
 }
 
 export async function setActiveCharacterAction(formData: FormData) {

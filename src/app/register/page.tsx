@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const [state, formAction, pending] = useActionState(registerAction, undefined);
 
   return (
-    <AuthCard title="Join Ashbourne" subtitle="Create your account, then your first character">
+    <AuthCard title="Join Armistead" subtitle="Create your account, then your first character">
       <form action={formAction} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="email">

@@ -6,7 +6,7 @@ import { eq, or, ilike, count } from "drizzle-orm";
 import { db } from "@/db";
 import { users, characters } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { isAdmin, type UserRole } from "@/lib/roles";
+import { isAdmin, ROLE_VALUES } from "@/lib/roles";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -65,8 +65,6 @@ export async function getUserDetail(userId: number) {
   return { user, characters: userCharacters };
 }
 
-const ROLE_VALUES: [UserRole, ...UserRole[]] = ["member", "instructor", "staff", "admin"];
-
 const updateUserSchema = z.object({
   userId: z.coerce.number().int(),
   username: z.string().min(3).max(32),
@@ -95,16 +93,16 @@ export async function updateUserAction(
 
   const { userId, username, email, role } = parsed.data;
 
-  // A safety net: don't let the last admin accidentally demote themselves out
-  // of admin with no other admin to fix it.
-  if (userId === admin.userId && role !== "admin") {
+  // A safety net: don't let the last Spymaster accidentally demote themselves
+  // out of the role with no one left to fix it.
+  if (userId === admin.userId && role !== "spymaster") {
     const [{ total }] = await db
       .select({ total: count() })
       .from(users)
-      .where(eq(users.role, "admin"));
+      .where(eq(users.role, "spymaster"));
 
     if (total <= 1) {
-      return { error: "You're the only admin — promote someone else before removing yourself" };
+      return { error: "You're the only Spymaster — promote someone else before removing yourself" };
     }
   }
 

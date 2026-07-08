@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { searchUsers } from "@/actions/admin";
-import { ROLE_LABELS } from "@/lib/roles";
+import { roleLabel } from "@/lib/roles";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -37,7 +37,7 @@ export default async function AdminUsersPage({
                 <p className="text-xs text-ink-400">{u.email}</p>
               </div>
               <span className="text-xs uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-2 py-1">
-                {ROLE_LABELS[u.role]}
+                {roleLabel(u.role)}
               </span>
             </Link>
           ))

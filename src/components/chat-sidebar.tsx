@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { sendChatMessageAction } from "@/actions/chat";
-import { roleColorClass, type UserRole } from "@/lib/roles";
+import { roleColor, type UserRole } from "@/lib/roles";
 
 export type ChatMessage = {
   id: number;
@@ -78,9 +78,8 @@ export function ChatSidebar({
             <p key={m.id} className="text-sm leading-snug">
               <Link
                 href={`/c/${m.characterSlug}`}
-                className={`hover:underline font-medium ${
-                  roleColorClass(m.posterRole) || "text-brass-400"
-                }`}
+                className="hover:underline font-medium text-brass-400"
+                style={roleColor(m.posterRole) ? { color: roleColor(m.posterRole)! } : undefined}
               >
                 {m.characterName}
               </Link>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
+import { getLessonsTakenCounts, yearLabelForLessonsTaken } from "@/lib/year";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 
@@ -21,6 +22,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
   const { thread, board, posts } = data;
 
+  const uniqueCharacterIds = [...new Set(posts.map((p) => p.characterId))];
+  const lessonsTakenMap = await getLessonsTakenCounts(uniqueCharacterIds);
+
   return (
     <div>
       {board && (
@@ -31,31 +35,43 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
       <h1 className="font-display text-3xl text-brass-400 mt-2 mb-6">{thread.title}</h1>
 
       <div className="space-y-4 mb-8">
-        {posts.map((post) => (
-          <article
-            key={post.id}
-            className="bg-ink-900 border border-ink-700 rounded-lg p-5 flex gap-4"
-          >
-            <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
-              <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
-              <div>
-                <p className="text-sm text-parchment-100 leading-tight">{post.characterName}</p>
-                {(post.characterHouse || post.characterYearOrRole) && (
-                  <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
-                    {[post.characterHouse, post.characterYearOrRole].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-              </div>
-            </div>
+        {posts.map((post) => {
+          const yearLabel =
+            post.characterMajor === "Faculty"
+              ? "Faculty"
+              : yearLabelForLessonsTaken(lessonsTakenMap.get(post.characterId) ?? 0);
 
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-ink-400 mb-2">{formatDate(post.createdAt)}</p>
-              <div className="whitespace-pre-wrap leading-relaxed text-parchment-100/95">
-                {post.content}
+          return (
+            <article
+              key={post.id}
+              className="bg-ink-900 border border-ink-700 rounded-lg p-5 flex gap-4"
+            >
+              <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
+                <Link href={`/c/${post.characterSlug}`}>
+                  <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
+                </Link>
+                <div>
+                  <Link
+                    href={`/c/${post.characterSlug}`}
+                    className="text-sm text-parchment-100 leading-tight hover:text-brass-400"
+                  >
+                    {post.characterName}
+                  </Link>
+                  <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
+                    {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-ink-400 mb-2">{formatDate(post.createdAt)}</p>
+                <div className="whitespace-pre-wrap leading-relaxed text-parchment-100/95">
+                  {post.content}
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {thread.isLocked ? (

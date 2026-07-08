@@ -54,6 +54,7 @@ export async function getBoardBySlug(slug: string) {
       createdAt: threads.createdAt,
       lastPostAt: threads.lastPostAt,
       characterName: characters.name,
+      characterSlug: characters.slug,
     })
     .from(threads)
     .innerJoin(characters, eq(threads.characterId, characters.id))
@@ -86,9 +87,9 @@ export async function getThreadBySlug(slug: string) {
       createdAt: posts.createdAt,
       editedAt: posts.editedAt,
       characterId: characters.id,
+      characterSlug: characters.slug,
       characterName: characters.name,
-      characterHouse: characters.house,
-      characterYearOrRole: characters.yearOrRole,
+      characterMajor: characters.major,
       characterAvatarUrl: characters.avatarUrl,
     })
     .from(posts)

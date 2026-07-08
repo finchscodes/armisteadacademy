@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { createCharacterAction } from "@/actions/characters";
+import { MajorSelect } from "@/components/major-select";
+import { FaceclaimUpload } from "@/components/faceclaim-upload";
 
 export default function NewCharacterPage() {
   const [state, formAction, pending] = useActionState(createCharacterAction, undefined);
@@ -10,14 +12,14 @@ export default function NewCharacterPage() {
     <div className="max-w-xl mx-auto">
       <h1 className="font-display text-3xl text-brass-400 mb-1">Create a character</h1>
       <p className="text-ink-400 text-sm mb-6">
-        You can create more later. Each character has its own threads, posts, and galleon
-        balance.
+        You can create more later. Every character starts as a 1st Year — you progress by
+        taking lessons.
       </p>
 
       <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="name">
-            Character name
+            Code name
           </label>
           <input
             id="name"
@@ -27,52 +29,19 @@ export default function NewCharacterPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="house">
-              House / Faction
-            </label>
-            <input
-              id="house"
-              name="house"
-              placeholder="Optional"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="yearOrRole">
-              Year / Role
-            </label>
-            <input
-              id="yearOrRole"
-              name="yearOrRole"
-              placeholder="e.g. 3rd Year, Professor"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-            />
-          </div>
-        </div>
+        <FaceclaimUpload name="avatarUrl" />
 
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="faceclaim">
-            Faceclaim
-          </label>
-          <input
-            id="faceclaim"
-            name="faceclaim"
-            placeholder="Optional"
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-          />
-        </div>
+        <MajorSelect />
 
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="bio">
-            Bio
+            Bio / Backstory
           </label>
           <textarea
             id="bio"
             name="bio"
-            rows={5}
-            placeholder="Optional"
+            rows={6}
+            placeholder="Optional — this shows on your character's public profile"
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
           />
         </div>

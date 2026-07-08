@@ -1,78 +1,87 @@
 import Link from "next/link";
-import { getBoardTree, type BoardNode } from "@/lib/forum";
-
-function BoardRow({ board }: { board: BoardNode }) {
-  return (
-    <Link
-      href={`/b/${board.slug}`}
-      className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors group"
-    >
-      <div>
-        <p className="text-parchment-100 group-hover:text-brass-400 transition-colors">
-          {board.name}
-          {board.kind === "class" && (
-            <span className="ml-2 text-[10px] uppercase tracking-wider text-claret-500 border border-claret-500/40 rounded px-1.5 py-0.5">
-              Class
-            </span>
-          )}
-        </p>
-        {board.description && <p className="text-xs text-ink-400 mt-0.5">{board.description}</p>}
-      </div>
-      <span className="text-xs text-ink-400 shrink-0 ml-4">
-        {board.threadCount} {board.threadCount === 1 ? "thread" : "threads"}
-      </span>
-    </Link>
-  );
-}
+import { getCurrentUser } from "@/lib/current-user";
+import { getRecentFeedPosts } from "@/lib/feed";
+import { getRecentChatMessages } from "@/actions/chat";
+import { CharacterCard } from "@/components/character-card";
+import { FeedItemCard } from "@/components/feed-item";
+import { ChatSidebar } from "@/components/chat-sidebar";
 
 export default async function HomePage() {
-  const tree = await getBoardTree();
+  const [current, feed, chatMessages] = await Promise.all([
+    getCurrentUser(),
+    getRecentFeedPosts(20),
+    getRecentChatMessages(50),
+  ]);
 
-  const categories = tree.filter((b) => b.kind === "category");
-  const uncategorized = tree.filter((b) => b.kind !== "category");
+  const canChat = Boolean(current?.activeCharacter);
+  const initialChatMessages = chatMessages.map((m) => ({
+    ...m,
+    createdAt: m.createdAt.toISOString(),
+  }));
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="font-display text-4xl text-brass-400">Ashbourne Academy</h1>
-        <p className="text-ink-400 mt-2 max-w-xl">
-          A school of narrow corridors and older secrets. Choose your board, take up a lesson,
-          and see who&apos;s watching.
-        </p>
-      </div>
-
-      <div className="space-y-8">
-        {categories.map((category) => (
-          <section key={category.id}>
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="font-display text-lg text-parchment-100">{category.name}</h2>
-              <div className="flex-1 brass-rule" />
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="space-y-6 min-w-0">
+        {current ? (
+          current.activeCharacter ? (
+            <CharacterCard character={current.activeCharacter} />
+          ) : (
+            <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
+              <p className="text-parchment-100">You don&apos;t have a character yet.</p>
+              <Link href="/characters/new" className="text-sm text-brass-400 hover:underline">
+                Create one to start posting &rarr;
+              </Link>
             </div>
-            <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
-              {category.children.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-ink-400">No boards here yet.</p>
-              ) : (
-                category.children.map((board) => <BoardRow key={board.id} board={board} />)
-              )}
+          )
+        ) : (
+          <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
+            <h1 className="font-display text-2xl text-brass-400 mb-1">Ashbourne Academy</h1>
+            <p className="text-ink-400 text-sm mb-4">
+              A spy academy roleplay: forums, lessons, and an in-world economy.
+            </p>
+            <div className="flex gap-3">
+              <Link
+                href="/register"
+                className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+              >
+                Join
+              </Link>
+              <Link
+                href="/login"
+                className="text-sm text-ink-200 hover:text-brass-400 px-4 py-2"
+              >
+                Log in
+              </Link>
             </div>
-          </section>
-        ))}
+          </div>
+        )}
 
-        {uncategorized.length > 0 && (
-          <section>
-            <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
-              {uncategorized.map((board) => (
-                <BoardRow key={board.id} board={board} />
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="font-display text-lg text-parchment-100">Recent activity</h2>
+            <div className="flex-1 brass-rule" />
+          </div>
+
+          {feed.length === 0 ? (
+            <p className="text-sm text-ink-400">
+              Nothing posted yet.{" "}
+              <Link href="/boards" className="text-brass-400 hover:underline">
+                Browse the boards
+              </Link>{" "}
+              to start a thread.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {feed.map((item) => (
+                <FeedItemCard key={item.id} item={item} />
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </div>
+      </div>
 
-        {tree.length === 0 && (
-          <p className="text-ink-400 text-sm">
-            No boards have been created yet. Run the seed script to add a starter set.
-          </p>
-        )}
+      <div className="lg:sticky lg:top-20">
+        <ChatSidebar initialMessages={initialChatMessages} canChat={canChat} />
       </div>
     </div>
   );

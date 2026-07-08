@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
+import { canPostLessons } from "@/lib/roles";
 import { NewLessonForm } from "@/components/new-lesson-form";
 
 export default async function NewLessonPage({
@@ -10,7 +11,7 @@ export default async function NewLessonPage({
   const { board } = await searchParams;
   const current = await getCurrentUser();
   if (!current) redirect("/login");
-  if (current.session.role !== "staff" && current.session.role !== "admin") {
+  if (!canPostLessons(current.session.role)) {
     redirect("/");
   }
   if (!board) redirect("/");

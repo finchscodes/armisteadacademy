@@ -28,6 +28,7 @@ export async function getLessonDetail(lessonId: number, currentCharacterId: numb
       gradedAt: submissions.gradedAt,
       characterId: submissions.characterId,
       characterName: characters.name,
+      characterSlug: characters.slug,
       graderCharacterId: submissions.graderCharacterId,
     })
     .from(submissions)

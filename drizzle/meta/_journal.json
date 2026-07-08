@@ -15,6 +15,27 @@
       "when": 1783463770432,
       "tag": "0001_awesome_sasquatch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783468278591,
+      "tag": "0002_hot_mephistopheles",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783469558182,
+      "tag": "0003_optimal_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783469914199,
+      "tag": "0004_harsh_proudstar",
+      "breakpoints": true
     }
   ]
 }

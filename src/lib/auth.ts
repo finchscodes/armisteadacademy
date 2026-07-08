@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import type { UserRole } from "@/lib/roles";
 
 const SESSION_COOKIE = "session";
 const ACTIVE_CHARACTER_COOKIE = "active_character";
@@ -25,7 +26,7 @@ export async function verifyPassword(password: string, hash: string) {
 export type SessionPayload = {
   userId: number;
   username: string;
-  role: "member" | "staff" | "admin";
+  role: UserRole;
 };
 
 export async function createSession(payload: SessionPayload) {

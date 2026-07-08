@@ -2,11 +2,13 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
+import { getBoardTree } from "@/lib/forum";
 import { CharacterSwitcher } from "./character-switcher";
+import { BoardsDropdown } from "./boards-dropdown";
 import { logoutAction } from "@/actions/auth";
 
 export async function NavBar() {
-  const current = await getCurrentUser();
+  const [current, boardTree] = await Promise.all([getCurrentUser(), getBoardTree()]);
   const [balance, levelProgress] = current?.activeCharacter
     ? await Promise.all([
         getCharacterBalance(current.activeCharacter.id),
@@ -16,10 +18,13 @@ export async function NavBar() {
 
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="font-display text-xl tracking-wide text-brass-400">
-          Ashbourne <span className="text-parchment-100">Academy</span>
-        </Link>
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="font-display text-xl tracking-wide text-brass-400 shrink-0">
+            Ashbourne <span className="text-parchment-100">Academy</span>
+          </Link>
+          <BoardsDropdown tree={boardTree} />
+        </div>
 
         {current ? (
           <div className="flex items-center gap-4">
@@ -57,6 +62,14 @@ export async function NavBar() {
             >
               Characters
             </Link>
+            {current.session.role === "admin" && (
+              <Link
+                href="/admin/users"
+                className="text-sm text-claret-500 hover:text-claret-400 transition-colors hidden sm:inline"
+              >
+                Admin
+              </Link>
+            )}
             <form action={logoutAction}>
               <button className="text-sm text-ink-400 hover:text-claret-500 transition-colors">
                 Log out

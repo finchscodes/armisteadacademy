@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { setActiveCharacterAction } from "@/actions/characters";
 
-type Character = { id: number; name: string; house: string | null };
+type Character = { id: number; name: string; major: string | null };
 
 export function CharacterSwitcher({
   characters,
@@ -30,7 +30,7 @@ export function CharacterSwitcher({
         {characters.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
-            {c.house ? ` — ${c.house}` : ""}
+            {c.major ? ` — ${c.major}` : ""}
           </option>
         ))}
       </select>

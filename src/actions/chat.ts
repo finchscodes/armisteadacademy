@@ -45,8 +45,10 @@ export async function getRecentChatMessages(limit = 50) {
       content: chatMessages.content,
       createdAt: chatMessages.createdAt,
       characterId: characters.id,
-      characterName: characters.name,
       characterSlug: characters.slug,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
+      characterMajor: characters.major,
       characterAvatarUrl: characters.avatarUrl,
       posterRole: users.role,
     })

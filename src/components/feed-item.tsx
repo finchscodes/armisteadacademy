@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CharacterBadge } from "./character-badge";
+import { getMajorColor } from "@/lib/majors";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -19,6 +20,7 @@ export type FeedItem = {
   createdAt: Date;
   characterName: string;
   characterSlug: string;
+  characterMajor: string;
   characterAvatarUrl: string | null;
   threadTitle: string;
   threadSlug: string;
@@ -36,7 +38,8 @@ export function FeedItemCard({ item }: { item: FeedItem }) {
         <p className="text-sm">
           <Link
             href={`/c/${item.characterSlug}`}
-            className="text-parchment-100 font-medium hover:text-brass-400"
+            className="text-parchment-100 font-medium hover:underline"
+            style={{ color: getMajorColor(item.characterMajor) ?? undefined }}
           >
             {item.characterName}
           </Link>

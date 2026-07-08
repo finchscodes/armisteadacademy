@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
 import { getLessonsTakenCounts, yearLabelForLessonsTaken } from "@/lib/year";
+import { getMajorColor } from "@/lib/majors";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 
@@ -53,7 +54,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                 <div>
                   <Link
                     href={`/c/${post.characterSlug}`}
-                    className="text-sm text-parchment-100 leading-tight hover:text-brass-400"
+                    className="text-sm text-parchment-100 leading-tight hover:underline"
+                    style={{ color: getMajorColor(post.characterMajor) ?? undefined }}
                   >
                     {post.characterName}
                   </Link>

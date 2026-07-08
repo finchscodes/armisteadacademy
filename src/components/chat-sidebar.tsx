@@ -4,17 +4,25 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { sendChatMessageAction } from "@/actions/chat";
 import { roleColor, type UserRole } from "@/lib/roles";
+import { getMajorColor } from "@/lib/majors";
 
 export type ChatMessage = {
   id: number;
   content: string;
   createdAt: string;
   characterId: number;
-  characterName: string;
   characterSlug: string;
+  characterFirstName: string;
+  characterLastName: string;
+  characterMajor: string;
   characterAvatarUrl: string | null;
   posterRole: UserRole;
 };
+
+/** A special job/role color wins; otherwise fall back to the character's major color. */
+function nameColor(posterRole: UserRole, major: string): string | undefined {
+  return roleColor(posterRole) ?? getMajorColor(major) ?? undefined;
+}
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -79,9 +87,9 @@ export function ChatSidebar({
               <Link
                 href={`/c/${m.characterSlug}`}
                 className="hover:underline font-medium text-brass-400"
-                style={roleColor(m.posterRole) ? { color: roleColor(m.posterRole)! } : undefined}
+                style={{ color: nameColor(m.posterRole, m.characterMajor) }}
               >
-                {m.characterName}
+                {m.characterFirstName} {m.characterLastName}
               </Link>
               <span className="text-parchment-100/90"> {m.content}</span>
             </p>

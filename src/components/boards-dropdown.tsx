@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardNode } from "@/lib/forum";
 
+/**
+ * Wide multi-column mega-menu, matching the World of Potter style: every
+ * category gets its own column, all visible at once — no inner scrolling to
+ * hunt through a narrow list.
+ */
 export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -39,46 +44,63 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 py-2 z-30 max-h-[70vh] overflow-y-auto">
-          {categories.map((category) => (
-            <div key={category.id} className="mb-1 last:mb-0">
-              <p className="px-4 py-1 text-[11px] uppercase tracking-wider text-ink-400">
-                {category.name}
-              </p>
-              {category.children.map((board) => (
-                <Link
-                  key={board.id}
-                  href={`/b/${board.slug}`}
-                  onClick={() => setOpen(false)}
-                  className="block px-4 py-1.5 text-sm text-parchment-100 hover:bg-ink-800 hover:text-brass-400 transition-colors"
-                >
-                  {board.name}
-                  {board.kind === "class" && (
-                    <span className="ml-1.5 text-[9px] uppercase tracking-wider text-claret-500">
-                      class
-                    </span>
+        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(96vw,1100px)] bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-6 z-30 max-h-[80vh] overflow-y-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
+            {categories.map((category) => (
+              <div key={category.id}>
+                <p className="font-display text-sm text-brass-400 mb-2 pb-1 border-b border-ink-700">
+                  {category.name}
+                </p>
+                <div className="space-y-1">
+                  {category.children.length === 0 ? (
+                    <p className="text-xs text-ink-400 italic">Empty</p>
+                  ) : (
+                    category.children.map((board) => (
+                      <Link
+                        key={board.id}
+                        href={`/b/${board.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
+                      >
+                        {board.name}
+                        {board.kind === "class" && (
+                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-claret-500">
+                            class
+                          </span>
+                        )}
+                      </Link>
+                    ))
                   )}
-                </Link>
-              ))}
-            </div>
-          ))}
+                </div>
+              </div>
+            ))}
 
-          {uncategorized.map((board) => (
-            <Link
-              key={board.id}
-              href={`/b/${board.slug}`}
-              onClick={() => setOpen(false)}
-              className="block px-4 py-1.5 text-sm text-parchment-100 hover:bg-ink-800 hover:text-brass-400 transition-colors"
-            >
-              {board.name}
-            </Link>
-          ))}
+            {uncategorized.length > 0 && (
+              <div>
+                <p className="font-display text-sm text-brass-400 mb-2 pb-1 border-b border-ink-700">
+                  Other
+                </p>
+                <div className="space-y-1">
+                  {uncategorized.map((board) => (
+                    <Link
+                      key={board.id}
+                      href={`/b/${board.slug}`}
+                      onClick={() => setOpen(false)}
+                      className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
+                    >
+                      {board.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
-          <div className="border-t border-ink-700 mt-2 pt-2">
+          <div className="border-t border-ink-700 mt-6 pt-4">
             <Link
               href="/boards"
               onClick={() => setOpen(false)}
-              className="block px-4 py-1.5 text-xs text-ink-400 hover:text-brass-400 transition-colors"
+              className="text-xs text-ink-400 hover:text-brass-400 transition-colors"
             >
               View all boards &rarr;
             </Link>

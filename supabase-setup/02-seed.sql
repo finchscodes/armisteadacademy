@@ -1,7 +1,7 @@
 -- Run this AFTER 01-schema.sql, in the same Supabase SQL Editor.
--- Creates: an instructor login, a couple of starter boards, and a starter shop.
+-- Creates: an instructor login and a starter shop.
 -- For the full Armistead board structure, also run 06-armistead-boards.sql
--- after this.
+-- and 08-new-classes.sql after this.
 
 -- Instructor account. Username: professor  Password: changeme123
 -- (This is a bcrypt hash of "changeme123" — there's no plaintext password stored
@@ -12,19 +12,6 @@
 INSERT INTO users (email, username, password_hash, role)
 VALUES ('instructor@armistead.local', 'professor', '$2b$10$BGUw8Nzf0K1kp5k1Jb/8w.mNXYrGK7z5FJwWfliJEp8JuhcgRD4f.', 'instructor')
 ON CONFLICT (email) DO NOTHING;
-
--- A placeholder Academics category — classes get fleshed out later, this
--- just keeps the lesson/grading feature testable in the meantime.
-INSERT INTO boards (kind, name, slug, position) VALUES
-  ('category', 'Academics', 'academics', 100);
-
-INSERT INTO boards (kind, parent_id, name, slug, description, position)
-SELECT 'class', id, 'Field Tactics', 'field-tactics', 'Lessons and homework — placeholder class, to be replaced.', 0
-FROM boards WHERE slug = 'academics';
-
-INSERT INTO boards (kind, parent_id, name, slug, description, position)
-SELECT 'class', id, 'Cryptography Basics', 'cryptography-basics', 'Lessons and homework — placeholder class, to be replaced.', 1
-FROM boards WHERE slug = 'academics';
 
 -- Starter shop
 INSERT INTO shops (name, slug, description)

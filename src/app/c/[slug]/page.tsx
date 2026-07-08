@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getCharacterBySlug } from "@/lib/characters";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
-import { getMajorDescription } from "@/lib/majors";
+import { getMajorDescription, getMajorColor } from "@/lib/majors";
 import { getSession } from "@/lib/auth";
 import { CharacterBadge } from "@/components/character-badge";
 
@@ -33,9 +33,19 @@ export default async function CharacterProfilePage({
         <div className="flex items-start gap-5">
           <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} />
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl text-parchment-100">{character.name}</h1>
+            <h1
+              className="font-display text-2xl text-parchment-100"
+              style={{ color: getMajorColor(character.major) ?? undefined }}
+            >
+              {character.name}
+            </h1>
             <p className="text-xs text-ink-400 mt-0.5">{legalName}</p>
-            <p className="text-sm text-brass-400 mt-1">{character.major}</p>
+            <p
+              className="text-sm text-brass-400 mt-1"
+              style={{ color: getMajorColor(character.major) ?? undefined }}
+            >
+              {character.major}
+            </p>
             <p className="text-xs text-ink-400 mt-1">{yearLabel}</p>
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">

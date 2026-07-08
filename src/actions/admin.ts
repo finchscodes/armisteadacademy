@@ -4,14 +4,14 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters } from "@/db/schema";
+import { users, characters, boards, classAssignments } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { isAdmin, ROLE_VALUES } from "@/lib/roles";
+import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!session || !isAdmin(session.role)) {
+  if (!session || !session.isAdmin) {
     throw new Error("Not authorized");
   }
   return session;
@@ -21,28 +21,20 @@ export async function searchUsers(query: string) {
   await requireAdmin();
 
   const trimmed = query.trim();
+  const cols = {
+    id: users.id,
+    username: users.username,
+    email: users.email,
+    isAdmin: users.isAdmin,
+    createdAt: users.createdAt,
+  };
   const rows = trimmed
     ? await db
-        .select({
-          id: users.id,
-          username: users.username,
-          email: users.email,
-          role: users.role,
-          createdAt: users.createdAt,
-        })
+        .select(cols)
         .from(users)
         .where(or(ilike(users.username, `%${trimmed}%`), ilike(users.email, `%${trimmed}%`)))
         .limit(50)
-    : await db
-        .select({
-          id: users.id,
-          username: users.username,
-          email: users.email,
-          role: users.role,
-          createdAt: users.createdAt,
-        })
-        .from(users)
-        .limit(50);
+    : await db.select(cols).from(users).limit(50);
 
   return rows;
 }
@@ -59,6 +51,7 @@ export async function getUserDetail(userId: number) {
       name: characters.name,
       slug: characters.slug,
       major: characters.major,
+      job: characters.job,
       firstName: characters.firstName,
       middleName: characters.middleName,
       lastName: characters.lastName,
@@ -73,7 +66,7 @@ const updateUserSchema = z.object({
   userId: z.coerce.number().int(),
   username: z.string().min(3).max(32),
   email: z.string().email(),
-  role: z.enum(ROLE_VALUES),
+  isAdmin: z.coerce.boolean(),
 });
 
 export type AdminActionState = { error?: string; success?: string } | undefined;
@@ -88,25 +81,24 @@ export async function updateUserAction(
     userId: formData.get("userId"),
     username: formData.get("username"),
     email: formData.get("email"),
-    role: formData.get("role"),
+    isAdmin: formData.get("isAdmin") === "on" || formData.get("isAdmin") === "true",
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { userId, username, email, role } = parsed.data;
+  const { userId, username, email, isAdmin } = parsed.data;
 
-  // A safety net: don't let the last Spymaster accidentally demote themselves
-  // out of the role with no one left to fix it.
-  if (userId === admin.userId && role !== "spymaster") {
+  // Safety net: don't let the last admin remove their own admin access with
+  // no one left who can restore it.
+  if (userId === admin.userId && !isAdmin) {
     const [{ total }] = await db
       .select({ total: count() })
       .from(users)
-      .where(eq(users.role, "spymaster"));
-
+      .where(eq(users.isAdmin, true));
     if (total <= 1) {
-      return { error: "You're the only Spymaster — promote someone else before removing yourself" };
+      return { error: "You're the only admin — grant it to someone else before removing your own" };
     }
   }
 
@@ -118,7 +110,7 @@ export async function updateUserAction(
     return { error: "That username or email is already in use by another account" };
   }
 
-  await db.update(users).set({ username, email, role }).where(eq(users.id, userId));
+  await db.update(users).set({ username, email, isAdmin }).where(eq(users.id, userId));
 
   revalidatePath(`/admin/users/${userId}`);
   revalidatePath("/admin/users");
@@ -149,12 +141,41 @@ export async function adminUpdateCharacterMajorAction(
 
   const { characterId, userId, major } = parsed.data;
 
-  // Admin can set any major freely — this is the only way to assign Faculty,
-  // and the only way to fix a character's major after it's normally locked.
+  // Admin can set any major freely — the only way to assign Faculty, and the
+  // only way to change a character's major after it's normally locked.
   await db.update(characters).set({ major }).where(eq(characters.id, characterId));
 
   revalidatePath(`/admin/users/${userId}`);
   return { success: "Major updated" };
+}
+
+const updateCharacterJobSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  job: z.enum(JOB_VALUES),
+});
+
+export async function adminUpdateCharacterJobAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateCharacterJobSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    job: formData.get("job"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, job } = parsed.data;
+  await db.update(characters).set({ job }).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Job updated" };
 }
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -187,9 +208,6 @@ export async function adminUpdateCharacterNameAction(
 
   const { characterId, userId, firstName, middleName, lastName } = parsed.data;
 
-  // The legal name is locked from the character owner's side; admin is the
-  // only one who can change it (e.g. to fix the "Unknown Unknown" placeholder
-  // on characters created before the legal-name fields existed).
   await db
     .update(characters)
     .set({ firstName, middleName: middleName || null, lastName })
@@ -197,4 +215,88 @@ export async function adminUpdateCharacterNameAction(
 
   revalidatePath(`/admin/users/${userId}`);
   return { success: "Legal name updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Class assignments                                                         */
+/* -------------------------------------------------------------------------- */
+
+/** All class boards, plus every character currently assigned to each. */
+export async function getClassAssignmentOverview() {
+  await requireAdmin();
+
+  const classBoards = await db
+    .select({ id: boards.id, name: boards.name, slug: boards.slug })
+    .from(boards)
+    .where(eq(boards.kind, "class"))
+    .orderBy(boards.position);
+
+  const assignments = await db
+    .select({
+      id: classAssignments.id,
+      boardId: classAssignments.boardId,
+      characterId: characters.id,
+      characterName: characters.name,
+      characterSlug: characters.slug,
+    })
+    .from(classAssignments)
+    .innerJoin(characters, eq(classAssignments.characterId, characters.id));
+
+  return classBoards.map((b) => ({
+    ...b,
+    assigned: assignments.filter((a) => a.boardId === b.id),
+  }));
+}
+
+/** Look up a character by exact code name, for the assignment form. */
+export async function findCharacterByName(name: string) {
+  await requireAdmin();
+  const [character] = await db
+    .select({ id: characters.id, name: characters.name })
+    .from(characters)
+    .where(eq(characters.name, name.trim()))
+    .limit(1);
+  return character ?? null;
+}
+
+const assignSchema = z.object({
+  boardId: z.coerce.number().int(),
+  characterName: z.string().min(1),
+});
+
+export async function assignClassAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = assignSchema.safeParse({
+    boardId: formData.get("boardId"),
+    characterName: formData.get("characterName"),
+  });
+  if (!parsed.success) {
+    return { error: "Enter a character name" };
+  }
+
+  const character = await findCharacterByName(parsed.data.characterName);
+  if (!character) {
+    return { error: `No character found with the exact name "${parsed.data.characterName}"` };
+  }
+
+  await db
+    .insert(classAssignments)
+    .values({ characterId: character.id, boardId: parsed.data.boardId })
+    .onConflictDoNothing();
+
+  revalidatePath("/admin/classes");
+  return { success: `Assigned ${character.name}` };
+}
+
+export async function unassignClassAction(formData: FormData) {
+  await requireAdmin();
+  const assignmentId = Number(formData.get("assignmentId"));
+  if (assignmentId) {
+    await db.delete(classAssignments).where(eq(classAssignments.id, assignmentId));
+    revalidatePath("/admin/classes");
+  }
 }

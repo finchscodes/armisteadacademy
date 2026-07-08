@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { sendChatMessageAction } from "@/actions/chat";
-import { roleColor, type UserRole } from "@/lib/roles";
-import { getMajorColor } from "@/lib/majors";
+import { jobColor, type CharacterJob } from "@/lib/roles";
 
 export type ChatMessage = {
   id: number;
@@ -14,15 +13,9 @@ export type ChatMessage = {
   characterSlug: string;
   characterFirstName: string;
   characterLastName: string;
-  characterMajor: string;
+  characterJob: CharacterJob;
   characterAvatarUrl: string | null;
-  posterRole: UserRole;
 };
-
-/** A special job/role color wins; otherwise fall back to the character's major color. */
-function nameColor(posterRole: UserRole, major: string): string | undefined {
-  return roleColor(posterRole) ?? getMajorColor(major) ?? undefined;
-}
 
 const POLL_INTERVAL_MS = 4000;
 
@@ -73,7 +66,7 @@ export function ChatSidebar({
   }
 
   return (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg flex flex-col h-[70vh] min-h-[400px]">
+    <div className="bg-ink-900 border border-ink-700 rounded-lg flex flex-col h-[calc(100vh-7rem)] min-h-[500px]">
       <div className="px-4 py-3 border-b border-ink-700 shrink-0">
         <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Chat</h2>
       </div>
@@ -86,8 +79,8 @@ export function ChatSidebar({
             <p key={m.id} className="text-sm leading-snug">
               <Link
                 href={`/c/${m.characterSlug}`}
-                className="hover:underline font-medium text-brass-400"
-                style={{ color: nameColor(m.posterRole, m.characterMajor) }}
+                className="hover:underline font-medium text-parchment-100"
+                style={{ color: jobColor(m.characterJob) ?? undefined }}
               >
                 {m.characterFirstName} {m.characterLastName}
               </Link>

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getUserDetail } from "@/actions/admin";
 import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
+import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 
 export default async function AdminUserDetailPage({
@@ -23,7 +24,12 @@ export default async function AdminUserDetailPage({
       </Link>
       <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.username}</h1>
 
-      <EditUserForm userId={user.id} username={user.username} email={user.email} role={user.role} />
+      <EditUserForm
+        userId={user.id}
+        username={user.username}
+        email={user.email}
+        isAdmin={user.isAdmin}
+      />
 
       <div className="mt-6">
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
@@ -57,6 +63,10 @@ export default async function AdminUserDetailPage({
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>
                     <AdminMajorEditor characterId={c.id} userId={user.id} currentMajor={c.major} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Job</p>
+                    <AdminJobEditor characterId={c.id} userId={user.id} currentJob={c.job} />
                   </div>
                 </div>
               ))}

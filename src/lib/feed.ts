@@ -13,7 +13,7 @@ export async function getRecentFeedPosts(limit = 20) {
       characterId: characters.id,
       characterName: characters.name,
       characterSlug: characters.slug,
-      characterMajor: characters.major,
+      characterJob: characters.job,
       characterAvatarUrl: characters.avatarUrl,
       threadId: threads.id,
       threadTitle: threads.title,

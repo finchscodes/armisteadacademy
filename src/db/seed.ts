@@ -82,18 +82,18 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
 ];
 
 async function main() {
-  console.log("Seeding an instructor account...");
+  console.log("Seeding an admin account...");
   const passwordHash = await bcrypt.hash("changeme123", 10);
   await db
     .insert(users)
     .values({
-      email: "instructor@armistead.local",
-      username: "professor",
+      email: "admin@armistead.local",
+      username: "admin",
       passwordHash,
-      role: "instructor",
+      isAdmin: true,
     })
     .onConflictDoNothing();
-  console.log('  -> login: "professor" / "changeme123" (change this password after first login)');
+  console.log('  -> login: "admin" / "changeme123" (change this password after first login)');
 
   console.log("Seeding boards...");
 

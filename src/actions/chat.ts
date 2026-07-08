@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { chatMessages, characters, users, xpLedger } from "@/db/schema";
+import { chatMessages, characters, xpLedger } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { XP_AWARDS } from "@/lib/xp";
 
@@ -48,13 +48,11 @@ export async function getRecentChatMessages(limit = 50) {
       characterSlug: characters.slug,
       characterFirstName: characters.firstName,
       characterLastName: characters.lastName,
-      characterMajor: characters.major,
+      characterJob: characters.job,
       characterAvatarUrl: characters.avatarUrl,
-      posterRole: users.role,
     })
     .from(chatMessages)
     .innerJoin(characters, eq(chatMessages.characterId, characters.id))
-    .innerJoin(users, eq(chatMessages.userId, users.id))
     .orderBy(desc(chatMessages.createdAt))
     .limit(limit);
 

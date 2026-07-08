@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CharacterBadge } from "./character-badge";
-import { getMajorColor } from "@/lib/majors";
+import { jobColor, type CharacterJob } from "@/lib/roles";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -20,7 +20,7 @@ export type FeedItem = {
   createdAt: Date;
   characterName: string;
   characterSlug: string;
-  characterMajor: string;
+  characterJob: CharacterJob;
   characterAvatarUrl: string | null;
   threadTitle: string;
   threadSlug: string;
@@ -39,7 +39,7 @@ export function FeedItemCard({ item }: { item: FeedItem }) {
           <Link
             href={`/c/${item.characterSlug}`}
             className="text-parchment-100 font-medium hover:underline"
-            style={{ color: getMajorColor(item.characterMajor) ?? undefined }}
+            style={{ color: jobColor(item.characterJob) ?? undefined }}
           >
             {item.characterName}
           </Link>

@@ -1,22 +1,20 @@
-import { eq, ne } from "drizzle-orm";
+import { ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters } from "@/db/schema";
+import { characters } from "@/db/schema";
 
+/**
+ * Every character that holds a job (job != "none"). The Job List shows the
+ * CHARACTER holding the job, not the account behind it.
+ */
 export async function getStaffDirectory() {
-  const staffUsers = await db
-    .select({ id: users.id, username: users.username, role: users.role })
-    .from(users)
-    .where(ne(users.role, "member"));
-
-  const withCharacters = await Promise.all(
-    staffUsers.map(async (u) => {
-      const userCharacters = await db
-        .select({ name: characters.name, slug: characters.slug })
-        .from(characters)
-        .where(eq(characters.userId, u.id));
-      return { ...u, characters: userCharacters };
+  return db
+    .select({
+      id: characters.id,
+      name: characters.name,
+      slug: characters.slug,
+      job: characters.job,
+      avatarUrl: characters.avatarUrl,
     })
-  );
-
-  return withCharacters;
+    .from(characters)
+    .where(ne(characters.job, "none"));
 }

@@ -22,24 +22,19 @@ add things that already exist).
 
 ## Already had this running before this update
 
-If you already ran everything through `07`, you only need the one new file:
-1. `08-new-classes.sql` — removes the old placeholder classes (Introductory
-   Botany, Basic Spellcraft) and adds the real 18-class Training list. Read
-   the warning at the top of that file before running it — it deletes boards,
-   which cascades to any lessons/submissions posted there.
-
-If you're catching up from further back, see the previous version of this
-README (or just check the file reference table below) for `06` and `07`.
+If you already ran everything through `08`, you only need the one new file:
+1. `09-jobs-admin-classes-into-areas.sql` — moves jobs to characters, adds the
+   account admin flag + class-assignment table, removes the old "The Grounds"
+   category, and re-homes the class boards into their matching area categories.
+   **Read the warning at the top** — it deletes some boards, which cascades to
+   any threads/posts on them. Your existing admin access is preserved
+   automatically (old spymaster/admin accounts become is_admin = true).
 
 ## File reference
 
 | File | What it does |
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
-| `02-seed.sql` | Instructor account, starter shop |
-| `03-add-major-and-profiles.sql` | (historical) adds character major field |
-| `04-chat-and-instructor-role.sql` | (historical) adds chat, instructor role |
-| `05-storage-bucket.sql` | Public storage bucket for faceclaim uploads |
-| `06-armistead-boards.sql` | The full Armistead board structure |
-| `07-legal-name-and-new-roles.sql` | Role system overhaul + locked legal names |
-| `08-new-classes.sql` | Replaces placeholder classes with the real 18-class list |
+| `02-seed.sql` | Admin account, starter shop |
+| `03`–`08` | (historical) incremental updates, all folded into `01` |
+| `09-jobs-admin-classes-into-areas.sql` | Jobs→characters, admin flag, class assignments, board reshuffle |

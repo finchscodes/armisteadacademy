@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getBoardTree } from "@/lib/forum";
+import { isAdmin } from "@/lib/roles";
 import { CharacterSwitcher } from "./character-switcher";
 import { BoardsDropdown } from "./boards-dropdown";
 import { logoutAction } from "@/actions/auth";
@@ -21,7 +22,7 @@ export async function NavBar() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-display text-xl tracking-wide text-brass-400 shrink-0">
-            Ashbourne <span className="text-parchment-100">Academy</span>
+            Armistead <span className="text-parchment-100">Academy</span>
           </Link>
           <BoardsDropdown tree={boardTree} />
         </div>
@@ -51,6 +52,12 @@ export async function NavBar() {
               activeCharacterId={current.activeCharacter?.id ?? null}
             />
             <Link
+              href="/jobs"
+              className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
+            >
+              Jobs
+            </Link>
+            <Link
               href="/pets"
               className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
             >
@@ -62,7 +69,7 @@ export async function NavBar() {
             >
               Characters
             </Link>
-            {current.session.role === "admin" && (
+            {isAdmin(current.session.role) && (
               <Link
                 href="/admin/users"
                 className="text-sm text-claret-500 hover:text-claret-400 transition-colors hidden sm:inline"

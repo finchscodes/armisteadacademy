@@ -2,9 +2,7 @@
 
 import { useActionState } from "react";
 import { updateUserAction } from "@/actions/admin";
-import { ROLE_LABELS, type UserRole } from "@/lib/roles";
-
-const ROLES: UserRole[] = ["member", "instructor", "staff", "admin"];
+import { ROLE_VALUES, roleLabel, type UserRole } from "@/lib/roles";
 
 export function EditUserForm({
   userId,
@@ -60,15 +58,16 @@ export function EditUserForm({
           defaultValue={role}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         >
-          {ROLES.map((r) => (
+          {ROLE_VALUES.map((r) => (
             <option key={r} value={r}>
-              {ROLE_LABELS[r]}
+              {roleLabel(r)}
             </option>
           ))}
         </select>
         <p className="text-xs text-ink-400 mt-1">
-          Instructor and Staff can post lessons. Instructor names are colored in chat. Admin
-          gives full access to this dashboard.
+          Instructor and Assistant Instructor can post lessons. Each job has its own chat
+          name color. <span className="text-claret-500 font-medium">Spymaster</span> is the
+          only role with access to this dashboard — assign it carefully.
         </p>
       </div>
 

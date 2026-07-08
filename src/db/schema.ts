@@ -11,12 +11,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { MAJOR_VALUES } from "@/lib/majors";
+import { ROLE_VALUES } from "@/lib/roles";
 
 /* -------------------------------------------------------------------------- */
 /*  Enums                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export const userRoleEnum = pgEnum("user_role", ["member", "instructor", "staff", "admin"]);
+export const userRoleEnum = pgEnum("user_role", ROLE_VALUES);
 export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, awaiting a grader to claim it
@@ -71,6 +72,11 @@ export const characters = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 64 }).notNull(),
     slug: varchar("slug", { length: 80 }).notNull(),
+    // Legal name — set once at creation, never editable afterward (enforced in
+    // the app layer; there's no DB-level lock since Postgres can't do that).
+    firstName: varchar("first_name", { length: 50 }).notNull().default("Unknown"),
+    middleName: varchar("middle_name", { length: 50 }),
+    lastName: varchar("last_name", { length: 50 }).notNull().default("Unknown"),
     major: characterMajorEnum("major").notNull().default("Undecided/Witness Protection"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),

@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <NavBar />
-        <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-8">{children}</main>
+        <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8">{children}</main>
         <footer className="border-t border-ink-700 py-6 text-center text-xs text-ink-400">
           Ashbourne Academy &mdash; a forum roleplay built from scratch.
         </footer>

@@ -1,159 +1,158 @@
 # Ashbourne Academy — forum RPG
 
 A from-scratch forum roleplay site: users, characters, boards/threads/posts, an XP/level
-system, a full pet system, and a lesson/homework/peer-grading loop tied into an
-auditable in-world economy.
+system, an auto-computed year progression, full pets, faceclaim image uploads, a
+lesson/homework/peer-grading loop, a site-wide activity feed, a live sidebar chat, and an
+admin dashboard — all tied into an auditable in-world economy.
 
 ## Stack
 
 - **Next.js 16** (App Router, Server Actions) + TypeScript
-- **Postgres** via **Drizzle ORM** (no Prisma — avoids a native-binary dependency, and
-  Drizzle is a great fit for serverless Postgres hosts like Neon/Supabase)
-- **Tailwind v4** for styling, custom theme (no default AI-template look)
+- **Postgres** via **Drizzle ORM**
+- **Supabase Storage** for faceclaim image/gif uploads (server-side only, via the
+  service role key — never exposed to the browser)
+- **Tailwind v4** for styling, custom theme
 - Auth: hand-rolled, `bcryptjs` for password hashing + `jose` for signed JWT session
-  cookies (no third-party auth service)
+  cookies
 
 ## What's built right now
 
 **Accounts & characters**
-- Register / log in / log out
-- Multi-character accounts (one login, many characters), with a "posting as" switcher
-  in the nav bar
+- Register / log in / log out, multi-character accounts with a "posting as" switcher
+- Character creation: code name, an uploaded faceclaim image/gif (PNG/JPG/GIF/WEBP, up
+  to 5MB), a major chosen from a fixed dropdown (13 options), and a bio/backstory
+- **Public profile pages** at `/c/[slug]` — anyone can view a character's major, year,
+  and backstory without logging in. Character names are clickable links everywhere
+  (chat, posts, threads, lessons)
+- **Year is earned, not chosen** — every character starts as a 1st Year and advances
+  automatically based on how many lessons they've taken (submitted homework for).
+  Thresholds live in `src/lib/year.ts` (`YEAR_THRESHOLDS`) — change the numbers there to
+  retune the whole progression. Faculty-major characters don't get a numeric year.
 
-**Forum**
-- Categories -> boards -> threads -> posts, with pinned/locked thread support wired in
-- Class-kind boards additionally list lessons (see below)
+**Home page**
+- A "Facebook-style" feed: your active character's card up top (level, XP, balance),
+  a site-wide feed of recent posts from everyone below it, and a live chat sidebar on
+  the right
+- Boards and lessons moved into a **Boards dropdown** in the nav bar (also still
+  browsable in full at `/boards`)
 
-**XP & levels**
-- Every character has a level, derived from an XP ledger (never a raw stored number —
-  same audit-trail principle as the currency ledger, so nothing can silently drift)
-- XP is awarded for: posting in a thread, submitting homework, grading homework, and
-  cuddling a pet — amounts are one constant each in `src/lib/xp.ts` (`XP_AWARDS`)
-- The curve is *increasing*: each level takes more XP than the last (level 1->2 needs
-  100 XP, 2->3 needs 200, 3->4 needs 300, ...). Retune the whole curve by changing
-  `XP_BASE` in `src/lib/xp.ts`
-- **Grading is gated at level 3** (`GRADING_LEVEL_REQUIREMENT` in `src/db/schema.ts`) —
-  enforced both in the UI (the claim button is hidden below level 3) and again inside
-  the server action itself, so it can't be bypassed with a crafted request
+**Live chat**
+- A sidebar chat, separate from in-character forum threads, polling every 4 seconds
+  (`src/components/chat-sidebar.tsx`) — no websockets needed
+- Sending a chat message earns the same XP as posting in a thread
+- Names are colored by the sender's site role (see Roles below)
 
-**Lessons & grading**
-- Staff/admin can post a lesson on any class-kind board (prompt + reward range + grader
-  fee)
-- Any character can submit one homework response per lesson
-- Once level 3+, a character can claim an *open* submission (not their own) to grade —
-  claiming locks it so nobody else grades the same one
-- Grading it awards the student galleons (scaled by grade, between the lesson's
-  min/max reward) and pays the grader a flat fee, plus XP to the grader
-- A public gradebook shows completed grades per lesson
+**Roles & admin dashboard**
+- Four roles: `member`, `instructor`, `staff`, `admin` (`src/lib/roles.ts`)
+- **Instructor** and **staff** can post lessons; instructor names show in teal and staff
+  in steel-blue in chat; admin shows in claret red
+- **Admin dashboard** at `/admin/users` — search users, edit their username/email/role,
+  view their characters. Gated entirely server-side (`src/app/admin/layout.tsx`) to the
+  `admin` role only; there's a built-in safety net stopping the last admin from
+  demoting themselves with no one left to fix it
+- **Nobody has the `admin` role by default** — see Getting Set Up below for how to
+  make yourself the admin
 
-**Pets**
-- Adopt a pet (name, species, bio)
-- "Cuddle" a pet for XP, on an 8-hour cooldown per pet (`CUDDLE_COOLDOWN_MS` in
-  `src/actions/pets.ts`)
+**XP & levels, lessons & grading, pets, economy** — unchanged from before; see the
+Roadmap section below and inline comments in `src/lib/xp.ts`, `src/lib/majors.ts` for
+where to retune things.
 
-**Economy**
-- Every character starts with a galleon balance
-- Balances (both currency and XP) are always the *sum of a ledger*, never a stored
-  counter — every credit/debit is its own row, so you get a full history for free and
-  balances can't drift out of sync with reality
-
-**Schema in place, not yet wired to UI**: `shops`, `items`, `inventory` — see Roadmap.
+**Schema in place, not yet wired to UI**: `shops`, `items`, `inventory`.
 
 ## Getting set up
 
-You'll need a Postgres database. Easiest options: a free [Neon](https://neon.tech) or
-[Supabase](https://supabase.com) project (both give you a `DATABASE_URL` instantly), or
-Postgres running locally / in Docker.
+### 1. Database (Supabase SQL Editor — no CLI needed)
 
-### Option A: no local install (Supabase SQL editor + GitHub web + Vercel)
+Run these files, in order, in Supabase's SQL Editor:
 
-If you don't want to install Node/Git on your machine at all, see
-`supabase-setup/` — it has the schema and seed data as plain `.sql` files you paste
-directly into Supabase's SQL Editor, no CLI required. Combine that with uploading this
-folder to GitHub through the browser and importing the repo in Vercel, and the whole
-thing goes live without touching a terminal.
+- `supabase-setup/01-schema.sql` — full schema (skip this one if you already ran the
+  original 01/02/03 files from before; instead run the incremental files below)
+- `supabase-setup/02-seed.sql` — starter boards, shop, and a staff login
+- `supabase-setup/04-chat-and-instructor-role.sql` — **run this if you already had the
+  database set up before this update** (adds chat, drops old faceclaim/year_or_role
+  columns, adds the instructor role)
+- `supabase-setup/05-storage-bucket.sql` — creates the public storage bucket faceclaim
+  uploads go into
 
-### Option B: local development
+### 2. Make yourself admin
+
+Nobody has the `admin` role by default — including the seeded `professor` staff account.
+After you've registered your own account on the live site, run this in Supabase's SQL
+Editor (swap in your actual username):
+
+```sql
+update users set role = 'admin' where username = 'your_username_here';
+```
+
+You'll then see an **Admin** link in the nav bar.
+
+### 3. Environment variables
+
+```bash
+cp .env.example .env
+```
+
+Fill in:
+- `DATABASE_URL` — Supabase's Transaction pooler connection string
+- `SESSION_SECRET` — any long random string (`openssl rand -base64 32`)
+- `SUPABASE_URL` — your Supabase project URL (Project Settings → API)
+- `SUPABASE_SERVICE_ROLE_KEY` — the **service_role** secret key from that same page
+  (not the anon/public key — this one is server-only and must never be exposed to the
+  browser; Next.js keeps it that way automatically since it has no `NEXT_PUBLIC_`
+  prefix)
+
+On Vercel, add all four as Environment Variables the same way you did before.
+
+### 4. Local development (optional)
 
 ```bash
 npm install
-cp .env.example .env
-# edit .env: paste your DATABASE_URL, and generate a SESSION_SECRET with:
-#   openssl rand -base64 32
-
-npm run db:push    # creates all tables from src/db/schema.ts
-npm run db:seed    # starter categories/boards/shop + a staff account
-
-npm run dev         # http://localhost:3000
+npm run dev
 ```
 
-The seed script creates a staff login so you can immediately test posting a lesson:
-`professor` / `changeme123` — change that password once you've confirmed things work
-(there's no in-app change-password flow yet, so do it directly in the DB via
-`npm run db:studio`, or just re-seed against a fresh database before going live).
+Other scripts: `npm run db:push`, `npm run db:generate`, `npm run db:studio`,
+`npm run db:seed` — see inline comments in `package.json`.
 
-Other useful scripts:
-
-- `npm run db:studio` — opens Drizzle Studio, a GUI for browsing/editing your DB
-- `npm run db:generate` — after editing `src/db/schema.ts`, generates a SQL migration
-  file in `drizzle/` (use this instead of `db:push` once you have real data you don't
-  want to risk with a schema diff)
-
-## Project structure
+## Project structure additions since last time
 
 ```
 src/
-  db/
-    schema.ts        # every table lives here — the source of truth
-    index.ts          # Drizzle client
-    seed.ts            # starter data
   lib/
-    auth.ts            # password hashing + session cookies
-    current-user.ts    # fetch logged-in user + their characters
-    economy.ts          # galleon-balance-from-ledger helper
-    xp.ts                # XP curve, level calculation, grading eligibility
-    forum.ts              # board tree / thread / post queries
-    lessons.ts              # lesson detail + categorized submissions
-    slug.ts
-  actions/               # Server Actions (the only way data gets written)
-    auth.ts
-    characters.ts
-    forum.ts               # awards chat-post XP
-    lessons.ts               # create/submit/claim/grade, level-gate enforced here
-    pets.ts                    # adopt/cuddle, awards pet-cuddle XP
+    year.ts              # computed year-from-lessons-taken logic
+    roles.ts              # role permissions + chat name colors
+    feed.ts                 # site-wide recent-posts query for the home page
+    session-character.ts      # shared "require login + active character" guard
+    supabase-admin.ts           # server-only Supabase client (service role key)
+  actions/
+    uploads.ts            # faceclaim image upload to Supabase Storage
+    chat.ts                 # send/fetch sidebar chat messages
+    admin.ts                  # admin-only user search/edit (double-checks role
+                                 server-side on every call, not just hidden UI)
   components/
+    faceclaim-upload.tsx   # image/gif upload widget with live preview
+    chat-sidebar.tsx         # polling chat sidebar
+    boards-dropdown.tsx        # nav dropdown for boards/lessons
+    character-card.tsx           # home page character summary card
+    feed-item.tsx                   # single feed post card
+    edit-user-form.tsx                # admin user edit form
   app/
-    page.tsx             # board directory (home)
-    b/[slug]/             # board view (+ lessons list for class boards) + new-thread form
-    t/[slug]/               # thread view + reply form
-    lesson/[id]/              # lesson detail: submit, claim, grade, gradebook
-    lesson/new/                 # staff-only: post a lesson
-    pets/                         # pet list, adopt, pet profile + cuddle
-    characters/                     # character list + creation
-    login/ register/
+    admin/                 # admin dashboard (layout.tsx gates all of it)
+    boards/                  # full board directory (moved off the home page)
+    api/chat/messages/         # GET endpoint the chat sidebar polls
 ```
 
 ## Roadmap — shops
 
-The schema already exists (`shops`, `items`, `inventory` in `src/db/schema.ts`):
+Still just schema (`shops`, `items`, `inventory`), not wired to UI. Same open question
+as before: should items be purely cosmetic, or have mechanical effects?
 
-- A shop page listing items with price/stock
-- A purchase action that debits the buyer's galleon ledger and inserts an `inventory`
-  row
-- Worth deciding before building it out: should items be purely cosmetic/flavor, or
-  have mechanical effects? That changes how `items` needs to be modeled (e.g. an
-  `effect` field) — flag it if you want that now.
-
-Other things worth considering as this grows:
-- A reputation/approval layer on top of the level-3 grading gate, if you want to guard
-  against alt accounts farming each other
-- Rate-limiting chat-post XP (right now every post awards XP with no cooldown — fine
-  for a small community, worth revisiting if spam becomes an issue)
-- A change-password flow (currently DB-only)
+Other things worth considering:
+- Chat has no rate limit — fine for a small community, worth revisiting if spam becomes
+  an issue
+- No in-app change-password flow yet (DB-only, via Supabase's Table Editor)
+- No character-edit page yet — faceclaim/major/bio can only be set at creation
 
 ## Deploying
 
-This app has no server-side state outside Postgres, so it deploys cleanly to Vercel (or
-any Node host). Point `DATABASE_URL` at a hosted Postgres instance (Neon/Supabase both
-have generous free tiers and work well with serverless functions), set `SESSION_SECRET`,
-and `npm run build && npm run start` — or just connect the repo to Vercel directly.
+Same as before: push to GitHub, import into Vercel, set the four environment variables
+above, deploy.

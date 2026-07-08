@@ -5,31 +5,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { boards, threads, posts, characters, xpLedger } from "@/db/schema";
-import { getActiveCharacterId, getSession } from "@/lib/auth";
+import { boards, threads, posts, xpLedger } from "@/db/schema";
+import { requireSessionAndCharacter } from "@/lib/session-character";
 import { slugifyUnique } from "@/lib/slug";
 import { XP_AWARDS } from "@/lib/xp";
 import type { ActionState } from "./auth";
-
-async function requireSessionAndCharacter() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const characterId = await getActiveCharacterId();
-  if (!characterId) redirect("/characters");
-
-  // Confirm the active character actually belongs to this user (cheap safety net).
-  const [character] = await db
-    .select({ id: characters.id, userId: characters.userId })
-    .from(characters)
-    .where(eq(characters.id, characterId));
-
-  if (!character || character.userId !== session.userId) {
-    redirect("/characters");
-  }
-
-  return { session: session!, characterId: characterId! };
-}
 
 const newThreadSchema = z.object({
   boardSlug: z.string().min(1),

@@ -20,6 +20,9 @@
   --claret-500: #8a2439;
   --claret-600: #6e1c2d;
 
+  --teal-400: #5aa9a3;
+  --steel-400: #7c9cbf;
+
   --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -43,6 +46,9 @@
 
   --color-claret-500: var(--claret-500);
   --color-claret-600: var(--claret-600);
+
+  --color-teal-400: var(--teal-400);
+  --color-steel-400: var(--steel-400);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);

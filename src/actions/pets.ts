@@ -5,31 +5,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { pets, characters, xpLedger } from "@/db/schema";
-import { getActiveCharacterId, getSession } from "@/lib/auth";
+import { pets, xpLedger } from "@/db/schema";
+import { requireSessionAndCharacter } from "@/lib/session-character";
 import { XP_AWARDS } from "@/lib/xp";
 import type { ActionState } from "./auth";
 
 const CUDDLE_COOLDOWN_MS = 8 * 60 * 60 * 1000; // 8 hours
-
-async function requireSessionAndCharacter() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const characterId = await getActiveCharacterId();
-  if (!characterId) redirect("/characters");
-
-  const [character] = await db
-    .select({ id: characters.id, userId: characters.userId })
-    .from(characters)
-    .where(eq(characters.id, characterId));
-
-  if (!character || character.userId !== session.userId) {
-    redirect("/characters");
-  }
-
-  return { session: session!, characterId: characterId! };
-}
 
 const adoptPetSchema = z.object({
   name: z.string().min(1, "Give your pet a name").max(64),

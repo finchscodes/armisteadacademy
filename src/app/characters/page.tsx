@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
+import { getCharacterYearLabel } from "@/lib/year";
 
 export default async function CharactersPage() {
   const current = await getCurrentUser();
@@ -13,6 +14,7 @@ export default async function CharactersPage() {
       id: c.id,
       balance: await getCharacterBalance(c.id),
       level: (await getCharacterLevelProgress(c.id)).level,
+      year: await getCharacterYearLabel(c.id, c.major),
     }))
   );
   const statMap = new Map(stats.map((s) => [s.id, s]));
@@ -40,14 +42,15 @@ export default async function CharactersPage() {
       ) : (
         <div className="grid gap-3">
           {current.characters.map((c) => (
-            <div
+            <Link
               key={c.id}
-              className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center justify-between"
+              href={`/c/${c.slug}`}
+              className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center justify-between hover:border-brass-500/50 transition-colors"
             >
               <div>
                 <p className="font-display text-lg text-parchment-100">{c.name}</p>
                 <p className="text-xs text-ink-400">
-                  {[c.house, c.yearOrRole].filter(Boolean).join(" · ") || "No details set"}
+                  {[c.major, statMap.get(c.id)?.year].filter(Boolean).join(" · ")}
                 </p>
               </div>
               <span className="text-right">
@@ -58,7 +61,7 @@ export default async function CharactersPage() {
                   Level {statMap.get(c.id)?.level ?? 1}
                 </span>
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       )}

@@ -73,7 +73,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <div className="space-y-3">
             {claimedByMe.map((s) => (
               <div key={s.id} className="bg-ink-900 border border-ink-700 rounded-lg p-5">
-                <p className="text-xs text-ink-400 mb-2">by {s.characterName}</p>
+                <p className="text-xs text-ink-400 mb-2">by <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">{s.characterName}</Link></p>
                 <p className="whitespace-pre-wrap text-sm text-parchment-100/90">{s.content}</p>
                 <GradeForm submissionId={s.id} />
               </div>
@@ -95,7 +95,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             {openSubmissions.map((s) => (
               <div key={s.id} className="bg-ink-900 border border-ink-700 rounded-lg p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-ink-400">by {s.characterName}</p>
+                  <p className="text-xs text-ink-400">by <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">{s.characterName}</Link></p>
                   {eligible && <ClaimButton submissionId={s.id} />}
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-parchment-100/90 line-clamp-3">
@@ -114,7 +114,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
             {graded.map((s) => (
               <div key={s.id} className="px-4 py-3 flex items-center justify-between text-sm">
-                <span className="text-parchment-100">{s.characterName}</span>
+                <Link href={`/c/${s.characterSlug}`} className="text-parchment-100 hover:text-brass-400">{s.characterName}</Link>
                 <span className="text-ink-400">
                   {s.grade}/100 &middot; graded by {s.graderName ?? "unknown"}
                 </span>

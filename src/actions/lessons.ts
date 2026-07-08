@@ -9,33 +9,15 @@ import {
   boards,
   lessons,
   submissions,
-  characters,
   currencyLedger,
   xpLedger,
   GRADING_LEVEL_REQUIREMENT,
 } from "@/db/schema";
-import { getActiveCharacterId, getSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
+import { canPostLessons } from "@/lib/roles";
 import type { ActionState } from "./auth";
-
-async function requireSessionAndCharacter() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const characterId = await getActiveCharacterId();
-  if (!characterId) redirect("/characters");
-
-  const [character] = await db
-    .select({ id: characters.id, userId: characters.userId })
-    .from(characters)
-    .where(eq(characters.id, characterId));
-
-  if (!character || character.userId !== session.userId) {
-    redirect("/characters");
-  }
-
-  return { session: session!, characterId: characterId! };
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Create a lesson (staff/admin only)                                        */
@@ -56,8 +38,8 @@ export async function createLessonAction(
 ): Promise<ActionState> {
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "staff" && session.role !== "admin") {
-    return { error: "Only staff can post lessons" };
+  if (!canPostLessons(session.role)) {
+    return { error: "Only instructors and staff can post lessons" };
   }
 
   const parsed = newLessonSchema.safeParse({

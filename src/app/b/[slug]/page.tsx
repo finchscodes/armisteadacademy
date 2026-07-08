@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getBoardBySlug } from "@/lib/forum";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
+import { canPostLessons } from "@/lib/roles";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -27,7 +28,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
     isClassBoard ? getLessonsForBoard(board.id) : Promise.resolve([]),
     getCurrentUser(),
   ]);
-  const isStaff = current?.session.role === "staff" || current?.session.role === "admin";
+  const isStaff = current ? canPostLessons(current.session.role) : false;
 
   return (
     <div>
@@ -107,24 +108,34 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             </p>
           ) : (
             threads.map((t) => (
-              <Link
+              <div
                 key={t.id}
-                href={`/t/${t.slug}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
+                className="relative flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
               >
                 <div>
                   <p className="text-parchment-100">
                     {t.isPinned && <span className="text-brass-400 mr-1.5">&#128204;</span>}
-                    {t.title}
+                    <Link href={`/t/${t.slug}`} className="static">
+                      {t.title}
+                      <span className="absolute inset-0" />
+                    </Link>
                     {t.isLocked && <span className="text-ink-400 ml-1.5 text-xs">(locked)</span>}
                   </p>
-                  <p className="text-xs text-ink-400 mt-0.5">by {t.characterName}</p>
+                  <p className="text-xs text-ink-400 mt-0.5">
+                    by{" "}
+                    <Link
+                      href={`/c/${t.characterSlug}`}
+                      className="relative z-10 hover:text-brass-400"
+                    >
+                      {t.characterName}
+                    </Link>
+                  </p>
                 </div>
                 <div className="text-right shrink-0 ml-4">
                   <p className="text-xs text-ink-400">{t.postCount} replies</p>
                   <p className="text-xs text-ink-400">{timeAgo(t.lastPostAt)}</p>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>

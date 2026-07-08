@@ -10,12 +10,13 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { MAJOR_VALUES } from "@/lib/majors";
 
 /* -------------------------------------------------------------------------- */
 /*  Enums                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export const userRoleEnum = pgEnum("user_role", ["member", "staff", "admin"]);
+export const userRoleEnum = pgEnum("user_role", ["member", "instructor", "staff", "admin"]);
 export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, awaiting a grader to claim it
@@ -36,6 +37,7 @@ export const xpReasonEnum = pgEnum("xp_reason", [
   "pet_cuddle",
   "admin_adjustment",
 ]);
+export const characterMajorEnum = pgEnum("character_major", MAJOR_VALUES);
 
 /** Level required before a character is allowed to claim/grade homework. */
 export const GRADING_LEVEL_REQUIREMENT = 3;
@@ -69,9 +71,7 @@ export const characters = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 64 }).notNull(),
     slug: varchar("slug", { length: 80 }).notNull(),
-    faceclaim: varchar("faceclaim", { length: 120 }),
-    house: varchar("house", { length: 40 }),
-    yearOrRole: varchar("year_or_role", { length: 40 }), // e.g. "5th Year" or "Professor"
+    major: characterMajorEnum("major").notNull().default("Undecided/Witness Protection"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
     isArchived: boolean("is_archived").notNull().default(false),
@@ -138,6 +138,19 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   editedAt: timestamp("edited_at"),
+});
+
+/** Site-wide sidebar chat — separate from in-character forum threads. */
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: varchar("content", { length: 1000 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 /* -------------------------------------------------------------------------- */
@@ -286,4 +299,9 @@ export const postsRelations = relations(posts, ({ one }) => ({
 
 export const petsRelations = relations(pets, ({ one }) => ({
   character: one(characters, { fields: [pets.characterId], references: [characters.id] }),
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  character: one(characters, { fields: [chatMessages.characterId], references: [characters.id] }),
+  user: one(users, { fields: [chatMessages.userId], references: [users.id] }),
 }));

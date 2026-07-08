@@ -8,13 +8,13 @@ import { db } from "@/db";
 import { characters, currencyLedger } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
+import { MAJOR_VALUES } from "@/lib/majors";
 import type { ActionState } from "./auth";
 
 const createCharacterSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
-  house: z.string().max(40).optional(),
-  yearOrRole: z.string().max(40).optional(),
-  faceclaim: z.string().max(120).optional(),
+  major: z.enum(MAJOR_VALUES, { message: "Pick a major" }),
+  avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
 });
 
@@ -31,9 +31,8 @@ export async function createCharacterAction(
 
   const parsed = createCharacterSchema.safeParse({
     name: formData.get("name"),
-    house: formData.get("house") || undefined,
-    yearOrRole: formData.get("yearOrRole") || undefined,
-    faceclaim: formData.get("faceclaim") || undefined,
+    major: formData.get("major"),
+    avatarUrl: formData.get("avatarUrl") || undefined,
     bio: formData.get("bio") || undefined,
   });
 
@@ -41,7 +40,7 @@ export async function createCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { name, house, yearOrRole, faceclaim, bio } = parsed.data;
+  const { name, major, avatarUrl, bio } = parsed.data;
   const slug = slugifyUnique(name);
 
   const [character] = await db
@@ -50,9 +49,8 @@ export async function createCharacterAction(
       userId: session.userId,
       name,
       slug,
-      house,
-      yearOrRole,
-      faceclaim,
+      major,
+      avatarUrl: avatarUrl || undefined,
       bio,
     })
     .returning({ id: characters.id });

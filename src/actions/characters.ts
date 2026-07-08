@@ -8,10 +8,11 @@ import { db } from "@/db";
 import { characters, currencyLedger } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
-import { MAJOR_VALUES } from "@/lib/majors";
+import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
+const SELECTABLE_MAJOR_VALUES = SELECTABLE_MAJORS.map((m) => m.value) as [string, ...string[]];
 
 const createCharacterSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50).regex(nameRegex, "Letters only"),
@@ -23,7 +24,7 @@ const createCharacterSchema = z.object({
     .or(z.literal("")),
   lastName: z.string().min(1, "Last name is required").max(50).regex(nameRegex, "Letters only"),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
-  major: z.enum(MAJOR_VALUES, { message: "Pick a major" }),
+  major: z.enum(SELECTABLE_MAJOR_VALUES, { message: "Pick a major" }),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
 });
@@ -86,7 +87,7 @@ export async function createCharacterAction(
 const updateCharacterSchema = z.object({
   characterId: z.coerce.number().int(),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
-  major: z.enum(MAJOR_VALUES, { message: "Pick a major" }),
+  major: z.enum(SELECTABLE_MAJOR_VALUES, { message: "Pick a major" }),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
 });
@@ -113,7 +114,7 @@ export async function updateCharacterAction(
   const { characterId, name, major, avatarUrl, bio } = parsed.data;
 
   const [existing] = await db
-    .select({ id: characters.id, userId: characters.userId, slug: characters.slug })
+    .select({ id: characters.id, userId: characters.userId, slug: characters.slug, major: characters.major })
     .from(characters)
     .where(eq(characters.id, characterId));
 
@@ -121,9 +122,14 @@ export async function updateCharacterAction(
     return { error: "You don't own this character" };
   }
 
+  // Major can only be chosen once: it's locked the moment it's anything other
+  // than Undecided. If they're still Undecided, they can pick any selectable
+  // major (not Graduate/Faculty — those are assigned, not chosen).
+  const majorToSave = existing.major === UNDECIDED_MAJOR ? major : existing.major;
+
   await db
     .update(characters)
-    .set({ name, major, avatarUrl: avatarUrl || null, bio: bio || null })
+    .set({ name, major: majorToSave, avatarUrl: avatarUrl || null, bio: bio || null })
     .where(eq(characters.id, characterId));
 
   revalidatePath(`/c/${existing.slug}`);

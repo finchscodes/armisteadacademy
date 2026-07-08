@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { MAJORS } from "@/lib/majors";
+import { MAJORS, SELECTABLE_MAJORS, UNDECIDED_MAJOR, type Major } from "@/lib/majors";
 
-const DEFAULT_MAJOR = "Undecided/Witness Protection";
-
-export function MajorSelect({ initialValue }: { initialValue?: string }) {
-  const [selected, setSelected] = useState(initialValue ?? DEFAULT_MAJOR);
+export function MajorSelect({
+  initialValue,
+  options,
+}: {
+  initialValue?: string;
+  /** Defaults to the user-selectable list (excludes Graduate/Faculty). Pass MAJORS for admin use. */
+  options?: Major[];
+}) {
+  const list = options ?? SELECTABLE_MAJORS;
+  const [selected, setSelected] = useState(initialValue ?? UNDECIDED_MAJOR);
   const description = MAJORS.find((m) => m.value === selected)?.description;
 
   return (
@@ -22,7 +28,7 @@ export function MajorSelect({ initialValue }: { initialValue?: string }) {
         onChange={(e) => setSelected(e.target.value)}
         className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
       >
-        {MAJORS.map((m) => (
+        {list.map((m) => (
           <option key={m.value} value={m.value}>
             {m.label}
           </option>

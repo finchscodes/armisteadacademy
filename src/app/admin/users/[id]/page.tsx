@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getUserDetail } from "@/actions/admin";
 import { EditUserForm } from "@/components/edit-user-form";
+import { AdminMajorEditor } from "@/components/admin-major-editor";
+import { AdminNameEditor } from "@/components/admin-name-editor";
 
 export default async function AdminUserDetailPage({
   params,
@@ -27,20 +29,37 @@ export default async function AdminUserDetailPage({
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
           Characters
         </h2>
+        <p className="text-xs text-ink-400 mb-2">
+          Legal names are shown here for admin reference only &mdash; they&apos;re locked from
+          the character owner&apos;s side.
+        </p>
         {characters.length === 0 ? (
           <p className="text-sm text-ink-400">No characters.</p>
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
             {characters.map((c) => (
-              <Link
-                key={c.id}
-                href={`/c/${c.slug}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
-              >
-                <span className="text-parchment-100">{c.name}</span>
-                <span className="text-xs text-ink-400">{c.major}</span>
-              </Link>
-            ))}
+                <div key={c.id} className="px-4 py-3 space-y-2">
+                  <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-brass-400">
+                    {c.name}
+                  </Link>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                      Legal name
+                    </p>
+                    <AdminNameEditor
+                      characterId={c.id}
+                      userId={user.id}
+                      firstName={c.firstName}
+                      middleName={c.middleName}
+                      lastName={c.lastName}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>
+                    <AdminMajorEditor characterId={c.id} userId={user.id} currentMajor={c.major} />
+                  </div>
+                </div>
+              ))}
           </div>
         )}
       </div>

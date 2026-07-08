@@ -11,12 +11,15 @@ import {
   submissions,
   currencyLedger,
   xpLedger,
+  characters,
   GRADING_LEVEL_REQUIREMENT,
 } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
 import { canPostLessons } from "@/lib/roles";
+import { getLessonsTakenCount, GRADUATE_LESSONS_THRESHOLD } from "@/lib/year";
+import { GRADUATE_MAJOR, FACULTY_MAJOR } from "@/lib/majors";
 import type { ActionState } from "./auth";
 
 /* -------------------------------------------------------------------------- */
@@ -130,6 +133,23 @@ export async function submitHomeworkAction(
     reason: "homework_submission",
     note: `Submitted homework for "${lesson.title}"`,
   });
+
+  // Graduate is earned automatically, never chosen — once a character crosses
+  // the lesson-count threshold, promote them (unless they're Faculty, who
+  // don't progress through years at all).
+  const lessonsTaken = await getLessonsTakenCount(characterId);
+  if (lessonsTaken >= GRADUATE_LESSONS_THRESHOLD) {
+    const [character] = await db
+      .select({ major: characters.major })
+      .from(characters)
+      .where(eq(characters.id, characterId));
+    if (character && character.major !== FACULTY_MAJOR && character.major !== GRADUATE_MAJOR) {
+      await db
+        .update(characters)
+        .set({ major: GRADUATE_MAJOR })
+        .where(eq(characters.id, characterId));
+    }
+  }
 
   revalidatePath(`/lesson/${lessonId}`);
   redirect(`/lesson/${lessonId}`);

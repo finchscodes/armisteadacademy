@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { users, characters } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { isAdmin, ROLE_VALUES } from "@/lib/roles";
+import { MAJOR_VALUES } from "@/lib/majors";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -58,6 +59,9 @@ export async function getUserDetail(userId: number) {
       name: characters.name,
       slug: characters.slug,
       major: characters.major,
+      firstName: characters.firstName,
+      middleName: characters.middleName,
+      lastName: characters.lastName,
     })
     .from(characters)
     .where(eq(characters.userId, userId));
@@ -119,4 +123,78 @@ export async function updateUserAction(
   revalidatePath(`/admin/users/${userId}`);
   revalidatePath("/admin/users");
   return { success: "Saved" };
+}
+
+const updateCharacterMajorSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  major: z.enum(MAJOR_VALUES),
+});
+
+export async function adminUpdateCharacterMajorAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateCharacterMajorSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    major: formData.get("major"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, major } = parsed.data;
+
+  // Admin can set any major freely — this is the only way to assign Faculty,
+  // and the only way to fix a character's major after it's normally locked.
+  await db.update(characters).set({ major }).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Major updated" };
+}
+
+const nameRegex = /^[a-zA-Z' -]+$/;
+
+const updateCharacterNameSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  firstName: z.string().min(1, "First name is required").max(50).regex(nameRegex, "Letters only"),
+  middleName: z.string().max(50).regex(nameRegex, "Letters only").optional().or(z.literal("")),
+  lastName: z.string().min(1, "Last name is required").max(50).regex(nameRegex, "Letters only"),
+});
+
+export async function adminUpdateCharacterNameAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateCharacterNameSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    firstName: formData.get("firstName"),
+    middleName: formData.get("middleName") || undefined,
+    lastName: formData.get("lastName"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, firstName, middleName, lastName } = parsed.data;
+
+  // The legal name is locked from the character owner's side; admin is the
+  // only one who can change it (e.g. to fix the "Unknown Unknown" placeholder
+  // on characters created before the legal-name fields existed).
+  await db
+    .update(characters)
+    .set({ firstName, middleName: middleName || null, lastName })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Legal name updated" };
 }

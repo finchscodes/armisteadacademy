@@ -16,6 +16,9 @@ const YEAR_THRESHOLDS: { label: string; minLessons: number }[] = [
   { label: "Graduate", minLessons: 15 },
 ];
 
+/** Lessons-taken count at which a character automatically becomes a Graduate. */
+export const GRADUATE_LESSONS_THRESHOLD = YEAR_THRESHOLDS[YEAR_THRESHOLDS.length - 1].minLessons;
+
 export function yearLabelForLessonsTaken(lessonsTaken: number): string {
   let label = YEAR_THRESHOLDS[0].label;
   for (const tier of YEAR_THRESHOLDS) {

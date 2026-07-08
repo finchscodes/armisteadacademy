@@ -116,31 +116,42 @@ async function main() {
     );
   }
 
-  // A placeholder Academics category — classes/lessons get fleshed out later,
-  // this just keeps the lesson/grading feature testable in the meantime.
-  const [academicsCategory] = await db
+  // "Training" category — the real class list.
+  const [trainingCategory] = await db
     .insert(boards)
-    .values({ kind: "category", name: "Academics", slug: "academics", position: CATEGORIES.length })
+    .values({ kind: "category", name: "Training", slug: "training", position: CATEGORIES.length })
     .returning();
 
-  await db.insert(boards).values([
-    {
-      kind: "class",
-      parentId: academicsCategory.id,
-      name: "Field Tactics",
-      slug: "field-tactics",
-      description: "Lessons and homework — placeholder class, to be replaced.",
-      position: 0,
-    },
-    {
-      kind: "class",
-      parentId: academicsCategory.id,
-      name: "Cryptography Basics",
-      slug: "cryptography-basics",
-      description: "Lessons and homework — placeholder class, to be replaced.",
-      position: 1,
-    },
-  ]);
+  const CLASSES: BoardSpec[] = [
+    { name: "General Education", slug: "general-education" },
+    { name: "Threat Elimination", slug: "threat-elimination" },
+    { name: "Precise Shooting", slug: "precise-shooting" },
+    { name: "Covert Operations", slug: "covert-operations" },
+    { name: "Team Operations", slug: "team-operations" },
+    { name: "Linguistics, Culture, & Assimilation", slug: "linguistics-culture-assimilation" },
+    { name: "Disguise and Identity Management", slug: "disguise-identity-management" },
+    { name: "Advanced Encryption", slug: "advanced-encryption" },
+    { name: "Survival and Navigation", slug: "survival-navigation" },
+    { name: "Communication and Relay", slug: "communication-relay" },
+    { name: "Drivers Ed", slug: "drivers-ed" },
+    { name: "Research and Development", slug: "research-development" },
+    { name: "Medical Training", slug: "medical-training" },
+    { name: "Chemistry and Criminology", slug: "chemistry-criminology" },
+    { name: "Seduction and Influence/Manipulation Tactics", slug: "seduction-influence-tactics" },
+    { name: "Interrogation", slug: "interrogation" },
+    { name: "Protection and Enforcement", slug: "protection-enforcement" },
+    { name: "Poison", slug: "poison" },
+  ];
+
+  await db.insert(boards).values(
+    CLASSES.map((c, i) => ({
+      kind: "class" as const,
+      parentId: trainingCategory.id,
+      name: c.name,
+      slug: c.slug,
+      position: i,
+    }))
+  );
 
   console.log("Seeding a starter shop...");
   const [generalStore] = await db

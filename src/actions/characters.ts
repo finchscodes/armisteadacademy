@@ -87,7 +87,10 @@ export async function createCharacterAction(
 const updateCharacterSchema = z.object({
   characterId: z.coerce.number().int(),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
-  major: z.enum(SELECTABLE_MAJOR_VALUES, { message: "Pick a major" }),
+  // Optional: the edit form only submits this while the major is still
+  // Undecided (i.e. unlocked). Once locked, the field is read-only and omitted,
+  // so we must not require it here.
+  major: z.enum(SELECTABLE_MAJOR_VALUES).optional(),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
 });
@@ -102,7 +105,7 @@ export async function updateCharacterAction(
   const parsed = updateCharacterSchema.safeParse({
     characterId: formData.get("characterId"),
     name: formData.get("name"),
-    major: formData.get("major"),
+    major: formData.get("major") || undefined,
     avatarUrl: formData.get("avatarUrl") || undefined,
     bio: formData.get("bio") || undefined,
   });
@@ -123,9 +126,10 @@ export async function updateCharacterAction(
   }
 
   // Major can only be chosen once: it's locked the moment it's anything other
-  // than Undecided. If they're still Undecided, they can pick any selectable
-  // major (not Graduate/Faculty — those are assigned, not chosen).
-  const majorToSave = existing.major === UNDECIDED_MAJOR ? major : existing.major;
+  // than Undecided. If they're still Undecided and submitted a choice, take it;
+  // otherwise keep the existing major untouched.
+  const majorToSave =
+    existing.major === UNDECIDED_MAJOR && major ? major : existing.major;
 
   await db
     .update(characters)

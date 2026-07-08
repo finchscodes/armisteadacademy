@@ -14,16 +14,15 @@ import {
   characters,
   GRADING_LEVEL_REQUIREMENT,
 } from "@/db/schema";
-import { getSession } from "@/lib/auth";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
-import { canPostLessons } from "@/lib/roles";
+import { isAssignedToClass } from "@/lib/class-assignments";
 import { getLessonsTakenCount, GRADUATE_LESSONS_THRESHOLD } from "@/lib/year";
 import { GRADUATE_MAJOR, FACULTY_MAJOR } from "@/lib/majors";
 import type { ActionState } from "./auth";
 
 /* -------------------------------------------------------------------------- */
-/*  Create a lesson (staff/admin only)                                        */
+/*  Create a lesson (assigned instructors for that class, or admin)           */
 /* -------------------------------------------------------------------------- */
 
 const newLessonSchema = z.object({
@@ -39,11 +38,7 @@ export async function createLessonAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  if (!canPostLessons(session.role)) {
-    return { error: "Only instructors and staff can post lessons" };
-  }
+  const { session, characterId } = await requireSessionAndCharacter();
 
   const parsed = newLessonSchema.safeParse({
     boardSlug: formData.get("boardSlug"),
@@ -66,6 +61,13 @@ export async function createLessonAction(
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) return { error: "That board no longer exists" };
+
+  // Permission: admins can post to any class; everyone else must be assigned
+  // (with their active character) to this specific class board.
+  const allowed = session.isAdmin || (await isAssignedToClass(characterId, board.id));
+  if (!allowed) {
+    return { error: "You're not assigned to teach this class" };
+  }
 
   const [lesson] = await db
     .insert(lessons)

@@ -2,18 +2,17 @@
 
 import { useActionState } from "react";
 import { updateUserAction } from "@/actions/admin";
-import { ROLE_VALUES, roleLabel, type UserRole } from "@/lib/roles";
 
 export function EditUserForm({
   userId,
   username,
   email,
-  role,
+  isAdmin,
 }: {
   userId: number;
   username: string;
   email: string;
-  role: UserRole;
+  isAdmin: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateUserAction, undefined);
 
@@ -48,28 +47,19 @@ export function EditUserForm({
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="role">
-          Role
-        </label>
-        <select
-          id="role"
-          name="role"
-          defaultValue={role}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-        >
-          {ROLE_VALUES.map((r) => (
-            <option key={r} value={r}>
-              {roleLabel(r)}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-ink-400 mt-1">
-          Instructor and Assistant Instructor can post lessons. Each job has its own chat
-          name color. <span className="text-claret-500 font-medium">Spymaster</span> is the
-          only role with access to this dashboard — assign it carefully.
-        </p>
-      </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="isAdmin"
+          defaultChecked={isAdmin}
+          className="rounded border-ink-600 bg-ink-800"
+        />
+        <span>
+          Admin access
+          <span className="text-ink-400"> — every character on this account gets hidden admin
+          access. Grant carefully.</span>
+        </span>
+      </label>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
       {state?.success && <p className="text-brass-400 text-sm">{state.success}</p>}

@@ -1,4 +1,10 @@
 /**
+ * Jobs now belong to CHARACTERS, not accounts. A character's job determines
+ * their name color in chat and their entry on the Job List page.
+ *
+ * Admin is separate — it's an account-level flag (users.is_admin), so every
+ * character on an admin's account has hidden admin access regardless of job.
+ *
  * Two job titles here are placeholders because the spec left them blank:
  *   - "field_agent" was listed as "Red:" with no title given
  *   - "head_staff" was listed as "Yellow: Head Staff of ___" with no department
@@ -6,8 +12,8 @@
  * to match) once you've got the real names — everything else keys off this
  * one file.
  */
-export type UserRole =
-  | "member"
+export type CharacterJob =
+  | "none"
   | "spymaster"
   | "secretary"
   | "field_agent"
@@ -23,8 +29,8 @@ export type UserRole =
   | "gatekeeper"
   | "operator";
 
-export const ROLE_VALUES: [UserRole, ...UserRole[]] = [
-  "member",
+export const JOB_VALUES: [CharacterJob, ...CharacterJob[]] = [
+  "none",
   "spymaster",
   "secretary",
   "field_agent",
@@ -41,20 +47,20 @@ export const ROLE_VALUES: [UserRole, ...UserRole[]] = [
   "operator",
 ];
 
-type RoleMeta = {
+type JobMeta = {
   label: string;
-  /** Hex color for chat/name display. null = no special color (regular member). */
+  /** Hex color for chat/name display. null = no special color. */
   color: string | null;
   /** Shown on the job list page under each job title. */
   description?: string;
 };
 
-export const ROLE_META: Record<UserRole, RoleMeta> = {
-  member: { label: "Member", color: null },
+export const JOB_META: Record<CharacterJob, JobMeta> = {
+  none: { label: "None", color: null },
   spymaster: {
     label: "Spymaster",
     color: "#4CAF7D", // Green
-    description: "Runs the whole operation. Full site administration.",
+    description: "Runs the whole operation.",
   },
   secretary: { label: "Secretary", color: "#3D6FB0" }, // Blue
   field_agent: {
@@ -68,7 +74,7 @@ export const ROLE_META: Record<UserRole, RoleMeta> = {
   instructor: {
     label: "Instructor",
     color: "#A8D948", // Lime
-    description: "Can post lessons.",
+    description: "Teaches classes they're assigned to.",
   },
   chief_editor: {
     label: "Chief Editor",
@@ -78,7 +84,7 @@ export const ROLE_META: Record<UserRole, RoleMeta> = {
   assistant_instructor: {
     label: "Assistant Instructor",
     color: "#E8E8E8", // White
-    description: "Can post lessons.",
+    description: "Assists with classes they're assigned to.",
   },
   enforcer: { label: "Enforcer", color: "#9B6FD1" }, // Purple
   school_board_member: {
@@ -101,25 +107,16 @@ export const ROLE_META: Record<UserRole, RoleMeta> = {
   },
 };
 
-export function roleLabel(role: UserRole): string {
-  return ROLE_META[role]?.label ?? role;
+export function jobLabel(job: CharacterJob): string {
+  return JOB_META[job]?.label ?? job;
 }
 
-/** Hex color for a role, or null for regular members (no special styling). */
-export function roleColor(role: UserRole): string | null {
-  return ROLE_META[role]?.color ?? null;
+/** Hex color for a job, or null for no job (no special styling). */
+export function jobColor(job: CharacterJob): string | null {
+  return JOB_META[job]?.color ?? null;
 }
 
-export function canPostLessons(role: UserRole): boolean {
-  return role === "instructor" || role === "assistant_instructor" || role === "spymaster";
-}
-
-/** Only Spymaster gets the admin dashboard — deliberately a single-person role. */
-export function isAdmin(role: UserRole): boolean {
-  return role === "spymaster";
-}
-
-/** Roles worth showing on the public job list page (everything except plain members). */
-export function isListedJob(role: UserRole): boolean {
-  return role !== "member";
+/** Jobs worth showing on the public Job List page (everything except "none"). */
+export function isListedJob(job: CharacterJob): boolean {
+  return job !== "none";
 }

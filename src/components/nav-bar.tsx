@@ -3,7 +3,6 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getBoardTree } from "@/lib/forum";
-import { isAdmin } from "@/lib/roles";
 import { CharacterSwitcher } from "./character-switcher";
 import { BoardsDropdown } from "./boards-dropdown";
 import { logoutAction } from "@/actions/auth";
@@ -19,7 +18,7 @@ export async function NavBar() {
 
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-display text-xl tracking-wide text-brass-400 shrink-0">
             Armistead <span className="text-parchment-100">Academy</span>
@@ -69,7 +68,7 @@ export async function NavBar() {
             >
               Characters
             </Link>
-            {isAdmin(current.session.role) && (
+            {current.session.isAdmin && (
               <Link
                 href="/admin/users"
                 className="text-sm text-claret-500 hover:text-claret-400 transition-colors hidden sm:inline"

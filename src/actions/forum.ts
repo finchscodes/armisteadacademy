@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { boards, threads, posts, xpLedger } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
+import { getSession } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { XP_AWARDS } from "@/lib/xp";
 import type { ActionState } from "./auth";
@@ -127,4 +128,72 @@ export async function createPostAction(
 
   revalidatePath(`/t/${threadSlug}`);
   redirect(`/t/${threadSlug}`);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Deleting threads and posts                                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * You can delete a post if you authored it (any character on your account) or
+ * you're an admin. Deleting the first post of a thread deletes the whole thread.
+ */
+export async function deletePostAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const postId = Number(formData.get("postId"));
+  if (!postId) return;
+
+  const [post] = await db.select().from(posts).where(eq(posts.id, postId));
+  if (!post) return;
+
+  if (post.userId !== session.userId && !session.isAdmin) {
+    return; // not your post and not an admin
+  }
+
+  const [thread] = await db.select().from(threads).where(eq(threads.id, post.threadId));
+  if (!thread) return;
+
+  // Is this the opening post? (the earliest post in the thread)
+  const [firstPost] = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .where(eq(posts.threadId, thread.id))
+    .orderBy(posts.createdAt)
+    .limit(1);
+
+  const [board] = await db.select().from(boards).where(eq(boards.id, thread.boardId));
+
+  if (firstPost && firstPost.id === postId) {
+    // Deleting the opening post removes the entire thread (cascades to posts).
+    await db.delete(threads).where(eq(threads.id, thread.id));
+    revalidatePath(`/b/${board?.slug ?? ""}`);
+    redirect(`/b/${board?.slug ?? ""}`);
+  }
+
+  await db.delete(posts).where(eq(posts.id, postId));
+  revalidatePath(`/t/${thread.slug}`);
+  redirect(`/t/${thread.slug}`);
+}
+
+/** Delete an entire thread. Author of the opening post, or admin. */
+export async function deleteThreadAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const threadId = Number(formData.get("threadId"));
+  if (!threadId) return;
+
+  const [thread] = await db.select().from(threads).where(eq(threads.id, threadId));
+  if (!thread) return;
+
+  if (thread.userId !== session.userId && !session.isAdmin) {
+    return;
+  }
+
+  const [board] = await db.select().from(boards).where(eq(boards.id, thread.boardId));
+  await db.delete(threads).where(eq(threads.id, threadId));
+  revalidatePath(`/b/${board?.slug ?? ""}`);
+  redirect(`/b/${board?.slug ?? ""}`);
 }

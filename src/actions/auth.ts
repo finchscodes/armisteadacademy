@@ -50,9 +50,9 @@ export async function registerAction(
   const [user] = await db
     .insert(users)
     .values({ email, username, passwordHash })
-    .returning({ id: users.id, username: users.username, role: users.role });
+    .returning({ id: users.id, username: users.username, isAdmin: users.isAdmin });
 
-  await createSession({ userId: user.id, username: user.username, role: user.role });
+  await createSession({ userId: user.id, username: user.username, isAdmin: user.isAdmin });
   redirect("/characters/new");
 }
 
@@ -91,7 +91,7 @@ export async function loginAction(
     return { error: "Incorrect password" };
   }
 
-  await createSession({ userId: user.id, username: user.username, role: user.role });
+  await createSession({ userId: user.id, username: user.username, isAdmin: user.isAdmin });
   redirect("/");
 }
 

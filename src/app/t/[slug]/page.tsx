@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
 import { getLessonsTakenCounts, yearLabelForLessonsTaken } from "@/lib/year";
-import { getMajorColor } from "@/lib/majors";
+import { jobColor } from "@/lib/roles";
+import { getSession } from "@/lib/auth";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
+import { DeletePostButton } from "@/components/delete-buttons";
 
 function formatDate(date: Date) {
   return date.toLocaleString(undefined, {
@@ -18,10 +20,11 @@ function formatDate(date: Date) {
 
 export default async function ThreadPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const data = await getThreadBySlug(slug);
+  const [data, session] = await Promise.all([getThreadBySlug(slug), getSession()]);
   if (!data) notFound();
 
   const { thread, board, posts } = data;
+  const openingPostId = posts[0]?.id;
 
   const uniqueCharacterIds = [...new Set(posts.map((p) => p.characterId))];
   const lessonsTakenMap = await getLessonsTakenCounts(uniqueCharacterIds);
@@ -55,7 +58,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   <Link
                     href={`/c/${post.characterSlug}`}
                     className="text-sm text-parchment-100 leading-tight hover:underline"
-                    style={{ color: getMajorColor(post.characterMajor) ?? undefined }}
+                    style={{ color: jobColor(post.characterJob) ?? undefined }}
                   >
                     {post.characterName}
                   </Link>
@@ -66,7 +69,15 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-ink-400 mb-2">{formatDate(post.createdAt)}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-ink-400">{formatDate(post.createdAt)}</p>
+                  {session && (session.userId === post.authorUserId || session.isAdmin) && (
+                    <DeletePostButton
+                      postId={post.id}
+                      isOpeningPost={post.id === openingPostId}
+                    />
+                  )}
+                </div>
                 <div className="whitespace-pre-wrap leading-relaxed text-parchment-100/95">
                   {post.content}
                 </div>

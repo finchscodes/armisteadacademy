@@ -11,13 +11,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { MAJOR_VALUES } from "@/lib/majors";
-import { ROLE_VALUES } from "@/lib/roles";
+import { JOB_VALUES } from "@/lib/roles";
 
 /* -------------------------------------------------------------------------- */
 /*  Enums                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export const userRoleEnum = pgEnum("user_role", ROLE_VALUES);
+export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
 export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, awaiting a grader to claim it
@@ -54,7 +54,9 @@ export const users = pgTable(
     email: varchar("email", { length: 255 }).notNull(),
     username: varchar("username", { length: 32 }).notNull(),
     passwordHash: text("password_hash").notNull(),
-    role: userRoleEnum("role").notNull().default("member"),
+    // Admin is the one account-level permission: every character on an admin's
+    // account gets hidden admin access, regardless of the character's job.
+    isAdmin: boolean("is_admin").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
@@ -78,6 +80,7 @@ export const characters = pgTable(
     middleName: varchar("middle_name", { length: 50 }),
     lastName: varchar("last_name", { length: 50 }).notNull().default("Unknown"),
     major: characterMajorEnum("major").notNull().default("Undecided/Witness Protection"),
+    job: characterJobEnum("job").notNull().default("none"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
     isArchived: boolean("is_archived").notNull().default(false),
@@ -102,8 +105,8 @@ export const boards = pgTable(
     slug: varchar("slug", { length: 140 }).notNull(),
     description: text("description"),
     position: integer("position").notNull().default(0),
-    minRoleToView: userRoleEnum("min_role_to_view").notNull().default("member"),
-    minRoleToPost: userRoleEnum("min_role_to_post").notNull().default("member"),
+    minRoleToView: text("min_role_to_view").notNull().default("member"),
+    minRoleToPost: text("min_role_to_post").notNull().default("member"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
@@ -162,6 +165,31 @@ export const chatMessages = pgTable("chat_messages", {
 /* -------------------------------------------------------------------------- */
 /*  Lessons & Grading (schema now, UI/API in the next phase)                  */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Which characters are assigned to teach which class boards. A character can
+ * only post lessons to a class board they're assigned to (admins can post to
+ * any). Assigned by admin. One row per (character, class board) pair.
+ */
+export const classAssignments = pgTable(
+  "class_assignments",
+  {
+    id: serial("id").primaryKey(),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    boardId: integer("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniquePair: uniqueIndex("class_assignments_character_board_idx").on(
+      table.characterId,
+      table.boardId
+    ),
+  })
+);
 
 export const lessons = pgTable("lessons", {
   id: serial("id").primaryKey(),

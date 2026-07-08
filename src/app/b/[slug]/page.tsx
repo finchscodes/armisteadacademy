@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getBoardBySlug } from "@/lib/forum";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
-import { canPostLessons } from "@/lib/roles";
+import { isAssignedToClass } from "@/lib/class-assignments";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -28,7 +28,13 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
     isClassBoard ? getLessonsForBoard(board.id) : Promise.resolve([]),
     getCurrentUser(),
   ]);
-  const isStaff = current ? canPostLessons(current.session.role) : false;
+  const canPostLesson =
+    isClassBoard && current
+      ? current.session.isAdmin ||
+        (current.activeCharacter
+          ? await isAssignedToClass(current.activeCharacter.id, board.id)
+          : false)
+      : false;
 
   return (
     <div>
@@ -51,7 +57,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-display text-lg text-parchment-100">Lessons</h2>
-            {isStaff && (
+            {canPostLesson && (
               <Link
                 href={`/lesson/new?board=${board.slug}`}
                 className="text-xs text-brass-400 hover:underline"

@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
-import { isAdmin } from "@/lib/roles";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const current = await getCurrentUser();
   if (!current) redirect("/login");
-  if (!isAdmin(current.session.role)) redirect("/");
+  if (!current.session.isAdmin) redirect("/");
 
   return (
     <div>
@@ -15,6 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <nav className="flex gap-4 text-sm">
           <Link href="/admin/users" className="text-ink-200 hover:text-brass-400">
             Users
+          </Link>
+          <Link href="/admin/classes" className="text-ink-200 hover:text-brass-400">
+            Class Assignments
           </Link>
         </nav>
       </div>

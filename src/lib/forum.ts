@@ -86,9 +86,11 @@ export async function getThreadBySlug(slug: string) {
       content: posts.content,
       createdAt: posts.createdAt,
       editedAt: posts.editedAt,
+      authorUserId: posts.userId,
       characterId: characters.id,
       characterSlug: characters.slug,
       characterName: characters.name,
+      characterJob: characters.job,
       characterMajor: characters.major,
       characterAvatarUrl: characters.avatarUrl,
     })

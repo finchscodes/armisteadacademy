@@ -40,7 +40,7 @@ export async function CharacterCard({
         >
           {character.firstName} {character.lastName}
         </Link>
-        <p className="text-xs text-ink-400">&ldquo;{character.name}&rdquo;</p>
+        <p className="text-xs text-ink-400">{character.name}</p>
         <p className="text-sm text-brass-400 mt-0.5">{character.major}</p>
         <p className="text-xs text-ink-400">{yearLabel}</p>
       </div>

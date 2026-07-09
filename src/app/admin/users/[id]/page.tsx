@@ -6,6 +6,7 @@ import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
+import { AdminSlugEditor } from "@/components/admin-slug-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
 import { AdminLevelEditor } from "@/components/admin-level-editor";
 import { AdminBalanceEditor } from "@/components/admin-balance-editor";
@@ -71,6 +72,12 @@ export default async function AdminUserDetailPage({
                     middleName={c.middleName}
                     lastName={c.lastName}
                   />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                    Profile URL
+                  </p>
+                  <AdminSlugEditor characterId={c.id} userId={user.id} currentSlug={c.slug} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Age</p>

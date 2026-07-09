@@ -30,9 +30,9 @@ export function AcceptedRelationsList({
             href={`/c/${r.other.slug}`}
             className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-1 pr-2.5 py-1 hover:border-brass-500/50 transition-colors"
           >
-            <CharacterBadge name={r.other.name} avatarUrl={r.other.avatarUrl} size="sm" />
+            <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
             <span className="text-ink-400">{r.label}</span>
-            <span className="text-parchment-100">{r.other.name}</span>
+            <span className="text-parchment-100">{r.other.firstName} {r.other.lastName}</span>
           </Link>
         ) : (
           <div
@@ -40,11 +40,11 @@ export function AcceptedRelationsList({
             className="flex items-center justify-between bg-ink-900 border border-ink-700 rounded-lg px-4 py-2.5"
           >
             <div className="flex items-center gap-2.5">
-              <CharacterBadge name={r.other.name} avatarUrl={r.other.avatarUrl} size="sm" />
+              <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
               <p className="text-sm">
                 <span className="text-brass-400">{r.label}</span>{" "}
                 <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-brass-400">
-                  {r.other.name}
+                  {r.other.firstName} {r.other.lastName}
                 </Link>
               </p>
             </div>

@@ -804,3 +804,45 @@ export async function adminAdjustCharacterBalanceAction(
   revalidatePath(`/admin/users/${userId}`);
   return { success: `Balance set to ${targetBalance}` };
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Changing a character's profile URL (slug)                                 */
+/* -------------------------------------------------------------------------- */
+
+const updateSlugSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  slug: z
+    .string()
+    .min(2, "Too short")
+    .max(140)
+    .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers, and hyphens only"),
+});
+
+export async function adminUpdateCharacterSlugAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateSlugSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    slug: formData.get("slug"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, slug } = parsed.data;
+
+  const [existing] = await db.select({ id: characters.id }).from(characters).where(eq(characters.slug, slug));
+  if (existing && existing.id !== characterId) {
+    return { error: "That URL is already taken by another character" };
+  }
+
+  await db.update(characters).set({ slug }).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Profile URL updated" };
+}

@@ -8,6 +8,7 @@ import {
 } from "@/actions/post-interactions";
 import { ALLOWED_REACTION_EMOJI } from "@/lib/reactions";
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
+import { jobColor } from "@/lib/roles";
 import { CharacterBadge } from "./character-badge";
 
 export function PostInteractions({
@@ -81,7 +82,8 @@ export function PostInteractions({
               <div className="bg-ink-800/60 rounded-lg px-3 py-1.5 flex-1 min-w-0">
                 <Link
                   href={`/c/${c.characterSlug}`}
-                  className="text-xs font-medium text-parchment-100 hover:text-brass-400"
+                  className="text-xs font-medium hover:underline"
+                  style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
                 >
                   {c.characterFirstName} {c.characterLastName}
                 </Link>

@@ -120,24 +120,25 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           return (
             <div key={post.id}>
               <article className="bg-ink-900 border border-ink-700 rounded-lg p-5 flex gap-4">
-                <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
-                  <Link href={`/c/${post.characterSlug}`}>
-                    <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
-                  </Link>
-                  <div>
-                    <Link
-                      href={`/c/${post.characterSlug}`}
-                      className="text-sm text-parchment-100 leading-tight hover:underline"
-                      style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
-                    >
-                      {post.characterFirstName} {post.characterLastName}
+                {!isArticle && (
+                  <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
+                    <Link href={`/c/${post.characterSlug}`}>
+                      <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
                     </Link>
-                    <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
-                      {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
-                    </p>
+                    <div>
+                      <Link
+                        href={`/c/${post.characterSlug}`}
+                        className="text-sm text-parchment-100 leading-tight hover:underline"
+                        style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
+                      >
+                        {post.characterFirstName} {post.characterLastName}
+                      </Link>
+                      <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
+                        {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
                   </div>
-                </div>
-
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-ink-400">{formatDate(post.createdAt)}</p>
@@ -175,6 +176,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   canInteract={Boolean(viewerCharacterId)}
                   posterName={`${post.characterFirstName} ${post.characterLastName}`}
                   posterSlug={post.characterSlug}
+                  posterJob={jobsByCharacter.get(post.characterId) ?? "none"}
                   postedAt={post.createdAt}
                 />
               )}

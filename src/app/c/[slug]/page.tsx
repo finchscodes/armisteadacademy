@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getCharacterBySlug } from "@/lib/characters";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
-import { getMajorDescription } from "@/lib/majors";
 import { jobColor, jobLabel } from "@/lib/roles";
 import { getJobsForCharacter, getPrimaryJob } from "@/lib/character-jobs";
 import { getCurrentUser } from "@/lib/current-user";
@@ -51,7 +50,6 @@ export default async function CharacterProfilePage({
       getAcceptedRelations(character.id),
     ]);
 
-  const majorDescription = getMajorDescription(character.major);
   const legalName = [character.firstName, character.middleName, character.lastName]
     .filter(Boolean)
     .join(" ");
@@ -70,7 +68,7 @@ export default async function CharacterProfilePage({
           <h1 className="font-display text-2xl text-parchment-100" style={{ color: nameColor }}>
             {legalName}
           </h1>
-          <p className="text-xs text-ink-400 mt-0.5">&ldquo;{character.name}&rdquo;</p>
+          <p className="text-xs text-ink-400 mt-0.5">{character.name}</p>
           {jobs.length > 0 && (
             <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
               {jobs.map((j) => (
@@ -104,34 +102,6 @@ export default async function CharacterProfilePage({
         </div>
       </div>
 
-      {majorDescription && (
-        <p className="text-xs text-ink-400 italic mt-4 border-t border-ink-700 pt-4 leading-relaxed">
-          {majorDescription}
-        </p>
-      )}
-
-      {acceptedRelations.length > 0 && (
-        <div className="border-t border-ink-700 mt-4 pt-4">
-          <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
-            Relations
-          </h2>
-          <AcceptedRelationsList relations={acceptedRelations} canRemove={false} compact />
-        </div>
-      )}
-
-      <div className="border-t border-ink-700 mt-4 pt-4">
-        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
-          Backstory
-        </h2>
-        {character.bio ? (
-          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-            {character.bio}
-          </p>
-        ) : (
-          <p className="text-sm text-ink-400 italic">No backstory written yet.</p>
-        )}
-      </div>
-
       {character.personality && (
         <div className="border-t border-ink-700 mt-4 pt-4">
           <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
@@ -152,6 +122,30 @@ export default async function CharacterProfilePage({
             {character.appearance}
           </p>
         </div>
+      )}
+
+      <div className="border-t border-ink-700 mt-4 pt-4">
+        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
+          Relations
+        </h2>
+        <div className="space-y-4">
+          {isOwner && <RelationRequestForm />}
+          {isOwner && incomingRequests.length > 0 && <IncomingRequestsList requests={incomingRequests} />}
+          {isOwner && outgoingRequests.length > 0 && <OutgoingRequestsList requests={outgoingRequests} />}
+          <AcceptedRelationsList relations={acceptedRelations} canRemove={isOwner} />
+        </div>
+      </div>
+    </div>
+  );
+
+  const backstoryTab = (
+    <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
+      {character.bio ? (
+        <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
+          {character.bio}
+        </p>
+      ) : (
+        <p className="text-sm text-ink-400 italic">No backstory written yet.</p>
       )}
     </div>
   );
@@ -178,26 +172,13 @@ export default async function CharacterProfilePage({
     </div>
   );
 
-  const relationsTab = (
-    <div className="space-y-6">
-      {isOwner && <RelationRequestForm />}
-      {isOwner && incomingRequests.length > 0 && <IncomingRequestsList requests={incomingRequests} />}
-      {isOwner && outgoingRequests.length > 0 && <OutgoingRequestsList requests={outgoingRequests} />}
-      <div className="space-y-2">
-        {isOwner && <p className="text-sm font-medium text-parchment-100">All relations</p>}
-        <AcceptedRelationsList relations={acceptedRelations} canRemove={isOwner} />
-      </div>
-    </div>
-  );
-
   return (
     <div className="max-w-2xl mx-auto">
       <ProfileTabs
         overview={overview}
+        backstory={backstoryTab}
         topics={topicsTab}
-        relations={relationsTab}
         topicsCount={topics.length}
-        relationsCount={acceptedRelations.length}
       />
     </div>
   );

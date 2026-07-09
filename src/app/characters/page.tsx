@@ -40,27 +40,28 @@ export default async function CharactersPage() {
           .
         </p>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {current.characters.map((c) => (
             <Link
               key={c.id}
               href={`/c/${c.slug}`}
-              className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center justify-between hover:border-brass-500/50 transition-colors"
+              className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
             >
-              <div>
-                <p className="font-display text-lg text-parchment-100">{c.name}</p>
-                <p className="text-xs text-ink-400">
-                  {[c.major, statMap.get(c.id)?.year].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-              <span className="text-right">
-                <span className="block text-brass-400 text-sm">
+              <p className="font-display text-lg text-parchment-100">
+                {c.firstName} {c.lastName}
+              </p>
+              <p className="text-xs text-ink-400">{c.name}</p>
+              <p className="text-xs text-ink-400 mt-1">
+                {[c.major, statMap.get(c.id)?.year].filter(Boolean).join(" · ")}
+              </p>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-ink-700">
+                <span className="text-brass-400 text-sm">
                   {statMap.get(c.id)?.balance ?? 0} dollars
                 </span>
-                <span className="block text-ink-400 text-xs">
+                <span className="text-ink-400 text-xs">
                   Level {statMap.get(c.id)?.level ?? 1}
                 </span>
-              </span>
+              </div>
             </Link>
           ))}
         </div>

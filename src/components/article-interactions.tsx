@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { toggleReactionAction, addCommentAction } from "@/actions/post-interactions";
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
+import { jobColor, type CharacterJob } from "@/lib/roles";
 import { CharacterBadge } from "./character-badge";
 
 const LIKE_EMOJI = "❤️";
@@ -27,6 +28,7 @@ export function ArticleInteractions({
   canInteract,
   posterName,
   posterSlug,
+  posterJob,
   postedAt,
 }: {
   postId: number;
@@ -35,6 +37,7 @@ export function ArticleInteractions({
   canInteract: boolean;
   posterName: string;
   posterSlug: string;
+  posterJob: CharacterJob;
   postedAt: Date;
 }) {
   const [pending, startTransition] = useTransition();
@@ -78,7 +81,11 @@ export function ArticleInteractions({
         </div>
         <p className="text-xs text-ink-400">
           &#128340; {timeAgo(postedAt)} &middot; From:{" "}
-          <Link href={`/c/${posterSlug}`} className="text-brass-400 hover:underline">
+          <Link
+            href={`/c/${posterSlug}`}
+            className="hover:underline"
+            style={{ color: jobColor(posterJob) ?? "#d9b64a" }}
+          >
             {posterName}
           </Link>
         </p>
@@ -126,7 +133,8 @@ export function ArticleInteractions({
                   <p className="text-sm">
                     <Link
                       href={`/c/${c.characterSlug}`}
-                      className="font-medium text-parchment-100 hover:text-brass-400"
+                      className="font-medium hover:underline"
+                      style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
                     >
                       {c.characterFirstName} {c.characterLastName}
                     </Link>{" "}

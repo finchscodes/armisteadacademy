@@ -4,23 +4,21 @@ import { useState } from "react";
 
 export function ProfileTabs({
   overview,
+  backstory,
   topics,
-  relations,
   topicsCount,
-  relationsCount,
 }: {
   overview: React.ReactNode;
+  backstory: React.ReactNode;
   topics: React.ReactNode;
-  relations: React.ReactNode;
   topicsCount: number;
-  relationsCount: number;
 }) {
-  const [tab, setTab] = useState<"overview" | "topics" | "relations">("overview");
+  const [tab, setTab] = useState<"overview" | "backstory" | "topics">("overview");
 
   const tabs = [
     { key: "overview" as const, label: "Overview" },
+    { key: "backstory" as const, label: "Backstory" },
     { key: "topics" as const, label: `Topics (${topicsCount})` },
-    { key: "relations" as const, label: `Relations (${relationsCount})` },
   ];
 
   return (
@@ -43,8 +41,8 @@ export function ProfileTabs({
       </div>
 
       {tab === "overview" && overview}
+      {tab === "backstory" && backstory}
       {tab === "topics" && topics}
-      {tab === "relations" && relations}
     </div>
   );
 }

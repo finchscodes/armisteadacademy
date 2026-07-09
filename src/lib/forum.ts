@@ -51,6 +51,8 @@ export async function getBoardBySlug(slug: string) {
       slug: threads.slug,
       isLocked: threads.isLocked,
       isPinned: threads.isPinned,
+      scheduledFor: threads.scheduledFor,
+      characterId: threads.characterId,
       createdAt: threads.createdAt,
       lastPostAt: threads.lastPostAt,
       characterName: characters.name,

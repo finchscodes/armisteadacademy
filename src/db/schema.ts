@@ -175,6 +175,9 @@ export const threads = pgTable("threads", {
   surroundings: text("surroundings"),
   isLocked: boolean("is_locked").notNull().default(false),
   isPinned: boolean("is_pinned").notNull().default(false),
+  // Article boards only: if set and in the future, the article is hidden
+  // from public view until this time — management/authors can still see it.
+  scheduledFor: timestamp("scheduled_for"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastPostAt: timestamp("last_post_at").notNull().defaultNow(),
 });

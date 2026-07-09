@@ -75,7 +75,7 @@ export function DeleteCharacterButton({
       action={(fd) => {
         if (
           confirm(
-            `Permanently delete "${characterName}"? This also deletes all of their threads, posts, pets, and history. This can't be undone.`
+            `Permanently delete "${characterName}"? This also deletes all of their threads, posts, and history. This can't be undone.`
           )
         ) {
           startTransition(() => adminDeleteCharacterAction(fd));

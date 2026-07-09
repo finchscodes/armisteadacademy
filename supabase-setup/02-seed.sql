@@ -1,16 +1,16 @@
 -- Run this AFTER 01-schema.sql, in the same Supabase SQL Editor.
--- Creates: an instructor login and a starter shop.
--- For the full Armistead board structure, also run 06-armistead-boards.sql
--- and 08-new-classes.sql after this.
+-- Creates: an admin login and a starter shop.
+-- For the full Armistead board structure, also run 06-armistead-boards.sql,
+-- 08-new-classes.sql, and 09-jobs-admin-classes-into-areas.sql after this.
 
--- Instructor account. Username: professor  Password: changeme123
+-- Admin account. Username: admin  Password: changeme123
 -- (This is a bcrypt hash of "changeme123" — there's no plaintext password stored
 -- anywhere. Change this password once you've confirmed the site works; there's no
 -- in-app change-password flow yet, so easiest is to re-run this against a fresh
 -- database before you actually open the site up, or update the row directly here
 -- in the SQL editor.)
-INSERT INTO users (email, username, password_hash, role)
-VALUES ('instructor@armistead.local', 'professor', '$2b$10$BGUw8Nzf0K1kp5k1Jb/8w.mNXYrGK7z5FJwWfliJEp8JuhcgRD4f.', 'instructor')
+INSERT INTO users (email, username, password_hash, is_admin)
+VALUES ('admin@armistead.local', 'admin', '$2b$10$BGUw8Nzf0K1kp5k1Jb/8w.mNXYrGK7z5FJwWfliJEp8JuhcgRD4f.', true)
 ON CONFLICT (email) DO NOTHING;
 
 -- Starter shop

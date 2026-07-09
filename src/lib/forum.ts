@@ -54,6 +54,8 @@ export async function getBoardBySlug(slug: string) {
       createdAt: threads.createdAt,
       lastPostAt: threads.lastPostAt,
       characterName: characters.name,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
       characterSlug: characters.slug,
     })
     .from(threads)
@@ -90,6 +92,8 @@ export async function getThreadBySlug(slug: string) {
       characterId: characters.id,
       characterSlug: characters.slug,
       characterName: characters.name,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
       characterJob: characters.job,
       characterMajor: characters.major,
       characterYearOverride: characters.yearOverride,

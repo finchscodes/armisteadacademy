@@ -99,7 +99,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                     className="text-sm text-parchment-100 leading-tight hover:underline"
                     style={{ color: jobColor(post.characterJob) ?? undefined }}
                   >
-                    {post.characterName}
+                    {post.characterFirstName} {post.characterLastName}
                   </Link>
                   <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
                     {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}

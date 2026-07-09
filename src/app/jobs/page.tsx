@@ -36,9 +36,6 @@ export default async function JobsPage() {
                     {jobLabel(job)}
                   </h2>
                 </div>
-                {meta.description && (
-                  <p className="text-xs text-ink-400 mb-2 ml-4.5">{meta.description}</p>
-                )}
                 <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
                   {people.map((c) => (
                     <Link
@@ -54,7 +51,9 @@ export default async function JobsPage() {
                         >
                           {c.firstName} {c.lastName}
                         </span>
-                        <span className="block text-xs text-ink-400">&ldquo;{c.name}&rdquo;</span>
+                        <span className="block text-xs text-ink-400">
+                          {c.jobTitle || `"${c.name}"`}
+                        </span>
                       </span>
                     </Link>
                   ))}

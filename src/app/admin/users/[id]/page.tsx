@@ -7,7 +7,7 @@ import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
-import { DeleteCharacterButton } from "@/components/delete-buttons";
+import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
 
 export default async function AdminUserDetailPage({
   params,
@@ -25,7 +25,10 @@ export default async function AdminUserDetailPage({
       <Link href="/admin/users" className="text-sm text-ink-400 hover:text-brass-400">
         &larr; All users
       </Link>
-      <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.username}</h1>
+      <div className="flex items-center justify-between mt-2 mb-6">
+        <h1 className="font-display text-2xl text-parchment-100">{user.username}</h1>
+        <DeleteAccountButton userId={user.id} username={user.username} />
+      </div>
 
       <EditUserForm
         userId={user.id}
@@ -84,7 +87,12 @@ export default async function AdminUserDetailPage({
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Job</p>
-                  <AdminJobEditor characterId={c.id} userId={user.id} currentJob={c.job} />
+                  <AdminJobEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    currentJob={c.job}
+                    currentJobTitle={c.jobTitle}
+                  />
                 </div>
               </div>
             ))}

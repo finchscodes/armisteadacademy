@@ -83,7 +83,7 @@ export function PostInteractions({
                   href={`/c/${c.characterSlug}`}
                   className="text-xs font-medium text-parchment-100 hover:text-brass-400"
                 >
-                  {c.characterName}
+                  {c.characterFirstName} {c.characterLastName}
                 </Link>
                 <p className="text-sm text-parchment-100/90">{c.content}</p>
               </div>

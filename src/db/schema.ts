@@ -20,9 +20,15 @@ import { JOB_VALUES } from "@/lib/roles";
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
 export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
-  "open", // posted, awaiting a grader to claim it
-  "claimed", // a grader has opted in
-  "graded", // grade + payout issued
+  "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
+  "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
+]);
+export const gradeTierEnum = pgEnum("grade_tier", [
+  "perfect",
+  "excellent",
+  "good",
+  "needs_improvement",
+  "failing",
 ]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",
@@ -42,6 +48,9 @@ export const characterMajorEnum = pgEnum("character_major", MAJOR_VALUES);
 
 /** Level required before a character is allowed to claim/grade homework. */
 export const GRADING_LEVEL_REQUIREMENT = 3;
+
+/** How many distinct graders must grade a submission before it's final. */
+export const REQUIRED_GRADERS = 4;
 
 /* -------------------------------------------------------------------------- */
 /*  Users & Characters                                                        */
@@ -87,6 +96,10 @@ export const characters = pgTable(
     // admin sets this, it overrides the computed value entirely. Null = auto.
     yearOverride: varchar("year_override", { length: 20 }),
     job: characterJobEnum("job").notNull().default("none"),
+    // Optional custom title shown on the Job List instead of the generic job
+    // label — e.g. two "Head Staff" characters leading different teams can
+    // each show "Head of Enforcement" / "Head of the Library" instead.
+    jobTitle: varchar("job_title", { length: 100 }),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
     isArchived: boolean("is_archived").notNull().default(false),
@@ -252,12 +265,13 @@ export const lessons = pgTable("lessons", {
     .references(() => boards.id, { onDelete: "cascade" }), // the "class" board this lesson belongs to
   title: varchar("title", { length: 200 }).notNull(),
   prompt: text("prompt").notNull(), // the assignment text
-  createdByUserId: integer("created_by_user_id")
-    .notNull()
-    .references(() => users.id),
+  createdByUserId: integer("created_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  position: integer("position").notNull().default(0),
   rewardMin: integer("reward_min").notNull().default(10), // currency range for a full-credit grade
   rewardMax: integer("reward_max").notNull().default(25),
-  graderFee: integer("grader_fee").notNull().default(5), // what the grader earns per grade
+  graderFee: integer("grader_fee").notNull().default(5), // what each grader earns per grade
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -271,15 +285,36 @@ export const submissions = pgTable("submissions", {
     .references(() => characters.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   status: submissionStatusEnum("status").notNull().default("open"),
-  graderCharacterId: integer("grader_character_id").references(() => characters.id, {
-    onDelete: "set null",
-  }),
-  grade: integer("grade"), // 0-100
-  feedback: text("feedback"),
+  // Set once REQUIRED_GRADERS have graded — the consensus result.
+  finalTier: gradeTierEnum("final_tier"),
+  grade: integer("grade"), // 0-100, derived from finalTier
   payout: integer("payout"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   gradedAt: timestamp("graded_at"),
 });
+
+/** One grader's tier + feedback on a submission. REQUIRED_GRADERS of these = a final grade. */
+export const submissionGrades = pgTable(
+  "submission_grades",
+  {
+    id: serial("id").primaryKey(),
+    submissionId: integer("submission_id")
+      .notNull()
+      .references(() => submissions.id, { onDelete: "cascade" }),
+    graderCharacterId: integer("grader_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    tier: gradeTierEnum("tier").notNull(),
+    feedback: text("feedback"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueGraderPerSubmission: uniqueIndex("submission_grades_unique_idx").on(
+      table.submissionId,
+      table.graderCharacterId
+    ),
+  })
+);
 
 /* -------------------------------------------------------------------------- */
 /*  Economy: Ledger / Shops / Items / Inventory                               */

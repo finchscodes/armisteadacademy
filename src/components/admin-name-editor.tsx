@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { adminUpdateCharacterNameAction } from "@/actions/admin";
 
 export function AdminNameEditor({
@@ -16,7 +17,12 @@ export function AdminNameEditor({
   middleName: string | null;
   lastName: string;
 }) {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(adminUpdateCharacterNameAction, undefined);
+
+  useEffect(() => {
+    if (state?.success) router.refresh();
+  }, [state, router]);
 
   return (
     <form action={formAction} className="flex flex-wrap items-center gap-2">

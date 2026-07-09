@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { gradeSubmissionAction } from "@/actions/lessons";
+import { GRADE_TIER_VALUES, tierLabel } from "@/lib/grading";
 
 export function GradeForm({ submissionId }: { submissionId: number }) {
   const [state, formAction, pending] = useActionState(gradeSubmissionAction, undefined);
@@ -9,21 +10,23 @@ export function GradeForm({ submissionId }: { submissionId: number }) {
   return (
     <form action={formAction} className="space-y-3 mt-3 border-t border-ink-700 pt-3">
       <input type="hidden" name="submissionId" value={submissionId} />
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium" htmlFor={`grade-${submissionId}`}>
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor={`tier-${submissionId}`}>
           Grade
         </label>
-        <input
-          id={`grade-${submissionId}`}
-          name="grade"
-          type="number"
-          min={0}
-          max={100}
+        <select
+          id={`tier-${submissionId}`}
+          name="tier"
           required
-          defaultValue={80}
-          className="w-20 rounded-md border border-ink-600 bg-ink-800 px-2 py-1 focus:outline-none focus:border-brass-500"
-        />
-        <span className="text-xs text-ink-400">/ 100</span>
+          defaultValue="good"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+        >
+          {GRADE_TIER_VALUES.map((t) => (
+            <option key={t} value={t}>
+              {tierLabel(t)}
+            </option>
+          ))}
+        </select>
       </div>
       <textarea
         name="feedback"

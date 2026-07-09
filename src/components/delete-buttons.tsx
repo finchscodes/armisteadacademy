@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import { deletePostAction, deleteThreadAction } from "@/actions/forum";
-import { adminDeleteCharacterAction } from "@/actions/admin";
+import { adminDeleteCharacterAction, adminDeleteUserAction } from "@/actions/admin";
+import { deleteLessonAction } from "@/actions/lessons";
 
 export function DeletePostButton({
   postId,
@@ -90,6 +91,56 @@ export function DeleteCharacterButton({
         className="text-xs text-claret-500 hover:text-claret-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Deleting..." : "Delete character"}
+      </button>
+    </form>
+  );
+}
+
+export function DeleteAccountButton({ userId, username }: { userId: number; username: string }) {
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <form
+      action={(fd) => {
+        if (
+          confirm(
+            `Permanently delete the account "${username}"? This deletes every character on it and all of their threads, posts, and history. This can't be undone.`
+          )
+        ) {
+          startTransition(() => adminDeleteUserAction(fd));
+        }
+      }}
+    >
+      <input type="hidden" name="userId" value={userId} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-xs text-claret-500 hover:text-claret-400 transition-colors disabled:opacity-60"
+      >
+        {pending ? "Deleting..." : "Delete account"}
+      </button>
+    </form>
+  );
+}
+
+export function DeleteLessonButton({ lessonId, lessonTitle }: { lessonId: number; lessonTitle: string }) {
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <form
+      action={(fd) => {
+        if (confirm(`Delete the lesson "${lessonTitle}"? This also deletes every submission and grade for it.`)) {
+          startTransition(() => deleteLessonAction(fd));
+        }
+      }}
+    >
+      <input type="hidden" name="lessonId" value={lessonId} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-xs text-claret-500 hover:text-claret-400 transition-colors disabled:opacity-60"
+      >
+        {pending ? "Deleting..." : "Delete"}
       </button>
     </form>
   );

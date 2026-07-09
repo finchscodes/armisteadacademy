@@ -44,6 +44,8 @@ export type PostCommentRow = {
   createdAt: Date;
   characterId: number;
   characterName: string;
+  characterFirstName: string;
+  characterLastName: string;
   characterSlug: string;
   characterAvatarUrl: string | null;
 };
@@ -59,6 +61,8 @@ export async function getCommentsForPosts(postIds: number[]): Promise<Map<number
       createdAt: postComments.createdAt,
       characterId: characters.id,
       characterName: characters.name,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
       characterSlug: characters.slug,
       characterAvatarUrl: characters.avatarUrl,
     })

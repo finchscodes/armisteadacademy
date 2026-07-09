@@ -8,7 +8,6 @@ import { users, characters, boards, classAssignments } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
-import { AGE_OPTIONS } from "@/lib/character-options";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -53,6 +52,7 @@ export async function getUserDetail(userId: number) {
       slug: characters.slug,
       major: characters.major,
       job: characters.job,
+      jobTitle: characters.jobTitle,
       age: characters.age,
       yearOverride: characters.yearOverride,
       firstName: characters.firstName,
@@ -157,6 +157,7 @@ const updateCharacterJobSchema = z.object({
   characterId: z.coerce.number().int(),
   userId: z.coerce.number().int(),
   job: z.enum(JOB_VALUES),
+  jobTitle: z.string().max(100).optional().or(z.literal("")),
 });
 
 export async function adminUpdateCharacterJobAction(
@@ -169,16 +170,21 @@ export async function adminUpdateCharacterJobAction(
     characterId: formData.get("characterId"),
     userId: formData.get("userId"),
     job: formData.get("job"),
+    jobTitle: formData.get("jobTitle") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, userId, job } = parsed.data;
-  await db.update(characters).set({ job }).where(eq(characters.id, characterId));
+  const { characterId, userId, job, jobTitle } = parsed.data;
+  await db
+    .update(characters)
+    .set({ job, jobTitle: jobTitle || null })
+    .where(eq(characters.id, characterId));
 
   revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/jobs");
   return { success: "Job updated" };
 }
 
@@ -278,6 +284,7 @@ const assignSchema = z.object({
   boardId: z.coerce.number().int(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
+  visible: z.coerce.boolean(),
 });
 
 export async function assignClassAction(
@@ -290,6 +297,7 @@ export async function assignClassAction(
     boardId: formData.get("boardId"),
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
+    visible: formData.get("visible") === "on" || formData.get("visible") === "true",
   });
   if (!parsed.success) {
     return { error: "Enter the character's first and last name" };
@@ -307,8 +315,25 @@ export async function assignClassAction(
     .values({ characterId: character.id, boardId: parsed.data.boardId })
     .onConflictDoNothing();
 
+  // "Visible" is the normal case: assigning them to teach a class also makes
+  // them an Instructor on the Job List. "Hidden" grants class access (they
+  // can post/grade lessons for it) without a public job title — for helpers
+  // who tend a class quietly without being listed.
+  let note = "";
+  if (parsed.data.visible) {
+    const [current] = await db
+      .select({ job: characters.job })
+      .from(characters)
+      .where(eq(characters.id, character.id));
+    if (current && current.job === "none") {
+      await db.update(characters).set({ job: "instructor" }).where(eq(characters.id, character.id));
+      note = " and made them an Instructor";
+    }
+  }
+
   revalidatePath("/admin/classes");
-  return { success: `Assigned ${character.firstName} ${character.lastName}` };
+  revalidatePath("/jobs");
+  return { success: `Assigned ${character.firstName} ${character.lastName}${note}` };
 }
 
 export async function unassignClassAction(formData: FormData) {
@@ -327,9 +352,7 @@ export async function unassignClassAction(formData: FormData) {
 const updateAgeSchema = z.object({
   characterId: z.coerce.number().int(),
   userId: z.coerce.number().int(),
-  age: z.coerce.number().int().refine((v) => (AGE_OPTIONS as readonly number[]).includes(v), {
-    message: "Age must be between 18 and 25",
-  }),
+  age: z.coerce.number().int().min(1, "Age must be at least 1").max(999, "That age is too large"),
 });
 
 export async function adminUpdateCharacterAgeAction(
@@ -408,4 +431,22 @@ export async function adminDeleteCharacterAction(formData: FormData) {
   await db.delete(characters).where(eq(characters.id, characterId));
 
   revalidatePath(`/admin/users/${userId}`);
+}
+
+/** Permanently delete an entire account, including every character on it. */
+export async function adminDeleteUserAction(formData: FormData) {
+  const admin = await requireAdmin();
+  const userId = Number(formData.get("userId"));
+  if (!userId) return;
+
+  if (userId === admin.userId) {
+    return; // can't delete yourself from here — avoid locking yourself out
+  }
+
+  // Cascades to their characters (which cascade further to threads, posts,
+  // reactions, comments, ledger entries, class assignments) plus their
+  // direct chat messages.
+  await db.delete(users).where(eq(users.id, userId));
+
+  revalidatePath("/admin/users");
 }

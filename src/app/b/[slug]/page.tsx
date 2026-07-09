@@ -4,6 +4,7 @@ import { getBoardBySlug } from "@/lib/forum";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
+import { LessonReorderButtons } from "@/components/lesson-reorder-buttons";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -71,16 +72,18 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
           ) : (
             <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
               {lessons.map((lesson) => (
-                <Link
-                  key={lesson.id}
-                  href={`/lesson/${lesson.id}`}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
-                >
-                  <span className="text-parchment-100">{lesson.title}</span>
-                  <span className="text-xs text-ink-400">
-                    {lesson.rewardMin}&ndash;{lesson.rewardMax} galleons
-                  </span>
-                </Link>
+                <div key={lesson.id} className="flex items-center gap-2 px-4 py-3">
+                  {canPostLesson && <LessonReorderButtons lessonId={lesson.id} />}
+                  <Link
+                    href={`/lesson/${lesson.id}`}
+                    className="flex-1 flex items-center justify-between hover:text-brass-400 transition-colors min-w-0"
+                  >
+                    <span className="text-parchment-100">{lesson.title}</span>
+                    <span className="text-xs text-ink-400 shrink-0 ml-3">
+                      {lesson.rewardMin}&ndash;{lesson.rewardMax} dollars
+                    </span>
+                  </Link>
+                </div>
               ))}
             </div>
           )}
@@ -133,7 +136,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                       href={`/c/${t.characterSlug}`}
                       className="relative z-10 hover:text-brass-400"
                     >
-                      {t.characterName}
+                      {t.characterFirstName} {t.characterLastName}
                     </Link>
                   </p>
                 </div>

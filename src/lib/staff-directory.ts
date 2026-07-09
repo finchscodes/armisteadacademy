@@ -13,6 +13,7 @@ export async function getStaffDirectory() {
       name: characters.name,
       slug: characters.slug,
       job: characters.job,
+      jobTitle: characters.jobTitle,
       avatarUrl: characters.avatarUrl,
       firstName: characters.firstName,
       lastName: characters.lastName,

@@ -55,7 +55,7 @@ export default async function CharactersPage() {
               </div>
               <span className="text-right">
                 <span className="block text-brass-400 text-sm">
-                  {statMap.get(c.id)?.balance ?? 0} galleons
+                  {statMap.get(c.id)?.balance ?? 0} dollars
                 </span>
                 <span className="block text-ink-400 text-xs">
                   Level {statMap.get(c.id)?.level ?? 1}

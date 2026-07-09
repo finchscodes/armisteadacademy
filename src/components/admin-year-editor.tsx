@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { adminUpdateCharacterYearAction } from "@/actions/admin";
 
 const YEAR_OPTIONS = [
@@ -22,15 +23,29 @@ export function AdminYearEditor({
   userId: number;
   currentYearOverride: string | null;
 }) {
-  const [state, formAction, pending] = useActionState(adminUpdateCharacterYearAction, undefined);
+  const router = useRouter();
+  const [value, setValue] = useState(currentYearOverride ?? "auto");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function handleSet() {
+    setError(null);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("characterId", String(characterId));
+      formData.set("userId", String(userId));
+      formData.set("yearOverride", value);
+      const result = await adminUpdateCharacterYearAction(undefined, formData);
+      if (result?.error) setError(result.error);
+      router.refresh();
+    });
+  }
 
   return (
-    <form action={formAction} className="flex items-center gap-2">
-      <input type="hidden" name="characterId" value={characterId} />
-      <input type="hidden" name="userId" value={userId} />
+    <div className="flex items-center gap-2">
       <select
-        name="yearOverride"
-        defaultValue={currentYearOverride ?? "auto"}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
       >
         {YEAR_OPTIONS.map((y) => (
@@ -40,13 +55,14 @@ export function AdminYearEditor({
         ))}
       </select>
       <button
-        type="submit"
+        type="button"
+        onClick={handleSet}
         disabled={pending}
         className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : "Set"}
       </button>
-      {state?.error && <span className="text-xs text-claret-500">{state.error}</span>}
-    </form>
+      {error && <span className="text-xs text-claret-500">{error}</span>}
+    </div>
   );
 }

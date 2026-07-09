@@ -45,29 +45,45 @@ export function ClassAssignmentCard({
         <p className="text-xs text-ink-400 mb-3">No instructors assigned.</p>
       )}
 
-      <form action={formAction} className="flex items-center gap-2">
+      <form action={formAction} className="space-y-2">
+        <div className="flex items-center gap-2">
+          <input
+            name="firstName"
+            placeholder="First name"
+            required
+            className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+          />
+          <input
+            name="lastName"
+            placeholder="Last name"
+            required
+            className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+          />
+        </div>
         <input type="hidden" name="boardId" value={boardId} />
-        <input
-          name="firstName"
-          placeholder="First name"
-          required
-          className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
-        />
-        <input
-          name="lastName"
-          placeholder="Last name"
-          required
-          className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
-        />
-        <button
-          type="submit"
-          disabled={pending}
-          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
-        >
-          {pending ? "..." : "Assign"}
-        </button>
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-1.5 text-[11px] text-ink-400">
+            <input
+              type="checkbox"
+              name="visible"
+              defaultChecked
+              className="rounded border-ink-600 bg-ink-800"
+            />
+            Show as Instructor on Job List
+          </label>
+          <button
+            type="submit"
+            disabled={pending}
+            className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
+          >
+            {pending ? "..." : "Assign"}
+          </button>
+        </div>
       </form>
-      <p className="text-[10px] text-ink-400 mt-1">By legal name, not code name.</p>
+      <p className="text-[10px] text-ink-400 mt-1">
+        By legal name, not code name. Unchecking the box grants class access without a public
+        job — for quiet helpers who just tend lessons.
+      </p>
       {state?.error && <p className="text-xs text-claret-500 mt-1">{state.error}</p>}
       {state?.success && <p className="text-xs text-brass-400 mt-1">{state.success}</p>}
     </div>

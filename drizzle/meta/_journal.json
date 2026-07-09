@@ -57,6 +57,13 @@
       "when": 1783570132042,
       "tag": "0007_gigantic_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783572291293,
+      "tag": "0008_late_random",
+      "breakpoints": true
     }
   ]
 }

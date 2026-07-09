@@ -271,4 +271,8 @@ ALTER TABLE "post_comments" ADD CONSTRAINT "post_comments_user_id_users_id_fk" F
 ALTER TABLE "post_reactions" ADD CONSTRAINT "post_reactions_post_id_posts_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."posts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "post_reactions" ADD CONSTRAINT "post_reactions_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "post_reactions_unique_idx" ON "post_reactions" USING btree ("post_id","character_id","emoji");--> statement-breakpoint
-ALTER TABLE "submissions" ADD CONSTRAINT "submissions_grader_character_id_characters_id_fk" FOREIGN KEY ("grader_character_id") REFERENCES "public"."characters"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_grader_character_id_characters_id_fk" FOREIGN KEY ("grader_character_id") REFERENCES "public"."characters"("id") ON DELETE set null ON UPDATE no action;ALTER TABLE "xp_ledger" DROP CONSTRAINT "xp_ledger_related_pet_id_pets_id_fk";
+--> statement-breakpoint
+ALTER TABLE "xp_ledger" DROP COLUMN "related_pet_id";
+--> statement-breakpoint
+DROP TABLE "pets" CASCADE;

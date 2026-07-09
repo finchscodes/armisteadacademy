@@ -22,10 +22,10 @@ add things that already exist).
 
 ## Already had this running before this update
 
-If you already ran everything through `09`, you only need the one new file:
-1. `10-threads-reactions-age-year.sql` — adds post reactions/comments, thread
-   scene details (location/time/surroundings), locked character age, and the
-   admin year override. No destructive changes in this one.
+If you already ran everything through `10`, you only need the one new file:
+1. `11-remove-pets.sql` — removes the pets feature entirely (it's been
+   scrapped). This deletes any pet data — export the `pets` table first via
+   Supabase's Table Editor if you want to keep a record of it.
 
 ## File reference
 
@@ -33,5 +33,5 @@ If you already ran everything through `09`, you only need the one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`09` | (historical) incremental updates, all folded into `01` |
-| `10-threads-reactions-age-year.sql` | Reactions/comments, scene details, age, year override |
+| `03`–`10` | (historical) incremental updates, all folded into `01` |
+| `11-remove-pets.sql` | Removes the pets feature |

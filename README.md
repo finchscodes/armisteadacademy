@@ -46,6 +46,20 @@ upgrade). For the latest update specifically, run
 Environment variables (all set in Vercel): `DATABASE_URL`, `SESSION_SECRET`,
 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 
+**Getting `SUPABASE_SERVICE_ROLE_KEY` right** — Supabase is in the middle of migrating
+everyone off their old key system, so what you see in the dashboard depends on your
+project:
+- If Settings → API Keys shows a **"Legacy API Keys"** tab, use the `service_role` key
+  from there.
+- If your project has already moved to the new system, there's no `service_role` key
+  anymore — instead, go to the **Secret keys** section and use that value (it looks like
+  `sb_secret_...`) as `SUPABASE_SERVICE_ROLE_KEY`. Despite the different name/format, it
+  works as a drop-in replacement — the code doesn't need to change, just the value.
+
+If uploads fail with "Invalid API key," this is almost always the cause — either the
+wrong key type was copied (anon/publishable instead of service_role/secret), or the
+project switched key systems and the old value stopped working.
+
 ## Still deferred
 
 - Rich HTML/CSS editor for lessons, bios, and articles + community articles board with

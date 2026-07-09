@@ -30,6 +30,7 @@ export const gradeTierEnum = pgEnum("grade_tier", [
   "needs_improvement",
   "failing",
 ]);
+export const relationStatusEnum = pgEnum("relation_status", ["pending", "accepted"]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",
   "grading_payment", // what the grader themself earns for grading
@@ -96,6 +97,11 @@ export const characters = pgTable(
     // admin sets this, it overrides the computed value entirely. Null = auto.
     yearOverride: varchar("year_override", { length: 20 }),
     bio: text("bio"),
+    // Freely editable, no locking (unlike major/age) — just profile info.
+    gender: text("gender"), // "Male" | "Non-binary" | "Female" — validated in lib/character-options.ts
+    socialStatus: text("social_status"), // "Spy Born" | "Family Secret" | "New Blood" — see same file
+    personality: text("personality"),
+    appearance: text("appearance"),
     avatarUrl: text("avatar_url"),
     isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -327,6 +333,38 @@ export const guideSections = pgTable(
   },
   (table) => ({
     slugIdx: uniqueIndex("guide_sections_slug_idx").on(table.slug),
+  })
+);
+
+/**
+ * A relation between two characters (married, sibling, enemy, etc). Stored
+ * as a directed edge: relationType is written from fromCharacter's point of
+ * view. Directional types (parent_of/child_of, godparent_of/godchild_of)
+ * display as their inverse on the toCharacter's side — see
+ * lib/relations.ts for the type list and inverse lookup. Symmetric types
+ * (married_to, sibling_to, enemy_of, etc) display the same on both sides.
+ */
+export const characterRelations = pgTable(
+  "character_relations",
+  {
+    id: serial("id").primaryKey(),
+    fromCharacterId: integer("from_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    toCharacterId: integer("to_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    relationType: text("relation_type").notNull(),
+    status: relationStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    respondedAt: timestamp("responded_at"),
+  },
+  (table) => ({
+    uniqueTriple: uniqueIndex("character_relations_unique_idx").on(
+      table.fromCharacterId,
+      table.toCharacterId,
+      table.relationType
+    ),
   })
 );
 

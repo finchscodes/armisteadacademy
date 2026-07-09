@@ -22,13 +22,10 @@ add things that already exist).
 
 ## Already had this running before this update
 
-If you already ran everything through `08`, you only need the one new file:
-1. `09-jobs-admin-classes-into-areas.sql` — moves jobs to characters, adds the
-   account admin flag + class-assignment table, removes the old "The Grounds"
-   category, and re-homes the class boards into their matching area categories.
-   **Read the warning at the top** — it deletes some boards, which cascades to
-   any threads/posts on them. Your existing admin access is preserved
-   automatically (old spymaster/admin accounts become is_admin = true).
+If you already ran everything through `09`, you only need the one new file:
+1. `10-threads-reactions-age-year.sql` — adds post reactions/comments, thread
+   scene details (location/time/surroundings), locked character age, and the
+   admin year override. No destructive changes in this one.
 
 ## File reference
 
@@ -36,5 +33,5 @@ If you already ran everything through `08`, you only need the one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`08` | (historical) incremental updates, all folded into `01` |
-| `09-jobs-admin-classes-into-areas.sql` | Jobs→characters, admin flag, class assignments, board reshuffle |
+| `03`–`09` | (historical) incremental updates, all folded into `01` |
+| `10-threads-reactions-age-year.sql` | Reactions/comments, scene details, age, year override |

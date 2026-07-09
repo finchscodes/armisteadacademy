@@ -5,6 +5,7 @@ import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { canPostArticle } from "@/lib/article-boards";
+import { nowMs } from "@/lib/time";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
 
 function timeAgo(date: Date) {
@@ -24,7 +25,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
   const data = await getBoardBySlug(slug);
   if (!data) notFound();
 
-  const { board, childBoards, threads } = data;
+  const { board, childBoards, threads: allThreads } = data;
   const isClassBoard = board.kind === "class";
   const isArticleBoard = board.kind === "article";
   const [lessons, current] = await Promise.all([
@@ -43,6 +44,17 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
       ? current.session.isAdmin ||
         (current.activeCharacter ? await canPostArticle(current.activeCharacter.id, board.id) : false)
       : !isClassBoard && !isArticleBoard;
+
+  // Scheduled-future articles are hidden from everyone except management
+  // (who can already post here) and the article's own author.
+  const now = nowMs();
+  const threads = isArticleBoard
+    ? allThreads.filter((t) => {
+        if (!t.scheduledFor || t.scheduledFor.getTime() <= now) return true;
+        if (canPostHere) return true;
+        return t.characterId === current?.activeCharacter?.id;
+      })
+    : allThreads;
 
   return (
     <div>
@@ -131,6 +143,12 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                       <span className="absolute inset-0" />
                     </Link>
                     {t.isLocked && <span className="text-ink-400 ml-1.5 text-xs">(locked)</span>}
+                    {t.scheduledFor && t.scheduledFor.getTime() > now && (
+                      <span className="ml-1.5 text-[10px] uppercase tracking-wider text-brass-400 border border-brass-500/40 rounded px-1.5 py-0.5">
+                        Scheduled &middot; {t.scheduledFor.toLocaleDateString()}{" "}
+                        {t.scheduledFor.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                      </span>
+                    )}
                   </p>
                   <p className="text-xs text-ink-400 mt-0.5">
                     by{" "}

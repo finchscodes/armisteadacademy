@@ -25,6 +25,7 @@ const newThreadSchema = z.object({
   location: z.string().max(200).optional().or(z.literal("")),
   timeSetting: z.string().max(100).optional().or(z.literal("")),
   surroundings: z.string().max(4000).optional().or(z.literal("")),
+  scheduledFor: z.string().optional().or(z.literal("")),
 });
 
 export async function createThreadAction(
@@ -40,6 +41,7 @@ export async function createThreadAction(
     location: formData.get("location") || undefined,
     timeSetting: formData.get("timeSetting") || undefined,
     surroundings: formData.get("surroundings") || undefined,
+    scheduledFor: formData.get("scheduledFor") || undefined,
   });
 
   if (!parsed.success) {
@@ -63,9 +65,21 @@ export async function createThreadAction(
     }
   }
 
+  const isArticle = board.kind === "article";
+  let scheduledFor: Date | null = null;
+  if (isArticle && parsed.data.scheduledFor) {
+    const parsedDate = new Date(parsed.data.scheduledFor);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return { error: "That scheduled date isn't valid" };
+    }
+    if (parsedDate.getTime() > Date.now()) {
+      scheduledFor = parsedDate;
+    }
+    // A date in the past just publishes immediately — no error needed.
+  }
+
   const threadSlug = slugifyUnique(title);
   const now = new Date();
-  const isArticle = board.kind === "article";
 
   const [thread] = await db
     .insert(threads)
@@ -78,6 +92,7 @@ export async function createThreadAction(
       location: isArticle ? null : location || null,
       timeSetting: isArticle ? null : timeSetting || null,
       surroundings: isArticle ? null : surroundings || null,
+      scheduledFor,
       lastPostAt: now,
     })
     .returning({ id: threads.id, slug: threads.slug });

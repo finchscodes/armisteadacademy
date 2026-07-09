@@ -5,7 +5,8 @@ import { getLessonsTakenCounts, yearLabelForOverrideOrLessons } from "@/lib/year
 import { getReactionsForPosts, getCommentsForPosts } from "@/lib/post-interactions";
 import { jobColor } from "@/lib/roles";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
-import { canModeratePosts } from "@/lib/article-boards";
+import { canModeratePosts, canPostArticle } from "@/lib/article-boards";
+import { nowMs } from "@/lib/time";
 import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
@@ -37,6 +38,20 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
   const canModerate =
     Boolean(session?.isAdmin) || (viewerCharacterId ? await canModeratePosts(viewerCharacterId) : false);
 
+  // A scheduled-future article is only visible to whoever can post on this
+  // board (management/granted writers) and its author — same rule as the
+  // board listing, just enforced here too so a direct link can't bypass it.
+  const now = nowMs();
+  const isScheduledFuture = Boolean(thread.scheduledFor && thread.scheduledFor.getTime() > now);
+  if (isScheduledFuture) {
+    const isAuthor = thread.characterId === viewerCharacterId;
+    const canSeeScheduled =
+      Boolean(session?.isAdmin) ||
+      isAuthor ||
+      (viewerCharacterId ? await canPostArticle(viewerCharacterId, board?.id ?? -1) : false);
+    if (!canSeeScheduled) notFound();
+  }
+
   const [uniqueCharacterIds, reactionsByPost, commentsByPost] = await Promise.all([
     Promise.resolve([...new Set(posts.map((p) => p.characterId))]),
     getReactionsForPosts(postIds, viewerCharacterId),
@@ -65,6 +80,14 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         {session?.isAdmin && <DeleteThreadButton threadId={thread.id} />}
       </div>
       <h1 className="font-display text-3xl text-brass-400 mb-2">{thread.title}</h1>
+
+      {isScheduledFuture && thread.scheduledFor && (
+        <p className="text-xs uppercase tracking-wider text-brass-400 border border-brass-500/40 rounded-lg px-3 py-2 mb-4 inline-block">
+          Scheduled to publish {thread.scheduledFor.toLocaleDateString()} at{" "}
+          {thread.scheduledFor.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+          &nbsp;— only visible to you right now
+        </p>
+      )}
 
       {(sceneDetails.length > 0 || thread.surroundings) && (
         <div className="bg-ink-900/60 border border-ink-700 rounded-lg px-4 py-3 mb-6 text-sm">

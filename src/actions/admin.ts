@@ -569,3 +569,59 @@ export async function revokeArticlePermissionAction(formData: FormData) {
     revalidatePath("/admin/article-boards");
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Editing board names and descriptions                                      */
+/* -------------------------------------------------------------------------- */
+
+/** Every board, ordered like the site nav (category -> children, in position order). */
+export async function getAllBoardsForAdmin() {
+  await requireAdmin();
+
+  const allBoards = await db.select().from(boards).orderBy(boards.position);
+  const categories = allBoards.filter((b) => b.kind === "category");
+  const others = allBoards.filter((b) => b.kind !== "category");
+
+  return categories.map((cat) => ({
+    ...cat,
+    children: others.filter((b) => b.parentId === cat.id),
+  }));
+}
+
+export async function getBoardForAdmin(boardId: number) {
+  await requireAdmin();
+  const [board] = await db.select().from(boards).where(eq(boards.id, boardId));
+  return board ?? null;
+}
+
+const updateBoardSchema = z.object({
+  boardId: z.coerce.number().int(),
+  name: z.string().min(1, "Name is required").max(120),
+  description: z.string().max(2000).optional().or(z.literal("")),
+});
+
+export async function adminUpdateBoardAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateBoardSchema.safeParse({
+    boardId: formData.get("boardId"),
+    name: formData.get("name"),
+    description: formData.get("description") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { boardId, name, description } = parsed.data;
+  await db
+    .update(boards)
+    .set({ name, description: description || null })
+    .where(eq(boards.id, boardId));
+
+  revalidatePath("/admin/boards");
+  revalidatePath("/", "layout"); // nav mega-menu shows board names
+  return { success: "Board updated" };
+}

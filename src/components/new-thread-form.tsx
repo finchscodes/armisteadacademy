@@ -78,6 +78,24 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
         </>
       )}
 
+      {isArticle && (
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="scheduledFor">
+            Publish
+          </label>
+          <input
+            id="scheduledFor"
+            name="scheduledFor"
+            type="datetime-local"
+            className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          />
+          <p className="text-[11px] text-ink-400 mt-1">
+            Leave blank to publish immediately, or pick a future date/time to schedule it — it
+            stays hidden from everyone but management until then.
+          </p>
+        </div>
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-1">
           {isArticle ? "Article body" : "Opening post"}

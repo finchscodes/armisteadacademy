@@ -1,6 +1,8 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { postReactions, postComments, characters } from "@/db/schema";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
+import type { CharacterJob } from "@/lib/roles";
 
 export type ReactionSummary = { emoji: string; count: number; reactedByViewer: boolean };
 
@@ -48,6 +50,7 @@ export type PostCommentRow = {
   characterLastName: string;
   characterSlug: string;
   characterAvatarUrl: string | null;
+  characterJob: CharacterJob;
 };
 
 export async function getCommentsForPosts(postIds: number[]): Promise<Map<number, PostCommentRow[]>> {
@@ -72,9 +75,10 @@ export async function getCommentsForPosts(postIds: number[]): Promise<Map<number
     .orderBy(postComments.createdAt);
 
   const map = new Map<number, PostCommentRow[]>();
+  const jobsByCharacter = await getPrimaryJobsForCharacters([...new Set(rows.map((r) => r.characterId))]);
   for (const row of rows) {
     if (!map.has(row.postId)) map.set(row.postId, []);
-    map.get(row.postId)!.push(row);
+    map.get(row.postId)!.push({ ...row, characterJob: jobsByCharacter.get(row.characterId) ?? "none" });
   }
   return map;
 }

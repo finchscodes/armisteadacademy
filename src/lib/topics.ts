@@ -1,8 +1,12 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { posts, threads, boards } from "@/db/schema";
 
-/** Every distinct thread a character has posted in (opening post or reply), most recent first. */
+/**
+ * Every distinct thread a character has posted in (opening post or reply),
+ * most recent first. Excludes article boards (Notice Board, Armistead
+ * Weekly, etc) — those aren't "topics" in the roleplay sense.
+ */
 export async function getParticipatedThreads(characterId: number) {
   const rows = await db
     .selectDistinctOn([threads.id], {
@@ -16,7 +20,7 @@ export async function getParticipatedThreads(characterId: number) {
     .from(posts)
     .innerJoin(threads, eq(posts.threadId, threads.id))
     .innerJoin(boards, eq(threads.boardId, boards.id))
-    .where(eq(posts.characterId, characterId))
+    .where(and(eq(posts.characterId, characterId), ne(boards.kind, "article")))
     .orderBy(threads.id, desc(posts.createdAt));
 
   // selectDistinctOn doesn't let us ORDER the final result by lastPostAt

@@ -3,7 +3,14 @@ import { db } from "@/db";
 import { characterRelations, characters } from "@/db/schema";
 import { relationLabel, inverseRelationType } from "@/lib/relations";
 
-type OtherCharacter = { id: number; name: string; slug: string; avatarUrl: string | null };
+type OtherCharacter = {
+  id: number;
+  name: string;
+  firstName: string;
+  lastName: string;
+  slug: string;
+  avatarUrl: string | null;
+};
 
 export type AcceptedRelation = {
   id: number;
@@ -21,6 +28,8 @@ export async function getAcceptedRelations(characterId: number): Promise<Accepte
       relationType: characterRelations.relationType,
       otherId: characters.id,
       otherName: characters.name,
+      otherFirstName: characters.firstName,
+      otherLastName: characters.lastName,
       otherSlug: characters.slug,
       otherAvatarUrl: characters.avatarUrl,
     })
@@ -48,7 +57,14 @@ export async function getAcceptedRelations(characterId: number): Promise<Accepte
     return {
       id: r.id,
       label: relationLabel(type),
-      other: { id: r.otherId, name: r.otherName, slug: r.otherSlug, avatarUrl: r.otherAvatarUrl },
+      other: {
+        id: r.otherId,
+        name: r.otherName,
+        firstName: r.otherFirstName,
+        lastName: r.otherLastName,
+        slug: r.otherSlug,
+        avatarUrl: r.otherAvatarUrl,
+      },
     };
   });
 }
@@ -69,6 +85,8 @@ export async function getIncomingRequests(characterId: number): Promise<PendingR
       createdAt: characterRelations.createdAt,
       otherId: characters.id,
       otherName: characters.name,
+      otherFirstName: characters.firstName,
+      otherLastName: characters.lastName,
       otherSlug: characters.slug,
       otherAvatarUrl: characters.avatarUrl,
     })
@@ -81,7 +99,14 @@ export async function getIncomingRequests(characterId: number): Promise<PendingR
     id: r.id,
     // Shown from the recipient's point of view — the inverse of what the sender picked.
     label: relationLabel(inverseRelationType(r.relationType)),
-    other: { id: r.otherId, name: r.otherName, slug: r.otherSlug, avatarUrl: r.otherAvatarUrl },
+    other: {
+      id: r.otherId,
+      name: r.otherName,
+      firstName: r.otherFirstName,
+      lastName: r.otherLastName,
+      slug: r.otherSlug,
+      avatarUrl: r.otherAvatarUrl,
+    },
     createdAt: r.createdAt,
   }));
 }
@@ -95,6 +120,8 @@ export async function getOutgoingRequests(characterId: number): Promise<PendingR
       createdAt: characterRelations.createdAt,
       otherId: characters.id,
       otherName: characters.name,
+      otherFirstName: characters.firstName,
+      otherLastName: characters.lastName,
       otherSlug: characters.slug,
       otherAvatarUrl: characters.avatarUrl,
     })
@@ -106,7 +133,14 @@ export async function getOutgoingRequests(characterId: number): Promise<PendingR
   return rows.map((r) => ({
     id: r.id,
     label: relationLabel(r.relationType),
-    other: { id: r.otherId, name: r.otherName, slug: r.otherSlug, avatarUrl: r.otherAvatarUrl },
+    other: {
+      id: r.otherId,
+      name: r.otherName,
+      firstName: r.otherFirstName,
+      lastName: r.otherLastName,
+      slug: r.otherSlug,
+      avatarUrl: r.otherAvatarUrl,
+    },
     createdAt: r.createdAt,
   }));
 }

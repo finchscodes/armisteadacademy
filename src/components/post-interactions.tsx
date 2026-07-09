@@ -5,8 +5,8 @@ import Link from "next/link";
 import {
   toggleReactionAction,
   addCommentAction,
-  ALLOWED_REACTION_EMOJI,
 } from "@/actions/post-interactions";
+import { ALLOWED_REACTION_EMOJI } from "@/lib/reactions";
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
 import { CharacterBadge } from "./character-badge";
 

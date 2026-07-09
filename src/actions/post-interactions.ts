@@ -6,8 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { postReactions, postComments, posts, threads } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-
-export const ALLOWED_REACTION_EMOJI = ["👍", "❤️", "😂", "😮", "😢"];
+import { ALLOWED_REACTION_EMOJI } from "@/lib/reactions";
 
 async function revalidateThreadForPost(postId: number) {
   const [post] = await db.select({ threadId: posts.threadId }).from(posts).where(eq(posts.id, postId));

@@ -5,6 +5,7 @@ import { updateCharacterAction } from "@/actions/characters";
 import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { UNDECIDED_MAJOR } from "@/lib/majors";
+import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 
 export function EditCharacterForm({
   characterId,
@@ -14,6 +15,10 @@ export function EditCharacterForm({
   major,
   avatarUrl,
   bio,
+  gender,
+  socialStatus,
+  personality,
+  appearance,
 }: {
   characterId: number;
   legalName: string;
@@ -22,6 +27,10 @@ export function EditCharacterForm({
   major: string;
   avatarUrl: string | null;
   bio: string | null;
+  gender: string | null;
+  socialStatus: string | null;
+  personality: string | null;
+  appearance: string | null;
 }) {
   const [state, formAction, pending] = useActionState(updateCharacterAction, undefined);
   const majorIsLocked = major !== UNDECIDED_MAJOR;
@@ -53,6 +62,45 @@ export function EditCharacterForm({
 
       <FaceclaimUpload name="avatarUrl" initialUrl={avatarUrl} />
 
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="gender">
+            Gender
+          </label>
+          <select
+            id="gender"
+            name="gender"
+            defaultValue={gender ?? ""}
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          >
+            <option value="">Not set</option>
+            {GENDER_OPTIONS.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="socialStatus">
+            Social status
+          </label>
+          <select
+            id="socialStatus"
+            name="socialStatus"
+            defaultValue={socialStatus ?? ""}
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          >
+            <option value="">Not set</option>
+            {SOCIAL_STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {majorIsLocked ? (
         <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">
           <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">Major</p>
@@ -74,6 +122,32 @@ export function EditCharacterForm({
           name="bio"
           rows={6}
           defaultValue={bio ?? ""}
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="personality">
+          Personality
+        </label>
+        <textarea
+          id="personality"
+          name="personality"
+          rows={4}
+          defaultValue={personality ?? ""}
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="appearance">
+          Appearance
+        </label>
+        <textarea
+          id="appearance"
+          name="appearance"
+          rows={4}
+          defaultValue={appearance ?? ""}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>

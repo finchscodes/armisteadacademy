@@ -9,7 +9,7 @@ import { characters, currencyLedger } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
-import { AGE_OPTIONS, DEFAULT_AGE } from "@/lib/character-options";
+import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -99,6 +99,10 @@ const updateCharacterSchema = z.object({
   major: z.enum(SELECTABLE_MAJOR_VALUES).optional(),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
+  gender: z.enum(GENDER_OPTIONS).optional().or(z.literal("")),
+  socialStatus: z.enum(SOCIAL_STATUS_OPTIONS).optional().or(z.literal("")),
+  personality: z.string().max(4000).optional(),
+  appearance: z.string().max(4000).optional(),
 });
 
 export async function updateCharacterAction(
@@ -114,13 +118,18 @@ export async function updateCharacterAction(
     major: formData.get("major") || undefined,
     avatarUrl: formData.get("avatarUrl") || undefined,
     bio: formData.get("bio") || undefined,
+    gender: formData.get("gender") || undefined,
+    socialStatus: formData.get("socialStatus") || undefined,
+    personality: formData.get("personality") || undefined,
+    appearance: formData.get("appearance") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, name, major, avatarUrl, bio } = parsed.data;
+  const { characterId, name, major, avatarUrl, bio, gender, socialStatus, personality, appearance } =
+    parsed.data;
 
   const [existing] = await db
     .select({ id: characters.id, userId: characters.userId, slug: characters.slug, major: characters.major })
@@ -139,7 +148,16 @@ export async function updateCharacterAction(
 
   await db
     .update(characters)
-    .set({ name, major: majorToSave, avatarUrl: avatarUrl || null, bio: bio || null })
+    .set({
+      name,
+      major: majorToSave,
+      avatarUrl: avatarUrl || null,
+      bio: bio || null,
+      gender: gender || null,
+      socialStatus: socialStatus || null,
+      personality: personality || null,
+      appearance: appearance || null,
+    })
     .where(eq(characters.id, characterId));
 
   revalidatePath(`/c/${existing.slug}`);

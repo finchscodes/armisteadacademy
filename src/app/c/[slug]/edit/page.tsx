@@ -34,6 +34,10 @@ export default async function EditCharacterPage({
         major={character.major}
         avatarUrl={character.avatarUrl}
         bio={character.bio}
+        gender={character.gender}
+        socialStatus={character.socialStatus}
+        personality={character.personality}
+        appearance={character.appearance}
       />
     </div>
   );

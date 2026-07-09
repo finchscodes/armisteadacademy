@@ -8,7 +8,7 @@ export async function getCurrentUser() {
   if (!session) return null;
 
   const [myCharacters, activeCharacterId] = await Promise.all([
-    db.select().from(characters).where(eq(characters.userId, session.userId)),
+    db.select().from(characters).where(eq(characters.userId, session.userId)).orderBy(characters.createdAt),
     getActiveCharacterId(),
   ]);
 

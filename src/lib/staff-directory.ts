@@ -14,6 +14,8 @@ export async function getStaffDirectory() {
       slug: characters.slug,
       job: characters.job,
       avatarUrl: characters.avatarUrl,
+      firstName: characters.firstName,
+      lastName: characters.lastName,
     })
     .from(characters)
     .where(ne(characters.job, "none"));

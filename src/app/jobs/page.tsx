@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getStaffDirectory } from "@/lib/staff-directory";
 import { JOB_VALUES, JOB_META, jobLabel, isListedJob, type CharacterJob } from "@/lib/roles";
+import { CharacterBadge } from "@/components/character-badge";
 
 export default async function JobsPage() {
   const staff = await getStaffDirectory();
@@ -45,11 +46,15 @@ export default async function JobsPage() {
                       href={`/c/${c.slug}`}
                       className="px-4 py-2.5 flex items-center gap-3 hover:bg-ink-800/60 transition-colors"
                     >
-                      <span
-                        className="text-sm font-medium text-parchment-100"
-                        style={{ color: meta.color ?? undefined }}
-                      >
-                        {c.name}
+                      <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
+                      <span>
+                        <span
+                          className="block text-sm font-medium text-parchment-100"
+                          style={{ color: meta.color ?? undefined }}
+                        >
+                          {c.firstName} {c.lastName}
+                        </span>
+                        <span className="block text-xs text-ink-400">&ldquo;{c.name}&rdquo;</span>
                       </span>
                     </Link>
                   ))}

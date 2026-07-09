@@ -57,7 +57,8 @@ export async function getUserDetail(userId: number) {
       lastName: characters.lastName,
     })
     .from(characters)
-    .where(eq(characters.userId, userId));
+    .where(eq(characters.userId, userId))
+    .orderBy(characters.createdAt);
 
   return { user, characters: userCharacters };
 }

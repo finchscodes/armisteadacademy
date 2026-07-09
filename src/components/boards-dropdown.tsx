@@ -98,11 +98,11 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
 
           <div className="border-t border-ink-700 mt-6 pt-4">
             <Link
-              href="/boards"
+              href="/jobs"
               onClick={() => setOpen(false)}
               className="text-xs text-ink-400 hover:text-brass-400 transition-colors"
             >
-              View all boards &rarr;
+              Job List &rarr;
             </Link>
           </div>
         </div>

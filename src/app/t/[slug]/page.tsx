@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
-import { getLessonsTakenCounts, yearLabelForLessonsTaken } from "@/lib/year";
+import { getLessonsTakenCounts, yearLabelForOverrideOrLessons } from "@/lib/year";
+import { getReactionsForPosts, getCommentsForPosts } from "@/lib/post-interactions";
 import { jobColor } from "@/lib/roles";
-import { getSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
+import { PostInteractions } from "@/components/post-interactions";
 
 function formatDate(date: Date) {
   return date.toLocaleString(undefined, {
@@ -20,14 +22,26 @@ function formatDate(date: Date) {
 
 export default async function ThreadPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [data, session] = await Promise.all([getThreadBySlug(slug), getSession()]);
+  const [data, current] = await Promise.all([getThreadBySlug(slug), getCurrentUser()]);
   if (!data) notFound();
 
   const { thread, board, posts } = data;
+  const session = current?.session ?? null;
   const openingPostId = posts[0]?.id;
+  const postIds = posts.map((p) => p.id);
+  const viewerCharacterId = current?.activeCharacter?.id ?? null;
 
-  const uniqueCharacterIds = [...new Set(posts.map((p) => p.characterId))];
+  const [uniqueCharacterIds, reactionsByPost, commentsByPost] = await Promise.all([
+    Promise.resolve([...new Set(posts.map((p) => p.characterId))]),
+    getReactionsForPosts(postIds, viewerCharacterId),
+    getCommentsForPosts(postIds),
+  ]);
   const lessonsTakenMap = await getLessonsTakenCounts(uniqueCharacterIds);
+
+  const sceneDetails = [
+    thread.location && { label: "Location", value: thread.location },
+    thread.timeSetting && { label: "Time", value: thread.timeSetting },
+  ].filter(Boolean) as { label: string; value: string }[];
 
   return (
     <div>
@@ -41,14 +55,34 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         )}
         {session?.isAdmin && <DeleteThreadButton threadId={thread.id} />}
       </div>
-      <h1 className="font-display text-3xl text-brass-400 mb-6">{thread.title}</h1>
+      <h1 className="font-display text-3xl text-brass-400 mb-2">{thread.title}</h1>
+
+      {(sceneDetails.length > 0 || thread.surroundings) && (
+        <div className="bg-ink-900/60 border border-ink-700 rounded-lg px-4 py-3 mb-6 text-sm">
+          {sceneDetails.length > 0 && (
+            <p className="text-ink-300">
+              {sceneDetails.map((d, i) => (
+                <span key={d.label}>
+                  {i > 0 && <span className="text-ink-600 mx-2">&middot;</span>}
+                  <span className="text-ink-400">{d.label}: </span>
+                  {d.value}
+                </span>
+              ))}
+            </p>
+          )}
+          {thread.surroundings && (
+            <p className="text-ink-400 italic mt-1 whitespace-pre-wrap">{thread.surroundings}</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-4 mb-8">
         {posts.map((post) => {
-          const yearLabel =
-            post.characterMajor === "Faculty"
-              ? "Faculty"
-              : yearLabelForLessonsTaken(lessonsTakenMap.get(post.characterId) ?? 0);
+          const yearLabel = yearLabelForOverrideOrLessons(
+            post.characterYearOverride,
+            post.characterMajor,
+            lessonsTakenMap.get(post.characterId) ?? 0
+          );
 
           return (
             <article
@@ -88,6 +122,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                 <div className="whitespace-pre-wrap leading-relaxed text-parchment-100/95">
                   {post.content}
                 </div>
+                <PostInteractions
+                  postId={post.id}
+                  reactions={reactionsByPost.get(post.id) ?? []}
+                  comments={commentsByPost.get(post.id) ?? []}
+                  canInteract={Boolean(viewerCharacterId)}
+                />
               </div>
             </article>
           );

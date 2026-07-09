@@ -29,6 +29,7 @@ export default async function EditCharacterPage({
       <EditCharacterForm
         characterId={character.id}
         legalName={legalName}
+        age={character.age}
         name={character.name}
         major={character.major}
         avatarUrl={character.avatarUrl}

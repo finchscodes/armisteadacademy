@@ -14,7 +14,7 @@ export default async function CharactersPage() {
       id: c.id,
       balance: await getCharacterBalance(c.id),
       level: (await getCharacterLevelProgress(c.id)).level,
-      year: await getCharacterYearLabel(c.id, c.major),
+      year: await getCharacterYearLabel(c.id, c.major, c.yearOverride),
     }))
   );
   const statMap = new Map(stats.map((s) => [s.id, s]));

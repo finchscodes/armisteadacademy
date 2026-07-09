@@ -44,7 +44,7 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
       </button>
 
       {open && (
-        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(96vw,1100px)] bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-6 z-30 max-h-[80vh] overflow-y-auto">
+        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(96vw,1100px)] bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-6 z-30">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
             {categories.map((category) => (
               <div key={category.id}>
@@ -52,7 +52,7 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
                   {category.name}
                 </p>
                 <div className="space-y-1">
-                  {category.children.length === 0 ? (
+                  {category.children.length === 0 && category.slug !== "dormitories" ? (
                     <p className="text-xs text-ink-400 italic">Empty</p>
                   ) : (
                     category.children.map((board) => (
@@ -70,6 +70,19 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
                         )}
                       </Link>
                     ))
+                  )}
+                  {/* Job List lives with the dorms — it's a job board, not a real topic area. */}
+                  {category.slug === "dormitories" && (
+                    <Link
+                      href="/jobs"
+                      onClick={() => setOpen(false)}
+                      className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
+                    >
+                      Job List
+                      <span className="ml-1.5 text-[9px] uppercase tracking-wider text-brass-400">
+                        job board
+                      </span>
+                    </Link>
                   )}
                 </div>
               </div>
@@ -94,16 +107,6 @@ export function BoardsDropdown({ tree }: { tree: BoardNode[] }) {
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="border-t border-ink-700 mt-6 pt-4">
-            <Link
-              href="/jobs"
-              onClick={() => setOpen(false)}
-              className="text-xs text-ink-400 hover:text-brass-400 transition-colors"
-            >
-              Job List &rarr;
-            </Link>
           </div>
         </div>
       )}

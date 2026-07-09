@@ -16,13 +16,14 @@ export async function CharacterCard({
     firstName: string;
     lastName: string;
     job: CharacterJob;
+    yearOverride: string | null;
     avatarUrl: string | null;
   };
 }) {
   const [balance, levelProgress, yearLabel] = await Promise.all([
     getCharacterBalance(character.id),
     getCharacterLevelProgress(character.id),
-    getCharacterYearLabel(character.id, character.major),
+    getCharacterYearLabel(character.id, character.major, character.yearOverride),
   ]);
 
   return (

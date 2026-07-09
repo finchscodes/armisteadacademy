@@ -3,10 +3,11 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { pets, xpLedger } from "@/db/schema";
+import { pets, characters, xpLedger } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
+import { getSession } from "@/lib/auth";
 import { XP_AWARDS } from "@/lib/xp";
 import type { ActionState } from "./auth";
 
@@ -46,12 +47,22 @@ export async function adoptPetAction(
 }
 
 export async function cuddlePetAction(formData: FormData) {
-  const { characterId } = await requireSessionAndCharacter();
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const petId = Number(formData.get("petId"));
   if (!petId) return;
 
   const [pet] = await db.select().from(pets).where(eq(pets.id, petId));
-  if (!pet || pet.characterId !== characterId) return;
+  if (!pet) return;
+
+  // Any character on your account can cuddle their own pet — you don't need to
+  // have that specific character "active" to interact with it.
+  const [ownedCharacter] = await db
+    .select({ id: characters.id })
+    .from(characters)
+    .where(and(eq(characters.id, pet.characterId), eq(characters.userId, session.userId)));
+  if (!ownedCharacter) return;
 
   if (pet.lastCuddledAt) {
     const elapsed = Date.now() - pet.lastCuddledAt.getTime();
@@ -65,7 +76,7 @@ export async function cuddlePetAction(formData: FormData) {
   await db.update(pets).set({ lastCuddledAt: new Date() }).where(eq(pets.id, petId));
 
   await db.insert(xpLedger).values({
-    characterId,
+    characterId: pet.characterId,
     amount: XP_AWARDS.pet_cuddle,
     reason: "pet_cuddle",
     relatedPetId: petId,

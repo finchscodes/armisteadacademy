@@ -22,7 +22,7 @@ export default async function CharacterProfilePage({
 
   const [levelProgress, yearLabel, current, characterPets] = await Promise.all([
     getCharacterLevelProgress(character.id),
-    getCharacterYearLabel(character.id, character.major),
+    getCharacterYearLabel(character.id, character.major, character.yearOverride),
     getCurrentUser(),
     db.select().from(pets).where(eq(pets.characterId, character.id)),
   ]);

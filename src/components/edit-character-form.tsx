@@ -9,6 +9,7 @@ import { UNDECIDED_MAJOR } from "@/lib/majors";
 export function EditCharacterForm({
   characterId,
   legalName,
+  age,
   name,
   major,
   avatarUrl,
@@ -16,6 +17,7 @@ export function EditCharacterForm({
 }: {
   characterId: number;
   legalName: string;
+  age: number;
   name: string;
   major: string;
   avatarUrl: string | null;
@@ -29,8 +31,10 @@ export function EditCharacterForm({
       <input type="hidden" name="characterId" value={characterId} />
 
       <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">
-        <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">Legal name</p>
-        <p className="text-sm text-parchment-100">{legalName}</p>
+        <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">Legal name &amp; age</p>
+        <p className="text-sm text-parchment-100">
+          {legalName} &middot; {age}
+        </p>
         <p className="text-[11px] text-ink-400 mt-1">Locked — this can never be changed.</p>
       </div>
 

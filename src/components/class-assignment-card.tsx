@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { assignClassAction, unassignClassAction } from "@/actions/admin";
 
-type Assigned = { id: number; characterName: string; characterSlug: string };
+type Assigned = { id: number; characterFirstName: string; characterLastName: string; characterSlug: string };
 
 export function ClassAssignmentCard({
   boardId,
@@ -27,7 +27,7 @@ export function ClassAssignmentCard({
               key={a.id}
               className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-2.5 pr-1 py-1"
             >
-              {a.characterName}
+              {a.characterFirstName} {a.characterLastName}
               <form action={unassignClassAction} className="inline">
                 <input type="hidden" name="assignmentId" value={a.id} />
                 <button
@@ -48,19 +48,26 @@ export function ClassAssignmentCard({
       <form action={formAction} className="flex items-center gap-2">
         <input type="hidden" name="boardId" value={boardId} />
         <input
-          name="characterName"
-          placeholder="Character name (exact)"
+          name="firstName"
+          placeholder="First name"
           required
-          className="flex-1 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+          className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+        />
+        <input
+          name="lastName"
+          placeholder="Last name"
+          required
+          className="flex-1 min-w-0 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
         />
         <button
           type="submit"
           disabled={pending}
-          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
         >
           {pending ? "..." : "Assign"}
         </button>
       </form>
+      <p className="text-[10px] text-ink-400 mt-1">By legal name, not code name.</p>
       {state?.error && <p className="text-xs text-claret-500 mt-1">{state.error}</p>}
       {state?.success && <p className="text-xs text-brass-400 mt-1">{state.success}</p>}
     </div>

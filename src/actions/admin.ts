@@ -2,12 +2,13 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, ilike, count } from "drizzle-orm";
+import { eq, or, ilike, count, and } from "drizzle-orm";
 import { db } from "@/db";
 import { users, characters, boards, classAssignments } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
+import { AGE_OPTIONS } from "@/lib/character-options";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -52,6 +53,8 @@ export async function getUserDetail(userId: number) {
       slug: characters.slug,
       major: characters.major,
       job: characters.job,
+      age: characters.age,
+      yearOverride: characters.yearOverride,
       firstName: characters.firstName,
       middleName: characters.middleName,
       lastName: characters.lastName,
@@ -237,8 +240,9 @@ export async function getClassAssignmentOverview() {
       id: classAssignments.id,
       boardId: classAssignments.boardId,
       characterId: characters.id,
-      characterName: characters.name,
       characterSlug: characters.slug,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
     })
     .from(classAssignments)
     .innerJoin(characters, eq(classAssignments.characterId, characters.id));
@@ -249,20 +253,31 @@ export async function getClassAssignmentOverview() {
   }));
 }
 
-/** Look up a character by exact code name, for the assignment form. */
-export async function findCharacterByName(name: string) {
+/**
+ * Look up a character by their locked legal name (first + last), not their
+ * code name — code names can be changed anytime by the owner, so keying
+ * assignments off them would let someone dodge/spoof an assignment by
+ * renaming. Legal name is locked and admin-only to change.
+ */
+export async function findCharacterByLegalName(firstName: string, lastName: string) {
   await requireAdmin();
   const [character] = await db
-    .select({ id: characters.id, name: characters.name })
+    .select({ id: characters.id, firstName: characters.firstName, lastName: characters.lastName })
     .from(characters)
-    .where(eq(characters.name, name.trim()))
+    .where(
+      and(
+        ilike(characters.firstName, firstName.trim()),
+        ilike(characters.lastName, lastName.trim())
+      )
+    )
     .limit(1);
   return character ?? null;
 }
 
 const assignSchema = z.object({
   boardId: z.coerce.number().int(),
-  characterName: z.string().min(1),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
 });
 
 export async function assignClassAction(
@@ -273,15 +288,18 @@ export async function assignClassAction(
 
   const parsed = assignSchema.safeParse({
     boardId: formData.get("boardId"),
-    characterName: formData.get("characterName"),
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
   });
   if (!parsed.success) {
-    return { error: "Enter a character name" };
+    return { error: "Enter the character's first and last name" };
   }
 
-  const character = await findCharacterByName(parsed.data.characterName);
+  const character = await findCharacterByLegalName(parsed.data.firstName, parsed.data.lastName);
   if (!character) {
-    return { error: `No character found with the exact name "${parsed.data.characterName}"` };
+    return {
+      error: `No character found with the legal name "${parsed.data.firstName} ${parsed.data.lastName}"`,
+    };
   }
 
   await db
@@ -290,7 +308,7 @@ export async function assignClassAction(
     .onConflictDoNothing();
 
   revalidatePath("/admin/classes");
-  return { success: `Assigned ${character.name}` };
+  return { success: `Assigned ${character.firstName} ${character.lastName}` };
 }
 
 export async function unassignClassAction(formData: FormData) {
@@ -300,4 +318,94 @@ export async function unassignClassAction(formData: FormData) {
     await db.delete(classAssignments).where(eq(classAssignments.id, assignmentId));
     revalidatePath("/admin/classes");
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Admin character management: age, year override, delete                    */
+/* -------------------------------------------------------------------------- */
+
+const updateAgeSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  age: z.coerce.number().int().refine((v) => (AGE_OPTIONS as readonly number[]).includes(v), {
+    message: "Age must be between 18 and 25",
+  }),
+});
+
+export async function adminUpdateCharacterAgeAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateAgeSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    age: formData.get("age"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db
+    .update(characters)
+    .set({ age: parsed.data.age })
+    .where(eq(characters.id, parsed.data.characterId));
+
+  revalidatePath(`/admin/users/${parsed.data.userId}`);
+  return { success: "Age updated" };
+}
+
+const YEAR_OVERRIDE_VALUES = [
+  "auto",
+  "1st Year",
+  "2nd Year",
+  "3rd Year",
+  "4th Year",
+  "5th Year",
+  "Graduate",
+] as const;
+
+const updateYearSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  yearOverride: z.enum(YEAR_OVERRIDE_VALUES),
+});
+
+export async function adminUpdateCharacterYearAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateYearSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    yearOverride: formData.get("yearOverride"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, yearOverride } = parsed.data;
+  await db
+    .update(characters)
+    .set({ yearOverride: yearOverride === "auto" ? null : yearOverride })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Year updated" };
+}
+
+export async function adminDeleteCharacterAction(formData: FormData) {
+  await requireAdmin();
+  const characterId = Number(formData.get("characterId"));
+  const userId = Number(formData.get("userId"));
+  if (!characterId) return;
+
+  // Cascades to that character's threads, posts, pets, reactions, comments,
+  // ledger entries, and class assignments.
+  await db.delete(characters).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
 }

@@ -92,6 +92,7 @@ export async function getThreadBySlug(slug: string) {
       characterName: characters.name,
       characterJob: characters.job,
       characterMajor: characters.major,
+      characterYearOverride: characters.yearOverride,
       characterAvatarUrl: characters.avatarUrl,
     })
     .from(posts)

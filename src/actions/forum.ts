@@ -16,6 +16,9 @@ const newThreadSchema = z.object({
   boardSlug: z.string().min(1),
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
   content: z.string().min(1, "Post can't be empty").max(20000),
+  location: z.string().max(200).optional().or(z.literal("")),
+  timeSetting: z.string().max(100).optional().or(z.literal("")),
+  surroundings: z.string().max(4000).optional().or(z.literal("")),
 });
 
 export async function createThreadAction(
@@ -28,17 +31,23 @@ export async function createThreadAction(
     boardSlug: formData.get("boardSlug"),
     title: formData.get("title"),
     content: formData.get("content"),
+    location: formData.get("location") || undefined,
+    timeSetting: formData.get("timeSetting") || undefined,
+    surroundings: formData.get("surroundings") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, content } = parsed.data;
+  const { boardSlug, title, content, location, timeSetting, surroundings } = parsed.data;
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) {
     return { error: "That board no longer exists" };
+  }
+  if (board.kind === "class") {
+    return { error: "This is a class board — it only takes lessons, not topics" };
   }
 
   const threadSlug = slugifyUnique(title);
@@ -52,6 +61,9 @@ export async function createThreadAction(
       userId: session.userId,
       title,
       slug: threadSlug,
+      location: location || null,
+      timeSetting: timeSetting || null,
+      surroundings: surroundings || null,
       lastPostAt: now,
     })
     .returning({ id: threads.id, slug: threads.slug });

@@ -5,6 +5,9 @@ import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
+import { AdminAgeEditor } from "@/components/admin-age-editor";
+import { AdminYearEditor } from "@/components/admin-year-editor";
+import { DeleteCharacterButton } from "@/components/delete-buttons";
 
 export default async function AdminUserDetailPage({
   params,
@@ -44,32 +47,47 @@ export default async function AdminUserDetailPage({
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
             {characters.map((c) => (
-                <div key={c.id} className="px-4 py-3 space-y-2">
+              <div key={c.id} className="px-4 py-3 space-y-2">
+                <div className="flex items-center justify-between">
                   <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-brass-400">
                     {c.name}
                   </Link>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
-                      Legal name
-                    </p>
-                    <AdminNameEditor
-                      characterId={c.id}
-                      userId={user.id}
-                      firstName={c.firstName}
-                      middleName={c.middleName}
-                      lastName={c.lastName}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>
-                    <AdminMajorEditor characterId={c.id} userId={user.id} currentMajor={c.major} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Job</p>
-                    <AdminJobEditor characterId={c.id} userId={user.id} currentJob={c.job} />
-                  </div>
+                  <DeleteCharacterButton characterId={c.id} userId={user.id} characterName={c.name} />
                 </div>
-              ))}
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                    Legal name
+                  </p>
+                  <AdminNameEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    firstName={c.firstName}
+                    middleName={c.middleName}
+                    lastName={c.lastName}
+                  />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Age</p>
+                  <AdminAgeEditor characterId={c.id} userId={user.id} currentAge={c.age} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>
+                  <AdminMajorEditor characterId={c.id} userId={user.id} currentMajor={c.major} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Year</p>
+                  <AdminYearEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    currentYearOverride={c.yearOverride}
+                  />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Job</p>
+                  <AdminJobEditor characterId={c.id} userId={user.id} currentJob={c.job} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

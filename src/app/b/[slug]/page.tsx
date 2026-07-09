@@ -43,7 +43,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
           <h1 className="font-display text-3xl text-brass-400">{board.name}</h1>
           {board.description && <p className="text-ink-400 mt-1 max-w-xl">{board.description}</p>}
         </div>
-        {board.kind !== "category" && (
+        {board.kind !== "category" && !isClassBoard && (
           <Link
             href={`/b/${board.slug}/new`}
             className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
@@ -102,7 +102,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         </div>
       )}
 
-      {board.kind !== "category" && (
+      {board.kind !== "category" && !isClassBoard && (
         <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
           {threads.length === 0 ? (
             <p className="px-4 py-6 text-sm text-ink-400 text-center">

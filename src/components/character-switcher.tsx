@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setActiveCharacterAction } from "@/actions/characters";
 
-type Character = { id: number; name: string };
+type Character = { id: number; firstName: string; lastName: string };
 
 export function CharacterSwitcher({
   characters,
@@ -41,11 +41,11 @@ export function CharacterSwitcher({
         value={current}
         onChange={handleChange}
         disabled={pending}
-        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 max-w-[140px] disabled:opacity-60"
+        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 max-w-[160px] disabled:opacity-60"
       >
         {characters.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.name}
+            {c.firstName} {c.lastName}
           </option>
         ))}
       </select>

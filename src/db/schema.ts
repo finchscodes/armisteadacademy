@@ -80,6 +80,12 @@ export const characters = pgTable(
     middleName: varchar("middle_name", { length: 50 }),
     lastName: varchar("last_name", { length: 50 }).notNull().default("Unknown"),
     major: characterMajorEnum("major").notNull().default("Undecided/Witness Protection"),
+    // Set once at creation (18-25), then locked — same pattern as major.
+    // Admin can override.
+    age: integer("age").notNull().default(18),
+    // Year is normally computed from lessons taken (see src/lib/year.ts). If an
+    // admin sets this, it overrides the computed value entirely. Null = auto.
+    yearOverride: varchar("year_override", { length: 20 }),
     job: characterJobEnum("job").notNull().default("none"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
@@ -127,6 +133,10 @@ export const threads = pgTable("threads", {
     .references(() => users.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 200 }).notNull(),
   slug: varchar("slug", { length: 220 }).notNull(),
+  // Optional scene-setting details the thread starter can fill in.
+  location: varchar("location", { length: 200 }),
+  timeSetting: varchar("time_setting", { length: 100 }),
+  surroundings: text("surroundings"),
   isLocked: boolean("is_locked").notNull().default(false),
   isPinned: boolean("is_pinned").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -147,6 +157,50 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   editedAt: timestamp("edited_at"),
+});
+
+/**
+ * Emoji reactions on a forum post, attributed to the CHARACTER that reacted
+ * (not the account) — so if you switch characters, you react as that persona.
+ * One row per (post, character, emoji) — a character can stack multiple
+ * different emoji on the same post, but not the same emoji twice.
+ */
+export const postReactions = pgTable(
+  "post_reactions",
+  {
+    id: serial("id").primaryKey(),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    emoji: varchar("emoji", { length: 16 }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueReaction: uniqueIndex("post_reactions_unique_idx").on(
+      table.postId,
+      table.characterId,
+      table.emoji
+    ),
+  })
+);
+
+/** Lightweight comments on a forum post (not a full reply post in the thread). */
+export const postComments = pgTable("post_comments", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: varchar("content", { length: 1000 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 /** Site-wide sidebar chat — separate from in-character forum threads. */
@@ -217,7 +271,9 @@ export const submissions = pgTable("submissions", {
     .references(() => characters.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   status: submissionStatusEnum("status").notNull().default("open"),
-  graderCharacterId: integer("grader_character_id").references(() => characters.id),
+  graderCharacterId: integer("grader_character_id").references(() => characters.id, {
+    onDelete: "set null",
+  }),
   grade: integer("grade"), // 0-100
   feedback: text("feedback"),
   payout: integer("payout"),

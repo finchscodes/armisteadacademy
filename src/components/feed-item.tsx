@@ -20,6 +20,8 @@ export type FeedItem = {
   createdAt: Date;
   characterName: string;
   characterSlug: string;
+  characterFirstName: string;
+  characterLastName: string;
   characterJob: CharacterJob;
   characterAvatarUrl: string | null;
   threadTitle: string;
@@ -41,7 +43,7 @@ export function FeedItemCard({ item }: { item: FeedItem }) {
             className="text-parchment-100 font-medium hover:underline"
             style={{ color: jobColor(item.characterJob) ?? undefined }}
           >
-            {item.characterName}
+            {item.characterFirstName} {item.characterLastName}
           </Link>
           <span className="text-ink-400"> posted in </span>
           <Link href={`/t/${item.threadSlug}`} className="text-brass-400 hover:underline">

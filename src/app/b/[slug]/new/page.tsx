@@ -6,6 +6,8 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
   const { slug } = await params;
   const data = await getBoardBySlug(slug);
   if (!data) notFound();
+  // Class boards focus on lessons only — no free-form topics.
+  if (data.board.kind === "class") notFound();
 
   return (
     <div className="max-w-2xl mx-auto">

@@ -9,7 +9,7 @@ export default async function AdminClassesPage() {
       <p className="text-sm text-ink-400 mb-4">
         Assign characters to teach specific classes. An assigned character can post lessons only
         to the classes they&apos;re assigned to (admins can post to any). Enter the character&apos;s
-        exact code name.
+        legal first and last name &mdash; not their code name, since that can be changed anytime.
       </p>
 
       {classes.length === 0 ? (

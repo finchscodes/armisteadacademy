@@ -9,6 +9,7 @@ import { characters, currencyLedger } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
+import { AGE_OPTIONS, DEFAULT_AGE } from "@/lib/character-options";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -23,6 +24,9 @@ const createCharacterSchema = z.object({
     .optional()
     .or(z.literal("")),
   lastName: z.string().min(1, "Last name is required").max(50).regex(nameRegex, "Letters only"),
+  age: z.coerce.number().int().refine((v) => (AGE_OPTIONS as readonly number[]).includes(v), {
+    message: "Age must be between 18 and 25",
+  }),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
   major: z.enum(SELECTABLE_MAJOR_VALUES, { message: "Pick a major" }),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
@@ -44,6 +48,7 @@ export async function createCharacterAction(
     firstName: formData.get("firstName"),
     middleName: formData.get("middleName") || undefined,
     lastName: formData.get("lastName"),
+    age: formData.get("age") || DEFAULT_AGE,
     name: formData.get("name"),
     major: formData.get("major"),
     avatarUrl: formData.get("avatarUrl") || undefined,
@@ -54,7 +59,7 @@ export async function createCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { firstName, middleName, lastName, name, major, avatarUrl, bio } = parsed.data;
+  const { firstName, middleName, lastName, age, name, major, avatarUrl, bio } = parsed.data;
   const slug = slugifyUnique(name);
 
   const [character] = await db
@@ -62,6 +67,7 @@ export async function createCharacterAction(
     .values({
       userId: session.userId,
       firstName,
+      age,
       middleName: middleName || undefined,
       lastName,
       name,

@@ -48,14 +48,26 @@ export async function getLessonsTakenCounts(
   return new Map(rows.map((r) => [r.characterId, r.total]));
 }
 
+export function yearLabelForOverrideOrLessons(
+  yearOverride: string | null,
+  major: string,
+  lessonsTaken: number
+): string {
+  if (yearOverride) return yearOverride;
+  if (major === "Faculty") return "Faculty";
+  return yearLabelForLessonsTaken(lessonsTaken);
+}
+
 /**
- * Faculty don't progress through years — everyone else does, based on lessons taken.
- * `major` is the character's chosen major (characters.major).
+ * Faculty don't progress through years — everyone else does, based on lessons
+ * taken, unless an admin has set a manual override.
  */
 export async function getCharacterYearLabel(
   characterId: number,
-  major: string
+  major: string,
+  yearOverride?: string | null
 ): Promise<string> {
+  if (yearOverride) return yearOverride;
   if (major === "Faculty") return "Faculty";
   const lessonsTaken = await getLessonsTakenCount(characterId);
   return yearLabelForLessonsTaken(lessonsTaken);

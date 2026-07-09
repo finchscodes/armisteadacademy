@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useActionState } from "react";
 import { createThreadAction } from "@/actions/forum";
 
 export function NewThreadForm({ boardSlug }: { boardSlug: string }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
+  const [showDetails, setShowDetails] = useState(false);
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -21,6 +23,55 @@ export function NewThreadForm({ boardSlug }: { boardSlug: string }) {
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowDetails((v) => !v)}
+          className="text-xs text-brass-400 hover:underline"
+        >
+          {showDetails ? "− Hide scene details" : "+ Add scene details (location, time, surroundings)"}
+        </button>
+      </div>
+
+      {showDetails && (
+        <div className="space-y-3 border border-ink-700 rounded-lg p-4 bg-ink-800/40">
+          <div>
+            <label className="block text-xs font-medium mb-1" htmlFor="location">
+              Location
+            </label>
+            <input
+              id="location"
+              name="location"
+              placeholder="e.g. The Dining Hall"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1" htmlFor="timeSetting">
+              Time
+            </label>
+            <input
+              id="timeSetting"
+              name="timeSetting"
+              placeholder="e.g. Late evening, a week after midterms"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1" htmlFor="surroundings">
+              Surroundings
+            </label>
+            <textarea
+              id="surroundings"
+              name="surroundings"
+              rows={3}
+              placeholder="Weather, mood, who's around, anything setting the scene"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="content">

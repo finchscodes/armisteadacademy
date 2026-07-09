@@ -7,7 +7,10 @@ import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
+import { AdminLevelEditor } from "@/components/admin-level-editor";
+import { AdminBalanceEditor } from "@/components/admin-balance-editor";
 import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
+import { levelForXp } from "@/lib/xp";
 
 export default async function AdminUserDetailPage({
   params,
@@ -88,6 +91,18 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
                   <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Level</p>
+                  <AdminLevelEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    currentLevel={levelForXp(c.xp)}
+                  />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Money</p>
+                  <AdminBalanceEditor characterId={c.id} userId={user.id} currentBalance={c.balance} />
                 </div>
               </div>
             ))}

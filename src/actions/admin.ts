@@ -4,10 +4,13 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions } from "@/db/schema";
+import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
+import { getCharacterXp, cumulativeXpForLevel } from "@/lib/xp";
+import { getCharacterBalance } from "@/lib/economy";
+import { slugifyUnique } from "@/lib/slug";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -67,10 +70,14 @@ export async function getUserDetail(userId: number) {
       ? await db.select().from(characterJobs).where(inArray(characterJobs.characterId, characterIds))
       : [];
 
-  const withJobs = userCharacters.map((c) => ({
-    ...c,
-    jobs: allJobs.filter((j) => j.characterId === c.id),
-  }));
+  const withJobs = await Promise.all(
+    userCharacters.map(async (c) => ({
+      ...c,
+      jobs: allJobs.filter((j) => j.characterId === c.id),
+      xp: await getCharacterXp(c.id),
+      balance: await getCharacterBalance(c.id),
+    }))
+  );
 
   return { user, characters: withJobs };
 }
@@ -624,4 +631,176 @@ export async function adminUpdateBoardAction(
   revalidatePath("/admin/boards");
   revalidatePath("/", "layout"); // nav mega-menu shows board names
   return { success: "Board updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Creating and deleting boards                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Every category, for the "parent" picker when creating a new board. */
+export async function getCategoriesForAdmin() {
+  await requireAdmin();
+  return db
+    .select({ id: boards.id, name: boards.name })
+    .from(boards)
+    .where(eq(boards.kind, "category"))
+    .orderBy(boards.position);
+}
+
+const createBoardSchema = z.object({
+  name: z.string().min(1, "Name is required").max(120),
+  kind: z.enum(["category", "board", "class", "article"]),
+  parentId: z.coerce.number().int().optional(),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  extraArticleJob: z.enum(JOB_VALUES).optional(),
+});
+
+export async function adminCreateBoardAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = createBoardSchema.safeParse({
+    name: formData.get("name"),
+    kind: formData.get("kind"),
+    parentId: formData.get("parentId") || undefined,
+    description: formData.get("description") || undefined,
+    extraArticleJob: formData.get("extraArticleJob") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { name, kind, parentId, description, extraArticleJob } = parsed.data;
+
+  if (kind !== "category" && !parentId) {
+    return { error: "Pick a parent category" };
+  }
+
+  const slug = slugifyUnique(name);
+  const siblings = parentId
+    ? await db.select({ id: boards.id }).from(boards).where(eq(boards.parentId, parentId))
+    : await db.select({ id: boards.id }).from(boards).where(eq(boards.kind, "category"));
+
+  await db.insert(boards).values({
+    kind,
+    parentId: kind === "category" ? null : parentId,
+    name,
+    slug,
+    description: description || null,
+    extraArticleJob: kind === "article" ? extraArticleJob || null : null,
+    position: siblings.length,
+  });
+
+  revalidatePath("/admin/boards");
+  revalidatePath("/", "layout");
+  return { success: `"${name}" created` };
+}
+
+export async function adminDeleteBoardAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+  const boardId = Number(formData.get("boardId"));
+  if (!boardId) return { error: "Missing board" };
+
+  // boards.parentId isn't a real foreign key (self-referencing FKs get messy),
+  // so a category's children won't cascade automatically — check first rather
+  // than silently orphaning them.
+  const children = await db.select({ id: boards.id }).from(boards).where(eq(boards.parentId, boardId));
+  if (children.length > 0) {
+    return { error: `Delete or move its ${children.length} board(s) first` };
+  }
+
+  await db.delete(boards).where(eq(boards.id, boardId));
+
+  revalidatePath("/admin/boards");
+  revalidatePath("/", "layout");
+  return { success: "Board deleted" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Adjusting a character's level (XP) and money — both ledger-based, so we   */
+/*  insert one adjustment entry for the delta rather than overwriting a       */
+/*  stored total (there isn't one — level and balance are always derived     */
+/*  from the ledgers, which keeps every change auditable).                    */
+/* -------------------------------------------------------------------------- */
+
+const adjustLevelSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  targetLevel: z.coerce.number().int().min(1, "Level must be at least 1").max(999, "Too high"),
+});
+
+export async function adminAdjustCharacterLevelAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = adjustLevelSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    targetLevel: formData.get("targetLevel"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, targetLevel } = parsed.data;
+  const currentXp = await getCharacterXp(characterId);
+  const targetXp = cumulativeXpForLevel(targetLevel);
+  const delta = targetXp - currentXp;
+
+  if (delta !== 0) {
+    await db.insert(xpLedger).values({
+      characterId,
+      amount: delta,
+      reason: "admin_adjustment",
+      note: `Admin set level to ${targetLevel}`,
+    });
+  }
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: `Level set to ${targetLevel}` };
+}
+
+const adjustBalanceSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  targetBalance: z.coerce.number().int().min(0, "Balance can't be negative").max(1000000, "Too high"),
+});
+
+export async function adminAdjustCharacterBalanceAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = adjustBalanceSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    targetBalance: formData.get("targetBalance"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, targetBalance } = parsed.data;
+  const currentBalance = await getCharacterBalance(characterId);
+  const delta = targetBalance - currentBalance;
+
+  if (delta !== 0) {
+    await db.insert(currencyLedger).values({
+      characterId,
+      amount: delta,
+      reason: "admin_adjustment",
+      note: `Admin set balance to ${targetBalance}`,
+    });
+  }
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: `Balance set to ${targetBalance}` };
 }

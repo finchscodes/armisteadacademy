@@ -1,0 +1,21 @@
+-- Run this in Supabase's SQL Editor after 14-multi-job-support.sql.
+-- IMPORTANT: run this file by itself (click Run), THEN separately run
+-- 16-notice-and-community-boards.sql as its own query. Postgres can reject
+-- using a brand new enum value in the same transaction it was added in, so
+-- don't paste both files together into one query.
+--
+-- Adds the "article" board kind (single-post announcements with comments,
+-- gated to management) and the table for granting posting rights on a
+-- specific article board to someone who isn't management by job.
+
+ALTER TYPE "public"."board_kind" ADD VALUE 'article';--> statement-breakpoint
+CREATE TABLE "board_post_permissions" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"character_id" integer NOT NULL,
+	"board_id" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "board_post_permissions" ADD CONSTRAINT "board_post_permissions_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "board_post_permissions" ADD CONSTRAINT "board_post_permissions_board_id_boards_id_fk" FOREIGN KEY ("board_id") REFERENCES "public"."boards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "board_post_permissions_character_board_idx" ON "board_post_permissions" USING btree ("character_id","board_id");

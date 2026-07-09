@@ -1,0 +1,1 @@
+ALTER TABLE "boards" ADD COLUMN "extra_article_job" character_job;

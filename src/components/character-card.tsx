@@ -3,11 +3,21 @@ import { CharacterBadge } from "./character-badge";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
+import { jobColor, type CharacterJob } from "@/lib/roles";
 
 export async function CharacterCard({
   character,
 }: {
-  character: { id: number; name: string; slug: string; major: string; avatarUrl: string | null };
+  character: {
+    id: number;
+    name: string;
+    slug: string;
+    major: string;
+    firstName: string;
+    lastName: string;
+    job: CharacterJob;
+    avatarUrl: string | null;
+  };
 }) {
   const [balance, levelProgress, yearLabel] = await Promise.all([
     getCharacterBalance(character.id),
@@ -23,11 +33,13 @@ export async function CharacterCard({
       <div className="flex-1 min-w-0">
         <Link
           href={`/c/${character.slug}`}
-          className="font-display text-xl text-parchment-100 hover:text-brass-400 transition-colors"
+          className="font-display text-xl text-parchment-100 hover:underline"
+          style={{ color: jobColor(character.job) ?? undefined }}
         >
-          {character.name}
+          {character.firstName} {character.lastName}
         </Link>
-        <p className="text-sm text-brass-400">{character.major}</p>
+        <p className="text-xs text-ink-400">&ldquo;{character.name}&rdquo;</p>
+        <p className="text-sm text-brass-400 mt-0.5">{character.major}</p>
         <p className="text-xs text-ink-400">{yearLabel}</p>
       </div>
       <div className="text-right shrink-0 space-y-1">

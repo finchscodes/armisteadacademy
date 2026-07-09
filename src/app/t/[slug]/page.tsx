@@ -6,7 +6,7 @@ import { jobColor } from "@/lib/roles";
 import { getSession } from "@/lib/auth";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
-import { DeletePostButton } from "@/components/delete-buttons";
+import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
 
 function formatDate(date: Date) {
   return date.toLocaleString(undefined, {
@@ -31,12 +31,17 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div>
-      {board && (
-        <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-brass-400">
-          &larr; {board.name}
-        </Link>
-      )}
-      <h1 className="font-display text-3xl text-brass-400 mt-2 mb-6">{thread.title}</h1>
+      <div className="flex items-center justify-between mb-2">
+        {board ? (
+          <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-brass-400">
+            &larr; {board.name}
+          </Link>
+        ) : (
+          <span />
+        )}
+        {session?.isAdmin && <DeleteThreadButton threadId={thread.id} />}
+      </div>
+      <h1 className="font-display text-3xl text-brass-400 mb-6">{thread.title}</h1>
 
       <div className="space-y-4 mb-8">
         {posts.map((post) => {
@@ -71,12 +76,14 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-ink-400">{formatDate(post.createdAt)}</p>
-                  {session && (session.userId === post.authorUserId || session.isAdmin) && (
-                    <DeletePostButton
-                      postId={post.id}
-                      isOpeningPost={post.id === openingPostId}
-                    />
-                  )}
+                  {session &&
+                    ((session.userId === post.authorUserId && post.id !== openingPostId) ||
+                      session.isAdmin) && (
+                      <DeletePostButton
+                        postId={post.id}
+                        isOpeningPost={post.id === openingPostId}
+                      />
+                    )}
                 </div>
                 <div className="whitespace-pre-wrap leading-relaxed text-parchment-100/95">
                   {post.content}

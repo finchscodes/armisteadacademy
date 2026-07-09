@@ -135,8 +135,9 @@ export async function createPostAction(
 /* -------------------------------------------------------------------------- */
 
 /**
- * You can delete a post if you authored it (any character on your account) or
- * you're an admin. Deleting the first post of a thread deletes the whole thread.
+ * Regular users can delete their own individual posts (replies) — not the
+ * thread's opening post, since that would take the whole thread down with it.
+ * Deleting the opening post (or any post) is admin-only.
  */
 export async function deletePostAction(formData: FormData) {
   const session = await getSession();
@@ -148,7 +149,8 @@ export async function deletePostAction(formData: FormData) {
   const [post] = await db.select().from(posts).where(eq(posts.id, postId));
   if (!post) return;
 
-  if (post.userId !== session.userId && !session.isAdmin) {
+  const isOwnPost = post.userId === session.userId;
+  if (!isOwnPost && !session.isAdmin) {
     return; // not your post and not an admin
   }
 
@@ -163,10 +165,18 @@ export async function deletePostAction(formData: FormData) {
     .orderBy(posts.createdAt)
     .limit(1);
 
+  const isOpeningPost = firstPost?.id === postId;
+
+  // Regular (non-admin) users can't remove the opening post — that's
+  // whole-thread deletion, which is reserved for admins.
+  if (isOpeningPost && !session.isAdmin) {
+    return;
+  }
+
   const [board] = await db.select().from(boards).where(eq(boards.id, thread.boardId));
 
-  if (firstPost && firstPost.id === postId) {
-    // Deleting the opening post removes the entire thread (cascades to posts).
+  if (isOpeningPost) {
+    // Admin deleting the opening post removes the entire thread (cascades to posts).
     await db.delete(threads).where(eq(threads.id, thread.id));
     revalidatePath(`/b/${board?.slug ?? ""}`);
     redirect(`/b/${board?.slug ?? ""}`);
@@ -177,20 +187,17 @@ export async function deletePostAction(formData: FormData) {
   redirect(`/t/${thread.slug}`);
 }
 
-/** Delete an entire thread. Author of the opening post, or admin. */
+/** Delete an entire thread outright. Admin only. */
 export async function deleteThreadAction(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (!session.isAdmin) return;
 
   const threadId = Number(formData.get("threadId"));
   if (!threadId) return;
 
   const [thread] = await db.select().from(threads).where(eq(threads.id, threadId));
   if (!thread) return;
-
-  if (thread.userId !== session.userId && !session.isAdmin) {
-    return;
-  }
 
   const [board] = await db.select().from(boards).where(eq(boards.id, thread.boardId));
   await db.delete(threads).where(eq(threads.id, threadId));

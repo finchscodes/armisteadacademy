@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { characters, currencyLedger } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
@@ -147,14 +147,18 @@ export async function setActiveCharacterAction(formData: FormData) {
   const characterId = Number(formData.get("characterId"));
   if (!characterId) return;
 
-  // Ownership check
+  // Only allow switching to a character this user actually owns.
   const [owned] = await db
     .select({ id: characters.id })
     .from(characters)
-    .where(eq(characters.id, characterId));
+    .where(and(eq(characters.id, characterId), eq(characters.userId, session.userId)));
 
-  if (owned) {
-    await setActiveCharacterId(characterId);
-  }
-  revalidatePath("/");
+  if (!owned) return;
+
+  await setActiveCharacterId(characterId);
+
+  // The "posting as" identity affects the nav bar (in the root layout) and every
+  // page that renders the active character, so revalidate the whole tree, not
+  // just "/".
+  revalidatePath("/", "layout");
 }

@@ -51,18 +51,6 @@ export async function NavBar() {
               activeCharacterId={current.activeCharacter?.id ?? null}
             />
             <Link
-              href="/jobs"
-              className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
-            >
-              Jobs
-            </Link>
-            <Link
-              href="/pets"
-              className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
-            >
-              Pets
-            </Link>
-            <Link
               href="/characters"
               className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
             >

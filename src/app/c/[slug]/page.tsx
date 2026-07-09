@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { pets } from "@/db/schema";
 import { getCharacterBySlug } from "@/lib/characters";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
 import { getMajorDescription } from "@/lib/majors";
 import { jobColor, jobLabel } from "@/lib/roles";
-import { getSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
 
 export default async function CharacterProfilePage({
@@ -17,16 +20,18 @@ export default async function CharacterProfilePage({
   const character = await getCharacterBySlug(slug);
   if (!character) notFound();
 
-  const [levelProgress, yearLabel, session] = await Promise.all([
+  const [levelProgress, yearLabel, current, characterPets] = await Promise.all([
     getCharacterLevelProgress(character.id),
     getCharacterYearLabel(character.id, character.major),
-    getSession(),
+    getCurrentUser(),
+    db.select().from(pets).where(eq(pets.characterId, character.id)),
   ]);
   const majorDescription = getMajorDescription(character.major);
   const legalName = [character.firstName, character.middleName, character.lastName]
     .filter(Boolean)
     .join(" ");
-  const isOwner = session?.userId === character.userId;
+  const isOwner = current?.session.userId === character.userId;
+  const isActiveCharacter = current?.activeCharacter?.id === character.id;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -38,9 +43,9 @@ export default async function CharacterProfilePage({
               className="font-display text-2xl text-parchment-100"
               style={{ color: jobColor(character.job) ?? undefined }}
             >
-              {character.name}
+              {legalName}
             </h1>
-            <p className="text-xs text-ink-400 mt-0.5">{legalName}</p>
+            <p className="text-xs text-ink-400 mt-0.5">&ldquo;{character.name}&rdquo;</p>
             {character.job !== "none" && (
               <p
                 className="text-sm mt-1 font-medium"
@@ -80,6 +85,33 @@ export default async function CharacterProfilePage({
             </p>
           ) : (
             <p className="text-sm text-ink-400 italic">No backstory written yet.</p>
+          )}
+        </div>
+
+        <div className="border-t border-ink-700 mt-4 pt-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-display text-sm uppercase tracking-wider text-ink-400">Pets</h2>
+            {isOwner && isActiveCharacter && (
+              <Link href="/pets/new" className="text-xs text-brass-400 hover:underline">
+                + Adopt a pet
+              </Link>
+            )}
+          </div>
+          {characterPets.length === 0 ? (
+            <p className="text-sm text-ink-400 italic">No pets yet.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-2">
+              {characterPets.map((pet) => (
+                <Link
+                  key={pet.id}
+                  href={`/pets/${pet.id}`}
+                  className="bg-ink-800/60 border border-ink-700 rounded-lg px-3 py-2 hover:border-brass-500/50 transition-colors"
+                >
+                  <p className="text-sm text-parchment-100">{pet.name}</p>
+                  <p className="text-xs text-ink-400">{pet.species}</p>
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       </div>

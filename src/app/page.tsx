@@ -64,11 +64,8 @@ export default async function HomePage() {
 
           {feed.length === 0 ? (
             <p className="text-sm text-ink-400">
-              Nothing posted yet.{" "}
-              <Link href="/boards" className="text-brass-400 hover:underline">
-                Browse the boards
-              </Link>{" "}
-              to start a thread.
+              Nothing posted yet. Use the <span className="text-brass-400">Boards</span> menu
+              above to start a thread.
             </p>
           ) : (
             <div className="space-y-3">

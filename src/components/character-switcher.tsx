@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { setActiveCharacterAction } from "@/actions/characters";
 
 type Character = { id: number; name: string };
@@ -12,20 +13,35 @@ export function CharacterSwitcher({
   characters: Character[];
   activeCharacterId: number | null;
 }) {
-  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
   if (characters.length === 0) return null;
 
+  const current = activeCharacterId ?? characters[0].id;
+
+  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const characterId = e.target.value;
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("characterId", characterId);
+      await setActiveCharacterAction(formData);
+      // Re-fetch every server component (nav bar, feed, whatever page we're on)
+      // so the whole site reflects the newly-active character immediately.
+      router.refresh();
+    });
+  }
+
   return (
-    <form ref={formRef} action={setActiveCharacterAction} className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <span className="text-[11px] uppercase tracking-wider text-ink-400 hidden sm:inline">
         Posting as
       </span>
       <select
-        name="characterId"
-        defaultValue={activeCharacterId ?? characters[0].id}
-        onChange={() => formRef.current?.requestSubmit()}
-        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 max-w-[140px]"
+        value={current}
+        onChange={handleChange}
+        disabled={pending}
+        className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 max-w-[140px] disabled:opacity-60"
       >
         {characters.map((c) => (
           <option key={c.id} value={c.id}>
@@ -33,6 +49,6 @@ export function CharacterSwitcher({
           </option>
         ))}
       </select>
-    </form>
+    </div>
   );
 }

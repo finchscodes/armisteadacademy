@@ -403,7 +403,7 @@ export async function adminDeleteCharacterAction(formData: FormData) {
   const userId = Number(formData.get("userId"));
   if (!characterId) return;
 
-  // Cascades to that character's threads, posts, pets, reactions, comments,
+  // Cascades to that character's threads, posts, reactions, comments,
   // ledger entries, and class assignments.
   await db.delete(characters).where(eq(characters.id, characterId));
 

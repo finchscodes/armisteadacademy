@@ -306,21 +306,7 @@ export const xpLedger = pgTable("xp_ledger", {
   reason: xpReasonEnum("reason").notNull(),
   relatedSubmissionId: integer("related_submission_id").references(() => submissions.id),
   relatedPostId: integer("related_post_id").references(() => posts.id),
-  relatedPetId: integer("related_pet_id").references(() => pets.id),
   note: text("note"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const pets = pgTable("pets", {
-  id: serial("id").primaryKey(),
-  characterId: integer("character_id")
-    .notNull()
-    .references(() => characters.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 64 }).notNull(),
-  species: varchar("species", { length: 60 }).notNull(),
-  bio: text("bio"),
-  avatarUrl: text("avatar_url"),
-  lastCuddledAt: timestamp("last_cuddled_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -367,7 +353,6 @@ export const charactersRelations = relations(characters, ({ one, many }) => ({
   user: one(users, { fields: [characters.userId], references: [users.id] }),
   threads: many(threads),
   posts: many(posts),
-  pets: many(pets),
 }));
 
 export const boardsRelations = relations(boards, ({ many }) => ({
@@ -385,10 +370,6 @@ export const postsRelations = relations(posts, ({ one }) => ({
   thread: one(threads, { fields: [posts.threadId], references: [threads.id] }),
   character: one(characters, { fields: [posts.characterId], references: [characters.id] }),
   user: one(users, { fields: [posts.userId], references: [users.id] }),
-}));
-
-export const petsRelations = relations(pets, ({ one }) => ({
-  character: one(characters, { fields: [pets.characterId], references: [characters.id] }),
 }));
 
 export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({

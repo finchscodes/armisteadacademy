@@ -1,3 +1,0 @@
-CREATE TYPE "public"."character_major" AS ENUM('Threat Elimination', 'Precision Shooting', 'Covert Operations', 'Linguistics, Culture, & Assimilation', 'Advanced Encryption', 'Survival, Communications, & Navigation', 'Research & Development', 'Medicine, Chemistry, & Criminology', 'Seduction, Interrogation, & Influence Tactics', 'Protection & Enforcement', 'Undecided/Witness Protection', 'Graduate', 'Faculty');--> statement-breakpoint
-ALTER TABLE "characters" ADD COLUMN "major" character_major DEFAULT 'Undecided/Witness Protection' NOT NULL;--> statement-breakpoint
-ALTER TABLE "characters" DROP COLUMN "house";

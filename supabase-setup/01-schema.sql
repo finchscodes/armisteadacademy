@@ -347,4 +347,4 @@ CREATE UNIQUE INDEX "board_post_permissions_character_board_idx" ON "board_post_
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX "guide_sections_slug_idx" ON "guide_sections" USING btree ("slug");
+CREATE UNIQUE INDEX "guide_sections_slug_idx" ON "guide_sections" USING btree ("slug");ALTER TABLE "threads" ADD COLUMN "scheduled_for" timestamp;

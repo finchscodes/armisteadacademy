@@ -25,10 +25,8 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `18`, you need one new file:
-1. `19-guide-sections.sql` — adds the table behind the new "Rules &
-   Guidelines" page. The page starts empty — add sections through
-   `/admin/guide` once this is run.
+If you already ran everything through `19`, you need one new file:
+1. `20-article-scheduling.sql` — adds the column behind article scheduling.
 
 ## File reference
 
@@ -36,5 +34,5 @@ If you already ran everything through `18`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`18` | (historical) incremental updates, all folded into `01` |
-| `19-guide-sections.sql` | Adds the Rules & Guidelines guidebook |
+| `03`–`19` | (historical) incremental updates, all folded into `01` |
+| `20-article-scheduling.sql` | Adds article scheduling |

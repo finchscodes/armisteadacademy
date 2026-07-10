@@ -57,7 +57,7 @@ export async function NavBar() {
 
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="font-display text-lg md:text-xl tracking-wide text-brass-400 shrink-0">
             Armistead <span className="text-parchment-100">Academy</span>

@@ -17,16 +17,6 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
     name: "Dormitories",
     slug: "dormitories",
     boards: [
-      { name: "Dormitories", slug: "dormitories-board" },
-      { name: "Student Commons", slug: "student-commons" },
-      { name: "Notice Board", slug: "notice-board", kind: "article" },
-      { name: "Community Board", slug: "community-board", kind: "article" },
-    ],
-  },
-  {
-    name: "Halls",
-    slug: "halls",
-    boards: [
       {
         name: "Undercroft Hall",
         slug: "undercroft-hall",
@@ -55,6 +45,10 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
         extraArticleJob: "field_agent",
         restrictedToHall: "eaves",
       },
+      { name: "Dormitories", slug: "dormitories-board" },
+      { name: "Student Commons", slug: "student-commons" },
+      { name: "Notice Board", slug: "notice-board", kind: "article" },
+      { name: "Community Board", slug: "community-board", kind: "article" },
     ],
   },
   {
@@ -116,6 +110,16 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
     ],
   },
   {
+    name: "Communications",
+    slug: "communications",
+    boards: [
+      { name: "Text Messages", slug: "text-messages" },
+      { name: "Social Media", slug: "social-media" },
+      { name: "Emails/Letters", slug: "emails-letters" },
+      { name: "Phone Calls", slug: "phone-calls" },
+    ],
+  },
+  {
     name: "Outside Armistead",
     slug: "outside-armistead",
     boards: [
@@ -125,16 +129,6 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "The Past", slug: "the-past" },
       { name: "Missions", slug: "missions" },
       { name: "Elsewhere", slug: "elsewhere" },
-    ],
-  },
-  {
-    name: "Communications",
-    slug: "communications",
-    boards: [
-      { name: "Text Messages", slug: "text-messages" },
-      { name: "Social Media", slug: "social-media" },
-      { name: "Emails/Letters", slug: "emails-letters" },
-      { name: "Phone Calls", slug: "phone-calls" },
     ],
   },
 ];

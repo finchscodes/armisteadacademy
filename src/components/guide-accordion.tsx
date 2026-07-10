@@ -12,7 +12,7 @@ export function GuideAccordion({ sections }: { sections: Section[] }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
-      <aside className="lg:sticky lg:top-20 lg:self-start">
+      <aside className="lg:sticky lg:top-14 lg:self-start">
         <h1 className="font-display text-xl text-brass-400 leading-tight">Armistead Academy</h1>
         <p className="text-xs uppercase tracking-widest text-ink-400 mt-1 mb-4">Guidebook</p>
         {sections.length === 0 ? (

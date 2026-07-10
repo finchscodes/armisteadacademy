@@ -110,7 +110,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="w-full lg:w-auto lg:sticky lg:top-20">
+      <div className="w-full lg:w-auto lg:sticky lg:top-14">
         <CollapsibleChat
           initialMessages={initialChatMessages}
           initialOnline={online}

@@ -67,7 +67,7 @@ export function BoardsDropdown({
         <div
           className={`fixed left-1/2 -translate-x-1/2 mt-2 max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30 ${
             categories.length === 1 && uncategorized.length === 0
-              ? "w-[min(90vw,280px)]"
+              ? "w-[min(92vw,760px)]"
               : "w-[min(97vw,1240px)]"
           }`}
         >

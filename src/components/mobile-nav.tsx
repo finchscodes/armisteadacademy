@@ -33,7 +33,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
   const panel = (
     <div
       ref={panelRef}
-      className="fixed inset-x-0 top-16 bottom-0 bg-ink-900 border-t border-ink-700 z-40 flex flex-col md:hidden"
+      className="fixed inset-x-0 top-11 bottom-0 bg-ink-900 border-t border-ink-700 z-40 flex flex-col md:hidden"
     >
       <div className="flex gap-2 overflow-x-auto px-4 py-3 border-b border-ink-700 shrink-0">
         {categories.map((c) => (

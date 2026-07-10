@@ -25,8 +25,10 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `35`, you need one new file:
-1. `36-private-messages.sql` — adds the Owl Post private messaging system.
+If you already ran everything through `36`, you need one new file:
+1. `37-merge-halls-reorder-categories.sql` — merges the Halls category into
+   Dormitories, and reorders Inside Armistead's categories so the menu
+   packs into a clean 6-column grid.
 
 ## File reference
 
@@ -34,5 +36,5 @@ If you already ran everything through `35`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`35` | (historical) incremental updates, all folded into `01` |
-| `36-private-messages.sql` | Adds private messaging (Owl Post) |
+| `03`–`36` | (historical) incremental updates, all folded into `01` |
+| `37-merge-halls-reorder-categories.sql` | Merges Halls into Dormitories, reorders categories |

@@ -1,4 +1,4 @@
-import { eq, and, asc, ne, notInArray } from "drizzle-orm";
+import { eq, and, asc, ne, notInArray, count } from "drizzle-orm";
 import { db } from "@/db";
 import { lessons, submissions, submissionGrades, boards, characters } from "@/db/schema";
 import { REQUIRED_GRADERS } from "@/db/schema";
@@ -85,6 +85,67 @@ export async function getGradingQueue(lessonId: number, graderCharacterId: numbe
     .where(
       and(
         eq(submissions.lessonId, lessonId),
+        eq(submissions.status, "open"),
+        ne(submissions.characterId, graderCharacterId),
+        alreadyGradedIds.length > 0 ? notInArray(submissions.id, alreadyGradedIds) : undefined
+      )
+    )
+    .orderBy(asc(submissions.createdAt));
+
+  return rows;
+}
+
+/** How many submissions across every class are waiting for this character to grade. */
+export async function getGradingQueueCount(graderCharacterId: number): Promise<number> {
+  const alreadyGraded = await db
+    .select({ submissionId: submissionGrades.submissionId })
+    .from(submissionGrades)
+    .where(eq(submissionGrades.graderCharacterId, graderCharacterId));
+  const alreadyGradedIds = alreadyGraded.map((g) => g.submissionId);
+
+  const [row] = await db
+    .select({ total: count() })
+    .from(submissions)
+    .where(
+      and(
+        eq(submissions.status, "open"),
+        ne(submissions.characterId, graderCharacterId),
+        alreadyGradedIds.length > 0 ? notInArray(submissions.id, alreadyGradedIds) : undefined
+      )
+    );
+  return row?.total ?? 0;
+}
+
+/**
+ * The full "grading bin" — every open submission across every class waiting
+ * for this character to grade, regardless of which class it's from.
+ */
+export async function getFullGradingQueue(graderCharacterId: number) {
+  const alreadyGraded = await db
+    .select({ submissionId: submissionGrades.submissionId })
+    .from(submissionGrades)
+    .where(eq(submissionGrades.graderCharacterId, graderCharacterId));
+  const alreadyGradedIds = alreadyGraded.map((g) => g.submissionId);
+
+  const rows = await db
+    .select({
+      id: submissions.id,
+      content: submissions.content,
+      createdAt: submissions.createdAt,
+      characterId: submissions.characterId,
+      characterName: characters.name,
+      characterSlug: characters.slug,
+      lessonId: lessons.id,
+      lessonTitle: lessons.title,
+      boardName: boards.name,
+      boardSlug: boards.slug,
+    })
+    .from(submissions)
+    .innerJoin(characters, eq(submissions.characterId, characters.id))
+    .innerJoin(lessons, eq(submissions.lessonId, lessons.id))
+    .innerJoin(boards, eq(lessons.boardId, boards.id))
+    .where(
+      and(
         eq(submissions.status, "open"),
         ne(submissions.characterId, graderCharacterId),
         alreadyGradedIds.length > 0 ? notInArray(submissions.id, alreadyGradedIds) : undefined

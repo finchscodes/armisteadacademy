@@ -1,4 +1,4 @@
-import { eq, desc, and, ne, inArray } from "drizzle-orm";
+import { eq, desc, and, ne, inArray, count } from "drizzle-orm";
 import { db } from "@/db";
 import { posts, threads, boards, characters } from "@/db/schema";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
@@ -53,10 +53,22 @@ export async function getParticipatedThreads(characterId: number) {
     ])
   );
 
+  const postCounts = await db
+    .select({ threadId: posts.threadId, total: count() })
+    .from(posts)
+    .where(inArray(posts.threadId, threadIds))
+    .groupBy(posts.threadId);
+  const postCountByThread = new Map(postCounts.map((p) => [p.threadId, p.total]));
+
   // selectDistinctOn doesn't let us ORDER the final result by lastPostAt
   // directly (Postgres requires the DISTINCT ON columns to lead the ORDER
   // BY), so sort the small deduped set in JS instead.
   return rows
-    .map((r) => ({ ...r, lastPoster: lastPosterByThread.get(r.threadId) ?? null }))
+    .map((r) => ({
+      ...r,
+      lastPoster: lastPosterByThread.get(r.threadId) ?? null,
+      // Reply count excludes the opening post.
+      replyCount: Math.max((postCountByThread.get(r.threadId) ?? 1) - 1, 0),
+    }))
     .sort((a, b) => b.lastPostAt.getTime() - a.lastPostAt.getTime());
 }

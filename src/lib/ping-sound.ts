@@ -1,14 +1,34 @@
 let audioCtx: AudioContext | null = null;
 
-/** Plays a short two-tone chime. Call only from a user-gesture-adjacent context (browsers may block otherwise on the very first call). */
+function getContext(): AudioContext {
+  if (!audioCtx) {
+    const AudioContextClass =
+      window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    audioCtx = new AudioContextClass();
+  }
+  return audioCtx;
+}
+
+/**
+ * Browsers block audio from starting until there's been a real user gesture
+ * (click/keypress) somewhere on the page — a setInterval-driven poll doesn't
+ * count as one. Call this from a click/keydown handler early on (e.g. once,
+ * the first time the user interacts with the page) so the context is already
+ * running by the time a ping needs to play asynchronously later.
+ */
+export function primeAudio() {
+  try {
+    const ctx = getContext();
+    if (ctx.state === "suspended") ctx.resume();
+  } catch {
+    // Fine if this fails — playPingSound() will just no-op later too.
+  }
+}
+
+/** Plays a short two-tone chime. Call primeAudio() from a user gesture first, or this may be silently blocked. */
 export function playPingSound() {
   try {
-    if (!audioCtx) {
-      const AudioContextClass =
-        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      audioCtx = new AudioContextClass();
-    }
-    const ctx = audioCtx;
+    const ctx = getContext();
     if (ctx.state === "suspended") ctx.resume();
 
     const now = ctx.currentTime;

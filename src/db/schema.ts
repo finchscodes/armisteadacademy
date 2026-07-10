@@ -103,6 +103,9 @@ export const characters = pgTable(
     personality: text("personality"),
     appearance: text("appearance"),
     avatarUrl: text("avatar_url"),
+    // Updated by a periodic heartbeat while this character is the active one
+    // in an open tab — drives "who's online" and who can be pinged in chat.
+    lastActiveAt: timestamp("last_active_at"),
     isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

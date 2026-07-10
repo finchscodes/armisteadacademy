@@ -1,6 +1,7 @@
-import { eq, desc, count, asc } from "drizzle-orm";
+import { eq, desc, count, asc, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { boards, threads, posts, characters } from "@/db/schema";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 export type BoardNode = typeof boards.$inferSelect & {
   children: BoardNode[];
@@ -71,10 +72,41 @@ export async function getBoardBySlug(slug: string) {
     .groupBy(posts.threadId);
   const postCountMap = new Map(postCounts.map((p) => [p.threadId, p.total]));
 
+  const threadIds = boardThreads.map((t) => t.id);
+  const lastPosters =
+    threadIds.length > 0
+      ? await db
+          .selectDistinctOn([posts.threadId], {
+            threadId: posts.threadId,
+            characterId: characters.id,
+            characterName: characters.name,
+            characterFirstName: characters.firstName,
+            characterLastName: characters.lastName,
+            characterSlug: characters.slug,
+            characterAvatarUrl: characters.avatarUrl,
+            createdAt: posts.createdAt,
+          })
+          .from(posts)
+          .innerJoin(characters, eq(posts.characterId, characters.id))
+          .where(inArray(posts.threadId, threadIds))
+          .orderBy(posts.threadId, desc(posts.createdAt))
+      : [];
+  const jobsByCharacter = await getPrimaryJobsForCharacters(lastPosters.map((p) => p.characterId));
+  const lastPosterByThread = new Map(
+    lastPosters.map((p) => [
+      p.threadId,
+      { ...p, characterJob: jobsByCharacter.get(p.characterId) ?? "none" },
+    ])
+  );
+
   return {
     board,
     childBoards,
-    threads: boardThreads.map((t) => ({ ...t, postCount: postCountMap.get(t.id) ?? 0 })),
+    threads: boardThreads.map((t) => ({
+      ...t,
+      postCount: postCountMap.get(t.id) ?? 0,
+      lastPoster: lastPosterByThread.get(t.id) ?? null,
+    })),
   };
 }
 

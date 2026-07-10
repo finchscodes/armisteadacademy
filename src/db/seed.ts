@@ -92,6 +92,16 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "Elsewhere", slug: "elsewhere" },
     ],
   },
+  {
+    name: "Communications",
+    slug: "communications",
+    boards: [
+      { name: "Text Messages", slug: "text-messages" },
+      { name: "Social Media", slug: "social-media" },
+      { name: "Emails/Letters", slug: "emails-letters" },
+      { name: "Phone Calls", slug: "phone-calls" },
+    ],
+  },
 ];
 
 async function main() {

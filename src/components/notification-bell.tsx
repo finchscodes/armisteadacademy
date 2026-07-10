@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { markAllNotificationsReadAction } from "@/actions/notifications";
+import { markAllNotificationsReadAction, getMyNotificationsAction } from "@/actions/notifications";
 import { BellIcon } from "./nav-icons";
+
+const POLL_INTERVAL_MS = 15000;
 
 export type NotificationItem = {
   id: number;
@@ -41,6 +43,18 @@ export function NotificationBell({ initial }: { initial: NotificationItem[] }) {
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const fresh = await getMyNotificationsAction();
+        setItems(fresh);
+      } catch {
+        // transient poll failure — next tick will retry
+      }
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
   }, []);
 
   function handleMarkAllRead() {

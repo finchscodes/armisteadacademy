@@ -5,6 +5,7 @@ import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
 import { jobColor } from "@/lib/roles";
 import { getPrimaryJob } from "@/lib/character-jobs";
+import { getMajorColor } from "@/lib/majors";
 
 export async function CharacterCard({
   character,
@@ -41,7 +42,9 @@ export async function CharacterCard({
           {character.firstName} {character.lastName}
         </Link>
         <p className="text-xs text-ink-400">{character.name}</p>
-        <p className="text-sm text-brass-400 mt-0.5">{character.major}</p>
+        <p className="text-sm mt-0.5" style={{ color: getMajorColor(character.major) ?? undefined }}>
+          {character.major}
+        </p>
         <p className="text-xs text-ink-400">{yearLabel}</p>
       </div>
       <div className="text-right shrink-0 space-y-1">

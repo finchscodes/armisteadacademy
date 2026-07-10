@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { getMiniProfileAction, type MiniProfile } from "@/actions/mini-profile";
+import { getMajorColor } from "@/lib/majors";
 
 const cache = new Map<number, MiniProfile>();
 
@@ -51,6 +52,8 @@ export function CharacterHoverCard({
     setShow(false);
   }
 
+  const hoverMajorColor = profile ? getMajorColor(profile.major) ?? "#d9b64a" : "#d9b64a";
+
   return (
     <span
       ref={containerRef}
@@ -62,9 +65,9 @@ export function CharacterHoverCard({
       {show && profile && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}
-          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex gap-2.5"
+          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
         >
-          <Link href={`/c/${slug}`} className="shrink-0 relative">
+          <Link href={`/c/${slug}`} className="shrink-0 relative self-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={profile.avatarUrl ?? undefined}
@@ -95,7 +98,12 @@ export function CharacterHoverCard({
                 {profile.statuses.map((s) => (
                   <span
                     key={s}
-                    className="text-[10px] bg-brass-500/15 text-brass-400 border border-brass-500/30 rounded px-1.5 py-0.5"
+                    className="text-[10px] rounded px-1.5 py-0.5 border"
+                    style={{
+                      color: hoverMajorColor,
+                      backgroundColor: `${hoverMajorColor}26`,
+                      borderColor: `${hoverMajorColor}4d`,
+                    }}
                   >
                     {s}
                   </span>
@@ -110,9 +118,15 @@ export function CharacterHoverCard({
               <span className="text-ink-400">Year: </span>
               <span className="text-parchment-100">{profile.year}</span>
             </p>
+            {profile.hallLabel && (
+              <p>
+                <span className="text-ink-400">Hall: </span>
+                <span style={{ color: profile.hallColor ?? undefined }}>{profile.hallLabel}</span>
+              </p>
+            )}
             <p className="leading-snug">
               <span className="text-ink-400">Major: </span>
-              <span className="text-brass-400">{profile.major}</span>
+              <span style={{ color: getMajorColor(profile.major) ?? undefined }}>{profile.major}</span>
             </p>
           </div>
         </div>

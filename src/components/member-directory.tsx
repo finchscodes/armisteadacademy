@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { CharacterBadge } from "./character-badge";
 import { CharacterHoverCard } from "./character-hover-card";
+import { getMajorColor } from "@/lib/majors";
 
 type Member = {
   id: number;
@@ -43,21 +44,22 @@ export function MemberDirectory({ members }: { members: Member[] }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((m) => (
-            <Link
+            <div
               key={m.id}
-              href={`/c/${m.slug}`}
               className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center gap-3 hover:border-brass-500/50 transition-colors"
             >
               <CharacterHoverCard characterId={m.id} slug={m.slug} className="relative shrink-0">
                 <CharacterBadge name={m.name} avatarUrl={m.avatarUrl} size="sm" />
               </CharacterHoverCard>
               <div className="min-w-0">
-                <p className="text-sm text-parchment-100 truncate">
+                <Link href={`/c/${m.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
                   {m.firstName} {m.lastName}
+                </Link>
+                <p className="text-xs truncate" style={{ color: getMajorColor(m.major) ?? undefined }}>
+                  {m.major}
                 </p>
-                <p className="text-xs text-ink-400 truncate">{m.major}</p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

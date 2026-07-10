@@ -47,6 +47,9 @@ export async function NavBar() {
           <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
             Rules &amp; Guidelines
           </Link>
+          <Link href="/reputation" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
+            Reputation
+          </Link>
         </div>
 
         {current ? (

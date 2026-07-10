@@ -1,4 +1,4 @@
-import { eq, and, asc, ne, notInArray, count } from "drizzle-orm";
+import { eq, and, asc, desc, ne, notInArray, count } from "drizzle-orm";
 import { db } from "@/db";
 import { lessons, submissions, submissionGrades, boards, characters } from "@/db/schema";
 import { REQUIRED_GRADERS } from "@/db/schema";
@@ -152,6 +152,29 @@ export async function getFullGradingQueue(graderCharacterId: number) {
       )
     )
     .orderBy(asc(submissions.createdAt));
+
+  return rows;
+}
+
+/** Every one of this character's own graded submissions — what they earned and on what. */
+export async function getMyGradedSubmissions(characterId: number) {
+  const rows = await db
+    .select({
+      id: submissions.id,
+      finalTier: submissions.finalTier,
+      grade: submissions.grade,
+      payout: submissions.payout,
+      gradedAt: submissions.gradedAt,
+      lessonId: lessons.id,
+      lessonTitle: lessons.title,
+      boardName: boards.name,
+      boardSlug: boards.slug,
+    })
+    .from(submissions)
+    .innerJoin(lessons, eq(submissions.lessonId, lessons.id))
+    .innerJoin(boards, eq(lessons.boardId, boards.id))
+    .where(and(eq(submissions.characterId, characterId), eq(submissions.status, "graded")))
+    .orderBy(desc(submissions.gradedAt));
 
   return rows;
 }

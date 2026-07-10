@@ -1,1 +1,0 @@
-ALTER TABLE "characters" ADD COLUMN "last_active_at" timestamp;

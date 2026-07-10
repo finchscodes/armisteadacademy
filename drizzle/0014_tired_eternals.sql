@@ -1,1 +1,0 @@
-ALTER TABLE "threads" ADD COLUMN "scheduled_for" timestamp;

@@ -25,12 +25,9 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `28`, you need two new files, **run
-as separate queries, in order**:
-1. `29-houses-and-reputation.sql` — adds the Houses/Halls system, sorting
-   quiz tables, and the reputation ledger.
-2. `30-hall-boards.sql` — adds the Halls category with the four
-   hall-exclusive boards. Run this one second, as its own query.
+If you already ran everything through `30`, you need one new file:
+1. `31-reorder-halls.sql` — moves the Halls category to sit right after
+   Dormitories instead of at the end. Purely a display-order change.
 
 ## File reference
 
@@ -38,6 +35,5 @@ as separate queries, in order**:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`28` | (historical) incremental updates, all folded into `01` |
-| `29-houses-and-reputation.sql` | Houses/Halls, sorting quiz, reputation |
-| `30-hall-boards.sql` | Adds the four hall-exclusive boards |
+| `03`–`30` | (historical) incremental updates, all folded into `01` |
+| `31-reorder-halls.sql` | Moves Halls to right after Dormitories |

@@ -62,9 +62,9 @@ export function CharacterHoverCard({
       {show && profile && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}
-          className="z-50 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex gap-2.5"
+          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex gap-2.5"
         >
-          <Link href={`/c/${slug}`} className="shrink-0">
+          <Link href={`/c/${slug}`} className="shrink-0 relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={profile.avatarUrl ?? undefined}
@@ -82,8 +82,14 @@ export function CharacterHoverCard({
                 </span>
               </div>
             )}
+            <span
+              className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-ink-900 ${
+                profile.isOnline ? "bg-green-500" : "bg-claret-600"
+              }`}
+              title={profile.isOnline ? "Online" : "Offline"}
+            />
           </Link>
-          <div className="text-xs space-y-0.5 py-0.5 min-w-[7rem]">
+          <div className="text-xs space-y-0.5 py-0.5 min-w-0 flex-1">
             <p>
               <span className="text-ink-400">Age: </span>
               <span className="text-parchment-100">{profile.age}</span>
@@ -92,7 +98,7 @@ export function CharacterHoverCard({
               <span className="text-ink-400">Year: </span>
               <span className="text-parchment-100">{profile.year}</span>
             </p>
-            <p>
+            <p className="leading-snug">
               <span className="text-ink-400">Major: </span>
               <span className="text-brass-400">{profile.major}</span>
             </p>

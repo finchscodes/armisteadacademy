@@ -7,7 +7,6 @@ import { jobColor, type CharacterJob } from "@/lib/roles";
 import { CHAT_EMOJI } from "@/lib/chat-emoji";
 import { playPingSound, primeAudio } from "@/lib/ping-sound";
 import { CharacterHoverCard } from "./character-hover-card";
-import { CharacterBadge } from "./character-badge";
 
 export type ChatMessage = {
   id: number;
@@ -43,6 +42,7 @@ export function ChatSidebar({
   initialMessages,
   initialOnline,
   canChat,
+  canPingAll,
   myCharacterId,
   myFirstName,
   myLastName,
@@ -50,6 +50,7 @@ export function ChatSidebar({
   initialMessages: ChatMessage[];
   initialOnline: OnlineCharacter[];
   canChat: boolean;
+  canPingAll: boolean;
   myCharacterId: number | null;
   myFirstName: string | null;
   myLastName: string | null;
@@ -199,7 +200,8 @@ export function ChatSidebar({
   // reach them in any meaningful way, so they aren't offered as candidates.
   // "@all" is always offered too, when it matches what's been typed — it
   // pings everyone currently online.
-  const showAllOption = mentionQuery !== null && "all".startsWith(mentionQuery.toLowerCase());
+  const showAllOption =
+    canPingAll && mentionQuery !== null && "all".startsWith(mentionQuery.toLowerCase());
   const mentionMatches =
     mentionQuery !== null
       ? online
@@ -216,49 +218,49 @@ export function ChatSidebar({
       className="bg-ink-900 border border-ink-700 rounded-lg flex flex-col h-[calc(100vh-7rem)] min-h-[500px]"
     >
       <div className="px-4 py-3 border-b border-ink-700 shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Chat</h2>
-          <span className="text-[11px] text-ink-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            {online.length} online
-          </span>
-        </div>
-        {online.length > 0 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-            {online.map((c) => (
-              <CharacterHoverCard key={c.id} characterId={c.id} slug={c.slug} className="relative shrink-0">
-                <Link href={`/c/${c.slug}`} title={`${c.firstName} ${c.lastName}`}>
-                  <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
-                </Link>
-              </CharacterHoverCard>
-            ))}
-          </div>
-        )}
+        <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Chat</h2>
       </div>
 
       <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5">
         {messages.length === 0 ? (
           <p className="text-xs text-ink-400 italic">No messages yet — say something.</p>
         ) : (
-          messages.map((m) => (
-            <p
-              key={m.id}
-              className={`text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
-                pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
-              }`}
-            >
-              <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
-                <Link
-                  href={`/c/${m.characterSlug}`}
-                  className="hover:underline font-medium text-parchment-100"
-                  style={{ color: jobColor(m.characterJob) ?? undefined }}
+          messages.map((m) => {
+            const isMe = m.content.toLowerCase().startsWith("/me ");
+            if (isMe) {
+              return (
+                <p
+                  key={m.id}
+                  className={`text-sm italic text-center leading-snug rounded px-1.5 py-1 transition-colors ${
+                    pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40" : ""
+                  }`}
                 >
-                  {m.characterFirstName} {m.characterLastName}
-                </Link>
-              </CharacterHoverCard>
-              <span className="text-parchment-100/90"> {m.content}</span>
-            </p>
-          ))
+                  <span className="text-brass-300">
+                    {m.characterFirstName} {m.characterLastName} {m.content.slice(4)}
+                  </span>
+                </p>
+              );
+            }
+            return (
+              <p
+                key={m.id}
+                className={`text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
+                  pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
+                }`}
+              >
+                <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
+                  <Link
+                    href={`/c/${m.characterSlug}`}
+                    className="hover:underline font-medium text-parchment-100"
+                    style={{ color: jobColor(m.characterJob) ?? undefined }}
+                  >
+                    {m.characterFirstName} {m.characterLastName}
+                  </Link>
+                </CharacterHoverCard>
+                <span className="text-parchment-100/90"> {m.content}</span>
+              </p>
+            );
+          })
         )}
       </div>
 

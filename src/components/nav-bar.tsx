@@ -7,6 +7,7 @@ import { getGradingQueueCount } from "@/lib/lessons";
 import { getOnlineCount } from "@/lib/online-status";
 import { BoardsDropdown } from "./boards-dropdown";
 import { AccountMenu } from "./account-menu";
+import { GradingIcon, SocialIcon } from "./nav-icons";
 
 export async function NavBar() {
   const [current, boardTree, onlineCount] = await Promise.all([
@@ -50,7 +51,7 @@ export async function NavBar() {
               title="Social Media"
               className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
             >
-              <span className="text-lg leading-none">💬</span>
+              <SocialIcon />
               {onlineCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-green-600 text-parchment-100 text-[10px] leading-none rounded-full px-1.5 py-0.5 min-w-[1rem] text-center">
                   {onlineCount}
@@ -63,7 +64,7 @@ export async function NavBar() {
                 title="Grading bin"
                 className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
               >
-                <span className="text-lg leading-none">📝</span>
+                <GradingIcon />
                 {gradingCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 bg-claret-600 text-parchment-100 text-[10px] leading-none rounded-full px-1.5 py-0.5 min-w-[1rem] text-center">
                     {gradingCount}

@@ -2,17 +2,19 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress, canGradeHomework } from "@/lib/xp";
-import { getBoardTree } from "@/lib/forum";
+import { getBoardTree, filterBoardTreeForViewer } from "@/lib/forum";
 import { getGradingQueueCount } from "@/lib/lessons";
 import { getOnlineCount } from "@/lib/online-status";
 import { getNotifications } from "@/lib/notifications";
+import { characterHasAnyJob } from "@/lib/character-jobs";
+import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { BoardsDropdown } from "./boards-dropdown";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-bell";
 import { GradingIcon, SocialIcon } from "./nav-icons";
 
 export async function NavBar() {
-  const [current, boardTree, onlineCount] = await Promise.all([
+  const [current, rawBoardTree, onlineCount] = await Promise.all([
     getCurrentUser(),
     getBoardTree(),
     getOnlineCount(),
@@ -35,6 +37,19 @@ export async function NavBar() {
     ? await getNotifications(current.activeCharacter.id)
     : [];
 
+  // Hall boards are only shown in the nav to their own hall's members —
+  // management and admin see every hall.
+  const canSeeAllHalls =
+    Boolean(current?.session.isAdmin) ||
+    (current?.activeCharacter
+      ? await characterHasAnyJob(current.activeCharacter.id, MANAGEMENT_JOBS)
+      : false);
+  const boardTree = filterBoardTreeForViewer(
+    rawBoardTree,
+    current?.activeCharacter?.hall ?? null,
+    canSeeAllHalls
+  );
+
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
       <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -46,9 +61,6 @@ export async function NavBar() {
           <BoardsDropdown tree={boardTree} label="Outside Armistead" onlyCategorySlugs={["outside-armistead"]} />
           <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
             Rules &amp; Guidelines
-          </Link>
-          <Link href="/reputation" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
-            Reputation
           </Link>
         </div>
 

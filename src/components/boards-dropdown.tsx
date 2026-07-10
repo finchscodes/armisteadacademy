@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardNode } from "@/lib/forum";
 
+const KIND_BADGE: Record<string, string> = {
+  class: "class",
+  article: "article",
+  board: "topic",
+};
+
 /**
  * Wide multi-column mega-menu, matching the World of Potter style: every
  * category gets its own column, all visible at once — no inner scrolling to
@@ -78,26 +84,38 @@ export function BoardsDropdown({
                         className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
                       >
                         {board.name}
-                        {board.kind === "class" && (
-                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-claret-500">
-                            class
+                        {KIND_BADGE[board.kind] && (
+                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                            {KIND_BADGE[board.kind]}
                           </span>
                         )}
                       </Link>
                     ))
                   )}
-                  {/* Job List lives with the dorms — it's a job board, not a real topic area. */}
+                  {/* Job List and Reputation live with the dorms — they're pages, not real topic areas. */}
                   {category.slug === "dormitories" && (
-                    <Link
-                      href="/jobs"
-                      onClick={() => setOpen(false)}
-                      className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
-                    >
-                      Job List
-                      <span className="ml-1.5 text-[9px] uppercase tracking-wider text-brass-400">
-                        job board
-                      </span>
-                    </Link>
+                    <>
+                      <Link
+                        href="/jobs"
+                        onClick={() => setOpen(false)}
+                        className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
+                      >
+                        Job List
+                        <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                          directory
+                        </span>
+                      </Link>
+                      <Link
+                        href="/reputation"
+                        onClick={() => setOpen(false)}
+                        className="block text-sm text-parchment-100 hover:text-brass-400 transition-colors"
+                      >
+                        Reputation
+                        <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                          rankings
+                        </span>
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>

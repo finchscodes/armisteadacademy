@@ -29,3 +29,17 @@ export function SocialIcon({ className = "w-5 h-5" }: { className?: string }) {
     </svg>
   );
 }
+
+export function BellIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M12 3.5c-2.9 0-5 2.24-5 5.25v2.85c0 .7-.28 1.37-.78 1.87l-.9.9a1 1 0 0 0 .7 1.7h11.96a1 1 0 0 0 .7-1.7l-.9-.9c-.5-.5-.78-1.17-.78-1.87V8.75c0-3.01-2.1-5.25-5-5.25Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M9.75 19a2.3 2.3 0 0 0 4.5 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}

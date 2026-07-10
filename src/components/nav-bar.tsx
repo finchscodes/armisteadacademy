@@ -5,8 +5,10 @@ import { getCharacterLevelProgress, canGradeHomework } from "@/lib/xp";
 import { getBoardTree } from "@/lib/forum";
 import { getGradingQueueCount } from "@/lib/lessons";
 import { getOnlineCount } from "@/lib/online-status";
+import { getNotifications } from "@/lib/notifications";
 import { BoardsDropdown } from "./boards-dropdown";
 import { AccountMenu } from "./account-menu";
+import { NotificationBell } from "./notification-bell";
 import { GradingIcon, SocialIcon } from "./nav-icons";
 
 export async function NavBar() {
@@ -29,6 +31,9 @@ export async function NavBar() {
     canGrade && current?.activeCharacter
       ? await getGradingQueueCount(current.activeCharacter.id)
       : 0;
+  const notifications = current?.activeCharacter
+    ? await getNotifications(current.activeCharacter.id)
+    : [];
 
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
@@ -71,6 +76,14 @@ export async function NavBar() {
                   </span>
                 )}
               </Link>
+            )}
+            {current.activeCharacter && (
+              <NotificationBell
+                initial={notifications.map((n) => ({
+                  ...n,
+                  createdAt: n.createdAt.toISOString(),
+                }))}
+              />
             )}
             <AccountMenu
               characters={current.characters}

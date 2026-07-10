@@ -90,6 +90,18 @@ export function CharacterHoverCard({
             />
           </Link>
           <div className="text-xs space-y-0.5 py-0.5 min-w-0 flex-1">
+            {profile.statuses.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-1">
+                {profile.statuses.map((s) => (
+                  <span
+                    key={s}
+                    className="text-[10px] bg-brass-500/15 text-brass-400 border border-brass-500/30 rounded px-1.5 py-0.5"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
             <p>
               <span className="text-ink-400">Age: </span>
               <span className="text-parchment-100">{profile.age}</span>

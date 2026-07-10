@@ -12,7 +12,8 @@ import { BoardsDropdown } from "./boards-dropdown";
 import { MobileNav } from "./mobile-nav";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-bell";
-import { GradingIcon, SocialIcon } from "./nav-icons";
+import { GradingIcon, SocialIcon, MailIcon } from "./nav-icons";
+import { getUnreadMessageCount } from "@/lib/messages";
 
 export async function NavBar() {
   const [current, rawBoardTree, onlineCount] = await Promise.all([
@@ -37,6 +38,9 @@ export async function NavBar() {
   const notifications = current?.activeCharacter
     ? await getNotifications(current.activeCharacter.id)
     : [];
+  const unreadMessageCount = current?.activeCharacter
+    ? await getUnreadMessageCount(current.activeCharacter.id)
+    : 0;
 
   // Hall boards are only shown in the nav to their own hall's members —
   // management and admin see every hall.
@@ -92,6 +96,20 @@ export async function NavBar() {
                 {gradingCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 bg-claret-600 text-parchment-100 text-[10px] leading-none rounded-full px-1.5 py-0.5 min-w-[1rem] text-center">
                     {gradingCount}
+                  </span>
+                )}
+              </Link>
+            )}
+            {current.activeCharacter && (
+              <Link
+                href="/messages"
+                title="Owl Post"
+                className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+              >
+                <MailIcon />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-claret-600 text-parchment-100 text-[10px] leading-none rounded-full px-1.5 py-0.5 min-w-[1rem] text-center">
+                    {unreadMessageCount}
                   </span>
                 )}
               </Link>

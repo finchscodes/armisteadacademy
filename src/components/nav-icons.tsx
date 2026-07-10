@@ -43,3 +43,18 @@ export function BellIcon({ className = "w-5 h-5" }: { className?: string }) {
     </svg>
   );
 }
+
+export function MailIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M4 7l7.35 5.5a1 1 0 0 0 1.3 0L20 7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

@@ -183,6 +183,13 @@
       "when": 1783695098329,
       "tag": "0025_slimy_aqueduct",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1783698925377,
+      "tag": "0026_zippy_anthem",
+      "breakpoints": true
     }
   ]
 }

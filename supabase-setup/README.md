@@ -25,10 +25,8 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `32`, you need three new files, in order:
-1. `33-lesson-requirements.sql`
-2. `34-weapon-handling-class.sql`
-3. `35-hall-welcome-and-topic-ooc-rating.sql`
+If you already ran everything through `35`, you need one new file:
+1. `36-private-messages.sql` — adds the Owl Post private messaging system.
 
 ## File reference
 
@@ -36,7 +34,5 @@ If you already ran everything through `32`, you need three new files, in order:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`32` | (historical) incremental updates, all folded into `01` |
-| `33-lesson-requirements.sql` | Adds lesson requirements field |
-| `34-weapon-handling-class.sql` | Adds the Weapon Handling class |
-| `35-hall-welcome-and-topic-ooc-rating.sql` | Hall welcome messages, chat announcements, topic OOC/rating |
+| `03`–`35` | (historical) incremental updates, all folded into `01` |
+| `36-private-messages.sql` | Adds private messaging (Owl Post) |

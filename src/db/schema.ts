@@ -657,6 +657,53 @@ export const inventory = pgTable("inventory", {
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
 });
 
+/**
+ * Private messaging ("Owl Post") — separate from the in-character
+ * "Text Messages" board. A thread can have several participants; only
+ * whoever created it can add or remove people.
+ */
+export const messageThreads = pgTable("message_threads", {
+  id: serial("id").primaryKey(),
+  subject: varchar("subject", { length: 200 }).notNull(),
+  creatorCharacterId: integer("creator_character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  lastMessageAt: timestamp("last_message_at").notNull().defaultNow(),
+});
+
+/** One row per participant per thread — read/delete state is per-person, not global. */
+export const messageThreadParticipants = pgTable(
+  "message_thread_participants",
+  {
+    id: serial("id").primaryKey(),
+    threadId: integer("thread_id")
+      .notNull()
+      .references(() => messageThreads.id, { onDelete: "cascade" }),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    isRead: boolean("is_read").notNull().default(true),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    joinedAt: timestamp("joined_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniquePair: uniqueIndex("message_participants_unique_idx").on(table.threadId, table.characterId),
+  })
+);
+
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  threadId: integer("thread_id")
+    .notNull()
+    .references(() => messageThreads.id, { onDelete: "cascade" }),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 /* -------------------------------------------------------------------------- */
 /*  Relations                                                                  */
 /* -------------------------------------------------------------------------- */

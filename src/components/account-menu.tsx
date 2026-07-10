@@ -49,7 +49,7 @@ export function AccountMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="block rounded-full ring-2 ring-transparent hover:ring-brass-500/50 transition-all"
+        className="block rounded-md ring-2 ring-transparent hover:ring-brass-500/50 transition-all"
         title="Account menu"
       >
         <CharacterBadge

@@ -49,7 +49,7 @@ export function CollapsibleChat(props: {
       <div className={`absolute inset-0 w-full lg:w-[420px] ${open ? "" : "invisible"}`}>
         <button
           onClick={() => setOpen(false)}
-          className="absolute -left-3 top-3 z-20 w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center text-xs"
+          className="absolute right-3 top-3 z-20 w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center text-xs"
           title="Hide chat"
         >
           &rsaquo;

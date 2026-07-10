@@ -43,10 +43,10 @@ export function FaceclaimUpload({
           <img
             src={url}
             alt="Faceclaim preview"
-            className="w-16 h-16 rounded-full object-cover border-2 border-brass-500/60 shrink-0"
+            className="w-16 h-16 rounded-lg object-cover border-2 border-brass-500/60 shrink-0"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full border-2 border-dashed border-ink-600 flex items-center justify-center text-ink-400 text-[10px] text-center shrink-0">
+          <div className="w-16 h-16 rounded-lg border-2 border-dashed border-ink-600 flex items-center justify-center text-ink-400 text-[10px] text-center shrink-0">
             No image
           </div>
         )}

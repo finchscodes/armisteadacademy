@@ -58,10 +58,10 @@ export async function NavBar() {
                 </span>
               )}
             </Link>
-            {canGrade && (
+            {current.activeCharacter && (
               <Link
                 href="/grading"
-                title="Grading bin"
+                title="Grading"
                 className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
               >
                 <GradingIcon />

@@ -47,11 +47,11 @@ export default async function SocialPage() {
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex gap-2 mb-8 overflow-x-auto">
         {majorCounts.map((m) => (
           <div
             key={m.major}
-            className="bg-ink-900 border border-ink-700 rounded-lg p-2.5 flex-1 min-w-[120px] text-center"
+            className="bg-ink-900 border border-ink-700 rounded-lg p-2.5 flex-1 min-w-[100px] shrink-0 text-center"
           >
             <p className="text-[10px] leading-tight" style={{ color: getMajorColor(m.major) ?? undefined }}>
               {m.major}

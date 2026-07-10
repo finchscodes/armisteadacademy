@@ -14,11 +14,6 @@ export default async function AdminGradingPage() {
 
   return (
     <div className="max-w-2xl">
-      <p className="text-sm text-ink-400 mb-4">
-        Recent graded submissions — change the final tier and the payout adjusts automatically
-        (the difference is added or removed as a ledger entry, nothing is overwritten silently).
-      </p>
-
       {submissions.length === 0 ? (
         <p className="text-sm text-ink-400">Nothing graded yet.</p>
       ) : (

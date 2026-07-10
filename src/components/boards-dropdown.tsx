@@ -64,7 +64,41 @@ export function BoardsDropdown({
       </button>
 
       {open && (
-        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(97vw,1240px)] max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30">
+        <div
+          className={`fixed left-1/2 -translate-x-1/2 mt-2 max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30 ${
+            categories.length === 1 && uncategorized.length === 0
+              ? "w-[min(90vw,280px)]"
+              : "w-[min(97vw,1240px)]"
+          }`}
+        >
+          {categories.length === 1 && uncategorized.length === 0 ? (
+            <div>
+              <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                {categories[0].name}
+              </p>
+              <div className="space-y-0.5">
+                {categories[0].children.length === 0 ? (
+                  <p className="text-[11px] text-ink-400 italic">Empty</p>
+                ) : (
+                  categories[0].children.map((board) => (
+                    <Link
+                      key={board.id}
+                      href={`/b/${board.slug}`}
+                      onClick={() => setOpen(false)}
+                      className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                    >
+                      {board.name}
+                      {KIND_BADGE[board.kind] && (
+                        <span className="ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                          {KIND_BADGE[board.kind]}
+                        </span>
+                      )}
+                    </Link>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-4 xl:grid-cols-6 gap-x-5 gap-y-3">
             {categories.map((category) => (
               <div key={category.id}>
@@ -140,6 +174,7 @@ export function BoardsDropdown({
               </div>
             )}
           </div>
+          )}
         </div>
       )}
     </div>

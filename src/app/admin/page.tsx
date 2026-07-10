@@ -7,14 +7,14 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const SECTIONS = [
-  { href: "/admin/users", label: "Users", description: "Manage accounts, characters, jobs, hall, statuses, and more." },
-  { href: "/admin/classes", label: "Class Assignments", description: "Assign instructors to classes." },
-  { href: "/admin/boards", label: "Boards", description: "Create and edit boards and categories." },
-  { href: "/admin/article-boards", label: "Article Boards", description: "Grant posting access to article boards." },
-  { href: "/admin/guide", label: "Guidebook", description: "Write and edit the Rules & Guidelines sections." },
-  { href: "/admin/home-board", label: "Home Board", description: "Homepage announcement, weather, and spotlight." },
-  { href: "/admin/sorting-quiz", label: "Sorting Quiz", description: "Write the hall-sorting quiz questions and answers." },
-  { href: "/admin/grading", label: "Grading", description: "Override a submission's grade after the fact." },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/classes", label: "Class Assignments" },
+  { href: "/admin/boards", label: "Boards" },
+  { href: "/admin/article-boards", label: "Article Boards" },
+  { href: "/admin/guide", label: "Guidebook" },
+  { href: "/admin/home-board", label: "Home Board" },
+  { href: "/admin/sorting-quiz", label: "Sorting Quiz" },
+  { href: "/admin/grading", label: "Grading" },
 ];
 
 export default function AdminIndexPage() {
@@ -26,8 +26,7 @@ export default function AdminIndexPage() {
           href={s.href}
           className="bg-ink-900 border border-ink-700 rounded-lg p-5 hover:border-brass-500/50 transition-colors"
         >
-          <h2 className="font-display text-lg text-brass-400 mb-1">{s.label}</h2>
-          <p className="text-xs text-ink-400">{s.description}</p>
+          <h2 className="font-display text-lg text-brass-400">{s.label}</h2>
         </Link>
       ))}
     </div>

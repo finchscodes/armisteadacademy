@@ -18,10 +18,7 @@ export default async function AdminBoardsPage() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-ink-400">
-          Edit names and descriptions for classes, topic areas, and article boards.
-        </p>
+      <div className="flex items-center justify-end mb-4">
         <Link
           href="/admin/boards/new"
           className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"

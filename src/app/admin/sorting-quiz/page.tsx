@@ -13,11 +13,6 @@ export default async function AdminSortingQuizPage() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <p className="text-sm text-ink-400">
-        Up to 12 questions ({questions.length}/12). Each answer points to a hall — whichever hall
-        gets the most matching answers is where a character gets sorted.
-      </p>
-
       {questions.length === 0 ? (
         <p className="text-sm text-ink-400">No questions yet.</p>
       ) : (

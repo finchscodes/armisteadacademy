@@ -80,10 +80,6 @@ export function ClassAssignmentCard({
           </button>
         </div>
       </form>
-      <p className="text-[10px] text-ink-400 mt-1">
-        By legal name, not code name. Unchecking the box grants class access without a public
-        job — for quiet helpers who just tend lessons.
-      </p>
       {state?.error && <p className="text-xs text-claret-500 mt-1">{state.error}</p>}
       {state?.success && <p className="text-xs text-brass-400 mt-1">{state.success}</p>}
     </div>

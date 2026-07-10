@@ -14,13 +14,9 @@ export default async function AdminGuidePage() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-ink-400">
-          Drag to reorder. This builds the public{" "}
-          <Link href="/guide" className="text-brass-400 hover:underline">
-            Rules &amp; Guidelines
-          </Link>{" "}
-          page.
-        </p>
+        <Link href="/guide" className="text-sm text-brass-400 hover:underline">
+          View public page &rarr;
+        </Link>
         <Link
           href="/admin/guide/new"
           className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"

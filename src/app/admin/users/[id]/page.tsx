@@ -55,10 +55,6 @@ export default async function AdminUserDetailPage({
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
           Characters
         </h2>
-        <p className="text-xs text-ink-400 mb-2">
-          Legal names are shown here for admin reference only &mdash; they&apos;re locked from
-          the character owner&apos;s side.
-        </p>
         {characters.length === 0 ? (
           <p className="text-sm text-ink-400">No characters.</p>
         ) : (

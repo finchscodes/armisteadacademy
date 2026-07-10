@@ -120,6 +120,13 @@
       "when": 1783642824298,
       "tag": "0016_sparkling_earthquake",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1783644543808,
+      "tag": "0017_regular_zaladane",
+      "breakpoints": true
     }
   ]
 }

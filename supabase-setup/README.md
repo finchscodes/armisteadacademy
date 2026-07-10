@@ -25,10 +25,10 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `21`, you need one new file:
-1. `22-remove-graduate-faculty-majors.sql` — removes Graduate and Faculty as
-   majors. Any character currently set to either falls back to Undecided
-   automatically — nothing errors, nothing is lost.
+If you already ran everything through `22`, you need one new file:
+1. `23-fix-ledger-cascade.sql` — fixes lesson deletion being silently blocked
+   whenever graded homework existed on it. No data changes — money and XP
+   already earned stay exactly as they are either way.
 
 ## File reference
 
@@ -36,5 +36,5 @@ If you already ran everything through `21`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`21` | (historical) incremental updates, all folded into `01` |
-| `22-remove-graduate-faculty-majors.sql` | Removes Graduate/Faculty majors |
+| `03`–`22` | (historical) incremental updates, all folded into `01` |
+| `23-fix-ledger-cascade.sql` | Fixes lesson deletion + preserves earned money/XP |

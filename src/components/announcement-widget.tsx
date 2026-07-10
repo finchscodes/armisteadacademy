@@ -19,11 +19,6 @@ export async function AnnouncementWidget() {
         )}
       </div>
       <div className="p-4">
-        {weather && (
-          <p className="text-[11px] text-ink-400 mb-2">
-            {weather.label} in {weather.locationName}
-          </p>
-        )}
         {announcement?.content ? (
           <RichTextDisplay html={announcement.content} className="text-sm text-parchment-100/90" />
         ) : (

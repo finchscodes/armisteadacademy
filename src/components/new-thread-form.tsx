@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useActionState } from "react";
 import { createThreadAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 
 export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: string; isArticle?: boolean }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
@@ -40,6 +41,27 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
           {showDetails && (
             <div className="space-y-3 border border-ink-700 rounded-lg p-4 bg-ink-800/40">
               <div>
+                <label className="block text-xs font-medium mb-1" htmlFor="rating">
+                  Rating
+                </label>
+                <select
+                  id="rating"
+                  name="rating"
+                  defaultValue=""
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                >
+                  <option value="">Unrated</option>
+                  {RATING_VALUES.map((r) => (
+                    <option key={r} value={r}>
+                      {RATING_META[r].label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-ink-400 mt-1">
+                  {RATING_VALUES.map((r) => `${r}: ${RATING_META[r].description}`).join(" ")}
+                </p>
+              </div>
+              <div>
                 <label className="block text-xs font-medium mb-1" htmlFor="location">
                   Location
                 </label>
@@ -70,6 +92,18 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
                   name="surroundings"
                   rows={3}
                   placeholder="Weather, mood, who's around, anything setting the scene"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" htmlFor="ooc">
+                  OOC notes
+                </label>
+                <textarea
+                  id="ooc"
+                  name="ooc"
+                  rows={2}
+                  placeholder="Anything out-of-character — triggers, pacing, plotting notes, etc."
                   className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
                 />
               </div>

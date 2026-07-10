@@ -145,11 +145,8 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
                 className="flex items-start gap-2 text-sm border border-ink-600 rounded-md px-3 py-2 cursor-pointer hover:border-brass-500/50"
               >
                 <input type="radio" name="hall" value={h} defaultChecked={h === HALL_VALUES[0]} className="mt-0.5" />
-                <span>
-                  <span className="block font-medium" style={{ color: HALL_META[h].color }}>
-                    {hallLabel(h)}
-                  </span>
-                  <span className="block text-[11px] text-ink-400">{HALL_META[h].description}</span>
+                <span className="font-medium" style={{ color: HALL_META[h].color }}>
+                  {hallLabel(h)}
                 </span>
               </label>
             ))}

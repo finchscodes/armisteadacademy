@@ -54,13 +54,11 @@ export function yearLabelForOverrideOrLessons(
   lessonsTaken: number
 ): string {
   if (yearOverride) return yearOverride;
-  if (major === "Faculty") return "Faculty";
   return yearLabelForLessonsTaken(lessonsTaken);
 }
 
 /**
- * Faculty don't progress through years — everyone else does, based on lessons
- * taken, unless an admin has set a manual override.
+ * Year is based on lessons taken, unless an admin has set a manual override.
  */
 export async function getCharacterYearLabel(
   characterId: number,
@@ -68,7 +66,6 @@ export async function getCharacterYearLabel(
   yearOverride?: string | null
 ): Promise<string> {
   if (yearOverride) return yearOverride;
-  if (major === "Faculty") return "Faculty";
   const lessonsTaken = await getLessonsTakenCount(characterId);
   return yearLabelForLessonsTaken(lessonsTaken);
 }

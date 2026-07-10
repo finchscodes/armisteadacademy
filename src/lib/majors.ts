@@ -6,7 +6,6 @@ export type Major = {
   color: string;
   /**
    * Whether a character can pick this at creation / while still Undecided.
-   * Graduate and Faculty are earned/assigned, not chosen.
    */
   selectable: boolean;
 };
@@ -104,20 +103,6 @@ export const MAJORS: Major[] = [
     color: "#727594",
     selectable: true,
   },
-  {
-    value: "Graduate",
-    label: "Graduate",
-    description: "Finished the curriculum. Assigned automatically, not chosen.",
-    color: "#658897",
-    selectable: false,
-  },
-  {
-    value: "Faculty",
-    label: "Faculty",
-    description: "Staff of the academy. Assigned by an admin only.",
-    color: "#658897",
-    selectable: false,
-  },
 ];
 
 export const MAJOR_VALUES = MAJORS.map((m) => m.value) as [string, ...string[]];
@@ -126,8 +111,6 @@ export const MAJOR_VALUES = MAJORS.map((m) => m.value) as [string, ...string[]];
 export const SELECTABLE_MAJORS = MAJORS.filter((m) => m.selectable);
 
 export const UNDECIDED_MAJOR = "Undecided/Witness Protection";
-export const GRADUATE_MAJOR = "Graduate";
-export const FACULTY_MAJOR = "Faculty";
 
 export function getMajorDescription(value: string | null | undefined): string | null {
   return MAJORS.find((m) => m.value === value)?.description ?? null;

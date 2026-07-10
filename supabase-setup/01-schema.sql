@@ -387,4 +387,73 @@ ALTER TABLE "xp_ledger" DROP CONSTRAINT "xp_ledger_related_post_id_posts_id_fk";
 --> statement-breakpoint
 ALTER TABLE "currency_ledger" ADD CONSTRAINT "currency_ledger_related_submission_id_submissions_id_fk" FOREIGN KEY ("related_submission_id") REFERENCES "public"."submissions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "xp_ledger" ADD CONSTRAINT "xp_ledger_related_submission_id_submissions_id_fk" FOREIGN KEY ("related_submission_id") REFERENCES "public"."submissions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "xp_ledger" ADD CONSTRAINT "xp_ledger_related_post_id_posts_id_fk" FOREIGN KEY ("related_post_id") REFERENCES "public"."posts"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "xp_ledger" ADD CONSTRAINT "xp_ledger_related_post_id_posts_id_fk" FOREIGN KEY ("related_post_id") REFERENCES "public"."posts"("id") ON DELETE set null ON UPDATE no action;ALTER TABLE "characters" ADD COLUMN "last_active_at" timestamp;ALTER TYPE "public"."character_major" RENAME VALUE 'Undecided/Witness Protection' TO 'Undecided';--> statement-breakpoint
+ALTER TABLE "characters" ALTER COLUMN "major" SET DEFAULT 'Undecided'::character_major;
+CREATE TYPE "public"."notification_type" AS ENUM('thread_reply', 'relation_request', 'homework_graded');--> statement-breakpoint
+CREATE TABLE "notifications" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"character_id" integer NOT NULL,
+	"type" "notification_type" NOT NULL,
+	"message" text NOT NULL,
+	"link" text NOT NULL,
+	"is_read" boolean DEFAULT false NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;CREATE TABLE "character_statuses" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"character_id" integer NOT NULL,
+	"label" varchar(100) NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "home_announcement" (
+	"id" integer PRIMARY KEY DEFAULT 1 NOT NULL,
+	"title" varchar(120) DEFAULT 'Welcome!' NOT NULL,
+	"content" text DEFAULT '' NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "spotlight_entries" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"character_id" integer NOT NULL,
+	"blurb" text NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "character_statuses" ADD CONSTRAINT "character_statuses_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "spotlight_entries" ADD CONSTRAINT "spotlight_entries_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;CREATE TYPE "public"."hall" AS ENUM('undercroft', 'veil', 'rampart', 'eaves');--> statement-breakpoint
+CREATE TYPE "public"."reputation_reason" AS ENUM('homework_submission', 'grading', 'thread_created', 'thread_reply', 'admin_adjustment');--> statement-breakpoint
+CREATE TABLE "reputation_ledger" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"character_id" integer NOT NULL,
+	"amount" integer NOT NULL,
+	"reason" "reputation_reason" NOT NULL,
+	"related_submission_id" integer,
+	"related_post_id" integer,
+	"note" text,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "sorting_answers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"question_id" integer NOT NULL,
+	"answer_text" text NOT NULL,
+	"hall" "hall" NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "sorting_questions" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"question_text" text NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "boards" ADD COLUMN "restricted_to_hall" "hall";--> statement-breakpoint
+ALTER TABLE "characters" ADD COLUMN "hall" "hall";--> statement-breakpoint
+ALTER TABLE "reputation_ledger" ADD CONSTRAINT "reputation_ledger_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reputation_ledger" ADD CONSTRAINT "reputation_ledger_related_submission_id_submissions_id_fk" FOREIGN KEY ("related_submission_id") REFERENCES "public"."submissions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reputation_ledger" ADD CONSTRAINT "reputation_ledger_related_post_id_posts_id_fk" FOREIGN KEY ("related_post_id") REFERENCES "public"."posts"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "sorting_answers" ADD CONSTRAINT "sorting_answers_question_id_sorting_questions_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."sorting_questions"("id") ON DELETE cascade ON UPDATE no action;

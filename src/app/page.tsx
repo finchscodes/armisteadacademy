@@ -59,6 +59,13 @@ export default async function HomePage() {
                 Log in
               </Link>
             </div>
+            <p className="text-xs text-ink-400 mt-4 pt-4 border-t border-ink-700">
+              New here? Read the{" "}
+              <Link href="/guide" className="text-brass-400 hover:underline">
+                Rules &amp; Guidelines
+              </Link>{" "}
+              first — it covers what to expect before you create a character.
+            </p>
           </div>
         )}
         {current && !current.activeCharacter && (

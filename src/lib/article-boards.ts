@@ -7,8 +7,7 @@ import { MANAGEMENT_JOBS } from "@/lib/roles";
 /**
  * Can this character even SEE a board? Only matters for hall-restricted
  * boards — everything else is open. Hall boards are exclusive to that
- * hall's own members; not even general management can see them (admin
- * bypass is checked by the caller).
+ * hall's own members, plus management and admin (who can see every hall).
  */
 export async function canViewBoard(characterId: number, boardId: number): Promise<boolean> {
   const [board] = await db
@@ -16,6 +15,9 @@ export async function canViewBoard(characterId: number, boardId: number): Promis
     .from(boards)
     .where(eq(boards.id, boardId));
   if (!board?.restrictedToHall) return true;
+
+  const isManagement = await characterHasAnyJob(characterId, MANAGEMENT_JOBS);
+  if (isManagement) return true;
 
   const [character] = await db
     .select({ hall: characters.hall })

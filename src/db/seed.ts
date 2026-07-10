@@ -24,6 +24,40 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
     ],
   },
   {
+    name: "Halls",
+    slug: "halls",
+    boards: [
+      {
+        name: "Undercroft Hall",
+        slug: "undercroft-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "undercroft",
+      },
+      {
+        name: "Veil Hall",
+        slug: "veil-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "veil",
+      },
+      {
+        name: "Rampart Hall",
+        slug: "rampart-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "rampart",
+      },
+      {
+        name: "Eaves Hall",
+        slug: "eaves-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "eaves",
+      },
+    ],
+  },
+  {
     name: "First Floor",
     slug: "first-floor",
     boards: [
@@ -101,40 +135,6 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "Social Media", slug: "social-media" },
       { name: "Emails/Letters", slug: "emails-letters" },
       { name: "Phone Calls", slug: "phone-calls" },
-    ],
-  },
-  {
-    name: "Halls",
-    slug: "halls",
-    boards: [
-      {
-        name: "Undercroft Hall",
-        slug: "undercroft-hall",
-        kind: "article",
-        extraArticleJob: "field_agent",
-        restrictedToHall: "undercroft",
-      },
-      {
-        name: "Veil Hall",
-        slug: "veil-hall",
-        kind: "article",
-        extraArticleJob: "field_agent",
-        restrictedToHall: "veil",
-      },
-      {
-        name: "Rampart Hall",
-        slug: "rampart-hall",
-        kind: "article",
-        extraArticleJob: "field_agent",
-        restrictedToHall: "rampart",
-      },
-      {
-        name: "Eaves Hall",
-        slug: "eaves-hall",
-        kind: "article",
-        extraArticleJob: "field_agent",
-        restrictedToHall: "eaves",
-      },
     ],
   },
 ];

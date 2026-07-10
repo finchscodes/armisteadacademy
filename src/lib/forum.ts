@@ -35,6 +35,25 @@ export async function getBoardTree(): Promise<BoardNode[]> {
   return roots;
 }
 
+/**
+ * Removes hall-restricted boards a viewer can't access from the nav tree —
+ * otherwise everyone would see every hall's board listed (even though
+ * clicking through would 404 for them). Management and admin see every hall.
+ */
+export function filterBoardTreeForViewer(
+  tree: BoardNode[],
+  viewerHall: string | null,
+  canSeeAllHalls: boolean
+): BoardNode[] {
+  return tree.map((category) => ({
+    ...category,
+    children: category.children.filter(
+      (board) =>
+        !board.restrictedToHall || canSeeAllHalls || board.restrictedToHall === viewerHall
+    ),
+  }));
+}
+
 export async function getBoardBySlug(slug: string) {
   const [board] = await db.select().from(boards).where(eq(boards.slug, slug));
   if (!board) return null;

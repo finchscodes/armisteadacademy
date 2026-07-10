@@ -121,20 +121,22 @@ export default async function SocialPage() {
             {online.map((c) => (
               <div
                 key={c.id}
-                className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center gap-3 hover:border-brass-500/50 transition-colors"
+                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
               >
-                <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative shrink-0">
-                  <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
-                </CharacterHoverCard>
-                <div className="min-w-0 flex-1">
-                  <Link href={`/c/${c.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
-                    {c.firstName} {c.lastName}
-                  </Link>
-                  <p className="text-xs text-ink-400">
-                    Age {c.age} &middot; {c.year}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative shrink-0">
+                    <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
+                  </CharacterHoverCard>
+                  <div className="min-w-0">
+                    <Link href={`/c/${c.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
+                      {c.firstName} {c.lastName}
+                    </Link>
+                    <p className="text-xs text-ink-400">
+                      Age {c.age} &middot; {c.year}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs shrink-0" style={{ color: getMajorColor(c.major) ?? undefined }}>
+                <p className="text-xs mt-2 leading-snug" style={{ color: getMajorColor(c.major) ?? undefined }}>
                   {c.major}
                 </p>
               </div>

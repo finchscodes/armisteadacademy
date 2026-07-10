@@ -10,7 +10,7 @@ import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
 import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
-import { HALL_VALUES } from "@/lib/halls";
+import { HALL_VALUES, hallLabel } from "@/lib/halls";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -139,13 +139,13 @@ export async function createCharacterAction(
     note: "Welcome gift",
   });
 
-  // Renders as "Firstname Lastname is now enrolled..." — chat displays a
+  // Renders as "Firstname Lastname just enrolled..." — chat displays a
   // character's name directly before their message with no colon, so this
   // reads as an announcement rather than something they typed.
   await db.insert(chatMessages).values({
     characterId: character.id,
     userId: session.userId,
-    content: "is now enrolled at Armistead Academy!",
+    content: `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
   });
 
   await setActiveCharacterId(character.id);

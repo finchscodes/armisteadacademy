@@ -96,10 +96,9 @@ export const MAJORS: Major[] = [
     selectable: true,
   },
   {
-    value: "Undecided/Witness Protection",
-    label: "Undecided/Witness Protection",
-    description:
-      "Hasn't chosen yet — students are free to experiment until the end of their first year. Also covers those under witness protection attending the curriculum.",
+    value: "Undecided",
+    label: "Undecided",
+    description: "Hasn't chosen yet — students are free to experiment until the end of their first year.",
     color: "#727594",
     selectable: true,
   },
@@ -110,7 +109,7 @@ export const MAJOR_VALUES = MAJORS.map((m) => m.value) as [string, ...string[]];
 /** What a character can pick at creation, or while still Undecided. */
 export const SELECTABLE_MAJORS = MAJORS.filter((m) => m.selectable);
 
-export const UNDECIDED_MAJOR = "Undecided/Witness Protection";
+export const UNDECIDED_MAJOR = "Undecided";
 
 export function getMajorDescription(value: string | null | undefined): string | null {
   return MAJORS.find((m) => m.value === value)?.description ?? null;

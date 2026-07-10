@@ -40,7 +40,20 @@ export default async function SocialPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6 items-start">
+      <div className="max-w-2xl space-y-8">
+        <div>
+          <h2 className="font-display text-lg text-parchment-100 mb-3">Recent activity</h2>
+          {feed.length === 0 ? (
+            <p className="text-sm text-ink-400">Nothing posted yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {feed.map((item) => (
+                <FeedItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          )}
+        </div>
+
         <div>
           <h2 className="font-display text-lg text-parchment-100 mb-3">
             Online now <span className="text-ink-400 text-sm">({online.length})</span>
@@ -66,19 +79,6 @@ export default async function SocialPage() {
                   </div>
                   <p className="text-xs text-brass-400 shrink-0">{c.major}</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h2 className="font-display text-lg text-parchment-100 mb-3">Recent activity</h2>
-          {feed.length === 0 ? (
-            <p className="text-sm text-ink-400">Nothing posted yet.</p>
-          ) : (
-            <div className="space-y-3">
-              {feed.map((item) => (
-                <FeedItemCard key={item.id} item={item} />
               ))}
             </div>
           )}

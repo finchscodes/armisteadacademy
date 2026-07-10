@@ -12,8 +12,7 @@ const YEAR_THRESHOLDS: { label: string; minLessons: number }[] = [
   { label: "2nd Year", minLessons: 3 },
   { label: "3rd Year", minLessons: 6 },
   { label: "4th Year", minLessons: 9 },
-  { label: "5th Year", minLessons: 12 },
-  { label: "Graduate", minLessons: 15 },
+  { label: "Graduate", minLessons: 12 },
 ];
 
 /** Lessons-taken count at which a character automatically becomes a Graduate. */

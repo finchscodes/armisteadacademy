@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
 import { getRecentChatMessages } from "@/actions/chat";
 import { getOnlineCharacters } from "@/lib/online-status";
+import { characterHasAnyJob } from "@/lib/character-jobs";
+import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { CharacterCard } from "@/components/character-card";
 import { CollapsibleChat } from "@/components/collapsible-chat";
 import { CharacterBadge } from "@/components/character-badge";
@@ -15,14 +17,20 @@ export default async function HomePage() {
   ]);
 
   const canChat = Boolean(current?.activeCharacter);
+  const canPingAll = current
+    ? current.session.isAdmin ||
+      (current.activeCharacter
+        ? await characterHasAnyJob(current.activeCharacter.id, MANAGEMENT_JOBS)
+        : false)
+    : false;
   const initialChatMessages = chatMessages.map((m) => ({
     ...m,
     createdAt: m.createdAt.toISOString(),
   }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
-      <div className="space-y-6 min-w-0">
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="flex-1 min-w-0 space-y-6">
         {current ? (
           current.activeCharacter ? (
             <CharacterCard character={current.activeCharacter} />
@@ -59,11 +67,14 @@ export default async function HomePage() {
 
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <Link href="/social" className="font-display text-sm text-brass-400 hover:underline uppercase tracking-wider">
-              Social Media
+            <Link
+              href="/social"
+              className="font-display text-sm text-brass-400 hover:underline uppercase tracking-wider"
+            >
+              Online
             </Link>
             <div className="flex-1 brass-rule" />
-            <span className="text-xs text-ink-400">{online.length} online</span>
+            <span className="text-xs text-ink-400">{online.length}</span>
           </div>
           {online.length === 0 ? (
             <p className="text-xs text-ink-400 italic">Nobody&apos;s around right now.</p>
@@ -81,11 +92,12 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="lg:sticky lg:top-20">
+      <div className="w-full lg:w-auto lg:sticky lg:top-20">
         <CollapsibleChat
           initialMessages={initialChatMessages}
           initialOnline={online}
           canChat={canChat}
+          canPingAll={canPingAll}
           myCharacterId={current?.activeCharacter?.id ?? null}
           myFirstName={current?.activeCharacter?.firstName ?? null}
           myLastName={current?.activeCharacter?.lastName ?? null}

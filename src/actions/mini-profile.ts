@@ -6,6 +6,7 @@ import { characters } from "@/db/schema";
 import { getCharacterYearLabel } from "@/lib/year";
 import { getPrimaryJob } from "@/lib/character-jobs";
 import { jobColor } from "@/lib/roles";
+import { ONLINE_WINDOW_MS } from "@/lib/online-status";
 
 export type MiniProfile = {
   firstName: string;
@@ -15,6 +16,7 @@ export type MiniProfile = {
   year: string;
   age: number;
   nameColor: string | null;
+  isOnline: boolean;
 };
 
 export async function getMiniProfileAction(characterId: number): Promise<MiniProfile | null> {
@@ -26,6 +28,10 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     getPrimaryJob(character.id),
   ]);
 
+  const isOnline = Boolean(
+    character.lastActiveAt && Date.now() - character.lastActiveAt.getTime() < ONLINE_WINDOW_MS
+  );
+
   return {
     firstName: character.firstName,
     lastName: character.lastName,
@@ -34,5 +40,6 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     year,
     age: character.age,
     nameColor: jobColor(primaryJob),
+    isOnline,
   };
 }

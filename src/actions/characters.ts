@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { characters, currencyLedger } from "@/db/schema";
+import { characters, currencyLedger, chatMessages } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
@@ -91,6 +91,15 @@ export async function createCharacterAction(
     amount: STARTING_BALANCE,
     reason: "starting_balance",
     note: "Welcome gift",
+  });
+
+  // Renders as "Firstname Lastname is now enrolled..." — chat displays a
+  // character's name directly before their message with no colon, so this
+  // reads as an announcement rather than something they typed.
+  await db.insert(chatMessages).values({
+    characterId: character.id,
+    userId: session.userId,
+    content: "is now enrolled at Armistead Academy!",
   });
 
   await setActiveCharacterId(character.id);

@@ -50,6 +50,9 @@ export const characterMajorEnum = pgEnum("character_major", MAJOR_VALUES);
 /** Level required before a character is allowed to claim/grade homework. */
 export const GRADING_LEVEL_REQUIREMENT = 3;
 
+/** Level required before a character can use /me in chat. */
+export const ME_COMMAND_LEVEL_REQUIREMENT = 10;
+
 /** How many distinct graders must grade a submission before it's final. */
 export const REQUIRED_GRADERS = 4;
 

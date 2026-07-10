@@ -3,9 +3,9 @@
 import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { chatMessages, characters, xpLedger } from "@/db/schema";
+import { chatMessages, characters, xpLedger, ME_COMMAND_LEVEL_REQUIREMENT } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-import { XP_AWARDS } from "@/lib/xp";
+import { XP_AWARDS, getCharacterXp, levelForXp } from "@/lib/xp";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 const sendMessageSchema = z.object({
@@ -22,10 +22,20 @@ export async function sendChatMessageAction(formData: FormData): Promise<SendCha
     return { error: "Message can't be empty" };
   }
 
+  let content = parsed.data.content;
+  if (content.trim().toLowerCase().startsWith("/me ") || content.trim().toLowerCase() === "/me") {
+    const xp = await getCharacterXp(characterId);
+    if (levelForXp(xp) < ME_COMMAND_LEVEL_REQUIREMENT) {
+      return { error: `/me requires level ${ME_COMMAND_LEVEL_REQUIREMENT}` };
+    }
+    // Normalize so the client can reliably detect the prefix at render time.
+    content = "/me " + content.trim().slice(content.trim().toLowerCase() === "/me" ? 3 : 4);
+  }
+
   await db.insert(chatMessages).values({
     characterId,
     userId: session.userId,
-    content: parsed.data.content,
+    content,
   });
 
   // Chatting counts toward the same "talking in chat" XP as posting in a thread.

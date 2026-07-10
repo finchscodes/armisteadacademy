@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
 import { HeartbeatPing } from "@/components/heartbeat-ping";
+import { LevelUpWatcher } from "@/components/level-up-watcher";
 
 export const metadata: Metadata = {
   title: "Armistead Academy",
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <HeartbeatPing />
+        <LevelUpWatcher />
         <NavBar />
         <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 py-6">{children}</main>
       </body>

@@ -1,30 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --ink-950: #0d0f18;
-  --ink-900: #12141f;
-  --ink-800: #1a1d2b;
-  --ink-700: #262a3d;
-  --ink-600: #383d57;
-  --ink-400: #6b7090;
-  --ink-200: #b8bcd4;
+  /* Backgrounds — two-tone dark, warm near-black */
+  --ink-950: #1e1a19;
+  --ink-900: #2d2928;
+  --ink-800: #383331;
+  --ink-700: #46403d;
+  --ink-600: #574f4b;
+  --ink-400: #999999;
+  --ink-200: #acacac;
 
-  --parchment-100: #f6efdc;
-  --parchment-200: #ecdfbe;
-  --parchment-ink: #2b2210;
+  /* Text-on-dark */
+  --parchment-100: #eeeeee;
+  --parchment-200: #dcdcdc;
+  --parchment-ink: #1e1a19;
 
-  --brass-400: #d9b64f;
-  --brass-500: #c9a227;
-  --brass-600: #a3801c;
+  /* Primary accent — deep slate blue */
+  --brass-400: #7f95a3;
+  --brass-500: #496172;
+  --brass-600: #384c5a;
 
-  --claret-500: #8a2439;
-  --claret-600: #6e1c2d;
+  /* Secondary accent — red, also used for danger/destructive actions */
+  --claret-500: #c43030;
+  --claret-600: #9c2626;
 
-  --teal-400: #5aa9a3;
-  --steel-400: #7c9cbf;
+  /* Tertiary accent — muted slate, used sparingly for variety */
+  --teal-400: #6c757c;
+  --steel-400: #838c92;
 
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  /*
+    Font stack, in order of intended usage:
+      1. Istmo Web (body) — NOT included. It's a commercial Pampatype
+         release with no free/Google Fonts distribution, so it can't be
+         self-hosted here without a license. Work Sans is the active
+         fallback below; drop Istmo's font files into src/app/fonts and
+         add an @font-face + next/font/local block in layout.tsx to slot
+         it in ahead of Work Sans once you have a license.
+      2. Work Sans (body) — active primary body font.
+      3. IBM Plex Mono — for numbers, stats, tags; see .font-mono below.
+    Display faces: Voyage (self-hosted, primary) and Old Standard TT
+    (Google Fonts, secondary — see .font-display-serif below).
+  */
+  --font-display: var(--font-voyage), "Old Standard TT", Georgia, serif;
+  --font-display-serif: var(--font-old-standard), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-work-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), "SFMono-Regular", Consolas, monospace;
 }
 
 @theme inline {
@@ -51,31 +71,47 @@
   --color-steel-400: var(--steel-400);
 
   --font-display: var(--font-display);
+  --font-display-serif: var(--font-display-serif);
   --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
 body {
-  background: var(--ink-950);
+  background-color: var(--ink-950);
   color: var(--parchment-100);
   font-family: var(--font-body);
   background-image:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(201, 162, 39, 0.10), transparent),
-    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(138, 36, 57, 0.10), transparent);
+    linear-gradient(180deg, rgba(30, 26, 25, 0.88), rgba(30, 26, 25, 0.94) 45%, var(--ink-950) 100%),
+    url("/images/site-background.jpg");
+  background-size: cover;
+  background-position: center top;
   background-attachment: fixed;
+  background-repeat: no-repeat;
+  scrollbar-color: var(--ink-600) transparent;
+  scrollbar-width: thin;
 }
 
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
-/* Hairline separators with a faint brass glow, used to mark thread/board dividers */
+.font-display-serif {
+  font-family: var(--font-display-serif);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Hairline separators with a faint accent glow, used to mark thread/board dividers */
 .brass-rule {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(127, 149, 163, 0.5), transparent);
 }
 
 ::selection {
-  background: rgba(201, 162, 39, 0.35);
+  background: rgba(196, 48, 48, 0.35);
 }
 
 /* Rich text — shared between the editor and rendered display so lessons,
@@ -83,7 +119,7 @@ body {
 .rich-text-content p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: var(--ink-400, #7a7a8a);
+  color: var(--ink-400, #999999);
   pointer-events: none;
   height: 0;
 }
@@ -103,14 +139,14 @@ body {
 .rich-text-content h2 {
   font-family: var(--font-display);
   font-size: 1.25rem;
-  color: var(--brass-400, #d9b64a);
+  color: var(--brass-400, #7f95a3);
   margin: 1em 0 0.5em;
 }
 
 .rich-text-content h3 {
   font-family: var(--font-display);
   font-size: 1.05rem;
-  color: var(--brass-400, #d9b64a);
+  color: var(--brass-400, #7f95a3);
   margin: 1em 0 0.4em;
 }
 
@@ -128,19 +164,20 @@ body {
 }
 
 .rich-text-content blockquote {
-  border-left: 2px solid var(--claret-500, #8a2439);
+  border-left: 2px solid var(--claret-500, #c43030);
   padding-left: 0.85em;
   margin: 0.75em 0;
-  color: var(--ink-300, #a8a8b8);
+  color: var(--ink-200, #acacac);
   font-style: italic;
 }
 
 .rich-text-content a {
-  color: var(--brass-400, #d9b64a);
+  color: var(--brass-400, #7f95a3);
   text-decoration: underline;
 }
 
 .rich-text-content code {
+  font-family: var(--font-mono);
   background: rgba(255, 255, 255, 0.08);
   padding: 0.1em 0.35em;
   border-radius: 3px;

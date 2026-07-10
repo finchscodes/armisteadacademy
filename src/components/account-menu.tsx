@@ -83,7 +83,7 @@ export function AccountMenu({
             {balance !== null && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-ink-400">Money</span>
-                <span className="text-brass-400 flex items-center gap-1">
+                <span className="text-brass-400 flex items-center gap-1 font-mono">
                   <span className="text-ink-400">&#9670;</span>
                   {balance}
                 </span>
@@ -93,7 +93,7 @@ export function AccountMenu({
             {level !== null && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-ink-400">Level</span>
-                <span className="text-ink-200">
+                <span className="text-ink-200 font-mono">
                   Lv {level}
                   <span className="text-xs text-ink-400 ml-1.5">
                     ({xpIntoLevel}/{xpForLevel} xp)

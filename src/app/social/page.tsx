@@ -36,9 +36,17 @@ export default async function SocialPage() {
   return (
     <div>
       <h1 className="font-display text-3xl text-brass-400 mb-1">Social Media</h1>
-      <p className="text-ink-400 text-sm mb-6">
-        Where Armistead keeps in touch — and who&apos;s around right now.
-      </p>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-ink-400 text-sm">
+          Where Armistead keeps in touch — and who&apos;s around right now.
+        </p>
+        <Link
+          href="/members"
+          className="shrink-0 text-sm bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+        >
+          Member List
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         {boardsInOrder.map((b) => (
@@ -57,7 +65,7 @@ export default async function SocialPage() {
         {topics.length === 0 ? (
           <p className="text-sm text-ink-400">Nothing posted yet.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topics.map((t) => (
               <Link
                 key={t.threadId}
@@ -99,7 +107,7 @@ export default async function SocialPage() {
         {online.length === 0 ? (
           <p className="text-sm text-ink-400">Nobody&apos;s around right now.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {online.map((c) => (
               <Link
                 key={c.id}

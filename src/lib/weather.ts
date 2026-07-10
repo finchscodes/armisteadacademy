@@ -1,6 +1,7 @@
-// A fixed reference location for the homepage weather widget. Change these
-// coordinates if you'd like the widget to reflect somewhere else.
-const LOCATION = { name: "Mill Creek, WA", latitude: 47.86, longitude: -122.2 };
+// A fixed reference location for the homepage weather widget — Armistead
+// Academy is located in Oregon. Change these coordinates if you'd like the
+// widget to reflect somewhere more specific within the state.
+const LOCATION = { name: "Portland, OR", latitude: 45.5152, longitude: -122.6784 };
 
 // WMO weather codes -> a short label + emoji. Not exhaustive, but covers the
 // common cases; unknown codes fall back to a generic label.

@@ -6,7 +6,10 @@ import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { canPostArticle } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
+import { jobColor } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
+import { CharacterBadge } from "@/components/character-badge";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -160,9 +163,36 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                     </Link>
                   </p>
                 </div>
-                <div className="text-right shrink-0 ml-4">
-                  <p className="text-xs text-ink-400">{t.postCount} replies</p>
-                  <p className="text-xs text-ink-400">{timeAgo(t.lastPostAt)}</p>
+                <div className="flex items-center gap-3 shrink-0 ml-4">
+                  <div className="text-right">
+                    <p className="text-xs text-ink-400">
+                      {Math.max(t.postCount - 1, 0)} {t.postCount - 1 === 1 ? "reply" : "replies"}
+                    </p>
+                    {t.lastPoster && (
+                      <p className="text-xs mt-0.5">
+                        <span className="text-ink-500">last: </span>
+                        <span style={{ color: jobColor(t.lastPoster.characterJob) ?? undefined }}>
+                          {t.lastPoster.characterFirstName} {t.lastPoster.characterLastName}
+                        </span>
+                        <span className="text-ink-500"> &middot; {timeAgo(t.lastPoster.createdAt)}</span>
+                      </p>
+                    )}
+                  </div>
+                  {t.lastPoster && (
+                    <CharacterHoverCard
+                      characterId={t.lastPoster.characterId}
+                      slug={t.lastPoster.characterSlug}
+                      className="relative z-10 shrink-0"
+                    >
+                      <Link href={`/c/${t.lastPoster.characterSlug}`}>
+                        <CharacterBadge
+                          name={t.lastPoster.characterName}
+                          avatarUrl={t.lastPoster.characterAvatarUrl}
+                          size="sm"
+                        />
+                      </Link>
+                    </CharacterHoverCard>
+                  )}
                 </div>
               </div>
             ))

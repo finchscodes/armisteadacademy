@@ -13,7 +13,7 @@ export type MiniProfile = {
   avatarUrl: string | null;
   major: string;
   year: string;
-  socialStatus: string | null;
+  age: number;
   nameColor: string | null;
 };
 
@@ -32,7 +32,7 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     avatarUrl: character.avatarUrl,
     major: character.major,
     year,
-    socialStatus: character.socialStatus,
+    age: character.age,
     nameColor: jobColor(primaryJob),
   };
 }

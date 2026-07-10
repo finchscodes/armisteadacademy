@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { getMiniProfileAction, type MiniProfile } from "@/actions/mini-profile";
-import { CharacterBadge } from "./character-badge";
 
 const cache = new Map<number, MiniProfile>();
 
@@ -30,7 +29,7 @@ export function CharacterHoverCard({
         const rect = containerRef.current.getBoundingClientRect();
         const top = rect.bottom + 8;
         // Keep the card from running off the right edge of the viewport.
-        const left = Math.min(rect.left, window.innerWidth - 240);
+        const left = Math.min(rect.left, window.innerWidth - 280);
         setPos({ top, left });
       }
       setShow(true);
@@ -63,25 +62,40 @@ export function CharacterHoverCard({
       {show && profile && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}
-          className="z-50 w-56 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-3"
+          className="z-50 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex gap-2.5"
         >
-          <Link href={`/c/${slug}`} className="flex items-center gap-2.5">
-            <CharacterBadge
-              name={`${profile.firstName} ${profile.lastName}`}
-              avatarUrl={profile.avatarUrl}
-              size="sm"
+          <Link href={`/c/${slug}`} className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={profile.avatarUrl ?? undefined}
+              alt={`${profile.firstName} ${profile.lastName}`}
+              className="w-20 h-20 rounded-md object-cover border border-brass-500/50 bg-ink-800"
+              style={{ display: profile.avatarUrl ? "block" : "none" }}
             />
-            <span
-              className="text-sm font-medium leading-tight"
-              style={{ color: profile.nameColor ?? "#f6efdc" }}
-            >
-              {profile.firstName} {profile.lastName}
-            </span>
+            {!profile.avatarUrl && (
+              <div
+                className="w-20 h-20 rounded-md border border-brass-500/50 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center"
+                style={{ color: profile.nameColor ?? undefined }}
+              >
+                <span className="font-display text-2xl text-parchment-100">
+                  {profile.firstName.charAt(0)}
+                </span>
+              </div>
+            )}
           </Link>
-          <div className="mt-2 pt-2 border-t border-ink-700 space-y-0.5">
-            <p className="text-xs text-brass-400">{profile.major}</p>
-            <p className="text-xs text-ink-400">{profile.year}</p>
-            {profile.socialStatus && <p className="text-xs text-ink-400">{profile.socialStatus}</p>}
+          <div className="text-xs space-y-0.5 py-0.5 min-w-[7rem]">
+            <p>
+              <span className="text-ink-400">Age: </span>
+              <span className="text-parchment-100">{profile.age}</span>
+            </p>
+            <p>
+              <span className="text-ink-400">Year: </span>
+              <span className="text-parchment-100">{profile.year}</span>
+            </p>
+            <p>
+              <span className="text-ink-400">Major: </span>
+              <span className="text-brass-400">{profile.major}</span>
+            </p>
           </div>
         </div>
       )}

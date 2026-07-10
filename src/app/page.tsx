@@ -2,17 +2,17 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
 import { getRecentFeedPosts } from "@/lib/feed";
 import { getRecentChatMessages } from "@/actions/chat";
-import { getAllCharactersForMentions } from "@/lib/characters";
+import { getOnlineCharacters } from "@/lib/online-status";
 import { CharacterCard } from "@/components/character-card";
 import { FeedItemCard } from "@/components/feed-item";
 import { ChatSidebar } from "@/components/chat-sidebar";
 
 export default async function HomePage() {
-  const [current, feed, chatMessages, mentionCandidates] = await Promise.all([
+  const [current, feed, chatMessages, online] = await Promise.all([
     getCurrentUser(),
     getRecentFeedPosts(20),
     getRecentChatMessages(50),
-    getAllCharactersForMentions(),
+    getOnlineCharacters(),
   ]);
 
   const canChat = Boolean(current?.activeCharacter);
@@ -82,8 +82,9 @@ export default async function HomePage() {
       <div className="lg:sticky lg:top-20">
         <ChatSidebar
           initialMessages={initialChatMessages}
+          initialOnline={online}
           canChat={canChat}
-          mentionCandidates={mentionCandidates}
+          myCharacterId={current?.activeCharacter?.id ?? null}
           myFirstName={current?.activeCharacter?.firstName ?? null}
           myLastName={current?.activeCharacter?.lastName ?? null}
         />

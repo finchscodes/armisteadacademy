@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getRecentChatMessages } from "@/actions/chat";
+import { getOnlineCharacters } from "@/lib/online-status";
 
 export async function GET() {
-  const messages = await getRecentChatMessages(50);
-  return NextResponse.json({ messages });
+  const [messages, online] = await Promise.all([getRecentChatMessages(50), getOnlineCharacters()]);
+  return NextResponse.json({ messages, online });
 }

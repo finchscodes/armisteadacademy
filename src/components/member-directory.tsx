@@ -13,7 +13,9 @@ type Member = {
   name: string;
   slug: string;
   avatarUrl: string | null;
+  age: number;
   major: string;
+  year: string;
 };
 
 export function MemberDirectory({ members }: { members: Member[] }) {
@@ -56,6 +58,9 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                   <Link href={`/c/${m.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
                     {m.firstName} {m.lastName}
                   </Link>
+                  <p className="text-xs text-ink-400">
+                    Age {m.age} &middot; {m.year}
+                  </p>
                 </div>
               </div>
               <p className="text-xs mt-2 leading-snug" style={{ color: getMajorColor(m.major) ?? undefined }}>

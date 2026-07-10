@@ -6,8 +6,7 @@ import type { BoardNode } from "@/lib/forum";
 
 const KIND_BADGE: Record<string, string> = {
   class: "class",
-  article: "article",
-  board: "topic",
+  article: "board",
 };
 
 /**
@@ -48,7 +47,7 @@ export function BoardsDropdown({
   const uncategorized = onlyCategorySlugs ? [] : tree.filter((b) => b.kind !== "category");
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative hidden md:block">
       <button
         onClick={() => setOpen((o) => !o)}
         className="text-sm text-ink-200 hover:text-brass-400 transition-colors flex items-center gap-1"
@@ -65,8 +64,8 @@ export function BoardsDropdown({
       </button>
 
       {open && (
-        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(96vw,1100px)] bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-6 z-30">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
+        <div className="fixed left-1/2 -translate-x-1/2 mt-2 w-[min(92vw,760px)] max-h-[75vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
             {categories.map((category) => (
               <div key={category.id}>
                 <p className="font-display text-sm text-brass-400 mb-2 pb-1 border-b border-ink-700">

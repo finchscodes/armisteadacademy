@@ -9,6 +9,7 @@ import { getNotifications } from "@/lib/notifications";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { BoardsDropdown } from "./boards-dropdown";
+import { MobileNav } from "./mobile-nav";
 import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-bell";
 import { GradingIcon, SocialIcon } from "./nav-icons";
@@ -53,19 +54,22 @@ export async function NavBar() {
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
       <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="font-display text-xl tracking-wide text-brass-400 shrink-0">
+        <div className="flex items-center gap-6 min-w-0">
+          <Link href="/" className="font-display text-lg md:text-xl tracking-wide text-brass-400 shrink-0">
             Armistead <span className="text-parchment-100">Academy</span>
           </Link>
-          <BoardsDropdown tree={boardTree} label="Inside Armistead" excludeCategorySlugs={["outside-armistead"]} />
-          <BoardsDropdown tree={boardTree} label="Outside Armistead" onlyCategorySlugs={["outside-armistead"]} />
-          <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
-            Rules &amp; Guidelines
-          </Link>
+          <div className="hidden md:flex items-center gap-6">
+            <BoardsDropdown tree={boardTree} label="Inside Armistead" excludeCategorySlugs={["outside-armistead"]} />
+            <BoardsDropdown tree={boardTree} label="Outside Armistead" onlyCategorySlugs={["outside-armistead"]} />
+            <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
+              Rules &amp; Guidelines
+            </Link>
+          </div>
+          <MobileNav tree={boardTree} />
         </div>
 
         {current ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/social"
               title="Social Media"

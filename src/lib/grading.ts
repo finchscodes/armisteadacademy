@@ -26,6 +26,20 @@ export function tierColor(tier: GradeTier): string {
   return GRADE_TIER_META[tier].color;
 }
 
+/** Payout multiplier per final tier, applied to the lesson's flat reward. */
+export const TIER_MULTIPLIERS: Record<GradeTier, number> = {
+  perfect: 1,
+  excellent: 0.8,
+  good: 0.5,
+  needs_improvement: 0.3,
+  failing: 0,
+};
+
+/** Payout for a graded submission — the lesson's flat reward times the tier multiplier, rounded up. */
+export function computePayout(reward: number, tier: GradeTier): number {
+  return Math.ceil(reward * TIER_MULTIPLIERS[tier]);
+}
+
 /** Nearest tier to a given numeric value (0-100), used to bucket a consensus average. */
 function nearestTier(numeric: number): GradeTier {
   let closest: GradeTier = "failing";

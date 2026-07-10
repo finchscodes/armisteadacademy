@@ -200,6 +200,7 @@ async function main() {
     { name: "Interrogation", slug: "interrogation" },
     { name: "Protection and Enforcement", slug: "protection-enforcement" },
     { name: "Poison", slug: "poison" },
+    { name: "Weapon Handling", slug: "weapon-handling" },
   ];
 
   await db.insert(boards).values(

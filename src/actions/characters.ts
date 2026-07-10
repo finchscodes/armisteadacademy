@@ -146,10 +146,11 @@ export async function createCharacterAction(
     characterId: character.id,
     userId: session.userId,
     content: `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
+    isAnnouncement: true,
   });
 
   await setActiveCharacterId(character.id);
-  redirect("/");
+  redirect(`/hall/${hallResult.hall}/welcome`);
 }
 
 const updateCharacterSchema = z.object({

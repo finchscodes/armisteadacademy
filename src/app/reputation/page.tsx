@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getMajorCounts, getHallTotalReputation, getHallLeaderboard } from "@/lib/reputation";
+import { getHallTotalReputation, getHallLeaderboard } from "@/lib/reputation";
 import { HALL_VALUES, hallLabel, hallColor } from "@/lib/halls";
-import { getMajorColor } from "@/lib/majors";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 
@@ -10,16 +9,13 @@ import { CharacterHoverCard } from "@/components/character-hover-card";
 export const dynamic = "force-dynamic";
 
 export default async function ReputationPage() {
-  const [majorCounts, hallData] = await Promise.all([
-    getMajorCounts(),
-    Promise.all(
-      HALL_VALUES.map(async (hall) => ({
-        hall,
-        total: await getHallTotalReputation(hall),
-        leaderboard: await getHallLeaderboard(hall, 25),
-      }))
-    ),
-  ]);
+  const hallData = await Promise.all(
+    HALL_VALUES.map(async (hall) => ({
+      hall,
+      total: await getHallTotalReputation(hall),
+      leaderboard: await getHallLeaderboard(hall, 25),
+    }))
+  );
 
   return (
     <div>
@@ -28,18 +24,6 @@ export default async function ReputationPage() {
         Earned by grading, posting in topics, and submitting homework. Feeds straight into your
         hall&apos;s total below.
       </p>
-
-      <h2 className="font-display text-lg text-parchment-100 mb-3">Students by major</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
-        {majorCounts.map((m) => (
-          <div key={m.major} className="bg-ink-900 border border-ink-700 rounded-lg p-3">
-            <p className="text-xs leading-tight" style={{ color: getMajorColor(m.major) ?? undefined }}>
-              {m.major}
-            </p>
-            <p className="text-lg font-display text-brass-400 mt-1">{m.count}</p>
-          </div>
-        ))}
-      </div>
 
       <h2 className="font-display text-lg text-parchment-100 mb-3">Hall Reputation</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

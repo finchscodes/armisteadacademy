@@ -28,8 +28,8 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
         lessonId={lesson.id}
         title={lesson.title}
         prompt={lesson.prompt}
-        rewardMin={lesson.rewardMin}
-        rewardMax={lesson.rewardMax}
+        reward={lesson.reward}
+        requirements={lesson.requirements}
         graderFee={lesson.graderFee}
       />
     </div>

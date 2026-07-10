@@ -15,6 +15,7 @@ import { PostInteractions } from "@/components/post-interactions";
 import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { ratingLabel, ratingColor, RATING_META } from "@/lib/thread-rating";
 
 function formatDate(date: Date) {
   return date.toLocaleString(undefined, {
@@ -97,8 +98,18 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         </p>
       )}
 
+      {thread.rating && (
+        <p
+          className="inline-block text-xs font-medium border rounded-full px-3 py-1 mb-3"
+          style={{ color: ratingColor(thread.rating) ?? undefined, borderColor: `${ratingColor(thread.rating)}66` }}
+          title={RATING_META[thread.rating]?.description}
+        >
+          {ratingLabel(thread.rating)}
+        </p>
+      )}
+
       {(sceneDetails.length > 0 || thread.surroundings) && (
-        <div className="bg-ink-900/60 border border-ink-700 rounded-lg px-4 py-3 mb-6 text-sm">
+        <div className="bg-ink-900/60 border border-ink-700 rounded-lg px-4 py-3 mb-4 text-sm">
           {sceneDetails.length > 0 && (
             <p className="text-ink-300">
               {sceneDetails.map((d, i) => (
@@ -113,6 +124,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           {thread.surroundings && (
             <p className="text-ink-400 italic mt-1 whitespace-pre-wrap">{thread.surroundings}</p>
           )}
+        </div>
+      )}
+
+      {thread.ooc && (
+        <div className="bg-ink-800/40 border border-dashed border-ink-600 rounded-lg px-4 py-3 mb-6 text-sm">
+          <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">OOC</p>
+          <p className="text-ink-300 whitespace-pre-wrap">{thread.ooc}</p>
         </div>
       )}
 

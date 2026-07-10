@@ -79,6 +79,7 @@ export async function getBoardBySlug(slug: string) {
       characterFirstName: characters.firstName,
       characterLastName: characters.lastName,
       characterSlug: characters.slug,
+      characterAvatarUrl: characters.avatarUrl,
     })
     .from(threads)
     .innerJoin(characters, eq(threads.characterId, characters.id))

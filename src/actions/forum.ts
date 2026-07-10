@@ -27,6 +27,8 @@ const newThreadSchema = z.object({
   location: z.string().max(200).optional().or(z.literal("")),
   timeSetting: z.string().max(100).optional().or(z.literal("")),
   surroundings: z.string().max(4000).optional().or(z.literal("")),
+  ooc: z.string().max(4000).optional().or(z.literal("")),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
   scheduledFor: z.string().optional().or(z.literal("")),
 });
 
@@ -43,6 +45,8 @@ export async function createThreadAction(
     location: formData.get("location") || undefined,
     timeSetting: formData.get("timeSetting") || undefined,
     surroundings: formData.get("surroundings") || undefined,
+    ooc: formData.get("ooc") || undefined,
+    rating: formData.get("rating") || undefined,
     scheduledFor: formData.get("scheduledFor") || undefined,
   });
 
@@ -50,7 +54,7 @@ export async function createThreadAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, location, timeSetting, surroundings } = parsed.data;
+  const { boardSlug, title, location, timeSetting, surroundings, ooc, rating } = parsed.data;
   const content = sanitizeRichText(parsed.data.content);
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
@@ -94,6 +98,8 @@ export async function createThreadAction(
       location: isArticle ? null : location || null,
       timeSetting: isArticle ? null : timeSetting || null,
       surroundings: isArticle ? null : surroundings || null,
+      ooc: isArticle ? null : ooc || null,
+      rating: isArticle ? null : rating ?? null,
       scheduledFor,
       lastPostAt: now,
     })

@@ -54,6 +54,7 @@ export async function getRecentChatMessages(limit = 50) {
     .select({
       id: chatMessages.id,
       content: chatMessages.content,
+      isAnnouncement: chatMessages.isAnnouncement,
       createdAt: chatMessages.createdAt,
       characterId: characters.id,
       characterSlug: characters.slug,

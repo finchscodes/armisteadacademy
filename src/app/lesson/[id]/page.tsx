@@ -5,6 +5,8 @@ import { getCurrentUser } from "@/lib/current-user";
 import { canGradeHomework } from "@/lib/xp";
 import { GRADING_LEVEL_REQUIREMENT, REQUIRED_GRADERS } from "@/db/schema";
 import { isAssignedToClass } from "@/lib/class-assignments";
+import { isEnrolledInClass } from "@/lib/class-enrollments";
+import { enrollInClassAction } from "@/actions/lessons";
 import { tierLabel } from "@/lib/grading";
 import { SubmitHomeworkForm } from "@/components/submit-homework-form";
 import { DeleteLessonButton } from "@/components/delete-buttons";
@@ -21,10 +23,11 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
 
   const { lesson, board, mySubmission, myGradesReceived, myFeedback } = data;
 
-  const [eligibleToGrade, canManage] = await Promise.all([
+  const [eligibleToGrade, canManage, enrolled] = await Promise.all([
     activeCharacterId ? canGradeHomework(activeCharacterId) : false,
     current.session.isAdmin ||
       (activeCharacterId ? await isAssignedToClass(activeCharacterId, lesson.boardId) : false),
+    activeCharacterId ? isEnrolledInClass(activeCharacterId, lesson.boardId) : false,
   ]);
 
   return (
@@ -48,18 +51,45 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       </div>
       <h1 className="font-display text-3xl text-brass-400 mb-1">{lesson.title}</h1>
       <p className="text-xs text-ink-400 mb-4">
-        Reward: {lesson.rewardMin}&ndash;{lesson.rewardMax} dollars &middot; Grader earns{" "}
-        {lesson.graderFee}
+        Reward: up to {lesson.reward} dollars &middot; Grader earns {lesson.graderFee}
       </p>
 
-      <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 mb-8 leading-relaxed">
+      <div className={`bg-ink-900 border border-ink-700 rounded-lg p-5 leading-relaxed ${lesson.requirements ? "mb-4" : "mb-8"}`}>
         <RichTextDisplay html={lesson.prompt} />
       </div>
+
+      {lesson.requirements && (
+        <div className="bg-ink-900 border border-brass-500/30 rounded-lg p-5 mb-8">
+          <h2 className="font-display text-sm uppercase tracking-wider text-brass-400 mb-2">
+            Requirements
+          </h2>
+          <div className="leading-relaxed">
+            <RichTextDisplay html={lesson.requirements} />
+          </div>
+        </div>
+      )}
 
       {/* Submit / view your own submission */}
       <section className="mb-8">
         <h2 className="font-display text-lg text-parchment-100 mb-3">Your homework</h2>
-        {!mySubmission ? (
+        {!mySubmission && !enrolled && !canManage ? (
+          <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 text-center">
+            <p className="text-sm text-parchment-100 mb-3">
+              Enroll in this class first to submit homework for it.
+            </p>
+            {board && (
+              <form action={enrollInClassAction}>
+                <input type="hidden" name="boardId" value={board.id} />
+                <button
+                  type="submit"
+                  className="text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                >
+                  Enroll
+                </button>
+              </form>
+            )}
+          </div>
+        ) : !mySubmission ? (
           <SubmitHomeworkForm lessonId={lesson.id} />
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">

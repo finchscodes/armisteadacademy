@@ -1,21 +1,17 @@
 import Link from "next/link";
-import { db } from "@/db";
-import { boards } from "@/db/schema";
 
 // Shows live online/recent-activity data — must render per-request, never
 // prerendered at build time (which would hit the database during the build
 // itself, and previously caused the Vercel build to hang/time out).
 export const dynamic = "force-dynamic";
 
-import { inArray } from "drizzle-orm";
 import { getOnlineCharactersDetailed } from "@/lib/online-status";
 import { getRecentTopics } from "@/lib/feed";
+import { getMajorCounts } from "@/lib/reputation";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { jobColor } from "@/lib/roles";
 import { getMajorColor } from "@/lib/majors";
-
-const COMMUNICATION_SLUGS = ["text-messages", "social-media", "emails-letters", "phone-calls"];
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -30,15 +26,11 @@ function timeAgo(date: Date) {
 }
 
 export default async function SocialPage() {
-  const [commBoards, online, topics] = await Promise.all([
-    db.select().from(boards).where(inArray(boards.slug, COMMUNICATION_SLUGS)),
+  const [online, topics, majorCounts] = await Promise.all([
     getOnlineCharactersDetailed(),
     getRecentTopics(6),
+    getMajorCounts(),
   ]);
-
-  const boardsInOrder = COMMUNICATION_SLUGS.map((slug) =>
-    commBoards.find((b) => b.slug === slug)
-  ).filter((b): b is NonNullable<typeof b> => Boolean(b));
 
   return (
     <div>
@@ -55,15 +47,14 @@ export default async function SocialPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        {boardsInOrder.map((b) => (
-          <Link
-            key={b.id}
-            href={`/b/${b.slug}`}
-            className="bg-ink-900 border border-ink-700 rounded-lg p-4 text-center hover:border-brass-500/50 transition-colors"
-          >
-            <p className="font-display text-parchment-100">{b.name}</p>
-          </Link>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+        {majorCounts.map((m) => (
+          <div key={m.major} className="bg-ink-900 border border-ink-700 rounded-lg p-3">
+            <p className="text-xs leading-tight" style={{ color: getMajorColor(m.major) ?? undefined }}>
+              {m.major}
+            </p>
+            <p className="text-lg font-display text-brass-400 mt-1">{m.count}</p>
+          </div>
         ))}
       </div>
 

@@ -1,8 +1,9 @@
-import { eq, and, asc, desc, ne, notInArray, count } from "drizzle-orm";
+import { eq, and, asc, desc, ne, notInArray, inArray, count } from "drizzle-orm";
 import { db } from "@/db";
 import { lessons, submissions, submissionGrades, boards, characters } from "@/db/schema";
 import { REQUIRED_GRADERS } from "@/db/schema";
 import type { GradeTier } from "@/lib/grading";
+import { getEnrolledClassBoardIds } from "@/lib/class-enrollments";
 
 export async function getLessonsForBoard(boardId: number) {
   return db
@@ -65,6 +66,12 @@ export async function getLessonDetail(lessonId: number, currentCharacterId: numb
  * reveals; it's never fetched by the main lesson page.
  */
 export async function getGradingQueue(lessonId: number, graderCharacterId: number) {
+  const [lesson] = await db.select({ boardId: lessons.boardId }).from(lessons).where(eq(lessons.id, lessonId));
+  if (!lesson) return [];
+
+  const enrolledBoardIds = await getEnrolledClassBoardIds(graderCharacterId);
+  if (!enrolledBoardIds.includes(lesson.boardId)) return [];
+
   const alreadyGraded = await db
     .select({ submissionId: submissionGrades.submissionId })
     .from(submissionGrades)
@@ -95,8 +102,18 @@ export async function getGradingQueue(lessonId: number, graderCharacterId: numbe
   return rows;
 }
 
-/** How many submissions across every class are waiting for this character to grade. */
+/** How many submissions across enrolled classes are waiting for this character to grade. */
 export async function getGradingQueueCount(graderCharacterId: number): Promise<number> {
+  const enrolledBoardIds = await getEnrolledClassBoardIds(graderCharacterId);
+  if (enrolledBoardIds.length === 0) return 0;
+
+  const enrolledLessons = await db
+    .select({ id: lessons.id })
+    .from(lessons)
+    .where(inArray(lessons.boardId, enrolledBoardIds));
+  const enrolledLessonIds = enrolledLessons.map((l) => l.id);
+  if (enrolledLessonIds.length === 0) return 0;
+
   const alreadyGraded = await db
     .select({ submissionId: submissionGrades.submissionId })
     .from(submissionGrades)
@@ -110,6 +127,7 @@ export async function getGradingQueueCount(graderCharacterId: number): Promise<n
       and(
         eq(submissions.status, "open"),
         ne(submissions.characterId, graderCharacterId),
+        inArray(submissions.lessonId, enrolledLessonIds),
         alreadyGradedIds.length > 0 ? notInArray(submissions.id, alreadyGradedIds) : undefined
       )
     );
@@ -117,10 +135,14 @@ export async function getGradingQueueCount(graderCharacterId: number): Promise<n
 }
 
 /**
- * The full "grading bin" — every open submission across every class waiting
- * for this character to grade, regardless of which class it's from.
+ * The full "grading bin" — every open submission across this character's
+ * enrolled classes waiting for them to grade. Not enrolled in a class? Its
+ * homework never shows up here.
  */
 export async function getFullGradingQueue(graderCharacterId: number) {
+  const enrolledBoardIds = await getEnrolledClassBoardIds(graderCharacterId);
+  if (enrolledBoardIds.length === 0) return [];
+
   const alreadyGraded = await db
     .select({ submissionId: submissionGrades.submissionId })
     .from(submissionGrades)
@@ -148,6 +170,7 @@ export async function getFullGradingQueue(graderCharacterId: number) {
       and(
         eq(submissions.status, "open"),
         ne(submissions.characterId, graderCharacterId),
+        inArray(lessons.boardId, enrolledBoardIds),
         alreadyGradedIds.length > 0 ? notInArray(submissions.id, alreadyGradedIds) : undefined
       )
     )

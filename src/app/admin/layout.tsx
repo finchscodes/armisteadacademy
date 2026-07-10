@@ -8,32 +8,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!current.session.isAdmin) redirect("/");
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6 border-b border-ink-700 pb-4">
-        <h1 className="font-display text-2xl text-claret-500">Admin</h1>
-        <nav className="flex gap-4 text-sm">
-          <Link href="/admin/users" className="text-ink-200 hover:text-brass-400">
-            Users
-          </Link>
-          <Link href="/admin/classes" className="text-ink-200 hover:text-brass-400">
-            Class Assignments
-          </Link>
-          <Link href="/admin/boards" className="text-ink-200 hover:text-brass-400">
-            Boards
-          </Link>
-          <Link href="/admin/article-boards" className="text-ink-200 hover:text-brass-400">
-            Article Boards
-          </Link>
-          <Link href="/admin/guide" className="text-ink-200 hover:text-brass-400">
-            Guidebook
-          </Link>
-          <Link href="/admin/home-board" className="text-ink-200 hover:text-brass-400">
-            Home Board
-          </Link>
-          <Link href="/admin/sorting-quiz" className="text-ink-200 hover:text-brass-400">
-            Sorting Quiz
-          </Link>
-        </nav>
+    <div className="max-w-3xl mx-auto">
+      <div className="flex items-center gap-3 mb-6 border-b border-ink-700 pb-4">
+        <Link href="/admin" className="font-display text-2xl text-claret-500 hover:text-claret-400">
+          Admin
+        </Link>
       </div>
       {children}
     </div>

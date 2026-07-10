@@ -12,6 +12,7 @@ import {
   submissionGrades,
   currencyLedger,
   xpLedger,
+  classEnrollments,
   GRADING_LEVEL_REQUIREMENT,
   REQUIRED_GRADERS,
 } from "@/db/schema";
@@ -19,10 +20,26 @@ import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
 import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import { isAssignedToClass } from "@/lib/class-assignments";
-import { GRADE_TIER_VALUES, computeConsensus, tierLabel } from "@/lib/grading";
+import { isEnrolledInClass } from "@/lib/class-enrollments";
+import { GRADE_TIER_VALUES, computeConsensus, computePayout, tierLabel } from "@/lib/grading";
 import { createNotification } from "@/lib/notifications";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import type { ActionState } from "./auth";
+
+/* -------------------------------------------------------------------------- */
+/*  Enroll in a class — required before lessons open up                       */
+/* -------------------------------------------------------------------------- */
+
+export async function enrollInClassAction(formData: FormData) {
+  const { characterId } = await requireSessionAndCharacter();
+  const boardId = Number(formData.get("boardId"));
+  if (!boardId) return;
+
+  await db.insert(classEnrollments).values({ characterId, boardId }).onConflictDoNothing();
+
+  const [board] = await db.select({ slug: boards.slug }).from(boards).where(eq(boards.id, boardId));
+  if (board) revalidatePath(`/b/${board.slug}`);
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Create a lesson (assigned instructors for that class, or admin)           */
@@ -32,8 +49,8 @@ const newLessonSchema = z.object({
   boardSlug: z.string().min(1),
   title: z.string().min(3).max(200),
   prompt: z.string().min(1).max(60000).refine((v) => richTextLength(v) > 0, "Prompt can't be empty"),
-  rewardMin: z.coerce.number().int().min(0).max(10000),
-  rewardMax: z.coerce.number().int().min(0).max(10000),
+  requirements: z.string().max(20000).optional().or(z.literal("")),
+  reward: z.coerce.number().int().min(0).max(10000),
   graderFee: z.coerce.number().int().min(0).max(10000),
 });
 
@@ -51,8 +68,8 @@ export async function createLessonAction(
     boardSlug: formData.get("boardSlug"),
     title: formData.get("title"),
     prompt: formData.get("prompt"),
-    rewardMin: formData.get("rewardMin"),
-    rewardMax: formData.get("rewardMax"),
+    requirements: formData.get("requirements") || undefined,
+    reward: formData.get("reward"),
     graderFee: formData.get("graderFee"),
   });
 
@@ -60,12 +77,9 @@ export async function createLessonAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, rewardMin, rewardMax, graderFee } = parsed.data;
+  const { boardSlug, title, reward, graderFee } = parsed.data;
   const prompt = sanitizeRichText(parsed.data.prompt);
-
-  if (rewardMin > rewardMax) {
-    return { error: "Minimum reward can't be greater than maximum reward" };
-  }
+  const requirements = parsed.data.requirements ? sanitizeRichText(parsed.data.requirements) : null;
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) return { error: "That board no longer exists" };
@@ -86,10 +100,10 @@ export async function createLessonAction(
       boardId: board.id,
       title,
       prompt,
+      requirements,
       createdByUserId: session.userId,
       position: existingLessons.length,
-      rewardMin,
-      rewardMax,
+      reward,
       graderFee,
     })
     .returning({ id: lessons.id });
@@ -106,8 +120,8 @@ const editLessonSchema = z.object({
   lessonId: z.coerce.number().int(),
   title: z.string().min(3).max(200),
   prompt: z.string().min(1).max(60000).refine((v) => richTextLength(v) > 0, "Prompt can't be empty"),
-  rewardMin: z.coerce.number().int().min(0).max(10000),
-  rewardMax: z.coerce.number().int().min(0).max(10000),
+  requirements: z.string().max(20000).optional().or(z.literal("")),
+  reward: z.coerce.number().int().min(0).max(10000),
   graderFee: z.coerce.number().int().min(0).max(10000),
 });
 
@@ -121,19 +135,17 @@ export async function updateLessonAction(
     lessonId: formData.get("lessonId"),
     title: formData.get("title"),
     prompt: formData.get("prompt"),
-    rewardMin: formData.get("rewardMin"),
-    rewardMax: formData.get("rewardMax"),
+    requirements: formData.get("requirements") || undefined,
+    reward: formData.get("reward"),
     graderFee: formData.get("graderFee"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { lessonId, title, rewardMin, rewardMax, graderFee } = parsed.data;
+  const { lessonId, title, reward, graderFee } = parsed.data;
   const prompt = sanitizeRichText(parsed.data.prompt);
-  if (rewardMin > rewardMax) {
-    return { error: "Minimum reward can't be greater than maximum reward" };
-  }
+  const requirements = parsed.data.requirements ? sanitizeRichText(parsed.data.requirements) : null;
 
   const [lesson] = await db.select().from(lessons).where(eq(lessons.id, lessonId));
   if (!lesson) return { error: "That lesson no longer exists" };
@@ -143,7 +155,7 @@ export async function updateLessonAction(
 
   await db
     .update(lessons)
-    .set({ title, prompt, rewardMin, rewardMax, graderFee })
+    .set({ title, prompt, requirements, reward, graderFee })
     .where(eq(lessons.id, lessonId));
 
   revalidatePath(`/lesson/${lessonId}`);
@@ -233,6 +245,11 @@ export async function submitHomeworkAction(
 
   const [lesson] = await db.select().from(lessons).where(eq(lessons.id, lessonId));
   if (!lesson) return { error: "That lesson no longer exists" };
+
+  const enrolled = await isEnrolledInClass(characterId, lesson.boardId);
+  if (!enrolled) {
+    return { error: "You need to enroll in this class before submitting homework" };
+  }
 
   const [existing] = await db
     .select({ id: submissions.id })
@@ -356,7 +373,7 @@ export async function gradeSubmissionAction(
 
   if (allGrades.length >= REQUIRED_GRADERS) {
     const { tier: finalTier, numeric } = computeConsensus(allGrades.map((g) => g.tier));
-    const payout = Math.round(lesson.rewardMin + (lesson.rewardMax - lesson.rewardMin) * (numeric / 100));
+    const payout = computePayout(lesson.reward, finalTier);
 
     await db
       .update(submissions)

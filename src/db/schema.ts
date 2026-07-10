@@ -158,6 +158,18 @@ export const characterJobs = pgTable(
 );
 
 /**
+ * The welcome message shown to a newly-sorted character, "from" that hall's
+ * Resident Advisor. One row per hall. Editable by that hall's own Resident
+ * Advisor (field_agent job + matching hall), or admin.
+ */
+export const hallWelcomeMessages = pgTable("hall_welcome_messages", {
+  hall: hallEnum("hall").primaryKey(),
+  title: varchar("title", { length: 120 }).notNull().default("Welcome!"),
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/**
  * A custom status/title an admin puts on a character — shown on their
  * profile and hover card. Free text, not tied to jobs. A character can hold
  * several at once.
@@ -240,6 +252,10 @@ export const threads = pgTable("threads", {
   location: varchar("location", { length: 200 }),
   timeSetting: varchar("time_setting", { length: 100 }),
   surroundings: text("surroundings"),
+  // Out-of-character notes for the topic, shown separately from the IC content.
+  ooc: text("ooc"),
+  // Content rating 1-5 — see RATING_META in lib/thread-rating.ts for what each level means.
+  rating: integer("rating"),
   isLocked: boolean("is_locked").notNull().default(false),
   isPinned: boolean("is_pinned").notNull().default(false),
   // Article boards only: if set and in the future, the article is hidden
@@ -319,6 +335,9 @@ export const chatMessages = pgTable("chat_messages", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   content: varchar("content", { length: 1000 }).notNull(),
+  // System-generated announcements (enrollment, etc) — rendered with
+  // distinct styling so they stand out from regular chat.
+  isAnnouncement: boolean("is_announcement").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -475,15 +494,37 @@ export const lessons = pgTable("lessons", {
     .references(() => boards.id, { onDelete: "cascade" }), // the "class" board this lesson belongs to
   title: varchar("title", { length: 200 }).notNull(),
   prompt: text("prompt").notNull(), // the assignment text
+  // Optional — specific requirements/criteria homework must meet, shown as
+  // its own section separate from the narrative prompt above.
+  requirements: text("requirements"),
   createdByUserId: integer("created_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
   position: integer("position").notNull().default(0),
-  rewardMin: integer("reward_min").notNull().default(10), // currency range for a full-credit grade
-  rewardMax: integer("reward_max").notNull().default(25),
+  // Flat reward the instructor sets — actual payout is this times a
+  // multiplier based on the final tier (see TIER_MULTIPLIERS in lib/grading.ts).
+  reward: integer("reward").notNull().default(20),
   graderFee: integer("grader_fee").notNull().default(5), // what each grader earns per grade
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+/** A student must enroll in a class before its lessons open up to them. */
+export const classEnrollments = pgTable(
+  "class_enrollments",
+  {
+    id: serial("id").primaryKey(),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    boardId: integer("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    enrolledAt: timestamp("enrolled_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniquePair: uniqueIndex("class_enrollments_unique_idx").on(table.characterId, table.boardId),
+  })
+);
 
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),

@@ -15,6 +15,7 @@ export type RelationType =
   | "sibling_to"
   | "related_to"
   | "colleague_of"
+  | "dormmate_of"
   | "enemy_of"
   | "parent_of"
   | "child_of"
@@ -34,6 +35,7 @@ export const RELATION_META: Record<RelationType, RelationMeta> = {
   sibling_to: { label: "Sibling to" },
   related_to: { label: "Related to" },
   colleague_of: { label: "Colleague of" },
+  dormmate_of: { label: "Dormmate of" },
   enemy_of: { label: "Enemy of" },
   parent_of: { label: "Parent of", inverseOf: "child_of" },
   child_of: { label: "Child of", inverseOf: "parent_of" },

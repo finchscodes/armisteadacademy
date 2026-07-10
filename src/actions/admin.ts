@@ -2,9 +2,9 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, ilike, count, and, inArray } from "drizzle-orm";
+import { eq, or, ilike, count, and, inArray, desc } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers } from "@/db/schema";
+import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -13,7 +13,8 @@ import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES } from "@/lib/halls";
-import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
+import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
+import { GRADE_TIER_VALUES, GRADE_TIER_META, computePayout } from "@/lib/grading";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -1214,4 +1215,154 @@ export async function adminUpdateCharacterHallAction(
 
   revalidatePath(`/admin/users/${userId}`);
   return { success: "Hall updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Admin: override a submission's grade after the fact                       */
+/* -------------------------------------------------------------------------- */
+
+export async function getRecentGradedSubmissions(limit = 50) {
+  await requireAdmin();
+  const rows = await db
+    .select({
+      id: submissions.id,
+      finalTier: submissions.finalTier,
+      grade: submissions.grade,
+      payout: submissions.payout,
+      gradedAt: submissions.gradedAt,
+      characterId: characters.id,
+      characterSlug: characters.slug,
+      characterName: characters.name,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
+      lessonId: lessons.id,
+      lessonTitle: lessons.title,
+      lessonReward: lessons.reward,
+      boardName: boards.name,
+    })
+    .from(submissions)
+    .innerJoin(characters, eq(submissions.characterId, characters.id))
+    .innerJoin(lessons, eq(submissions.lessonId, lessons.id))
+    .innerJoin(boards, eq(lessons.boardId, boards.id))
+    .where(eq(submissions.status, "graded"))
+    .orderBy(desc(submissions.gradedAt))
+    .limit(limit);
+  return rows;
+}
+
+const updateGradeSchema = z.object({
+  submissionId: z.coerce.number().int(),
+  tier: z.enum(GRADE_TIER_VALUES),
+});
+
+export async function adminUpdateSubmissionGradeAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateGradeSchema.safeParse({
+    submissionId: formData.get("submissionId"),
+    tier: formData.get("tier"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { submissionId, tier } = parsed.data;
+
+  const [submission] = await db.select().from(submissions).where(eq(submissions.id, submissionId));
+  if (!submission) return { error: "That submission no longer exists" };
+
+  const [lesson] = await db.select().from(lessons).where(eq(lessons.id, submission.lessonId));
+  if (!lesson) return { error: "That lesson no longer exists" };
+
+  const newNumeric = GRADE_TIER_META[tier].numeric;
+  const newPayout = computePayout(lesson.reward, tier);
+  const oldPayout = submission.payout ?? 0;
+  const delta = newPayout - oldPayout;
+
+  await db
+    .update(submissions)
+    .set({ finalTier: tier, grade: newNumeric, payout: newPayout })
+    .where(eq(submissions.id, submissionId));
+
+  if (delta !== 0) {
+    await db.insert(currencyLedger).values({
+      characterId: submission.characterId,
+      amount: delta,
+      reason: "admin_adjustment",
+      relatedSubmissionId: submissionId,
+      note: `Admin changed grade on "${lesson.title}" to ${tier}`,
+    });
+  }
+
+  revalidatePath("/admin/grading");
+  revalidatePath("/grading");
+  return { success: "Grade updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Hall welcome messages — from that hall's own RA, admin can edit any       */
+/* -------------------------------------------------------------------------- */
+
+export async function getHallWelcomeMessage(hall: string) {
+  const [row] = await db
+    .select()
+    .from(hallWelcomeMessages)
+    .where(eq(hallWelcomeMessages.hall, hall as (typeof HALL_VALUES)[number]));
+  return row ?? null;
+}
+
+export async function canEditHallWelcome(characterId: number, hall: string): Promise<boolean> {
+  const [character] = await db
+    .select({ hall: characters.hall })
+    .from(characters)
+    .where(eq(characters.id, characterId));
+  if (character?.hall !== hall) return false;
+  return characterHasAnyJob(characterId, ["field_agent"]);
+}
+
+const updateHallWelcomeSchema = z.object({
+  hall: z.enum(HALL_VALUES as [string, ...string[]]),
+  title: z.string().min(1, "Title is required").max(120),
+  content: z.string().max(20000).optional().or(z.literal("")),
+});
+
+export async function updateHallWelcomeAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const session = await getSession();
+  if (!session) return { error: "Not signed in" };
+
+  const parsed = updateHallWelcomeSchema.safeParse({
+    hall: formData.get("hall"),
+    title: formData.get("title"),
+    content: formData.get("content") || "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  const { hall, title, content } = parsed.data;
+
+  if (!session.isAdmin) {
+    const characterId = formData.get("characterId");
+    const allowed =
+      typeof characterId === "string" && (await canEditHallWelcome(Number(characterId), hall));
+    if (!allowed) {
+      return { error: "Only that hall's Resident Advisor or admin can edit this" };
+    }
+  }
+
+  await db
+    .insert(hallWelcomeMessages)
+    .values({ hall: hall as (typeof HALL_VALUES)[number], title, content })
+    .onConflictDoUpdate({
+      target: hallWelcomeMessages.hall,
+      set: { title, content, updatedAt: new Date() },
+    });
+
+  revalidatePath(`/hall/${hall}/welcome`);
+  return { success: "Welcome message updated" };
 }

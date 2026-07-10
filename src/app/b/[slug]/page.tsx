@@ -4,6 +4,8 @@ import { getBoardBySlug } from "@/lib/forum";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
+import { isEnrolledInClass } from "@/lib/class-enrollments";
+import { enrollInClassAction } from "@/actions/lessons";
 import { canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { jobColor } from "@/lib/roles";
@@ -49,6 +51,10 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         (current.activeCharacter
           ? await isAssignedToClass(current.activeCharacter.id, board.id)
           : false)
+      : false;
+  const isEnrolled =
+    isClassBoard && current?.activeCharacter
+      ? await isEnrolledInClass(current.activeCharacter.id, board.id)
       : false;
   const canPostHere =
     isArticleBoard && current
@@ -97,7 +103,28 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
               </Link>
             )}
           </div>
-          {lessons.length === 0 ? (
+          {!canPostLesson && !isEnrolled ? (
+            current?.activeCharacter ? (
+              <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 text-center">
+                <p className="text-sm text-parchment-100 mb-3">
+                  Enroll in this class to see its lessons and submit homework.
+                </p>
+                <form action={enrollInClassAction}>
+                  <input type="hidden" name="boardId" value={board.id} />
+                  <button
+                    type="submit"
+                    className="text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                  >
+                    Enroll
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <p className="text-sm text-ink-400">
+                {current ? "Pick an active character to enroll." : "Log in to enroll in this class."}
+              </p>
+            )
+          ) : lessons.length === 0 ? (
             <p className="text-sm text-ink-400">No lessons posted yet.</p>
           ) : (
             <>
@@ -172,34 +199,55 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
-                  <div className="text-right">
-                    <p className="text-xs text-ink-400">
-                      {Math.max(t.postCount - 1, 0)} {t.postCount - 1 === 1 ? "reply" : "replies"}
-                    </p>
-                    {t.lastPoster && (
-                      <p className="text-xs mt-0.5">
-                        <span className="text-ink-500">last: </span>
-                        <span style={{ color: jobColor(t.lastPoster.characterJob) ?? undefined }}>
-                          {t.lastPoster.characterFirstName} {t.lastPoster.characterLastName}
-                        </span>
-                        <span className="text-ink-500"> &middot; {timeAgo(t.lastPoster.createdAt)}</span>
-                      </p>
-                    )}
-                  </div>
-                  {t.lastPoster && (
-                    <CharacterHoverCard
-                      characterId={t.lastPoster.characterId}
-                      slug={t.lastPoster.characterSlug}
-                      className="relative z-10 shrink-0"
-                    >
-                      <Link href={`/c/${t.lastPoster.characterSlug}`}>
-                        <CharacterBadge
-                          name={t.lastPoster.characterName}
-                          avatarUrl={t.lastPoster.characterAvatarUrl}
-                          size="sm"
-                        />
-                      </Link>
-                    </CharacterHoverCard>
+                  {isArticleBoard ? (
+                    <>
+                      <p className="text-xs text-ink-400 text-right">{timeAgo(t.createdAt)}</p>
+                      <CharacterHoverCard
+                        characterId={t.characterId}
+                        slug={t.characterSlug}
+                        className="relative z-10 shrink-0"
+                      >
+                        <Link href={`/c/${t.characterSlug}`}>
+                          <CharacterBadge
+                            name={t.characterName}
+                            avatarUrl={t.characterAvatarUrl}
+                            size="sm"
+                          />
+                        </Link>
+                      </CharacterHoverCard>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-right">
+                        <p className="text-xs text-ink-400">
+                          {Math.max(t.postCount - 1, 0)} {t.postCount - 1 === 1 ? "reply" : "replies"}
+                        </p>
+                        {t.lastPoster && (
+                          <p className="text-xs mt-0.5">
+                            <span className="text-ink-500">last: </span>
+                            <span style={{ color: jobColor(t.lastPoster.characterJob) ?? undefined }}>
+                              {t.lastPoster.characterFirstName} {t.lastPoster.characterLastName}
+                            </span>
+                            <span className="text-ink-500"> &middot; {timeAgo(t.lastPoster.createdAt)}</span>
+                          </p>
+                        )}
+                      </div>
+                      {t.lastPoster && (
+                        <CharacterHoverCard
+                          characterId={t.lastPoster.characterId}
+                          slug={t.lastPoster.characterSlug}
+                          className="relative z-10 shrink-0"
+                        >
+                          <Link href={`/c/${t.lastPoster.characterSlug}`}>
+                            <CharacterBadge
+                              name={t.lastPoster.characterName}
+                              avatarUrl={t.lastPoster.characterAvatarUrl}
+                              size="sm"
+                            />
+                          </Link>
+                        </CharacterHoverCard>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { reorderLessonsBulkAction } from "@/actions/lessons";
 
-type Lesson = { id: number; title: string; rewardMin: number; rewardMax: number };
+type Lesson = { id: number; title: string; reward: number };
 
 export function DraggableLessonList({
   boardId,
@@ -68,7 +68,7 @@ export function DraggableLessonList({
           >
             <span className="text-parchment-100">{lesson.title}</span>
             <span className="text-xs text-ink-400 shrink-0 ml-3">
-              {lesson.rewardMin}&ndash;{lesson.rewardMax} dollars
+              up to {lesson.reward} dollars
             </span>
           </Link>
         </div>

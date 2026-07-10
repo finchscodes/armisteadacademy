@@ -28,34 +28,29 @@ export function NewLessonForm({ boardSlug }: { boardSlug: string }) {
         <RichTextEditor name="prompt" placeholder="Write the assignment..." />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">Requirements (optional)</label>
+        <RichTextEditor name="requirements" placeholder="Specific criteria homework must meet — format, length, what to cover, etc." />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rewardMin">
-            Min reward
+          <label className="block text-sm font-medium mb-1" htmlFor="reward">
+            Reward
           </label>
           <input
-            id="rewardMin"
-            name="rewardMin"
+            id="reward"
+            name="reward"
             type="number"
             min={0}
-            defaultValue={10}
+            defaultValue={20}
             required
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
           />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="rewardMax">
-            Max reward
-          </label>
-          <input
-            id="rewardMax"
-            name="rewardMax"
-            type="number"
-            min={0}
-            defaultValue={25}
-            required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-          />
+          <p className="text-[11px] text-ink-400 mt-1">
+            Full payout for Perfect. Lower tiers pay a fraction of this — Excellent 80%, Good 50%,
+            Needs Improvement 30%, Failing 0%.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="graderFee">

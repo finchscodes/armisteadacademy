@@ -2,6 +2,25 @@ import { eq, and, desc, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { messageThreads, messageThreadParticipants, messages, characters } from "@/db/schema";
 
+/**
+ * Marks a thread read for this character with a plain write — no
+ * revalidatePath. Safe to call during a page's render (e.g. "viewing a
+ * thread marks it read"), unlike the markThreadsReadAction server action,
+ * which calls revalidatePath and will throw if invoked outside of an actual
+ * user-triggered Server Action.
+ */
+export async function markThreadReadSilently(threadId: number, characterId: number) {
+  await db
+    .update(messageThreadParticipants)
+    .set({ isRead: true })
+    .where(
+      and(
+        eq(messageThreadParticipants.threadId, threadId),
+        eq(messageThreadParticipants.characterId, characterId)
+      )
+    );
+}
+
 export async function getUnreadMessageCount(characterId: number): Promise<number> {
   const rows = await db
     .select({ id: messageThreadParticipants.id })

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
-import { getMessageThread } from "@/lib/messages";
-import { markThreadsReadAction } from "@/actions/messages";
+import { getMessageThread, markThreadReadSilently } from "@/lib/messages";
 import { CharacterBadge } from "@/components/character-badge";
 import { RichTextDisplay } from "@/components/rich-text-display";
 import { MessageReplyForm } from "@/components/message-reply-form";
@@ -35,7 +34,7 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
   const data = await getMessageThread(threadId, current.activeCharacter.id);
   if (!data) notFound();
 
-  await markThreadsReadAction([threadId], true);
+  await markThreadReadSilently(threadId, current.activeCharacter.id);
 
   const { thread, participants, messages, isCreator } = data;
 

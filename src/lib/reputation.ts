@@ -2,6 +2,7 @@ import { eq, sum, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { reputationLedger, characters } from "@/db/schema";
 import type { Hall } from "@/lib/halls";
+import { MAJOR_VALUES } from "@/lib/majors";
 
 /** Reputation awarded per action. Adjust freely — nothing else depends on the exact numbers. */
 export const REPUTATION_AWARDS = {
@@ -86,6 +87,7 @@ export async function getHallLeaderboard(hall: Hall, limit = 25) {
 export async function getMajorCounts() {
   const rows = await db.select({ major: characters.major }).from(characters);
   const counts = new Map<string, number>();
+  for (const m of MAJOR_VALUES) counts.set(m, 0);
   for (const r of rows) {
     counts.set(r.major, (counts.get(r.major) ?? 0) + 1);
   }

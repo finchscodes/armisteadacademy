@@ -72,6 +72,9 @@ export async function createThreadAction(
   }
 
   const isArticle = board.kind === "article";
+  if (!isArticle && !rating) {
+    return { error: "Pick a rating" };
+  }
   let scheduledFor: Date | null = null;
   if (isArticle && parsed.data.scheduledFor) {
     const parsedDate = new Date(parsed.data.scheduledFor);

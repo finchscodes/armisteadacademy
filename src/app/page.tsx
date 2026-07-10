@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
-import { getRecentFeedPosts } from "@/lib/feed";
 import { getRecentChatMessages } from "@/actions/chat";
 import { getOnlineCharacters } from "@/lib/online-status";
 import { CharacterCard } from "@/components/character-card";
-import { FeedItemCard } from "@/components/feed-item";
-import { ChatSidebar } from "@/components/chat-sidebar";
+import { CollapsibleChat } from "@/components/collapsible-chat";
+import { CharacterBadge } from "@/components/character-badge";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 export default async function HomePage() {
-  const [current, feed, chatMessages, online] = await Promise.all([
+  const [current, chatMessages, online] = await Promise.all([
     getCurrentUser(),
-    getRecentFeedPosts(20),
     getRecentChatMessages(50),
     getOnlineCharacters(),
   ]);
@@ -60,19 +59,22 @@ export default async function HomePage() {
 
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <h2 className="font-display text-lg text-parchment-100">Recent activity</h2>
+            <Link href="/social" className="font-display text-sm text-brass-400 hover:underline uppercase tracking-wider">
+              Social Media
+            </Link>
             <div className="flex-1 brass-rule" />
+            <span className="text-xs text-ink-400">{online.length} online</span>
           </div>
-
-          {feed.length === 0 ? (
-            <p className="text-sm text-ink-400">
-              Nothing posted yet. Use the <span className="text-brass-400">Boards</span> menu
-              above to start a thread.
-            </p>
+          {online.length === 0 ? (
+            <p className="text-xs text-ink-400 italic">Nobody&apos;s around right now.</p>
           ) : (
-            <div className="space-y-3">
-              {feed.map((item) => (
-                <FeedItemCard key={item.id} item={item} />
+            <div className="flex flex-wrap gap-2">
+              {online.slice(0, 20).map((c) => (
+                <CharacterHoverCard key={c.id} characterId={c.id} slug={c.slug} className="relative">
+                  <Link href={`/c/${c.slug}`}>
+                    <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
+                  </Link>
+                </CharacterHoverCard>
               ))}
             </div>
           )}
@@ -80,7 +82,7 @@ export default async function HomePage() {
       </div>
 
       <div className="lg:sticky lg:top-20">
-        <ChatSidebar
+        <CollapsibleChat
           initialMessages={initialChatMessages}
           initialOnline={online}
           canChat={canChat}

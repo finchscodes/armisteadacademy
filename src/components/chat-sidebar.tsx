@@ -33,8 +33,10 @@ type OnlineCharacter = {
 const POLL_INTERVAL_MS = 4000;
 
 function isMentioned(content: string, firstName: string, lastName: string): boolean {
+  const lower = content.toLowerCase();
+  if (/(^|\s)@all(\s|$)/.test(lower)) return true;
   const target = `@${firstName} ${lastName}`.toLowerCase();
-  return content.toLowerCase().includes(target);
+  return lower.includes(target);
 }
 
 export function ChatSidebar({
@@ -127,6 +129,7 @@ export function ChatSidebar({
   }, [messages]);
 
   function handleSubmit(formData: FormData) {
+    if (!inputValue.trim()) return;
     setError(null);
     startTransition(async () => {
       const result = await sendChatMessageAction(formData);
@@ -173,7 +176,7 @@ export function ChatSidebar({
     });
   }
 
-  function selectMention(candidate: OnlineCharacter) {
+  function selectMention(mentionLabel: string) {
     const input = inputRef.current;
     if (!input || mentionQuery === null) return;
     const cursor = input.selectionStart ?? inputValue.length;
@@ -181,7 +184,7 @@ export function ChatSidebar({
     const atIndex = upToCursor.lastIndexOf("@");
     const before = inputValue.slice(0, atIndex);
     const after = inputValue.slice(cursor);
-    const mentionText = `@${candidate.firstName} ${candidate.lastName} `;
+    const mentionText = `@${mentionLabel} `;
     const next = before + mentionText + after;
     setInputValue(next);
     setMentionQuery(null);
@@ -194,6 +197,9 @@ export function ChatSidebar({
 
   // Only online characters are pingable — mentioning someone offline wouldn't
   // reach them in any meaningful way, so they aren't offered as candidates.
+  // "@all" is always offered too, when it matches what's been typed — it
+  // pings everyone currently online.
+  const showAllOption = mentionQuery !== null && "all".startsWith(mentionQuery.toLowerCase());
   const mentionMatches =
     mentionQuery !== null
       ? online
@@ -230,15 +236,15 @@ export function ChatSidebar({
         )}
       </div>
 
-      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
+      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5">
         {messages.length === 0 ? (
           <p className="text-xs text-ink-400 italic">No messages yet — say something.</p>
         ) : (
           messages.map((m) => (
             <p
               key={m.id}
-              className={`text-sm leading-snug rounded px-1.5 -mx-1.5 py-0.5 transition-colors ${
-                pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40" : ""
+              className={`text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
+                pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
               }`}
             >
               <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
@@ -262,13 +268,23 @@ export function ChatSidebar({
           action={handleSubmit}
           className="border-t border-ink-700 p-3 shrink-0 relative"
         >
-          {mentionMatches.length > 0 && (
+          {(mentionMatches.length > 0 || showAllOption) && (
             <div className="absolute bottom-full left-3 mb-1 w-56 bg-ink-800 border border-ink-600 rounded-md shadow-xl overflow-hidden">
+              {showAllOption && (
+                <button
+                  type="button"
+                  onClick={() => selectMention("all")}
+                  className="w-full text-left px-3 py-1.5 text-sm text-brass-400 hover:bg-ink-700 transition-colors flex items-center gap-2 border-b border-ink-700"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-brass-400 shrink-0" />
+                  @all — ping everyone online
+                </button>
+              )}
               {mentionMatches.map((c) => (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => selectMention(c)}
+                  onClick={() => selectMention(`${c.firstName} ${c.lastName}`)}
                   className="w-full text-left px-3 py-1.5 text-sm text-parchment-100 hover:bg-ink-700 transition-colors flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
@@ -302,9 +318,8 @@ export function ChatSidebar({
               name="content"
               value={inputValue}
               onChange={handleInputChange}
-              required
               maxLength={1000}
-              placeholder="Say something... (@ to mention someone online)"
+              placeholder="Say something..."
               autoComplete="off"
               className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
             />

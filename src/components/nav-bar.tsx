@@ -4,11 +4,16 @@ import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress, canGradeHomework } from "@/lib/xp";
 import { getBoardTree } from "@/lib/forum";
 import { getGradingQueueCount } from "@/lib/lessons";
+import { getOnlineCount } from "@/lib/online-status";
 import { BoardsDropdown } from "./boards-dropdown";
 import { AccountMenu } from "./account-menu";
 
 export async function NavBar() {
-  const [current, boardTree] = await Promise.all([getCurrentUser(), getBoardTree()]);
+  const [current, boardTree, onlineCount] = await Promise.all([
+    getCurrentUser(),
+    getBoardTree(),
+    getOnlineCount(),
+  ]);
   const [balance, levelProgress] = current?.activeCharacter
     ? await Promise.all([
         getCharacterBalance(current.activeCharacter.id),
@@ -40,6 +45,18 @@ export async function NavBar() {
 
         {current ? (
           <div className="flex items-center gap-3">
+            <Link
+              href="/social"
+              title="Social Media"
+              className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+            >
+              <span className="text-lg leading-none">💬</span>
+              {onlineCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-green-600 text-parchment-100 text-[10px] leading-none rounded-full px-1.5 py-0.5 min-w-[1rem] text-center">
+                  {onlineCount}
+                </span>
+              )}
+            </Link>
             {canGrade && (
               <Link
                 href="/grading"

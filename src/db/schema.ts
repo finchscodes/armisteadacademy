@@ -437,7 +437,13 @@ export const currencyLedger = pgTable("currency_ledger", {
     .references(() => characters.id, { onDelete: "cascade" }),
   amount: integer("amount").notNull(), // positive = credit, negative = debit
   reason: ledgerReasonEnum("reason").notNull(),
-  relatedSubmissionId: integer("related_submission_id").references(() => submissions.id),
+  // set null (not cascade, not the default no-action): a ledger entry is a
+  // permanent record of currency someone actually received — deleting the
+  // lesson/submission it came from must not delete or block-delete this row,
+  // it should just lose the "related to what" link.
+  relatedSubmissionId: integer("related_submission_id").references(() => submissions.id, {
+    onDelete: "set null",
+  }),
   note: text("note"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -449,8 +455,12 @@ export const xpLedger = pgTable("xp_ledger", {
     .references(() => characters.id, { onDelete: "cascade" }),
   amount: integer("amount").notNull(), // always positive; XP doesn't get spent
   reason: xpReasonEnum("reason").notNull(),
-  relatedSubmissionId: integer("related_submission_id").references(() => submissions.id),
-  relatedPostId: integer("related_post_id").references(() => posts.id),
+  // Same reasoning as currencyLedger above — XP earned is permanent even if
+  // the lesson/submission/post it came from is later deleted.
+  relatedSubmissionId: integer("related_submission_id").references(() => submissions.id, {
+    onDelete: "set null",
+  }),
+  relatedPostId: integer("related_post_id").references(() => posts.id, { onDelete: "set null" }),
   note: text("note"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

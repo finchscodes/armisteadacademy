@@ -81,7 +81,7 @@ export async function canGradeHomework(characterId: number): Promise<boolean> {
 /** XP award amounts. Change these in one place to retune the economy. */
 export const XP_AWARDS = {
   chat_post: 5,
-  homework_submission: 15,
-  grading: 20,
-  pet_cuddle: 5,
+  homework_submission: 100,
+  grading: 25,
+  pet_cuddle: 5, // legacy — pets feature was removed, but the enum value stays for old ledger rows
 } as const;

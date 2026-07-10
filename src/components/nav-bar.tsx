@@ -103,7 +103,7 @@ export async function NavBar() {
             {current.activeCharacter && (
               <Link
                 href="/messages"
-                title="Owl Post"
+                title="Messages"
                 className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
               >
                 <MailIcon />

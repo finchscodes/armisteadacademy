@@ -658,7 +658,7 @@ export const inventory = pgTable("inventory", {
 });
 
 /**
- * Private messaging ("Owl Post") — separate from the in-character
+ * Private messaging ("Messages") — separate from the in-character
  * "Text Messages" board. A thread can have several participants; only
  * whoever created it can add or remove people.
  */

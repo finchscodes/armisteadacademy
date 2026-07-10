@@ -88,7 +88,7 @@ export async function createMessageThreadAction(
       await createNotification(
         recipientId,
         "relation_request", // reuse the generic "someone reached out" style
-        `${sender.firstName} ${sender.lastName} sent you an owl: "${parsed.data.subject}"`,
+        `${sender.firstName} ${sender.lastName} sent you a message: "${parsed.data.subject}"`,
         `/messages/${thread.id}`
       );
     }

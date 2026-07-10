@@ -74,12 +74,12 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
           href="/messages/new"
           className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
         >
-          + New Owl
+          + New Message
         </Link>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search owls..."
+          placeholder="Search messages..."
           className="text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brass-500"
         />
       </div>
@@ -118,7 +118,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
 
       <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-800">
         {filtered.length === 0 ? (
-          <p className="text-sm text-ink-400 px-4 py-6 text-center">No owls yet.</p>
+          <p className="text-sm text-ink-400 px-4 py-6 text-center">No messages yet.</p>
         ) : (
           filtered.map((t) => {
             const others = t.participants.filter((p) => p.characterId !== myCharacterId);

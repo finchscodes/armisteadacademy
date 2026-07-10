@@ -43,7 +43,7 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <Link href="/messages" className="text-sm text-ink-400 hover:text-brass-400">
-          &larr; Back to owlery
+          &larr; Back to messages
         </Link>
         <MarkUnreadButton threadId={thread.id} />
       </div>

@@ -25,9 +25,10 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `30`, you need one new file:
-1. `31-reorder-halls.sql` — moves the Halls category to sit right after
-   Dormitories instead of at the end. Purely a display-order change.
+If you already ran everything through `32`, you need three new files, in order:
+1. `33-lesson-requirements.sql`
+2. `34-weapon-handling-class.sql`
+3. `35-hall-welcome-and-topic-ooc-rating.sql`
 
 ## File reference
 
@@ -35,5 +36,7 @@ If you already ran everything through `30`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`30` | (historical) incremental updates, all folded into `01` |
-| `31-reorder-halls.sql` | Moves Halls to right after Dormitories |
+| `03`–`32` | (historical) incremental updates, all folded into `01` |
+| `33-lesson-requirements.sql` | Adds lesson requirements field |
+| `34-weapon-handling-class.sql` | Adds the Weapon Handling class |
+| `35-hall-welcome-and-topic-ooc-rating.sql` | Hall welcome messages, chat announcements, topic OOC/rating |

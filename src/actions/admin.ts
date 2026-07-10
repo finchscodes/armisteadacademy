@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries } from "@/db/schema";
+import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -12,6 +12,8 @@ import { getCharacterXp, cumulativeXpForLevel } from "@/lib/xp";
 import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
+import { HALL_VALUES } from "@/lib/halls";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -58,6 +60,7 @@ export async function getUserDetail(userId: number) {
       age: characters.age,
       gender: characters.gender,
       socialStatus: characters.socialStatus,
+      hall: characters.hall,
       yearOverride: characters.yearOverride,
       firstName: characters.firstName,
       middleName: characters.middleName,
@@ -1011,11 +1014,14 @@ export async function getSpotlightEntries() {
       characterFirstName: characters.firstName,
       characterLastName: characters.lastName,
       characterAvatarUrl: characters.avatarUrl,
+      characterMajor: characters.major,
     })
     .from(spotlightEntries)
     .innerJoin(characters, eq(spotlightEntries.characterId, characters.id))
     .orderBy(spotlightEntries.position);
-  return rows;
+
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.characterId));
+  return rows.map((r) => ({ ...r, characterJob: jobsByCharacter.get(r.characterId) ?? "none" }));
 }
 
 const addSpotlightSchema = z.object({
@@ -1070,4 +1076,142 @@ export async function adminRemoveSpotlightAction(formData: FormData) {
   await db.delete(spotlightEntries).where(eq(spotlightEntries.id, entryId));
   revalidatePath("/");
   revalidatePath("/admin/home-board");
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Hall sorting quiz — up to 12 questions, each with hall-mapped answers     */
+/* -------------------------------------------------------------------------- */
+
+const MAX_SORTING_QUESTIONS = 12;
+
+export async function getSortingQuestionsWithAnswers() {
+  const questions = await db.select().from(sortingQuestions).orderBy(sortingQuestions.position);
+  const answers = await db.select().from(sortingAnswers).orderBy(sortingAnswers.position);
+  return questions.map((q) => ({
+    ...q,
+    answers: answers.filter((a) => a.questionId === q.id),
+  }));
+}
+
+const addQuestionSchema = z.object({
+  questionText: z.string().min(1, "Enter a question").max(300),
+});
+
+export async function adminAddSortingQuestionAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = addQuestionSchema.safeParse({ questionText: formData.get("questionText") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const existing = await db.select({ id: sortingQuestions.id }).from(sortingQuestions);
+  if (existing.length >= MAX_SORTING_QUESTIONS) {
+    return { error: `Only ${MAX_SORTING_QUESTIONS} questions at a time — remove one first` };
+  }
+
+  await db.insert(sortingQuestions).values({
+    questionText: parsed.data.questionText,
+    position: existing.length,
+  });
+
+  revalidatePath("/admin/sorting-quiz");
+  revalidatePath("/characters/new");
+  return { success: "Question added" };
+}
+
+export async function adminRemoveSortingQuestionAction(formData: FormData) {
+  await requireAdmin();
+  const questionId = Number(formData.get("questionId"));
+  if (!questionId) return;
+
+  await db.delete(sortingQuestions).where(eq(sortingQuestions.id, questionId));
+  revalidatePath("/admin/sorting-quiz");
+  revalidatePath("/characters/new");
+}
+
+const addAnswerSchema = z.object({
+  questionId: z.coerce.number().int(),
+  answerText: z.string().min(1, "Enter an answer").max(200),
+  hall: z.enum(HALL_VALUES as [string, ...string[]]),
+});
+
+export async function adminAddSortingAnswerAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = addAnswerSchema.safeParse({
+    questionId: formData.get("questionId"),
+    answerText: formData.get("answerText"),
+    hall: formData.get("hall"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const existing = await db
+    .select({ id: sortingAnswers.id })
+    .from(sortingAnswers)
+    .where(eq(sortingAnswers.questionId, parsed.data.questionId));
+
+  await db.insert(sortingAnswers).values({
+    questionId: parsed.data.questionId,
+    answerText: parsed.data.answerText,
+    hall: parsed.data.hall as (typeof HALL_VALUES)[number],
+    position: existing.length,
+  });
+
+  revalidatePath("/admin/sorting-quiz");
+  revalidatePath("/characters/new");
+  return { success: "Answer added" };
+}
+
+export async function adminRemoveSortingAnswerAction(formData: FormData) {
+  await requireAdmin();
+  const answerId = Number(formData.get("answerId"));
+  if (!answerId) return;
+
+  await db.delete(sortingAnswers).where(eq(sortingAnswers.id, answerId));
+  revalidatePath("/admin/sorting-quiz");
+  revalidatePath("/characters/new");
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Hall — admin can change a character's hall anytime                        */
+/* -------------------------------------------------------------------------- */
+
+const updateHallSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  hall: z.enum(HALL_VALUES as [string, ...string[]]),
+});
+
+export async function adminUpdateCharacterHallAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateHallSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    hall: formData.get("hall"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, hall } = parsed.data;
+  await db
+    .update(characters)
+    .set({ hall: hall as (typeof HALL_VALUES)[number] })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Hall updated" };
 }

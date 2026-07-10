@@ -8,6 +8,8 @@ import { getJobsForCharacter, getPrimaryJob } from "@/lib/character-jobs";
 import { getCurrentUser } from "@/lib/current-user";
 import { getParticipatedThreads } from "@/lib/topics";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
+import { hallLabel, hallColor } from "@/lib/halls";
+import { getMajorColor } from "@/lib/majors";
 import {
   getAcceptedRelations,
   getIncomingRequests,
@@ -57,6 +59,7 @@ export default async function CharacterProfilePage({
     .join(" ");
   const isOwner = current?.session.userId === character.userId;
   const nameColor = jobColor(primaryJob) ?? undefined;
+  const majorColorHex = getMajorColor(character.major) ?? "#d9b64a";
 
   const [incomingRequests, outgoingRequests] = isOwner
     ? await Promise.all([getIncomingRequests(character.id), getOutgoingRequests(character.id)])
@@ -76,7 +79,12 @@ export default async function CharacterProfilePage({
               {statuses.map((s) => (
                 <span
                   key={s.id}
-                  className="text-xs bg-brass-500/15 text-brass-400 border border-brass-500/30 rounded-full px-2.5 py-0.5"
+                  className="text-xs rounded-full px-2.5 py-0.5 border"
+                  style={{
+                    color: majorColorHex,
+                    backgroundColor: `${majorColorHex}26`,
+                    borderColor: `${majorColorHex}4d`,
+                  }}
                 >
                   {s.label}
                 </span>
@@ -96,8 +104,15 @@ export default async function CharacterProfilePage({
               ))}
             </div>
           )}
-          <p className="text-sm text-brass-400 mt-1">{character.major}</p>
+          <p className="text-sm mt-1" style={{ color: getMajorColor(character.major) ?? undefined }}>
+            {character.major}
+          </p>
           <p className="text-xs text-ink-400 mt-1">{yearLabel}</p>
+          {character.hall && (
+            <p className="text-sm font-medium mt-1" style={{ color: hallColor(character.hall) ?? undefined }}>
+              {hallLabel(character.hall)}
+            </p>
+          )}
           {(character.gender || character.socialStatus) && (
             <p className="text-xs text-ink-400 mt-1">
               {[character.gender, character.socialStatus].filter(Boolean).join(" · ")}

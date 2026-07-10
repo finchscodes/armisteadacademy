@@ -5,11 +5,10 @@
  * Admin is separate — it's an account-level flag (users.is_admin), so every
  * character on an admin's account has hidden admin access regardless of job.
  *
- * Two job titles here are placeholders because the spec left them blank:
- *   - "field_agent" was listed as "Red:" with no title given
+ * One job title here is still a placeholder because the spec left it blank:
  *   - "head_staff" was listed as "Yellow: Head Staff of ___" with no department
  * Rename the `label` (and the enum value + migration, if you want the DB key
- * to match) once you've got the real names — everything else keys off this
+ * to match) once you've got the real name — everything else keys off this
  * one file.
  */
 export type CharacterJob =
@@ -57,7 +56,7 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   none: { label: "None", color: null },
   spymaster: { label: "Spymaster", color: "#4CAF7D" }, // Green
   secretary: { label: "Secretary", color: "#3D6FB0" }, // Blue
-  field_agent: { label: "Field Agent", color: "#D9534F" }, // Red — placeholder title, real name TBD
+  field_agent: { label: "Resident Advisor", color: "#D9534F" }, // Red — one RA per hall, see lib/halls.ts
   head_staff: { label: "Head Staff", color: "#E0C341" }, // Yellow — placeholder, department TBD
   instructor: { label: "Instructor", color: "#A8D948" }, // Lime
   chief_editor: { label: "Chief Editor", color: "#5AA9A3" }, // Teal

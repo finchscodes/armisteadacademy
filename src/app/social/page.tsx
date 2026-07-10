@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { boards } from "@/db/schema";
+
+// Shows live online/recent-activity data — must render per-request, never
+// prerendered at build time (which would hit the database during the build
+// itself, and previously caused the Vercel build to hang/time out).
+export const dynamic = "force-dynamic";
+
 import { inArray } from "drizzle-orm";
 import { getOnlineCharactersDetailed } from "@/lib/online-status";
 import { getRecentTopics } from "@/lib/feed";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { jobColor } from "@/lib/roles";
+import { getMajorColor } from "@/lib/majors";
 
 const COMMUNICATION_SLUGS = ["text-messages", "social-media", "emails-letters", "phone-calls"];
 
@@ -67,9 +74,8 @@ export default async function SocialPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {topics.map((t) => (
-              <Link
+              <div
                 key={t.threadId}
-                href={`/t/${t.threadSlug}`}
                 className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
               >
                 <div className="flex items-center gap-2.5 mb-2">
@@ -86,15 +92,19 @@ export default async function SocialPage() {
                         {t.characterFirstName} {t.characterLastName}
                       </span>
                       <span className="text-ink-400"> posted in </span>
-                      <span className="text-brass-400">{t.threadTitle}</span>
+                      <Link href={`/t/${t.threadSlug}`} className="text-brass-400 hover:underline">
+                        {t.threadTitle}
+                      </Link>
                     </p>
                     <p className="text-xs text-ink-400">
                       {t.boardName} &middot; {timeAgo(t.postCreatedAt)}
                     </p>
                   </div>
                 </div>
-                <p className="text-xs text-parchment-100/80 line-clamp-3">{t.excerpt}</p>
-              </Link>
+                <Link href={`/t/${t.threadSlug}`} className="block text-xs text-parchment-100/80 line-clamp-3">
+                  {t.excerpt}
+                </Link>
+              </div>
             ))}
           </div>
         )}
@@ -109,24 +119,25 @@ export default async function SocialPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {online.map((c) => (
-              <Link
+              <div
                 key={c.id}
-                href={`/c/${c.slug}`}
                 className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center gap-3 hover:border-brass-500/50 transition-colors"
               >
                 <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative shrink-0">
                   <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
                 </CharacterHoverCard>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-parchment-100 truncate">
+                  <Link href={`/c/${c.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
                     {c.firstName} {c.lastName}
-                  </p>
+                  </Link>
                   <p className="text-xs text-ink-400">
                     Age {c.age} &middot; {c.year}
                   </p>
                 </div>
-                <p className="text-xs text-brass-400 shrink-0">{c.major}</p>
-              </Link>
+                <p className="text-xs shrink-0" style={{ color: getMajorColor(c.major) ?? undefined }}>
+                  {c.major}
+                </p>
+              </div>
             ))}
           </div>
         )}

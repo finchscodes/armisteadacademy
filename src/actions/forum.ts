@@ -13,6 +13,7 @@ import { XP_AWARDS } from "@/lib/xp";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
+import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import type { ActionState } from "./auth";
 
 const newThreadSchema = z.object({
@@ -115,6 +116,17 @@ export async function createThreadAction(
     relatedPostId: openingPost.id,
   });
 
+  if (!isArticle) {
+    await awardReputation(
+      characterId,
+      REPUTATION_AWARDS.thread_created,
+      "thread_created",
+      `Started "${title}"`,
+      undefined,
+      openingPost.id
+    );
+  }
+
   revalidatePath(`/b/${boardSlug}`);
   redirect(`/t/${thread.slug}`);
 }
@@ -175,6 +187,15 @@ export async function createPostAction(
     reason: "chat_post",
     relatedPostId: newPost.id,
   });
+
+  await awardReputation(
+    characterId,
+    REPUTATION_AWARDS.thread_reply,
+    "thread_reply",
+    `Replied to "${thread.title}"`,
+    undefined,
+    newPost.id
+  );
 
   await db.update(threads).set({ lastPostAt: new Date() }).where(eq(threads.id, thread.id));
 

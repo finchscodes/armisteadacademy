@@ -3,13 +3,14 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { characters, currencyLedger, chatMessages } from "@/db/schema";
+import { characters, currencyLedger, chatMessages, sortingAnswers } from "@/db/schema";
 import { getSession, setActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
 import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
+import { HALL_VALUES } from "@/lib/halls";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -37,6 +38,45 @@ const createCharacterSchema = z.object({
 
 const STARTING_BALANCE = 50;
 
+/** Resolve a character's hall from either a direct pick or their sorting-quiz answers. */
+async function resolveHall(formData: FormData): Promise<{ hall: string } | { error: string }> {
+  const hallMode = formData.get("hallMode");
+
+  if (hallMode === "quiz") {
+    const answerIds: number[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith("quiz_q") && typeof value === "string" && value) {
+        answerIds.push(Number(value));
+      }
+    }
+    if (answerIds.length === 0) {
+      return { error: "Answer the sorting quiz, or switch to choosing your hall directly" };
+    }
+    const rows = await db
+      .select({ hall: sortingAnswers.hall })
+      .from(sortingAnswers)
+      .where(inArray(sortingAnswers.id, answerIds));
+    const tally = new Map<string, number>();
+    for (const r of rows) tally.set(r.hall, (tally.get(r.hall) ?? 0) + 1);
+    let winner: string | null = null;
+    let winnerCount = -1;
+    for (const [hall, count] of tally) {
+      if (count > winnerCount) {
+        winner = hall;
+        winnerCount = count;
+      }
+    }
+    if (!winner) return { error: "Couldn't score the quiz — try again" };
+    return { hall: winner };
+  }
+
+  const hall = formData.get("hall");
+  if (typeof hall !== "string" || !HALL_VALUES.includes(hall as (typeof HALL_VALUES)[number])) {
+    return { error: "Pick a hall" };
+  }
+  return { hall };
+}
+
 export async function createCharacterAction(
   _prevState: ActionState,
   formData: FormData
@@ -44,6 +84,11 @@ export async function createCharacterAction(
   const session = await getSession();
   if (!session) {
     redirect("/login");
+  }
+
+  const hallResult = await resolveHall(formData);
+  if ("error" in hallResult) {
+    return { error: hallResult.error };
   }
 
   const parsed = createCharacterSchema.safeParse({
@@ -75,6 +120,7 @@ export async function createCharacterAction(
       age,
       gender,
       socialStatus,
+      hall: hallResult.hall as (typeof HALL_VALUES)[number],
       middleName: middleName || undefined,
       lastName,
       name,

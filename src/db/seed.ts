@@ -8,7 +8,8 @@ type BoardSpec = {
   slug: string;
   description?: string;
   kind?: "board" | "article";
-  extraArticleJob?: "writer";
+  extraArticleJob?: "writer" | "field_agent";
+  restrictedToHall?: "undercroft" | "veil" | "rampart" | "eaves";
 };
 
 const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
@@ -102,6 +103,40 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "Phone Calls", slug: "phone-calls" },
     ],
   },
+  {
+    name: "Halls",
+    slug: "halls",
+    boards: [
+      {
+        name: "Undercroft Hall",
+        slug: "undercroft-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "undercroft",
+      },
+      {
+        name: "Veil Hall",
+        slug: "veil-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "veil",
+      },
+      {
+        name: "Rampart Hall",
+        slug: "rampart-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "rampart",
+      },
+      {
+        name: "Eaves Hall",
+        slug: "eaves-hall",
+        kind: "article",
+        extraArticleJob: "field_agent",
+        restrictedToHall: "eaves",
+      },
+    ],
+  },
 ];
 
 async function main() {
@@ -135,6 +170,7 @@ async function main() {
         slug: b.slug,
         description: b.description,
         extraArticleJob: b.extraArticleJob,
+        restrictedToHall: b.restrictedToHall,
         position: j,
       }))
     );

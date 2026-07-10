@@ -5,7 +5,7 @@ import { getLessonsTakenCounts, yearLabelForOverrideOrLessons } from "@/lib/year
 import { getReactionsForPosts, getCommentsForPosts } from "@/lib/post-interactions";
 import { jobColor } from "@/lib/roles";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
-import { canModeratePosts, canPostArticle } from "@/lib/article-boards";
+import { canModeratePosts, canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
@@ -38,6 +38,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
   const viewerCharacterId = current?.activeCharacter?.id ?? null;
   const canModerate =
     Boolean(session?.isAdmin) || (viewerCharacterId ? await canModeratePosts(viewerCharacterId) : false);
+
+  if (board?.restrictedToHall) {
+    const allowed =
+      Boolean(session?.isAdmin) ||
+      (viewerCharacterId ? await canViewBoard(viewerCharacterId, board.id) : false);
+    if (!allowed) notFound();
+  }
 
   // A scheduled-future article is only visible to whoever can post on this
   // board (management/granted writers) and its author — same rule as the

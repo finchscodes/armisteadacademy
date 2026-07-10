@@ -17,6 +17,7 @@ import {
 } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
+import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { GRADE_TIER_VALUES, computeConsensus, tierLabel } from "@/lib/grading";
 import { createNotification } from "@/lib/notifications";
@@ -254,6 +255,13 @@ export async function submitHomeworkAction(
     note: `Submitted homework for "${lesson.title}"`,
   });
 
+  await awardReputation(
+    characterId,
+    REPUTATION_AWARDS.homework_submission,
+    "homework_submission",
+    `Submitted homework for "${lesson.title}"`
+  );
+
   revalidatePath(`/lesson/${lessonId}`);
   redirect(`/lesson/${lessonId}`);
 }
@@ -332,6 +340,13 @@ export async function gradeSubmissionAction(
     relatedSubmissionId: submissionId,
     note: `Graded a submission for "${lesson.title}"`,
   });
+  await awardReputation(
+    characterId,
+    REPUTATION_AWARDS.grading,
+    "grading",
+    `Graded a submission for "${lesson.title}"`,
+    submissionId
+  );
 
   // Once REQUIRED_GRADERS have weighed in, compute the consensus and pay out.
   const allGrades = await db

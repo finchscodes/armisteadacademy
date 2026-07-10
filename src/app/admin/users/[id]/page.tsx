@@ -13,6 +13,7 @@ import { AdminLevelEditor } from "@/components/admin-level-editor";
 import { AdminBalanceEditor } from "@/components/admin-balance-editor";
 import { AdminGenderEditor } from "@/components/admin-gender-editor";
 import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor";
+import { AdminHallEditor } from "@/components/admin-hall-editor";
 import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
 import { levelForXp } from "@/lib/xp";
 
@@ -99,6 +100,10 @@ export default async function AdminUserDetailPage({
                     userId={user.id}
                     currentSocialStatus={c.socialStatus}
                   />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Hall</p>
+                  <AdminHallEditor characterId={c.id} userId={user.id} currentHall={c.hall} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>

@@ -4,6 +4,10 @@ import { JOB_META, jobLabel, isListedJob } from "@/lib/roles";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 
+// Job assignments change and should reflect immediately — must render
+// per-request, never prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default async function JobsPage() {
   const byJob = await getJobBoardData();
 

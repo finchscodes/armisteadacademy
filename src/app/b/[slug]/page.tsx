@@ -4,7 +4,7 @@ import { getBoardBySlug } from "@/lib/forum";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
-import { canPostArticle } from "@/lib/article-boards";
+import { canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { jobColor } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
@@ -35,6 +35,14 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
     isClassBoard ? getLessonsForBoard(board.id) : Promise.resolve([]),
     getCurrentUser(),
   ]);
+
+  if (board.restrictedToHall) {
+    const allowed =
+      current?.session.isAdmin ||
+      (current?.activeCharacter ? await canViewBoard(current.activeCharacter.id, board.id) : false);
+    if (!allowed) notFound();
+  }
+
   const canPostLesson =
     isClassBoard && current
       ? current.session.isAdmin ||

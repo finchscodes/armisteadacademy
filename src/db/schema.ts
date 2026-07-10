@@ -51,6 +51,14 @@ export const xpReasonEnum = pgEnum("xp_reason", [
   "admin_adjustment",
 ]);
 export const characterMajorEnum = pgEnum("character_major", MAJOR_VALUES);
+export const hallEnum = pgEnum("hall", ["undercroft", "veil", "rampart", "eaves"]);
+export const reputationReasonEnum = pgEnum("reputation_reason", [
+  "homework_submission",
+  "grading",
+  "thread_created",
+  "thread_reply",
+  "admin_adjustment",
+]);
 
 /** Level required before a character is allowed to claim/grade homework. */
 export const GRADING_LEVEL_REQUIREMENT = 3;
@@ -108,6 +116,9 @@ export const characters = pgTable(
     // Freely editable, no locking (unlike major/age) — just profile info.
     gender: text("gender"), // "Male" | "Non-binary" | "Female" — validated in lib/character-options.ts
     socialStatus: text("social_status"), // "Spy Born" | "Family Secret" | "New Blood" — see same file
+    // Set at creation (chosen directly or via the sorting quiz), locked
+    // afterward — admin can still change it from /admin/users.
+    hall: hallEnum("hall"),
     personality: text("personality"),
     appearance: text("appearance"),
     avatarUrl: text("avatar_url"),
@@ -160,6 +171,28 @@ export const characterStatuses = pgTable("character_statuses", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+/**
+ * Hall sorting quiz — admin defines up to 12 questions, each with several
+ * answers that each point toward one hall. Whichever hall gets the most
+ * matching answers is where the character gets sorted.
+ */
+export const sortingQuestions = pgTable("sorting_questions", {
+  id: serial("id").primaryKey(),
+  questionText: text("question_text").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const sortingAnswers = pgTable("sorting_answers", {
+  id: serial("id").primaryKey(),
+  questionId: integer("question_id")
+    .notNull()
+    .references(() => sortingQuestions.id, { onDelete: "cascade" }),
+  answerText: text("answer_text").notNull(),
+  hall: hallEnum("hall").notNull(),
+  position: integer("position").notNull().default(0),
+});
+
 /* -------------------------------------------------------------------------- */
 /*  Forum core: Boards / Threads / Posts                                      */
 /* -------------------------------------------------------------------------- */
@@ -177,6 +210,9 @@ export const boards = pgTable(
     // auto-permitted to post here — e.g. "writer" on Armistead Weekly, so
     // writers don't each need an individual admin grant.
     extraArticleJob: characterJobEnum("extra_article_job"),
+    // If set, this board (view AND post) is exclusive to that hall's own
+    // members — not even general management can see it, only admin.
+    restrictedToHall: hallEnum("restricted_to_hall"),
     position: integer("position").notNull().default(0),
     minRoleToView: text("min_role_to_view").notNull().default("member"),
     minRoleToPost: text("min_role_to_post").notNull().default("member"),
@@ -521,6 +557,26 @@ export const xpLedger = pgTable("xp_ledger", {
   reason: xpReasonEnum("reason").notNull(),
   // Same reasoning as currencyLedger above — XP earned is permanent even if
   // the lesson/submission/post it came from is later deleted.
+  relatedSubmissionId: integer("related_submission_id").references(() => submissions.id, {
+    onDelete: "set null",
+  }),
+  relatedPostId: integer("related_post_id").references(() => posts.id, { onDelete: "set null" }),
+  note: text("note"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
+ * Reputation — a separate point system from XP/level. Earned from grading,
+ * posting/replying in topics, and submitting homework. Feeds both a
+ * character's own reputation and their hall's total on /reputation.
+ */
+export const reputationLedger = pgTable("reputation_ledger", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(),
+  reason: reputationReasonEnum("reason").notNull(),
   relatedSubmissionId: integer("related_submission_id").references(() => submissions.id, {
     onDelete: "set null",
   }),

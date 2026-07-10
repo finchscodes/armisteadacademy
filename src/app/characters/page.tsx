@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
+import { CharacterBadge } from "@/components/character-badge";
 
 export default async function CharactersPage() {
   const current = await getCurrentUser();
@@ -47,11 +48,16 @@ export default async function CharactersPage() {
               href={`/c/${c.slug}`}
               className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
             >
-              <p className="font-display text-lg text-parchment-100">
-                {c.firstName} {c.lastName}
-              </p>
-              <p className="text-xs text-ink-400">{c.name}</p>
-              <p className="text-xs text-ink-400 mt-1">
+              <div className="flex items-center gap-3">
+                <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} />
+                <div className="min-w-0">
+                  <p className="font-display text-lg text-parchment-100">
+                    {c.firstName} {c.lastName}
+                  </p>
+                  <p className="text-xs text-ink-400">{c.name}</p>
+                </div>
+              </div>
+              <p className="text-xs text-ink-400 mt-2">
                 {[c.major, statMap.get(c.id)?.year].filter(Boolean).join(" · ")}
               </p>
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-ink-700">

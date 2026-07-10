@@ -5,7 +5,6 @@ import { updateCharacterAction } from "@/actions/characters";
 import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { UNDECIDED_MAJOR } from "@/lib/majors";
-import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 
 export function EditCharacterForm({
   characterId,
@@ -40,11 +39,17 @@ export function EditCharacterForm({
       <input type="hidden" name="characterId" value={characterId} />
 
       <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">
-        <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">Legal name &amp; age</p>
+        <p className="text-xs uppercase tracking-wider text-ink-400 mb-1">
+          Legal name, age, gender &amp; social status
+        </p>
         <p className="text-sm text-parchment-100">
           {legalName} &middot; {age}
+          {gender && <> &middot; {gender}</>}
+          {socialStatus && <> &middot; {socialStatus}</>}
         </p>
-        <p className="text-[11px] text-ink-400 mt-1">Locked — this can never be changed.</p>
+        <p className="text-[11px] text-ink-400 mt-1">
+          Locked — this can never be changed. Contact an admin if something needs fixing.
+        </p>
       </div>
 
       <div>
@@ -61,45 +66,6 @@ export function EditCharacterForm({
       </div>
 
       <FaceclaimUpload name="avatarUrl" initialUrl={avatarUrl} />
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="gender">
-            Gender
-          </label>
-          <select
-            id="gender"
-            name="gender"
-            defaultValue={gender ?? ""}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
-          >
-            <option value="">Not set</option>
-            {GENDER_OPTIONS.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="socialStatus">
-            Social status
-          </label>
-          <select
-            id="socialStatus"
-            name="socialStatus"
-            defaultValue={socialStatus ?? ""}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
-          >
-            <option value="">Not set</option>
-            {SOCIAL_STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
 
       {majorIsLocked ? (
         <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">

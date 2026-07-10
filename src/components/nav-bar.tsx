@@ -3,9 +3,8 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getBoardTree } from "@/lib/forum";
-import { CharacterSwitcher } from "./character-switcher";
 import { BoardsDropdown } from "./boards-dropdown";
-import { logoutAction } from "@/actions/auth";
+import { AccountMenu } from "./account-menu";
 
 export async function NavBar() {
   const [current, boardTree] = await Promise.all([getCurrentUser(), getBoardTree()]);
@@ -31,49 +30,26 @@ export async function NavBar() {
         </div>
 
         {current ? (
-          <div className="flex items-center gap-4">
-            {current.activeCharacter && (
-              <div className="hidden md:flex items-center gap-3 text-sm">
-                <span className="flex items-center gap-1 text-brass-400">
-                  <span className="text-ink-400">&#9670;</span>
-                  {balance ?? 0}
-                </span>
-                {levelProgress && (
-                  <span className="flex items-center gap-1.5 text-ink-200">
-                    <span className="text-[10px] uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-1.5 py-0.5">
-                      Lv {levelProgress.level}
-                    </span>
-                    <span className="text-xs text-ink-400">
-                      {levelProgress.xpIntoLevel}/{levelProgress.nextLevelFloor - levelProgress.currentLevelFloor} xp
-                    </span>
-                  </span>
-                )}
-              </div>
-            )}
-            <CharacterSwitcher
-              characters={current.characters}
-              activeCharacterId={current.activeCharacter?.id ?? null}
-            />
-            <Link
-              href="/characters"
-              className="text-sm text-ink-200 hover:text-brass-400 transition-colors hidden sm:inline"
-            >
-              Characters
-            </Link>
-            {current.session.isAdmin && (
-              <Link
-                href="/admin/users"
-                className="text-sm text-claret-500 hover:text-claret-400 transition-colors hidden sm:inline"
-              >
-                Admin
-              </Link>
-            )}
-            <form action={logoutAction}>
-              <button className="text-sm text-ink-400 hover:text-claret-500 transition-colors">
-                Log out
-              </button>
-            </form>
-          </div>
+          <AccountMenu
+            characters={current.characters}
+            activeCharacter={
+              current.activeCharacter
+                ? {
+                    id: current.activeCharacter.id,
+                    name: current.activeCharacter.name,
+                    slug: current.activeCharacter.slug,
+                    avatarUrl: current.activeCharacter.avatarUrl,
+                  }
+                : null
+            }
+            balance={balance}
+            level={levelProgress?.level ?? null}
+            xpIntoLevel={levelProgress?.xpIntoLevel ?? null}
+            xpForLevel={
+              levelProgress ? levelProgress.nextLevelFloor - levelProgress.currentLevelFloor : null
+            }
+            isAdmin={current.session.isAdmin}
+          />
         ) : (
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-ink-200 hover:text-brass-400">

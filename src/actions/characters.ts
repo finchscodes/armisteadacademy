@@ -27,6 +27,8 @@ const createCharacterSchema = z.object({
   age: z.coerce.number().int().refine((v) => (AGE_OPTIONS as readonly number[]).includes(v), {
     message: "Age must be between 18 and 25",
   }),
+  gender: z.enum(GENDER_OPTIONS, { message: "Pick a gender" }),
+  socialStatus: z.enum(SOCIAL_STATUS_OPTIONS, { message: "Pick a social status" }),
   name: z.string().min(2, "Name must be at least 2 characters").max(64),
   major: z.enum(SELECTABLE_MAJOR_VALUES, { message: "Pick a major" }),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
@@ -49,6 +51,8 @@ export async function createCharacterAction(
     middleName: formData.get("middleName") || undefined,
     lastName: formData.get("lastName"),
     age: formData.get("age") || DEFAULT_AGE,
+    gender: formData.get("gender"),
+    socialStatus: formData.get("socialStatus"),
     name: formData.get("name"),
     major: formData.get("major"),
     avatarUrl: formData.get("avatarUrl") || undefined,
@@ -59,7 +63,8 @@ export async function createCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { firstName, middleName, lastName, age, name, major, avatarUrl, bio } = parsed.data;
+  const { firstName, middleName, lastName, age, gender, socialStatus, name, major, avatarUrl, bio } =
+    parsed.data;
   const slug = slugifyUnique(name);
 
   const [character] = await db
@@ -68,6 +73,8 @@ export async function createCharacterAction(
       userId: session.userId,
       firstName,
       age,
+      gender,
+      socialStatus,
       middleName: middleName || undefined,
       lastName,
       name,
@@ -99,8 +106,6 @@ const updateCharacterSchema = z.object({
   major: z.enum(SELECTABLE_MAJOR_VALUES).optional(),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
-  gender: z.enum(GENDER_OPTIONS).optional().or(z.literal("")),
-  socialStatus: z.enum(SOCIAL_STATUS_OPTIONS).optional().or(z.literal("")),
   personality: z.string().max(4000).optional(),
   appearance: z.string().max(4000).optional(),
 });
@@ -118,8 +123,6 @@ export async function updateCharacterAction(
     major: formData.get("major") || undefined,
     avatarUrl: formData.get("avatarUrl") || undefined,
     bio: formData.get("bio") || undefined,
-    gender: formData.get("gender") || undefined,
-    socialStatus: formData.get("socialStatus") || undefined,
     personality: formData.get("personality") || undefined,
     appearance: formData.get("appearance") || undefined,
   });
@@ -128,8 +131,7 @@ export async function updateCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, name, major, avatarUrl, bio, gender, socialStatus, personality, appearance } =
-    parsed.data;
+  const { characterId, name, major, avatarUrl, bio, personality, appearance } = parsed.data;
 
   const [existing] = await db
     .select({ id: characters.id, userId: characters.userId, slug: characters.slug, major: characters.major })
@@ -153,8 +155,6 @@ export async function updateCharacterAction(
       major: majorToSave,
       avatarUrl: avatarUrl || null,
       bio: bio || null,
-      gender: gender || null,
-      socialStatus: socialStatus || null,
       personality: personality || null,
       appearance: appearance || null,
     })

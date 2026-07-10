@@ -11,7 +11,8 @@ import { RELATION_TYPES } from "@/lib/relations";
 export type RelationActionState = { error?: string; success?: string } | undefined;
 
 const sendSchema = z.object({
-  toCharacterName: z.string().min(1, "Enter a character's code name"),
+  toFirstName: z.string().min(1, "Enter their first name"),
+  toLastName: z.string().min(1, "Enter their last name"),
   relationType: z.enum(RELATION_TYPES as [string, ...string[]]),
 });
 
@@ -22,7 +23,8 @@ export async function sendRelationRequestAction(
   const { characterId: fromCharacterId } = await requireSessionAndCharacter();
 
   const parsed = sendSchema.safeParse({
-    toCharacterName: formData.get("toCharacterName"),
+    toFirstName: formData.get("toFirstName"),
+    toLastName: formData.get("toLastName"),
     relationType: formData.get("relationType"),
   });
   if (!parsed.success) {
@@ -30,12 +32,19 @@ export async function sendRelationRequestAction(
   }
 
   const matches = await db
-    .select({ id: characters.id, name: characters.name })
+    .select({ id: characters.id, firstName: characters.firstName, lastName: characters.lastName })
     .from(characters)
-    .where(ilike(characters.name, parsed.data.toCharacterName.trim()));
+    .where(
+      and(
+        ilike(characters.firstName, parsed.data.toFirstName.trim()),
+        ilike(characters.lastName, parsed.data.toLastName.trim())
+      )
+    );
 
   if (matches.length === 0) {
-    return { error: `No character found named "${parsed.data.toCharacterName}"` };
+    return {
+      error: `No character found named "${parsed.data.toFirstName} ${parsed.data.toLastName}"`,
+    };
   }
   if (matches.length > 1) {
     return { error: "More than one character has that name — ask them for their profile link" };
@@ -67,7 +76,7 @@ export async function sendRelationRequestAction(
   });
 
   revalidatePath("/c", "layout");
-  return { success: `Request sent to ${matches[0].name}` };
+  return { success: `Request sent to ${matches[0].firstName} ${matches[0].lastName}` };
 }
 
 async function requireOwnsCharacter(characterId: number, session: { userId: number }) {

@@ -10,6 +10,8 @@ import { AdminSlugEditor } from "@/components/admin-slug-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
 import { AdminLevelEditor } from "@/components/admin-level-editor";
 import { AdminBalanceEditor } from "@/components/admin-balance-editor";
+import { AdminGenderEditor } from "@/components/admin-gender-editor";
+import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor";
 import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
 import { levelForXp } from "@/lib/xp";
 
@@ -57,7 +59,7 @@ export default async function AdminUserDetailPage({
               <div key={c.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-brass-400">
-                    {c.name}
+                    {c.firstName} {c.lastName}
                   </Link>
                   <DeleteCharacterButton characterId={c.id} userId={user.id} characterName={c.name} />
                 </div>
@@ -82,6 +84,20 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Age</p>
                   <AdminAgeEditor characterId={c.id} userId={user.id} currentAge={c.age} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Gender</p>
+                  <AdminGenderEditor characterId={c.id} userId={user.id} currentGender={c.gender} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                    Social status
+                  </p>
+                  <AdminSocialStatusEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    currentSocialStatus={c.socialStatus}
+                  />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Major</p>

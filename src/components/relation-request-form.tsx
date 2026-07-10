@@ -12,10 +12,16 @@ export function RelationRequestForm() {
       <p className="text-sm font-medium text-parchment-100">Send a relation request</p>
       <div className="flex flex-wrap gap-2">
         <input
-          name="toCharacterName"
-          placeholder="Their code name"
+          name="toFirstName"
+          placeholder="Their first name"
           required
-          className="flex-1 min-w-[10rem] text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="flex-1 min-w-[8rem] text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+        />
+        <input
+          name="toLastName"
+          placeholder="Their last name"
+          required
+          className="flex-1 min-w-[8rem] text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
         />
         <select
           name="relationType"

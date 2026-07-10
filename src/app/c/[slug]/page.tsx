@@ -18,18 +18,6 @@ import { AcceptedRelationsList } from "@/components/accepted-relations-list";
 import { IncomingRequestsList, OutgoingRequestsList } from "@/components/relation-request-lists";
 import { RelationRequestForm } from "@/components/relation-request-form";
 
-function timeAgo(date: Date) {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return date.toLocaleDateString();
-}
-
 export default async function CharacterProfilePage({
   params,
 }: {
@@ -161,11 +149,28 @@ export default async function CharacterProfilePage({
             href={`/t/${t.threadSlug}`}
             className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
           >
-            <div>
+            <div className="min-w-0">
               <p className="text-parchment-100 text-sm">{t.threadTitle}</p>
               <p className="text-xs text-ink-400 mt-0.5">{t.boardName}</p>
             </div>
-            <p className="text-xs text-ink-400 shrink-0 ml-3">{timeAgo(t.lastPostAt)}</p>
+            {t.lastPoster && (
+              <div className="flex items-center gap-2 shrink-0 ml-3">
+                <div className="text-right">
+                  <p className="text-[11px] text-ink-400">Last reply</p>
+                  <p
+                    className="text-xs font-medium"
+                    style={{ color: jobColor(t.lastPoster.characterJob) ?? "#f6efdc" }}
+                  >
+                    {t.lastPoster.characterFirstName} {t.lastPoster.characterLastName}
+                  </p>
+                </div>
+                <CharacterBadge
+                  name={t.lastPoster.characterName}
+                  avatarUrl={t.lastPoster.characterAvatarUrl}
+                  size="sm"
+                />
+              </div>
+            )}
           </Link>
         ))
       )}

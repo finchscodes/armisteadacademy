@@ -11,6 +11,7 @@ import { MAJOR_VALUES } from "@/lib/majors";
 import { getCharacterXp, cumulativeXpForLevel } from "@/lib/xp";
 import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
+import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -55,6 +56,8 @@ export async function getUserDetail(userId: number) {
       slug: characters.slug,
       major: characters.major,
       age: characters.age,
+      gender: characters.gender,
+      socialStatus: characters.socialStatus,
       yearOverride: characters.yearOverride,
       firstName: characters.firstName,
       middleName: characters.middleName,
@@ -161,8 +164,8 @@ export async function adminUpdateCharacterMajorAction(
 
   const { characterId, userId, major } = parsed.data;
 
-  // Admin can set any major freely — the only way to assign Faculty, and the
-  // only way to change a character's major after it's normally locked.
+  // Admin can set any major freely — the only way to change a character's
+  // major after it's normally locked.
   await db.update(characters).set({ major }).where(eq(characters.id, characterId));
 
   revalidatePath(`/admin/users/${userId}`);
@@ -845,4 +848,64 @@ export async function adminUpdateCharacterSlugAction(
 
   revalidatePath(`/admin/users/${userId}`);
   return { success: "Profile URL updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Gender and social status — locked from the owner's side, admin can fix    */
+/* -------------------------------------------------------------------------- */
+
+const updateGenderSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  gender: z.enum(GENDER_OPTIONS),
+});
+
+export async function adminUpdateCharacterGenderAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateGenderSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    gender: formData.get("gender"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, gender } = parsed.data;
+  await db.update(characters).set({ gender }).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Gender updated" };
+}
+
+const updateSocialStatusSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  socialStatus: z.enum(SOCIAL_STATUS_OPTIONS),
+});
+
+export async function adminUpdateCharacterSocialStatusAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateSocialStatusSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    socialStatus: formData.get("socialStatus"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, socialStatus } = parsed.data;
+  await db.update(characters).set({ socialStatus }).where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  return { success: "Social status updated" };
 }

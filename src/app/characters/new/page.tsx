@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { createCharacterAction } from "@/actions/characters";
 import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
-import { AGE_OPTIONS, DEFAULT_AGE } from "@/lib/character-options";
+import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 
 export default function NewCharacterPage() {
   const [state, formAction, pending] = useActionState(createCharacterAction, undefined);
@@ -20,7 +20,7 @@ export default function NewCharacterPage() {
       <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
         <div className="border border-ink-700 rounded-lg p-4 bg-ink-800/40">
           <p className="text-xs uppercase tracking-wider text-ink-400 mb-3">
-            Legal name &amp; age — set once, cannot be changed later
+            Legal name, age, gender &amp; social status — set once, cannot be changed later
           </p>
           <div className="grid grid-cols-3 gap-3">
             <div>
@@ -57,19 +57,55 @@ export default function NewCharacterPage() {
               />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="age">
+                Age
+              </label>
+              <select
+                id="age"
+                name="age"
+                defaultValue={DEFAULT_AGE}
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              >
+                {AGE_OPTIONS.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="gender">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                defaultValue={GENDER_OPTIONS[0]}
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              >
+                {GENDER_OPTIONS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div className="mt-3">
-            <label className="block text-xs font-medium mb-1" htmlFor="age">
-              Age
+            <label className="block text-xs font-medium mb-1" htmlFor="socialStatus">
+              Social status
             </label>
             <select
-              id="age"
-              name="age"
-              defaultValue={DEFAULT_AGE}
+              id="socialStatus"
+              name="socialStatus"
+              defaultValue={SOCIAL_STATUS_OPTIONS[0]}
               className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
             >
-              {AGE_OPTIONS.map((a) => (
-                <option key={a} value={a}>
-                  {a}
+              {SOCIAL_STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
             </select>

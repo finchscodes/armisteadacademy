@@ -8,7 +8,7 @@ export function MajorSelect({
   options,
 }: {
   initialValue?: string;
-  /** Defaults to the user-selectable list (excludes Graduate/Faculty). Pass MAJORS for admin use. */
+  /** Defaults to the user-selectable list. Pass MAJORS for admin use. */
   options?: Major[];
 }) {
   const list = options ?? SELECTABLE_MAJORS;

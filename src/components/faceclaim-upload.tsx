@@ -58,7 +58,7 @@ export function FaceclaimUpload({
             onChange={handleFile}
             className="text-xs text-ink-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-ink-700 file:text-parchment-100 file:text-xs hover:file:bg-ink-600"
           />
-          <p className="text-[11px] text-ink-400 mt-1">PNG, JPG, GIF, or WEBP — up to 5MB. Optional.</p>
+          <p className="text-[11px] text-ink-400 mt-1">PNG, JPG, GIF, or WEBP — up to 25MB. Optional.</p>
           {pending && <p className="text-xs text-brass-400 mt-1">Uploading...</p>}
           {error && <p className="text-xs text-claret-500 mt-1">{error}</p>}
         </div>

@@ -3,7 +3,7 @@
 import { getSession } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_BYTES = 25 * 1024 * 1024; // 25MB
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
 const BUCKET = "faceclaims";
 
@@ -23,7 +23,7 @@ export async function uploadFaceclaimAction(formData: FormData): Promise<UploadR
     return { error: "Use a PNG, JPG, GIF, or WEBP image" };
   }
   if (file.size > MAX_BYTES) {
-    return { error: "Image must be under 5MB" };
+    return { error: "Image must be under 25MB" };
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());

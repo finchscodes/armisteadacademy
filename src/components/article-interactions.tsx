@@ -6,6 +6,7 @@ import { toggleReactionAction, addCommentAction } from "@/actions/post-interacti
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
 import { jobColor, type CharacterJob } from "@/lib/roles";
 import { CharacterBadge } from "./character-badge";
+import { CharacterHoverCard } from "./character-hover-card";
 
 const LIKE_EMOJI = "❤️";
 
@@ -26,6 +27,7 @@ export function ArticleInteractions({
   reactions,
   comments,
   canInteract,
+  posterCharacterId,
   posterName,
   posterSlug,
   posterJob,
@@ -35,6 +37,7 @@ export function ArticleInteractions({
   reactions: ReactionSummary[];
   comments: PostCommentRow[];
   canInteract: boolean;
+  posterCharacterId: number;
   posterName: string;
   posterSlug: string;
   posterJob: CharacterJob;
@@ -81,13 +84,15 @@ export function ArticleInteractions({
         </div>
         <p className="text-xs text-ink-400">
           &#128340; {timeAgo(postedAt)} &middot; From:{" "}
-          <Link
-            href={`/c/${posterSlug}`}
-            className="hover:underline"
-            style={{ color: jobColor(posterJob) ?? "#d9b64a" }}
-          >
-            {posterName}
-          </Link>
+          <CharacterHoverCard characterId={posterCharacterId} slug={posterSlug}>
+            <Link
+              href={`/c/${posterSlug}`}
+              className="hover:underline"
+              style={{ color: jobColor(posterJob) ?? "#d9b64a" }}
+            >
+              {posterName}
+            </Link>
+          </CharacterHoverCard>
         </p>
       </div>
 
@@ -126,18 +131,26 @@ export function ArticleInteractions({
           <div className="space-y-3">
             {comments.map((c) => (
               <div key={c.id} className="flex gap-2.5 items-start">
-                <Link href={`/c/${c.characterSlug}`} className="shrink-0">
-                  <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
-                </Link>
+                <CharacterHoverCard
+                  characterId={c.characterId}
+                  slug={c.characterSlug}
+                  className="relative shrink-0"
+                >
+                  <Link href={`/c/${c.characterSlug}`} className="shrink-0 block">
+                    <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
+                  </Link>
+                </CharacterHoverCard>
                 <div className="min-w-0">
                   <p className="text-sm">
-                    <Link
-                      href={`/c/${c.characterSlug}`}
-                      className="font-medium hover:underline"
-                      style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
-                    >
-                      {c.characterFirstName} {c.characterLastName}
-                    </Link>{" "}
+                    <CharacterHoverCard characterId={c.characterId} slug={c.characterSlug}>
+                      <Link
+                        href={`/c/${c.characterSlug}`}
+                        className="font-medium hover:underline"
+                        style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
+                      >
+                        {c.characterFirstName} {c.characterLastName}
+                      </Link>
+                    </CharacterHoverCard>{" "}
                     <span className="text-parchment-100/90">{c.content}</span>
                   </p>
                   <p className="text-xs text-ink-400 mt-0.5">{timeAgo(c.createdAt)}</p>

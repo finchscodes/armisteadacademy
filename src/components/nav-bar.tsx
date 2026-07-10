@@ -37,6 +37,8 @@ export async function NavBar() {
                 ? {
                     id: current.activeCharacter.id,
                     name: current.activeCharacter.name,
+                    firstName: current.activeCharacter.firstName,
+                    lastName: current.activeCharacter.lastName,
                     slug: current.activeCharacter.slug,
                     avatarUrl: current.activeCharacter.avatarUrl,
                   }

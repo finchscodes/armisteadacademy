@@ -18,7 +18,14 @@ export function AccountMenu({
   isAdmin,
 }: {
   characters: Character[];
-  activeCharacter: { id: number; name: string; slug: string; avatarUrl: string | null } | null;
+  activeCharacter: {
+    id: number;
+    name: string;
+    firstName: string;
+    lastName: string;
+    slug: string;
+    avatarUrl: string | null;
+  } | null;
   balance: number | null;
   level: number | null;
   xpIntoLevel: number | null;
@@ -67,7 +74,9 @@ export function AccountMenu({
                 className="flex items-center gap-3 hover:bg-ink-800/60 -mx-4 px-4 py-2 transition-colors"
               >
                 <CharacterBadge name={activeCharacter.name} avatarUrl={activeCharacter.avatarUrl} />
-                <span className="text-sm text-parchment-100">{activeCharacter.name}</span>
+                <span className="text-sm text-parchment-100">
+                  {activeCharacter.firstName} {activeCharacter.lastName}
+                </span>
               </Link>
             )}
 

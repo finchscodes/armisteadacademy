@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getJobBoardData } from "@/lib/character-jobs";
 import { JOB_META, jobLabel, isListedJob } from "@/lib/roles";
 import { CharacterBadge } from "@/components/character-badge";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 export default async function JobsPage() {
   const byJob = await getJobBoardData();
@@ -35,27 +36,33 @@ export default async function JobsPage() {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   {people.map((p) => (
-                    <Link
+                    <CharacterHoverCard
                       key={`${job}-${p.characterId}`}
-                      href={`/c/${p.characterSlug}`}
-                      className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex flex-col items-center text-center hover:border-brass-500/50 transition-colors"
+                      characterId={p.characterId}
+                      slug={p.characterSlug}
+                      className="relative block"
                     >
-                      <CharacterBadge
-                        name={`${p.characterFirstName} ${p.characterLastName}`}
-                        avatarUrl={p.characterAvatarUrl}
-                      />
-                      <span
-                        className="text-sm font-medium text-parchment-100 mt-2 leading-tight"
-                        style={{ color: meta.color ?? undefined }}
+                      <Link
+                        href={`/c/${p.characterSlug}`}
+                        className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex flex-col items-center text-center hover:border-brass-500/50 transition-colors"
                       >
-                        {p.characterFirstName} {p.characterLastName}
-                      </span>
-                      {p.jobTitle && (
-                        <span className="text-[11px] text-ink-400 mt-0.5 leading-tight">
-                          {p.jobTitle}
+                        <CharacterBadge
+                          name={`${p.characterFirstName} ${p.characterLastName}`}
+                          avatarUrl={p.characterAvatarUrl}
+                        />
+                        <span
+                          className="text-sm font-medium text-parchment-100 mt-2 leading-tight"
+                          style={{ color: meta.color ?? undefined }}
+                        >
+                          {p.characterFirstName} {p.characterLastName}
                         </span>
-                      )}
-                    </Link>
+                        {p.jobTitle && (
+                          <span className="text-[11px] text-ink-400 mt-0.5 leading-tight">
+                            {p.jobTitle}
+                          </span>
+                        )}
+                      </Link>
+                    </CharacterHoverCard>
                   ))}
                 </div>
               )}

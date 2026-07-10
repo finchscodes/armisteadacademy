@@ -14,6 +14,7 @@ import { DeletePostButton, DeleteThreadButton } from "@/components/delete-button
 import { PostInteractions } from "@/components/post-interactions";
 import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 function formatDate(date: Date) {
   return date.toLocaleString(undefined, {
@@ -122,21 +123,27 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               <article className="bg-ink-900 border border-ink-700 rounded-lg p-5 flex gap-4">
                 {!isArticle && (
                   <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
-                    <Link href={`/c/${post.characterSlug}`}>
-                      <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
-                    </Link>
-                    <div>
-                      <Link
-                        href={`/c/${post.characterSlug}`}
-                        className="text-sm text-parchment-100 leading-tight hover:underline"
-                        style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
-                      >
-                        {post.characterFirstName} {post.characterLastName}
+                    <CharacterHoverCard
+                      characterId={post.characterId}
+                      slug={post.characterSlug}
+                      className="relative flex flex-col items-center gap-2"
+                    >
+                      <Link href={`/c/${post.characterSlug}`}>
+                        <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
                       </Link>
-                      <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
-                        {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
-                      </p>
-                    </div>
+                      <div>
+                        <Link
+                          href={`/c/${post.characterSlug}`}
+                          className="text-sm text-parchment-100 leading-tight hover:underline"
+                          style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
+                        >
+                          {post.characterFirstName} {post.characterLastName}
+                        </Link>
+                        <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
+                          {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
+                    </CharacterHoverCard>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -174,6 +181,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   reactions={reactionsByPost.get(post.id) ?? []}
                   comments={commentsByPost.get(post.id) ?? []}
                   canInteract={Boolean(viewerCharacterId)}
+                  posterCharacterId={post.characterId}
                   posterName={`${post.characterFirstName} ${post.characterLastName}`}
                   posterSlug={post.characterSlug}
                   posterJob={jobsByCharacter.get(post.characterId) ?? "none"}

@@ -43,41 +43,6 @@ export default async function GradingBinPage() {
         </p>
       </div>
 
-      <div>
-        <h2 className="font-display text-lg text-parchment-100 mb-3">Your results</h2>
-        {myResults.length === 0 ? (
-          <p className="text-sm text-ink-400">Nothing graded yet — submit some homework first.</p>
-        ) : (
-          <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
-            {myResults.map((s) => (
-              <div key={s.id} className="flex items-center justify-between px-4 py-3">
-                <div className="min-w-0">
-                  <Link
-                    href={`/lesson/${s.lessonId}`}
-                    className="text-sm text-parchment-100 hover:text-brass-400"
-                  >
-                    {s.lessonTitle}
-                  </Link>
-                  <p className="text-xs text-ink-400 mt-0.5">
-                    {s.boardName} &middot; {s.gradedAt ? timeAgo(s.gradedAt) : ""}
-                  </p>
-                </div>
-                <div className="text-right shrink-0 ml-3">
-                  {s.finalTier && (
-                    <p className="text-sm font-medium" style={{ color: tierColor(s.finalTier as GradeTier) }}>
-                      {tierLabel(s.finalTier as GradeTier)}
-                    </p>
-                  )}
-                  <p className="text-xs text-brass-400">
-                    {s.grade} &middot; {s.payout} dollars
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {eligible && (
         <div>
           <h2 className="font-display text-lg text-parchment-100 mb-3">
@@ -114,6 +79,41 @@ export default async function GradingBinPage() {
           )}
         </div>
       )}
+
+      <div>
+        <h2 className="font-display text-lg text-parchment-100 mb-3">Your results</h2>
+        {myResults.length === 0 ? (
+          <p className="text-sm text-ink-400">Nothing graded yet — submit some homework first.</p>
+        ) : (
+          <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
+            {myResults.map((s) => (
+              <div key={s.id} className="flex items-center justify-between px-4 py-3">
+                <div className="min-w-0">
+                  <Link
+                    href={`/lesson/${s.lessonId}`}
+                    className="text-sm text-parchment-100 hover:text-brass-400"
+                  >
+                    {s.lessonTitle}
+                  </Link>
+                  <p className="text-xs text-ink-400 mt-0.5">
+                    {s.boardName} &middot; {s.gradedAt ? timeAgo(s.gradedAt) : ""}
+                  </p>
+                </div>
+                <div className="text-right shrink-0 ml-3">
+                  {s.finalTier && (
+                    <p className="text-sm font-medium" style={{ color: tierColor(s.finalTier as GradeTier) }}>
+                      {tierLabel(s.finalTier as GradeTier)}
+                    </p>
+                  )}
+                  <p className="text-xs text-brass-400">
+                    {s.grade} &middot; {s.payout} dollars
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

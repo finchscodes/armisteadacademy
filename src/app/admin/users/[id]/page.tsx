@@ -4,6 +4,7 @@ import { getUserDetail } from "@/actions/admin";
 import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
+import { AdminStatusEditor } from "@/components/admin-status-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
 import { AdminSlugEditor } from "@/components/admin-slug-editor";
@@ -114,6 +115,12 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
                   <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                    Statuses
+                  </p>
+                  <AdminStatusEditor characterId={c.id} userId={user.id} currentStatuses={c.statuses} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Level</p>

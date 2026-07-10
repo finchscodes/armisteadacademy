@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { characterRelations, characters } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { RELATION_TYPES } from "@/lib/relations";
+import { createNotification } from "@/lib/notifications";
 
 export type RelationActionState = { error?: string; success?: string } | undefined;
 
@@ -32,7 +33,12 @@ export async function sendRelationRequestAction(
   }
 
   const matches = await db
-    .select({ id: characters.id, firstName: characters.firstName, lastName: characters.lastName })
+    .select({
+      id: characters.id,
+      firstName: characters.firstName,
+      lastName: characters.lastName,
+      slug: characters.slug,
+    })
     .from(characters)
     .where(
       and(
@@ -74,6 +80,19 @@ export async function sendRelationRequestAction(
     toCharacterId,
     relationType: parsed.data.relationType,
   });
+
+  const [sender] = await db
+    .select({ firstName: characters.firstName, lastName: characters.lastName })
+    .from(characters)
+    .where(eq(characters.id, fromCharacterId));
+  if (sender) {
+    await createNotification(
+      toCharacterId,
+      "relation_request",
+      `${sender.firstName} ${sender.lastName} sent you a relation request`,
+      `/c/${matches[0].slug}`
+    );
+  }
 
   revalidatePath("/c", "layout");
   return { success: `Request sent to ${matches[0].firstName} ${matches[0].lastName}` };

@@ -7,6 +7,7 @@ import { jobColor, jobLabel } from "@/lib/roles";
 import { getJobsForCharacter, getPrimaryJob } from "@/lib/character-jobs";
 import { getCurrentUser } from "@/lib/current-user";
 import { getParticipatedThreads } from "@/lib/topics";
+import { getStatusesForCharacter } from "@/lib/character-statuses";
 import {
   getAcceptedRelations,
   getIncomingRequests,
@@ -39,7 +40,7 @@ export default async function CharacterProfilePage({
   const character = await getCharacterBySlug(slug);
   if (!character) notFound();
 
-  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations] =
+  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses] =
     await Promise.all([
       getCharacterLevelProgress(character.id),
       getCharacterYearLabel(character.id, character.major, character.yearOverride),
@@ -48,6 +49,7 @@ export default async function CharacterProfilePage({
       getPrimaryJob(character.id),
       getParticipatedThreads(character.id),
       getAcceptedRelations(character.id),
+      getStatusesForCharacter(character.id),
     ]);
 
   const legalName = [character.firstName, character.middleName, character.lastName]
@@ -69,6 +71,18 @@ export default async function CharacterProfilePage({
             {legalName}
           </h1>
           <p className="text-xs text-ink-400 mt-0.5">{character.name}</p>
+          {statuses.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {statuses.map((s) => (
+                <span
+                  key={s.id}
+                  className="text-xs bg-brass-500/15 text-brass-400 border border-brass-500/30 rounded-full px-2.5 py-0.5"
+                >
+                  {s.label}
+                </span>
+              ))}
+            </div>
+          )}
           {jobs.length > 0 && (
             <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
               {jobs.map((j) => (

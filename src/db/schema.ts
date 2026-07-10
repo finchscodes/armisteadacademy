@@ -31,6 +31,11 @@ export const gradeTierEnum = pgEnum("grade_tier", [
   "failing",
 ]);
 export const relationStatusEnum = pgEnum("relation_status", ["pending", "accepted"]);
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "thread_reply",
+  "relation_request",
+  "homework_graded",
+]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",
   "grading_payment", // what the grader themself earns for grading
@@ -140,6 +145,20 @@ export const characterJobs = pgTable(
     uniquePair: uniqueIndex("character_jobs_unique_idx").on(table.characterId, table.job),
   })
 );
+
+/**
+ * A custom status/title an admin puts on a character — shown on their
+ * profile and hover card. Free text, not tied to jobs. A character can hold
+ * several at once.
+ */
+export const characterStatuses = pgTable("character_statuses", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  label: varchar("label", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Forum core: Boards / Threads / Posts                                      */
@@ -343,6 +362,28 @@ export const guideSections = pgTable(
 );
 
 /**
+ * The homepage announcement/welcome widget. Always a single row (id fixed
+ * at 1) — admin edits it in place rather than managing a list.
+ */
+export const homeAnnouncement = pgTable("home_announcement", {
+  id: integer("id").primaryKey().default(1),
+  title: varchar("title", { length: 120 }).notNull().default("Welcome!"),
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/** "Spotlight of the week" — admin picks up to two characters to feature on every homepage. */
+export const spotlightEntries = pgTable("spotlight_entries", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  blurb: text("blurb").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/**
  * A relation between two characters (married, sibling, enemy, etc). Stored
  * as a directed edge: relationType is written from fromCharacter's point of
  * view. Directional types (parent_of/child_of, godparent_of/godchild_of)
@@ -373,6 +414,23 @@ export const characterRelations = pgTable(
     ),
   })
 );
+
+/**
+ * A notification for a character: someone replied to a topic they're in,
+ * sent them a relation request, or their homework was graded. Shown via the
+ * bell icon in the nav, next to the account menu.
+ */
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  type: notificationTypeEnum("type").notNull(),
+  message: text("message").notNull(),
+  link: text("link").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 export const lessons = pgTable("lessons", {
   id: serial("id").primaryKey(),

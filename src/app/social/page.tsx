@@ -92,31 +92,33 @@ export default async function SocialPage() {
         )}
       </div>
 
-      <div className="max-w-2xl">
+      <div>
         <h2 className="font-display text-lg text-parchment-100 mb-3">
           Online now <span className="text-ink-400 text-sm">({online.length})</span>
         </h2>
         {online.length === 0 ? (
           <p className="text-sm text-ink-400">Nobody&apos;s around right now.</p>
         ) : (
-          <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {online.map((c) => (
-              <div key={c.id} className="flex items-center gap-3 px-4 py-2.5">
+              <Link
+                key={c.id}
+                href={`/c/${c.slug}`}
+                className="bg-ink-900 border border-ink-700 rounded-lg p-4 flex items-center gap-3 hover:border-brass-500/50 transition-colors"
+              >
                 <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative shrink-0">
-                  <Link href={`/c/${c.slug}`}>
-                    <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
-                  </Link>
+                  <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
                 </CharacterHoverCard>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/c/${c.slug}`} className="text-sm text-parchment-100 hover:text-brass-400">
+                  <p className="text-sm text-parchment-100 truncate">
                     {c.firstName} {c.lastName}
-                  </Link>
+                  </p>
                   <p className="text-xs text-ink-400">
                     Age {c.age} &middot; {c.year}
                   </p>
                 </div>
                 <p className="text-xs text-brass-400 shrink-0">{c.major}</p>
-              </div>
+              </Link>
             ))}
           </div>
         )}

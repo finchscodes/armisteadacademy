@@ -18,7 +18,8 @@ import {
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
 import { isAssignedToClass } from "@/lib/class-assignments";
-import { GRADE_TIER_VALUES, computeConsensus } from "@/lib/grading";
+import { GRADE_TIER_VALUES, computeConsensus, tierLabel } from "@/lib/grading";
+import { createNotification } from "@/lib/notifications";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import type { ActionState } from "./auth";
 
@@ -354,6 +355,13 @@ export async function gradeSubmissionAction(
       relatedSubmissionId: submissionId,
       note: `Graded "${finalTier}" (consensus) on "${lesson.title}"`,
     });
+
+    await createNotification(
+      submission.characterId,
+      "homework_graded",
+      `Your homework for "${lesson.title}" was graded: ${tierLabel(finalTier)}`,
+      "/grading"
+    );
   }
 
   revalidatePath(`/lesson/${lesson.id}`);

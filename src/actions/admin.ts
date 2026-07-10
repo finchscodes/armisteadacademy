@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger } from "@/db/schema";
+import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -72,11 +72,16 @@ export async function getUserDetail(userId: number) {
     characterIds.length > 0
       ? await db.select().from(characterJobs).where(inArray(characterJobs.characterId, characterIds))
       : [];
+  const allStatuses =
+    characterIds.length > 0
+      ? await db.select().from(characterStatuses).where(inArray(characterStatuses.characterId, characterIds))
+      : [];
 
   const withJobs = await Promise.all(
     userCharacters.map(async (c) => ({
       ...c,
       jobs: allJobs.filter((j) => j.characterId === c.id),
+      statuses: allStatuses.filter((s) => s.characterId === c.id),
       xp: await getCharacterXp(c.id),
       balance: await getCharacterBalance(c.id),
     }))
@@ -907,4 +912,162 @@ export async function adminUpdateCharacterSocialStatusAction(
 
   revalidatePath(`/admin/users/${userId}`);
   return { success: "Social status updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Character statuses — custom admin-assigned titles, shown on profile/hover */
+/* -------------------------------------------------------------------------- */
+
+const addStatusSchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  label: z.string().min(1, "Enter a status").max(100),
+});
+
+export async function adminAddCharacterStatusAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = addStatusSchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    label: formData.get("label"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db.insert(characterStatuses).values({
+    characterId: parsed.data.characterId,
+    label: parsed.data.label,
+  });
+
+  revalidatePath(`/admin/users/${parsed.data.userId}`);
+  return { success: "Status added" };
+}
+
+export async function adminRemoveCharacterStatusAction(formData: FormData) {
+  await requireAdmin();
+  const statusId = Number(formData.get("statusId"));
+  const userId = Number(formData.get("userId"));
+  if (!statusId) return;
+
+  await db.delete(characterStatuses).where(eq(characterStatuses.id, statusId));
+  revalidatePath(`/admin/users/${userId}`);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Home board: announcement, weather (read-only), news (read-only), spotlight */
+/* -------------------------------------------------------------------------- */
+
+export async function getHomeAnnouncement() {
+  const [row] = await db.select().from(homeAnnouncement).where(eq(homeAnnouncement.id, 1));
+  return row ?? null;
+}
+
+const updateAnnouncementSchema = z.object({
+  title: z.string().min(1, "Title is required").max(120),
+  content: z.string().max(8000).optional().or(z.literal("")),
+});
+
+export async function adminUpdateAnnouncementAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateAnnouncementSchema.safeParse({
+    title: formData.get("title"),
+    content: formData.get("content") || "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db
+    .insert(homeAnnouncement)
+    .values({ id: 1, title: parsed.data.title, content: parsed.data.content || "" })
+    .onConflictDoUpdate({
+      target: homeAnnouncement.id,
+      set: { title: parsed.data.title, content: parsed.data.content || "", updatedAt: new Date() },
+    });
+
+  revalidatePath("/");
+  revalidatePath("/admin/home-board");
+  return { success: "Announcement updated" };
+}
+
+export async function getSpotlightEntries() {
+  const rows = await db
+    .select({
+      id: spotlightEntries.id,
+      blurb: spotlightEntries.blurb,
+      position: spotlightEntries.position,
+      characterId: characters.id,
+      characterName: characters.name,
+      characterSlug: characters.slug,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
+      characterAvatarUrl: characters.avatarUrl,
+    })
+    .from(spotlightEntries)
+    .innerJoin(characters, eq(spotlightEntries.characterId, characters.id))
+    .orderBy(spotlightEntries.position);
+  return rows;
+}
+
+const addSpotlightSchema = z.object({
+  firstName: z.string().min(1, "Enter their first name"),
+  lastName: z.string().min(1, "Enter their last name"),
+  blurb: z.string().min(1, "Enter a blurb").max(500),
+});
+
+export async function adminAddSpotlightAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = addSpotlightSchema.safeParse({
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
+    blurb: formData.get("blurb"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const existing = await db.select({ id: spotlightEntries.id }).from(spotlightEntries);
+  if (existing.length >= 2) {
+    return { error: "Only two spotlight entries at a time — remove one first" };
+  }
+
+  const character = await findCharacterByLegalName(parsed.data.firstName, parsed.data.lastName);
+  if (!character) {
+    return {
+      error: `No character found named "${parsed.data.firstName} ${parsed.data.lastName}"`,
+    };
+  }
+
+  await db.insert(spotlightEntries).values({
+    characterId: character.id,
+    blurb: parsed.data.blurb,
+    position: existing.length,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/home-board");
+  return { success: `${character.firstName} ${character.lastName} added to the spotlight` };
+}
+
+export async function adminRemoveSpotlightAction(formData: FormData) {
+  await requireAdmin();
+  const entryId = Number(formData.get("entryId"));
+  if (!entryId) return;
+
+  await db.delete(spotlightEntries).where(eq(spotlightEntries.id, entryId));
+  revalidatePath("/");
+  revalidatePath("/admin/home-board");
 }

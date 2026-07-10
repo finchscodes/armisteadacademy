@@ -5,13 +5,14 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { boards, threads, posts, xpLedger } from "@/db/schema";
+import { boards, threads, posts, xpLedger, characters } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { getSession } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { XP_AWARDS } from "@/lib/xp";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
+import { createNotifications } from "@/lib/notifications";
 import type { ActionState } from "./auth";
 
 const newThreadSchema = z.object({
@@ -176,6 +177,31 @@ export async function createPostAction(
   });
 
   await db.update(threads).set({ lastPostAt: new Date() }).where(eq(threads.id, thread.id));
+
+  // Notify everyone else who has posted in this thread — "someone responded
+  // to a topic you're in." Excludes the replier themselves.
+  const priorParticipants = await db
+    .selectDistinct({ characterId: posts.characterId })
+    .from(posts)
+    .where(eq(posts.threadId, thread.id));
+  const notifyIds = priorParticipants
+    .map((p) => p.characterId)
+    .filter((id) => id !== characterId);
+
+  if (notifyIds.length > 0) {
+    const [replier] = await db
+      .select({ firstName: characters.firstName, lastName: characters.lastName })
+      .from(characters)
+      .where(eq(characters.id, characterId));
+    if (replier) {
+      await createNotifications(
+        notifyIds,
+        "thread_reply",
+        `${replier.firstName} ${replier.lastName} replied to "${thread.title}"`,
+        `/t/${threadSlug}`
+      );
+    }
+  }
 
   revalidatePath(`/t/${threadSlug}`);
   redirect(`/t/${threadSlug}`);

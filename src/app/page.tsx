@@ -4,10 +4,12 @@ import { getRecentChatMessages } from "@/actions/chat";
 import { getOnlineCharacters } from "@/lib/online-status";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
-import { CharacterCard } from "@/components/character-card";
 import { CollapsibleChat } from "@/components/collapsible-chat";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { AnnouncementWidget } from "@/components/announcement-widget";
+import { NewsWidget } from "@/components/news-widget";
+import { SpotlightWidget } from "@/components/spotlight-widget";
 
 export default async function HomePage() {
   const [current, chatMessages, online] = await Promise.all([
@@ -30,19 +32,14 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="w-full lg:w-72 shrink-0 space-y-6">
+        <AnnouncementWidget />
+        <SpotlightWidget />
+        <NewsWidget />
+      </div>
+
       <div className="flex-1 min-w-0 space-y-6">
-        {current ? (
-          current.activeCharacter ? (
-            <CharacterCard character={current.activeCharacter} />
-          ) : (
-            <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
-              <p className="text-parchment-100">You don&apos;t have a character yet.</p>
-              <Link href="/characters/new" className="text-sm text-brass-400 hover:underline">
-                Create one to start posting &rarr;
-              </Link>
-            </div>
-          )
-        ) : (
+        {!current && (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
             <h1 className="font-display text-2xl text-brass-400 mb-1">Armistead Academy</h1>
             <p className="text-ink-400 text-sm mb-4">
@@ -62,6 +59,14 @@ export default async function HomePage() {
                 Log in
               </Link>
             </div>
+          </div>
+        )}
+        {current && !current.activeCharacter && (
+          <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
+            <p className="text-parchment-100">You don&apos;t have a character yet.</p>
+            <Link href="/characters/new" className="text-sm text-brass-400 hover:underline">
+              Create one to start posting &rarr;
+            </Link>
           </div>
         )}
 

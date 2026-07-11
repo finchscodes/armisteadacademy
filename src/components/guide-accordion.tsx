@@ -46,10 +46,10 @@ export function GuideAccordion({ sections }: { sections: Section[] }) {
           <section>
             <div className="text-center max-w-2xl mx-auto mb-8">
               <div className="brass-rule w-24 mx-auto mb-4" />
-              <p className="text-xs tracking-[0.3em] text-ink-400">
+              <p className="font-mono text-xs tracking-[0.3em] text-ink-400">
                 {String(activeIndex + 1).padStart(3, "0")}
               </p>
-              <h2 className="font-display text-4xl text-parchment-100 mt-2">{active.title}</h2>
+              <h2 className="font-hero text-4xl text-parchment-100 mt-2">{active.title}</h2>
               <div className="brass-rule w-24 mx-auto mt-4" />
             </div>
             <div className="max-w-2xl mx-auto">

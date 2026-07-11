@@ -47,7 +47,9 @@ export function RichTextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3, 4, 5, 6] },
+      }),
       Underline,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Write something..." }),
@@ -125,6 +127,13 @@ export function RichTextEditor({
         </ToolbarButton>
         <span className="w-px bg-ink-600 mx-1" />
         <ToolbarButton
+          label="Title"
+          active={editor.isActive("heading", { level: 1 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        >
+          H1
+        </ToolbarButton>
+        <ToolbarButton
           label="Heading"
           active={editor.isActive("heading", { level: 2 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
@@ -137,6 +146,27 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
         >
           H3
+        </ToolbarButton>
+        <ToolbarButton
+          label="Small heading"
+          active={editor.isActive("heading", { level: 4 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+        >
+          H4
+        </ToolbarButton>
+        <ToolbarButton
+          label="Italic label"
+          active={editor.isActive("heading", { level: 5 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
+        >
+          H5
+        </ToolbarButton>
+        <ToolbarButton
+          label="Fine print heading"
+          active={editor.isActive("heading", { level: 6 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+        >
+          H6
         </ToolbarButton>
         <span className="w-px bg-ink-600 mx-1" />
         <ToolbarButton
@@ -159,6 +189,12 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
         >
           &ldquo;&rdquo;
+        </ToolbarButton>
+        <ToolbarButton
+          label="Divider"
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        >
+          &mdash;
         </ToolbarButton>
         <span className="w-px bg-ink-600 mx-1" />
         <ToolbarButton

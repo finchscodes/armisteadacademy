@@ -161,6 +161,22 @@ body {
   transition-delay: 0.3s;
 }
 
+/* For triggers near the top of the viewport (nav bar) — tooltip has no room
+   above, so it drops below instead. */
+[data-tooltip-side="bottom"]::after {
+  bottom: auto;
+  top: calc(100% + 7px);
+}
+
+/* For triggers hugging the right edge of the viewport (the chat panel) —
+   tooltip anchors from the right instead of centering, so it doesn't get
+   clipped off-screen. */
+[data-tooltip-side="left"]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 /* The small "board"/"class"/"article" signifiers in the nav dropdown. */
 .kind-badge {
   font-family: var(--font-ui);

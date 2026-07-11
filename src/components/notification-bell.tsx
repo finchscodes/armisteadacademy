@@ -67,7 +67,7 @@ export function NotificationBell({ initial }: { initial: NotificationItem[] }) {
       <button
         onClick={() => setOpen((o) => !o)}
         className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
-        title="Notifications"
+        data-tooltip="Notifications" data-tooltip-side="bottom"
       >
         <BellIcon />
         {unreadCount > 0 && (

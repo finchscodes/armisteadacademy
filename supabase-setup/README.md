@@ -25,8 +25,10 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `38`, you need one new file:
-1. `39-site-links.sql` — adds the home board's external link buttons table.
+If you already ran everything through `39`, you need one new file:
+1. `40-scoped-roles.sql` — adds the unified role-assignment system, and
+   auto-migrates existing Resident Advisors so nobody loses access. Read the
+   comment at the top of that file before running it.
 
 ## File reference
 
@@ -34,5 +36,5 @@ If you already ran everything through `38`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`38` | (historical) incremental updates, all folded into `01` |
-| `39-site-links.sql` | Adds home board link buttons |
+| `03`–`39` | (historical) incremental updates, all folded into `01` |
+| `40-scoped-roles.sql` | Unified role-assignment system |

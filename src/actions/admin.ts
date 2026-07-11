@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, ilike, count, and, inArray, desc } from "drizzle-orm";
+import { eq, or, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
 import { getSession } from "@/lib/auth";
@@ -13,7 +13,7 @@ import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES } from "@/lib/halls";
-import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
+import { getPrimaryJobsForCharacters, isScopedToBoard } from "@/lib/character-jobs";
 import { GRADE_TIER_VALUES, GRADE_TIER_META, computePayout } from "@/lib/grading";
 
 async function requireAdmin() {
@@ -74,7 +74,18 @@ export async function getUserDetail(userId: number) {
   const characterIds = userCharacters.map((c) => c.id);
   const allJobs =
     characterIds.length > 0
-      ? await db.select().from(characterJobs).where(inArray(characterJobs.characterId, characterIds))
+      ? await db
+          .select({
+            id: characterJobs.id,
+            characterId: characterJobs.characterId,
+            job: characterJobs.job,
+            jobTitle: characterJobs.jobTitle,
+            scopeBoardId: characterJobs.scopeBoardId,
+            scopeBoardName: boards.name,
+          })
+          .from(characterJobs)
+          .leftJoin(boards, eq(characterJobs.scopeBoardId, boards.id))
+          .where(inArray(characterJobs.characterId, characterIds))
       : [];
   const allStatuses =
     characterIds.length > 0
@@ -186,6 +197,7 @@ const addCharacterJobSchema = z.object({
   userId: z.coerce.number().int(),
   job: z.enum(JOB_VALUES),
   jobTitle: z.string().max(100).optional().or(z.literal("")),
+  scopeBoardId: z.coerce.number().int().optional(),
 });
 
 export async function adminAddCharacterJobAction(
@@ -199,31 +211,45 @@ export async function adminAddCharacterJobAction(
     userId: formData.get("userId"),
     job: formData.get("job"),
     jobTitle: formData.get("jobTitle") || undefined,
+    scopeBoardId: formData.get("scopeBoardId") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, userId, job, jobTitle } = parsed.data;
+  const { characterId, userId, job, jobTitle, scopeBoardId } = parsed.data;
 
   if (job === "none") {
     return { error: "Pick an actual job to add" };
   }
 
-  const [existing] = await db
-    .select({ id: characterJobs.id })
-    .from(characterJobs)
-    .where(and(eq(characterJobs.characterId, characterId), eq(characterJobs.job, job)));
+  // Scoped jobs (Writer, Instructor, Assistant Instructor, RA) can be held
+  // for more than one board at once, so uniqueness includes the scope.
+  // Unscoped jobs stay one-row-per-job, same as before.
+  const matchConditions = scopeBoardId
+    ? and(
+        eq(characterJobs.characterId, characterId),
+        eq(characterJobs.job, job),
+        eq(characterJobs.scopeBoardId, scopeBoardId)
+      )
+    : and(eq(characterJobs.characterId, characterId), eq(characterJobs.job, job));
+
+  const [existing] = await db.select({ id: characterJobs.id }).from(characterJobs).where(matchConditions);
 
   if (existing) {
-    // Already holds this job — just update the title if one was given.
+    // Already holds this job (at this scope) — just update the title if one was given.
     await db
       .update(characterJobs)
       .set({ jobTitle: jobTitle || null })
       .where(eq(characterJobs.id, existing.id));
   } else {
-    await db.insert(characterJobs).values({ characterId, job, jobTitle: jobTitle || null });
+    await db.insert(characterJobs).values({
+      characterId,
+      job,
+      jobTitle: jobTitle || null,
+      scopeBoardId: scopeBoardId ?? null,
+    });
   }
 
   revalidatePath(`/admin/users/${userId}`);
@@ -1317,12 +1343,12 @@ export async function getHallWelcomeMessage(hall: string) {
 }
 
 export async function canEditHallWelcome(characterId: number, hall: string): Promise<boolean> {
-  const [character] = await db
-    .select({ hall: characters.hall })
-    .from(characters)
-    .where(eq(characters.id, characterId));
-  if (character?.hall !== hall) return false;
-  return characterHasAnyJob(characterId, ["field_agent"]);
+  const [hallBoard] = await db
+    .select({ id: boards.id })
+    .from(boards)
+    .where(eq(boards.slug, `${hall}-hall`));
+  if (!hallBoard) return false;
+  return isScopedToBoard(characterId, ["field_agent"], hallBoard.id);
 }
 
 const updateHallWelcomeSchema = z.object({
@@ -1416,4 +1442,14 @@ export async function adminRemoveSiteLinkAction(formData: FormData) {
   await db.delete(siteLinks).where(eq(siteLinks.id, linkId));
   revalidatePath("/", "layout");
   revalidatePath("/admin/home-board");
+}
+
+/** Flat list of every non-category board — used to populate the role-scope picker. */
+export async function getAllBoardsFlat() {
+  await requireAdmin();
+  return db
+    .select({ id: boards.id, name: boards.name, kind: boards.kind, restrictedToHall: boards.restrictedToHall })
+    .from(boards)
+    .where(ne(boards.kind, "category"))
+    .orderBy(boards.name);
 }

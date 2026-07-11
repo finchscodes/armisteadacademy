@@ -24,11 +24,14 @@ export async function NewestMemberWidget() {
           </Link>
         </CharacterHoverCard>
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-widest text-ink-400">{character.firstName}</p>
-          <Link href={`/c/${character.slug}`} className="font-display text-lg -mt-1 block hover:underline" style={{ color }}>
-            {character.lastName}
+          <Link
+            href={`/c/${character.slug}`}
+            className="text-sm font-medium hover:underline"
+            style={{ color }}
+          >
+            {character.firstName} {character.lastName}
           </Link>
-          <p className="text-xs mt-1" style={{ color }}>
+          <p className="text-xs text-ink-400 mt-1">
             {character.major} &middot; {year}
           </p>
         </div>

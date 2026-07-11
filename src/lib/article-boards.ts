@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { boardPostPermissions, boards, characters } from "@/db/schema";
-import { characterHasAnyJob } from "@/lib/character-jobs";
+import { characterHasAnyJob, isScopedToBoard } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 
 /**
@@ -28,14 +28,16 @@ export async function canViewBoard(characterId: number, boardId: number): Promis
 
 /**
  * Can this character post a new article to this board? Management-job
- * holders (Head Staff and up) always can. Some boards also auto-permit one
- * extra job (e.g. Writers on Armistead Weekly — see boards.extraArticleJob).
- * Anyone else needs an explicit admin grant for this specific board. Admin
- * bypass is checked by the caller.
+ * holders (Head Staff and up) always can. Everyone else needs a scoped job
+ * grant for THIS SPECIFIC board — a Writer scoped to Armistead Weekly, or a
+ * Resident Advisor scoped to their hall's board (see boards.extraArticleJob
+ * for which job qualifies) — or the classic explicit grant, for quiet
+ * helpers who don't hold a public job. Admin bypass is checked by the caller.
  *
  * Hall boards add an extra requirement on top of all of this: the poster
  * must belong to that hall too — a Head Staff member from another hall
- * still can't post into a hall board that isn't theirs.
+ * still can't post into a hall board that isn't theirs, and an RA scoped to
+ * one hall can't post in another even if somehow granted there.
  */
 export async function canPostArticle(characterId: number, boardId: number): Promise<boolean> {
   const [board] = await db
@@ -54,7 +56,7 @@ export async function canPostArticle(characterId: number, boardId: number): Prom
   const isManagement = await characterHasAnyJob(characterId, MANAGEMENT_JOBS);
   if (isManagement) return true;
 
-  if (board?.extraArticleJob && (await characterHasAnyJob(characterId, [board.extraArticleJob]))) {
+  if (board?.extraArticleJob && (await isScopedToBoard(characterId, [board.extraArticleJob], boardId))) {
     return true;
   }
 

@@ -54,6 +54,7 @@ export const characterMajorEnum = pgEnum("character_major", MAJOR_VALUES);
 export const hallEnum = pgEnum("hall", ["undercroft", "veil", "rampart", "eaves"]);
 export const reputationReasonEnum = pgEnum("reputation_reason", [
   "homework_submission",
+  "homework_graded",
   "grading",
   "thread_created",
   "thread_reply",
@@ -150,6 +151,14 @@ export const characterJobs = pgTable(
     // label — e.g. two "Head Staff" characters leading different teams can
     // each show "Head of Enforcement" / "Head of the Library" instead.
     jobTitle: varchar("job_title", { length: 100 }),
+    // Optional — ties this job assignment to one specific board. This is
+    // what actually grants access for scoped roles: a writer scoped to
+    // Armistead Weekly can only post there, an instructor scoped to Threat
+    // Elimination can only manage that class, a Resident Advisor scoped to
+    // Undercroft Hall can only post/moderate that hall's board. Jobs that
+    // aren't inherently board-specific (Spymaster, Enforcer, etc) leave
+    // this null.
+    scopeBoardId: integer("scope_board_id").references(() => boards.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({

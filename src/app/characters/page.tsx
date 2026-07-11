@@ -47,7 +47,7 @@ export default async function CharactersPage() {
           .
         </p>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
           {current.characters.map((c) => {
             const color = getMajorColor(c.major) ?? "#7f95a3";
             const s = statMap.get(c.id);

@@ -203,3 +203,23 @@ export async function getMyGradedSubmissions(characterId: number) {
 }
 
 export { REQUIRED_GRADERS };
+
+/** Every submission for a lesson (open or already graded) — instructors can grade or re-grade any of them. */
+export async function getAllSubmissionsForLesson(lessonId: number) {
+  const rows = await db
+    .select({
+      id: submissions.id,
+      content: submissions.content,
+      createdAt: submissions.createdAt,
+      status: submissions.status,
+      finalTier: submissions.finalTier,
+      characterId: submissions.characterId,
+      characterName: characters.name,
+      characterSlug: characters.slug,
+    })
+    .from(submissions)
+    .innerJoin(characters, eq(submissions.characterId, characters.id))
+    .where(eq(submissions.lessonId, lessonId))
+    .orderBy(asc(submissions.createdAt));
+  return rows;
+}

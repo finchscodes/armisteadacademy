@@ -13,10 +13,23 @@ export const REPUTATION_AWARDS = {
   thread_reply: 2,
 } as const;
 
+/**
+ * Reputation bonus for the submitter based on final grade tier — separate
+ * from the money payout, and NOT configurable per-lesson (unlike money).
+ * Awarded once, whenever a submission's grade is finalized or changed.
+ */
+export const GRADE_TIER_REPUTATION: Record<string, number> = {
+  perfect: 15,
+  excellent: 12,
+  good: 7,
+  needs_improvement: 5,
+  failing: 0,
+};
+
 export async function awardReputation(
   characterId: number,
   amount: number,
-  reason: keyof typeof REPUTATION_AWARDS | "admin_adjustment",
+  reason: keyof typeof REPUTATION_AWARDS | "admin_adjustment" | "homework_graded",
   note: string,
   relatedSubmissionId?: number,
   relatedPostId?: number

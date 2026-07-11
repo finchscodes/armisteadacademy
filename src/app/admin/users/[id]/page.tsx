@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getUserDetail } from "@/actions/admin";
+import { getUserDetail, getAllBoardsFlat } from "@/actions/admin";
 import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
@@ -29,7 +29,7 @@ export default async function AdminUserDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const detail = await getUserDetail(Number(id));
+  const [detail, allBoards] = await Promise.all([getUserDetail(Number(id)), getAllBoardsFlat()]);
   if (!detail) notFound();
 
   const { user, characters } = detail;
@@ -121,7 +121,7 @@ export default async function AdminUserDetailPage({
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
-                  <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} />
+                  <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} boards={allBoards} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">

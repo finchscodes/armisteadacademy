@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sum } from "drizzle-orm";
 import { db } from "@/db";
 import {
   boards,
@@ -12,16 +12,17 @@ import {
   submissionGrades,
   currencyLedger,
   xpLedger,
+  reputationLedger,
   classEnrollments,
   GRADING_LEVEL_REQUIREMENT,
   REQUIRED_GRADERS,
 } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
-import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
+import { awardReputation, REPUTATION_AWARDS, GRADE_TIER_REPUTATION } from "@/lib/reputation";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { isEnrolledInClass } from "@/lib/class-enrollments";
-import { GRADE_TIER_VALUES, computeConsensus, computePayout, tierLabel } from "@/lib/grading";
+import { GRADE_TIER_VALUES, GRADE_TIER_META, computeConsensus, computePayout, tierLabel } from "@/lib/grading";
 import { createNotification } from "@/lib/notifications";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import type { ActionState } from "./auth";
@@ -399,4 +400,143 @@ export async function gradeSubmissionAction(
   revalidatePath(`/lesson/${lesson.id}`);
   revalidatePath(`/lesson/${lesson.id}/grade`);
   redirect(`/lesson/${lesson.id}/grade`);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Instructor grading — bypasses peer consensus entirely                     */
+/*                                                                            */
+/*  An Instructor or Assistant Instructor scoped to a class can grade its    */
+/*  submissions at any time, and their tier IS the final grade immediately — */
+/*  no waiting on REQUIRED_GRADERS peers. They can also re-grade afterward;  */
+/*  each re-grade recomputes the payout and reputation bonus as a delta      */
+/*  against whatever was already given, the same way the admin override does.*/
+/* -------------------------------------------------------------------------- */
+
+export async function instructorGradeSubmissionAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { characterId } = await requireSessionAndCharacter();
+
+  const parsed = gradeSchema.safeParse({
+    submissionId: formData.get("submissionId"),
+    tier: formData.get("tier"),
+    feedback: formData.get("feedback") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+  const { submissionId, tier, feedback } = parsed.data;
+
+  const [submission] = await db.select().from(submissions).where(eq(submissions.id, submissionId));
+  if (!submission) return { error: "That submission no longer exists" };
+  if (submission.characterId === characterId) return { error: "You can't grade your own homework" };
+
+  const [lesson] = await db.select().from(lessons).where(eq(lessons.id, submission.lessonId));
+  if (!lesson) return { error: "The lesson for this submission no longer exists" };
+
+  const isInstructor = await isAssignedToClass(characterId, lesson.boardId);
+  if (!isInstructor) {
+    return { error: "Only an Instructor or Assistant Instructor for this class can do that" };
+  }
+
+  const [existingGrade] = await db
+    .select({ id: submissionGrades.id })
+    .from(submissionGrades)
+    .where(
+      and(
+        eq(submissionGrades.submissionId, submissionId),
+        eq(submissionGrades.graderCharacterId, characterId)
+      )
+    );
+
+  if (existingGrade) {
+    await db
+      .update(submissionGrades)
+      .set({ tier, feedback })
+      .where(eq(submissionGrades.id, existingGrade.id));
+  } else {
+    await db.insert(submissionGrades).values({
+      submissionId,
+      graderCharacterId: characterId,
+      tier,
+      feedback,
+    });
+    // Grading fee/XP/participation reputation only apply once per grader —
+    // re-grading isn't "grading again", it's correcting the same review.
+    await db.insert(currencyLedger).values({
+      characterId,
+      amount: lesson.graderFee,
+      reason: "grading_payment",
+      relatedSubmissionId: submissionId,
+      note: `Graded a submission for "${lesson.title}"`,
+    });
+    await db.insert(xpLedger).values({
+      characterId,
+      amount: XP_AWARDS.grading,
+      reason: "grading",
+      relatedSubmissionId: submissionId,
+      note: `Graded a submission for "${lesson.title}"`,
+    });
+    await awardReputation(
+      characterId,
+      REPUTATION_AWARDS.grading,
+      "grading",
+      `Graded a submission for "${lesson.title}"`,
+      submissionId
+    );
+  }
+
+  const numeric = GRADE_TIER_META[tier].numeric;
+  const newPayout = computePayout(lesson.reward, tier);
+  const oldPayout = submission.payout ?? 0;
+  const moneyDelta = newPayout - oldPayout;
+
+  await db
+    .update(submissions)
+    .set({ status: "graded", finalTier: tier, grade: numeric, payout: newPayout, gradedAt: new Date() })
+    .where(eq(submissions.id, submissionId));
+
+  if (moneyDelta !== 0) {
+    await db.insert(currencyLedger).values({
+      characterId: submission.characterId,
+      amount: moneyDelta,
+      reason: "grading_reward",
+      relatedSubmissionId: submissionId,
+      note: `Graded "${tier}" by instructor on "${lesson.title}"`,
+    });
+  }
+
+  // Tier-based reputation bonus for the submitter — separate scale from
+  // money, static regardless of the lesson's own reward. Delta-adjusted the
+  // same way, so re-grading doesn't double-award.
+  const [priorRepRow] = await db
+    .select({ total: sum(reputationLedger.amount) })
+    .from(reputationLedger)
+    .where(
+      and(eq(reputationLedger.relatedSubmissionId, submissionId), eq(reputationLedger.reason, "homework_graded"))
+    );
+  const priorReputation = Number(priorRepRow?.total ?? 0);
+  const newReputation = GRADE_TIER_REPUTATION[tier] ?? 0;
+  const reputationDelta = newReputation - priorReputation;
+  if (reputationDelta !== 0) {
+    await awardReputation(
+      submission.characterId,
+      reputationDelta,
+      "homework_graded",
+      `Graded "${tier}" on "${lesson.title}"`,
+      submissionId
+    );
+  }
+
+  await createNotification(
+    submission.characterId,
+    "homework_graded",
+    `Your homework for "${lesson.title}" was graded: ${tierLabel(tier)}`,
+    "/grading"
+  );
+
+  revalidatePath(`/lesson/${lesson.id}`);
+  revalidatePath(`/lesson/${lesson.id}/grade`);
+  return undefined;
 }

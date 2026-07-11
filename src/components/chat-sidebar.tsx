@@ -218,8 +218,8 @@ export function ChatSidebar({
       ref={containerRef}
       className="bg-ink-900 border border-ink-700 rounded-lg flex flex-col h-[calc(100vh-7rem)] min-h-[500px]"
     >
-      <div className="px-4 py-3 border-b border-ink-700 shrink-0">
-        <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Chat</h2>
+      <div className="px-4 py-2.5 border-b border-ink-700 shrink-0">
+        <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">Chat</h2>
       </div>
 
       <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-[0.45rem]">

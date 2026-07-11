@@ -22,9 +22,9 @@ export default async function HomePage() {
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       <div className="w-full lg:w-72 shrink-0 space-y-6">
         <AnnouncementWidget />
-        <NewestMemberWidget />
         <SpotlightWidget />
         <NewsWidget />
+        <NewestMemberWidget />
         <SiteLinksWidget />
       </div>
 

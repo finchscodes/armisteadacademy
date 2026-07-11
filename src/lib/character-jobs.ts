@@ -1,6 +1,6 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
 import { db } from "@/db";
-import { characterJobs, characters } from "@/db/schema";
+import { characterJobs, characters, boards } from "@/db/schema";
 import { JOB_VALUES, type CharacterJob } from "@/lib/roles";
 
 /** Priority order for picking one "primary" job when coloring a name in chat/posts/feed. */
@@ -66,6 +66,34 @@ export async function characterHasAnyJob(
   return held.some((j) => jobs.includes(j));
 }
 
+/** Does this character hold one of the given jobs, specifically scoped to this board? */
+export async function isScopedToBoard(
+  characterId: number,
+  jobs: CharacterJob[],
+  boardId: number
+): Promise<boolean> {
+  const rows = await db
+    .select({ id: characterJobs.id })
+    .from(characterJobs)
+    .where(
+      and(
+        eq(characterJobs.characterId, characterId),
+        eq(characterJobs.scopeBoardId, boardId),
+        inArray(characterJobs.job, jobs)
+      )
+    );
+  return rows.length > 0;
+}
+
+/** Every board this character has a scoped grant for, from any of the given jobs. */
+export async function getScopedBoardIds(characterId: number, jobs: CharacterJob[]): Promise<number[]> {
+  const rows = await db
+    .select({ scopeBoardId: characterJobs.scopeBoardId })
+    .from(characterJobs)
+    .where(and(eq(characterJobs.characterId, characterId), inArray(characterJobs.job, jobs)));
+  return rows.map((r) => r.scopeBoardId).filter((id): id is number => id !== null);
+}
+
 /**
  * Every job in the system, each with every character who currently holds it
  * (including jobs nobody holds — the Job List shows all of them).
@@ -75,6 +103,8 @@ export async function getJobBoardData() {
     .select({
       job: characterJobs.job,
       jobTitle: characterJobs.jobTitle,
+      scopeBoardId: characterJobs.scopeBoardId,
+      scopeBoardName: boards.name,
       characterId: characters.id,
       characterSlug: characters.slug,
       characterFirstName: characters.firstName,
@@ -82,7 +112,8 @@ export async function getJobBoardData() {
       characterAvatarUrl: characters.avatarUrl,
     })
     .from(characterJobs)
-    .innerJoin(characters, eq(characterJobs.characterId, characters.id));
+    .innerJoin(characters, eq(characterJobs.characterId, characters.id))
+    .leftJoin(boards, eq(characterJobs.scopeBoardId, boards.id));
 
   const byJob = new Map<CharacterJob, typeof rows>();
   for (const job of PRIORITY_ORDER) byJob.set(job, []);

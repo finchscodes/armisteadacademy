@@ -82,9 +82,21 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
   return (
     <div>
       <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="font-display text-3xl text-brass-400">{board.name}</h1>
-          {board.description && <p className="text-ink-400 mt-1 max-w-xl">{board.description}</p>}
+        <div className="flex items-start gap-4 min-w-0">
+          {board.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={board.imageUrl}
+              alt={board.name}
+              className="w-20 h-20 sm:w-28 sm:h-20 rounded-lg object-cover border border-ink-700 shrink-0"
+            />
+          )}
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl text-brass-400">{board.name}</h1>
+            {board.description && (
+              <p className="text-xs text-ink-400 mt-1 max-w-xl">{board.description}</p>
+            )}
+          </div>
         </div>
         {board.kind !== "category" && !isClassBoard && canPostHere && (
           <Link

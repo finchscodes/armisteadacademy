@@ -59,8 +59,13 @@ export async function NavBar() {
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
       <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
-          <Link href="/" className="font-hero text-base md:text-lg text-brass-400 shrink-0">
-            Armistead <span className="text-parchment-100">Academy</span>
+          <Link href="/" className="flex items-baseline gap-1.5 shrink-0 leading-none">
+            <span className="font-hero text-base md:text-lg font-normal lowercase tracking-[0.2em] text-brass-400">
+              armistead
+            </span>
+            <span className="font-hero text-base md:text-lg uppercase tracking-tighter text-parchment-100">
+              academy
+            </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <BoardsDropdown tree={boardTree} label="Inside Armistead" excludeCategorySlugs={["outside-armistead"]} />

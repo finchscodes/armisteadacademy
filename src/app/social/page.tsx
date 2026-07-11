@@ -35,7 +35,7 @@ export default async function SocialPage() {
   return (
     <div>
       <h1 className="font-display text-3xl text-brass-400 mb-1">Social Media</h1>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3">
         <p className="text-ink-400 text-sm">
           Where Armistead keeps in touch — and who&apos;s around right now.
         </p>
@@ -47,22 +47,25 @@ export default async function SocialPage() {
         </Link>
       </div>
 
-      <div className="flex gap-2 mb-8 overflow-x-auto">
-        {majorCounts.map((m) => (
-          <div
-            key={m.major}
-            className="bg-ink-900 border border-ink-700 rounded-lg p-2.5 flex-1 min-w-[100px] shrink-0 text-center"
-          >
-            <p className="text-[10px] leading-tight" style={{ color: getMajorColor(m.major) ?? undefined }}>
-              {m.major}
-            </p>
-            <p className="text-base font-display text-brass-400 mt-1">{m.count}</p>
-          </div>
-        ))}
+      <div className="flex gap-2 mb-5 overflow-x-auto">
+        {majorCounts.map((m) => {
+          const color = getMajorColor(m.major) ?? "#7f95a3";
+          return (
+            <div
+              key={m.major}
+              className="px-3 py-2 flex-1 min-w-[130px] shrink-0 text-center border"
+              style={{ backgroundColor: `${color}1f`, borderColor: `${color}4d` }}
+            >
+              <p className="text-[11px] italic font-display leading-tight" style={{ color }}>
+                {m.major} ({m.count})
+              </p>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mb-8">
-        <h2 className="font-display text-lg text-parchment-100 mb-3">Recent activity</h2>
+      <div className="mb-5">
+        <h2 className="font-display text-lg text-parchment-100 mb-2">Recent activity</h2>
         {topics.length === 0 ? (
           <p className="text-sm text-ink-400">Nothing posted yet.</p>
         ) : (

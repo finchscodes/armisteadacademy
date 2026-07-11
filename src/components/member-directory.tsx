@@ -2,8 +2,6 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { CharacterBadge } from "./character-badge";
-import { CharacterHoverCard } from "./character-hover-card";
 import { getMajorColor } from "@/lib/majors";
 
 type Member = {
@@ -44,30 +42,55 @@ export function MemberDirectory({ members }: { members: Member[] }) {
       {filtered.length === 0 ? (
         <p className="text-sm text-ink-400">No one matches that search.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {filtered.map((m) => (
-            <div
-              key={m.id}
-              className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <CharacterHoverCard characterId={m.id} slug={m.slug} className="relative shrink-0">
-                  <CharacterBadge name={m.name} avatarUrl={m.avatarUrl} size="sm" />
-                </CharacterHoverCard>
-                <div className="min-w-0">
-                  <Link href={`/c/${m.slug}`} className="text-sm text-parchment-100 hover:text-brass-400 block truncate">
-                    {m.firstName} {m.lastName}
-                  </Link>
-                  <p className="text-xs text-ink-400">
-                    Age {m.age} &middot; {m.year}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((m) => {
+            const color = getMajorColor(m.major) ?? "#7f95a3";
+            return (
+              <div key={m.id} className="bg-ink-900 border border-ink-700 overflow-hidden group">
+                <Link href={`/c/${m.slug}`} className="block relative aspect-[3/2] bg-ink-800 overflow-hidden">
+                  {m.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.avatarUrl}
+                      alt={m.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center text-4xl font-display"
+                      style={{ backgroundColor: `${color}26`, color }}
+                    >
+                      {m.firstName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent" />
+                </Link>
+                <div className="p-4">
+                  <p className="text-xs uppercase tracking-widest text-ink-400">{m.firstName}</p>
+                  <p className="font-display text-xl -mt-1" style={{ color }}>
+                    {m.lastName}
                   </p>
+                  <div className="mt-3 pt-3 border-t border-ink-800 space-y-1.5 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] text-ink-500 w-3">1</span>
+                      <span className="text-ink-400">Age</span>
+                      <span className="text-parchment-200 ml-auto">{m.age}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] text-ink-500 w-3">2</span>
+                      <span className="text-ink-400">Major</span>
+                      <span className="text-parchment-200 ml-auto text-right truncate">{m.major}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] text-ink-500 w-3">3</span>
+                      <span className="text-ink-400">Year</span>
+                      <span className="text-parchment-200 ml-auto">{m.year}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs mt-2 leading-snug" style={{ color: getMajorColor(m.major) ?? undefined }}>
-                {m.major}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

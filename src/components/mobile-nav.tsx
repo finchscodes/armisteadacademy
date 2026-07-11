@@ -66,7 +66,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
                 >
                   {board.name}
                   {KIND_BADGE[board.kind] && (
-                    <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                    <span className="kind-badge ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
                       {KIND_BADGE[board.kind]}
                     </span>
                   )}
@@ -81,7 +81,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
                   className="block text-sm text-parchment-100 py-1.5 border-b border-ink-800"
                 >
                   Job List
-                  <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                  <span className="kind-badge ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
                     directory
                   </span>
                 </Link>
@@ -91,7 +91,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
                   className="block text-sm text-parchment-100 py-1.5 border-b border-ink-800"
                 >
                   Reputation
-                  <span className="ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
+                  <span className="kind-badge ml-1.5 text-[9px] uppercase tracking-wider text-ink-400">
                     rankings
                   </span>
                 </Link>

@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
-import { getRecentChatMessages } from "@/actions/chat";
 import { getOnlineCharacters } from "@/lib/online-status";
-import { characterHasAnyJob } from "@/lib/character-jobs";
-import { MANAGEMENT_JOBS } from "@/lib/roles";
-import { CollapsibleChat } from "@/components/collapsible-chat";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { AnnouncementWidget } from "@/components/announcement-widget";
@@ -18,23 +14,7 @@ import { SpotlightWidget } from "@/components/spotlight-widget";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [current, chatMessages, online] = await Promise.all([
-    getCurrentUser(),
-    getRecentChatMessages(50),
-    getOnlineCharacters(),
-  ]);
-
-  const canChat = Boolean(current?.activeCharacter);
-  const canPingAll = current
-    ? current.session.isAdmin ||
-      (current.activeCharacter
-        ? await characterHasAnyJob(current.activeCharacter.id, MANAGEMENT_JOBS)
-        : false)
-    : false;
-  const initialChatMessages = chatMessages.map((m) => ({
-    ...m,
-    createdAt: m.createdAt.toISOString(),
-  }));
+  const [current, online] = await Promise.all([getCurrentUser(), getOnlineCharacters()]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -108,18 +88,6 @@ export default async function HomePage() {
             </div>
           )}
         </div>
-      </div>
-
-      <div className="w-full lg:w-auto lg:sticky lg:top-14">
-        <CollapsibleChat
-          initialMessages={initialChatMessages}
-          initialOnline={online}
-          canChat={canChat}
-          canPingAll={canPingAll}
-          myCharacterId={current?.activeCharacter?.id ?? null}
-          myFirstName={current?.activeCharacter?.firstName ?? null}
-          myLastName={current?.activeCharacter?.lastName ?? null}
-        />
       </div>
     </div>
   );

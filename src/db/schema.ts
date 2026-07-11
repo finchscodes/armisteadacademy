@@ -218,6 +218,9 @@ export const boards = pgTable(
     name: varchar("name", { length: 120 }).notNull(),
     slug: varchar("slug", { length: 140 }).notNull(),
     description: text("description"),
+    // Optional image showing what this topic area looks like — shown as a
+    // small banner on the board page. Set/cleared from the admin board editor.
+    imageUrl: text("image_url"),
     // For "article" boards only: an extra job (beyond management) that's
     // auto-permitted to post here — e.g. "writer" on Armistead Weekly, so
     // writers don't each need an individual admin grant.

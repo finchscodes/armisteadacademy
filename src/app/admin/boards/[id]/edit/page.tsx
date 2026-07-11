@@ -24,7 +24,12 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
         <h1 className="font-display text-2xl text-parchment-100">Edit board</h1>
         <DeleteBoardButton boardId={board.id} boardName={board.name} />
       </div>
-      <EditBoardForm boardId={board.id} name={board.name} description={board.description} />
+      <EditBoardForm
+        boardId={board.id}
+        name={board.name}
+        description={board.description}
+        imageUrl={board.imageUrl}
+      />
     </div>
   );
 }

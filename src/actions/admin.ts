@@ -616,6 +616,7 @@ const updateBoardSchema = z.object({
   boardId: z.coerce.number().int(),
   name: z.string().min(1, "Name is required").max(120),
   description: z.string().max(2000).optional().or(z.literal("")),
+  imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
 });
 
 export async function adminUpdateBoardAction(
@@ -628,15 +629,16 @@ export async function adminUpdateBoardAction(
     boardId: formData.get("boardId"),
     name: formData.get("name"),
     description: formData.get("description") || undefined,
+    imageUrl: formData.get("imageUrl") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description } = parsed.data;
+  const { boardId, name, description, imageUrl } = parsed.data;
   await db
     .update(boards)
-    .set({ name, description: description || null })
+    .set({ name, description: description || null, imageUrl: imageUrl || null })
     .where(eq(boards.id, boardId));
 
   revalidatePath("/admin/boards");

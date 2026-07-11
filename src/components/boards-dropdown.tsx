@@ -89,7 +89,7 @@ export function BoardsDropdown({
                     >
                       {board.name}
                       {KIND_BADGE[board.kind] && (
-                        <span className="ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                        <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
                           {KIND_BADGE[board.kind]}
                         </span>
                       )}
@@ -118,7 +118,7 @@ export function BoardsDropdown({
                       >
                         {board.name}
                         {KIND_BADGE[board.kind] && (
-                          <span className="ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                          <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
                             {KIND_BADGE[board.kind]}
                           </span>
                         )}
@@ -134,7 +134,7 @@ export function BoardsDropdown({
                         className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
                       >
                         Job List
-                        <span className="ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                        <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
                           directory
                         </span>
                       </Link>
@@ -144,7 +144,7 @@ export function BoardsDropdown({
                         className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
                       >
                         Reputation
-                        <span className="ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                        <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
                           rankings
                         </span>
                       </Link>

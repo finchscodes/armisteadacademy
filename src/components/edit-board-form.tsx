@@ -2,15 +2,18 @@
 
 import { useActionState } from "react";
 import { adminUpdateBoardAction } from "@/actions/admin";
+import { FaceclaimUpload } from "@/components/faceclaim-upload";
 
 export function EditBoardForm({
   boardId,
   name,
   description,
+  imageUrl,
 }: {
   boardId: number;
   name: string;
   description: string | null;
+  imageUrl: string | null;
 }) {
   const [state, formAction, pending] = useActionState(adminUpdateBoardAction, undefined);
 
@@ -44,6 +47,8 @@ export function EditBoardForm({
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
         />
       </div>
+
+      <FaceclaimUpload name="imageUrl" initialUrl={imageUrl} label="Board image" wide />
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
       {state?.success && <p className="text-brass-400 text-sm">{state.success}</p>}

@@ -12,6 +12,7 @@ type WallPost = {
   posterLastName: string;
   posterSlug: string;
   posterAvatarUrl: string | null;
+  posterJob: string;
 };
 
 export function WallFeed({

@@ -5,6 +5,7 @@ import { updateCharacterAction } from "@/actions/characters";
 import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { UNDECIDED_MAJOR } from "@/lib/majors";
+import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 
 export function EditCharacterForm({
   characterId,
@@ -14,6 +15,7 @@ export function EditCharacterForm({
   major,
   avatarUrl,
   bio,
+  backstoryRating,
   gender,
   socialStatus,
   personality,
@@ -26,6 +28,7 @@ export function EditCharacterForm({
   major: string;
   avatarUrl: string | null;
   bio: string | null;
+  backstoryRating: number | null;
   gender: string | null;
   socialStatus: string | null;
   personality: string | null;
@@ -90,6 +93,31 @@ export function EditCharacterForm({
           defaultValue={bio ?? ""}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
+        <p className="text-[11px] text-ink-400 mt-1">
+          Editing this puts your backstory back to pending review.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="backstoryRating">
+          Backstory rating
+        </label>
+        <select
+          id="backstoryRating"
+          name="backstoryRating"
+          defaultValue={backstoryRating ?? ""}
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+        >
+          <option value="">Unrated</option>
+          {RATING_VALUES.map((r) => (
+            <option key={r} value={r}>
+              {RATING_META[r].label}
+            </option>
+          ))}
+        </select>
+        <p className="text-[11px] text-ink-400 mt-1">
+          So readers know what to expect before opening your backstory.
+        </p>
       </div>
 
       <div>

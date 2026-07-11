@@ -11,6 +11,8 @@ import { slugifyUnique } from "@/lib/slug";
 import { SELECTABLE_MAJORS, UNDECIDED_MAJOR } from "@/lib/majors";
 import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES, hallLabel } from "@/lib/halls";
+import { characterHasAnyJob } from "@/lib/character-jobs";
+import { MANAGEMENT_JOBS } from "@/lib/roles";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -162,6 +164,7 @@ const updateCharacterSchema = z.object({
   major: z.enum(SELECTABLE_MAJOR_VALUES).optional(),
   avatarUrl: z.string().url().max(2000).optional().or(z.literal("")),
   bio: z.string().max(4000).optional(),
+  backstoryRating: z.coerce.number().int().min(1).max(5).optional(),
   personality: z.string().max(4000).optional(),
   appearance: z.string().max(4000).optional(),
 });
@@ -179,6 +182,7 @@ export async function updateCharacterAction(
     major: formData.get("major") || undefined,
     avatarUrl: formData.get("avatarUrl") || undefined,
     bio: formData.get("bio") || undefined,
+    backstoryRating: formData.get("backstoryRating") || undefined,
     personality: formData.get("personality") || undefined,
     appearance: formData.get("appearance") || undefined,
   });
@@ -187,10 +191,16 @@ export async function updateCharacterAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, name, major, avatarUrl, bio, personality, appearance } = parsed.data;
+  const { characterId, name, major, avatarUrl, bio, backstoryRating, personality, appearance } = parsed.data;
 
   const [existing] = await db
-    .select({ id: characters.id, userId: characters.userId, slug: characters.slug, major: characters.major })
+    .select({
+      id: characters.id,
+      userId: characters.userId,
+      slug: characters.slug,
+      major: characters.major,
+      bio: characters.bio,
+    })
     .from(characters)
     .where(eq(characters.id, characterId));
 
@@ -204,6 +214,10 @@ export async function updateCharacterAction(
   const majorToSave =
     existing.major === UNDECIDED_MAJOR && major ? major : existing.major;
 
+  // Editing the backstory puts it back to pending — a Gatekeeper should see
+  // the new version before it counts as approved again.
+  const bioChanged = (bio || null) !== (existing.bio || null);
+
   await db
     .update(characters)
     .set({
@@ -211,8 +225,10 @@ export async function updateCharacterAction(
       major: majorToSave,
       avatarUrl: avatarUrl || null,
       bio: bio || null,
+      backstoryRating: backstoryRating ?? null,
       personality: personality || null,
       appearance: appearance || null,
+      ...(bioChanged ? { backstoryApproved: false } : {}),
     })
     .where(eq(characters.id, characterId));
 
@@ -241,4 +257,37 @@ export async function setActiveCharacterAction(formData: FormData) {
   // page that renders the active character, so revalidate the whole tree, not
   // just "/".
   revalidatePath("/", "layout");
+}
+
+/**
+ * Approve (or un-approve) a character's backstory. Gatekeepers and
+ * admin/management can do this for any character — nothing is blocked
+ * while pending, it's purely an informational badge.
+ */
+export async function toggleBackstoryApprovalAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const characterId = Number(formData.get("characterId"));
+  if (!characterId) return;
+
+  if (!session.isAdmin) {
+    const reviewerCharacterId = Number(formData.get("reviewerCharacterId"));
+    if (!reviewerCharacterId) return;
+    const allowed = await characterHasAnyJob(reviewerCharacterId, [...MANAGEMENT_JOBS, "gatekeeper"]);
+    if (!allowed) return;
+  }
+
+  const [existing] = await db
+    .select({ backstoryApproved: characters.backstoryApproved, slug: characters.slug })
+    .from(characters)
+    .where(eq(characters.id, characterId));
+  if (!existing) return;
+
+  await db
+    .update(characters)
+    .set({ backstoryApproved: !existing.backstoryApproved })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/c/${existing.slug}`);
 }

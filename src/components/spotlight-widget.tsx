@@ -20,26 +20,23 @@ export async function SpotlightWidget() {
         {entries.map((e) => {
           const nameColor = jobColor(e.characterJob) ?? getMajorColor(e.characterMajor) ?? undefined;
           return (
-            <CharacterHoverCard
-              key={e.id}
-              characterId={e.characterId}
-              slug={e.characterSlug}
-              className="relative flex gap-3 min-w-0"
-            >
+            <div key={e.id} className="flex gap-3">
               <Link href={`/c/${e.characterSlug}`} className="shrink-0">
                 <CharacterBadge name={e.characterName} avatarUrl={e.characterAvatarUrl} />
               </Link>
               <div className="min-w-0">
-                <Link
-                  href={`/c/${e.characterSlug}`}
-                  className="text-sm font-medium hover:underline"
-                  style={{ color: nameColor }}
-                >
-                  {e.characterFirstName} {e.characterLastName}
-                </Link>
+                <CharacterHoverCard characterId={e.characterId} slug={e.characterSlug} className="relative block">
+                  <Link
+                    href={`/c/${e.characterSlug}`}
+                    className="text-sm font-medium hover:underline"
+                    style={{ color: nameColor }}
+                  >
+                    {e.characterFirstName} {e.characterLastName}
+                  </Link>
+                </CharacterHoverCard>
                 <p className="text-xs text-ink-400 mt-1 leading-relaxed">{e.blurb}</p>
               </div>
-            </CharacterHoverCard>
+            </div>
           );
         })}
       </div>

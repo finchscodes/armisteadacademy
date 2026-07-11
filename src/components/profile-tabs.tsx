@@ -15,12 +15,12 @@ export function ProfileTabs({
   topics: React.ReactNode;
   topicsCount: number;
 }) {
-  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics">("backstory");
+  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics">("wall");
 
   const tabs = [
-    { key: "backstory" as const, label: "Backstory" },
-    { key: "appearance" as const, label: "Appearance & Personality" },
     { key: "wall" as const, label: "Wall" },
+    { key: "appearance" as const, label: "Dossier" },
+    { key: "backstory" as const, label: "Backstory" },
     { key: "topics" as const, label: `Topics (${topicsCount})` },
   ];
 

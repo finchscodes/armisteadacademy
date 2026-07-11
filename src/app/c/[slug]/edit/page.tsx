@@ -40,6 +40,7 @@ export default async function EditCharacterPage({
         major={character.major}
         avatarUrl={character.avatarUrl}
         bio={character.bio}
+        backstoryRating={character.backstoryRating}
         gender={character.gender}
         socialStatus={character.socialStatus}
         personality={character.personality}

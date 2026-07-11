@@ -1282,6 +1282,39 @@ const updateHallWelcomeSchema = z.object({
   content: z.string().max(20000).optional().or(z.literal("")),
 });
 
+const updateHallBlurbSchema = z.object({
+  hall: z.enum(HALL_VALUES as [string, ...string[]]),
+  blurb: z.string().max(4000).optional().or(z.literal("")),
+});
+
+/** Admin-only — the hall's own lore/info, separate from the RA's welcome message. */
+export async function updateHallBlurbAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateHallBlurbSchema.safeParse({
+    hall: formData.get("hall"),
+    blurb: formData.get("blurb") || "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db
+    .insert(hallWelcomeMessages)
+    .values({ hall: parsed.data.hall as (typeof HALL_VALUES)[number], blurb: parsed.data.blurb ?? "" })
+    .onConflictDoUpdate({
+      target: hallWelcomeMessages.hall,
+      set: { blurb: parsed.data.blurb ?? "", updatedAt: new Date() },
+    });
+
+  revalidatePath("/admin/hall-welcome");
+  revalidatePath("/", "layout");
+  return { success: "Blurb updated" };
+}
+
 export async function updateHallWelcomeAction(
   _prevState: AdminActionState,
   formData: FormData

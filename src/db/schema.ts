@@ -115,6 +115,12 @@ export const characters = pgTable(
     // admin sets this, it overrides the computed value entirely. Null = auto.
     yearOverride: varchar("year_override", { length: 20 }),
     bio: text("bio"),
+    // 1-5, same scale as topic content ratings — set by the character's
+    // owner so readers know what to expect before opening the backstory.
+    backstoryRating: integer("backstory_rating"),
+    // Set by a Gatekeeper or admin/management reviewing the backstory.
+    // Unapproved backstories just show as "Pending" — nothing is blocked.
+    backstoryApproved: boolean("backstory_approved").notNull().default(false),
     // Freely editable, no locking (unlike major/age) — just profile info.
     gender: text("gender"), // "Male" | "Non-binary" | "Female" — validated in lib/character-options.ts
     socialStatus: text("social_status"), // "Spy Born" | "Family Secret" | "New Blood" — see same file
@@ -205,6 +211,9 @@ export const hallWelcomeMessages = pgTable("hall_welcome_messages", {
   hall: hallEnum("hall").primaryKey(),
   title: varchar("title", { length: 120 }).notNull().default("Welcome!"),
   content: text("content").notNull().default(""),
+  // Admin-only lore/info about the hall itself — separate from the RA's
+  // personal welcome message above. Resident Advisors can't see or edit this.
+  blurb: text("blurb").notNull().default(""),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

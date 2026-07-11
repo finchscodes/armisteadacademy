@@ -93,6 +93,12 @@ export function CharacterHoverCard({
             />
           </Link>
           <div className="text-xs space-y-0.5 py-0.5 min-w-0 flex-1">
+            <p
+              className="text-sm font-medium mb-1"
+              style={{ color: profile.nameColor ?? "#f6efdc" }}
+            >
+              {profile.firstName} {profile.lastName}
+            </p>
             {profile.statuses.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-1">
                 {profile.statuses.map((s) => (

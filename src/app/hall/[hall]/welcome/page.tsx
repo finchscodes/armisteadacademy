@@ -24,6 +24,18 @@ export default async function HallWelcomePage({ params }: { params: Promise<{ ha
 
   return (
     <div className="max-w-2xl mx-auto">
+      {message?.blurb && (
+        <div
+          className="bg-ink-900 border rounded-lg p-6 mb-6"
+          style={{ borderColor: `${hallColor(hall)}66` }}
+        >
+          <p className="text-xs uppercase tracking-wider text-ink-400 mb-2">About {hallLabel(hall)}</p>
+          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/90 text-sm">
+            {message.blurb}
+          </p>
+        </div>
+      )}
+
       <div
         className="rounded-lg overflow-hidden border"
         style={{ borderColor: `${hallColor(hall)}66` }}

@@ -10,6 +10,7 @@ import { getParticipatedThreads } from "@/lib/topics";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
 import { hallLabel, hallColor } from "@/lib/halls";
 import { getMajorColor } from "@/lib/majors";
+import { ratingColor, ratingLabel } from "@/lib/thread-rating";
 import {
   getAcceptedRelations,
   getIncomingRequests,
@@ -19,6 +20,7 @@ import { getWallPosts } from "@/lib/wall";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
 import { WallFeed } from "@/components/wall-feed";
+import { BackstoryApprovalButton } from "@/components/backstory-approval-button";
 import { AcceptedRelationsList } from "@/components/accepted-relations-list";
 import { IncomingRequestsList, OutgoingRequestsList } from "@/components/relation-request-lists";
 import { RelationRequestForm } from "@/components/relation-request-form";
@@ -169,8 +171,41 @@ export default async function CharacterProfilePage({
     </div>
   );
 
+  const canReviewBackstory =
+    Boolean(current?.session.isAdmin) ||
+    (current?.activeCharacter
+      ? await characterHasAnyJob(current.activeCharacter.id, [...MANAGEMENT_JOBS, "gatekeeper"])
+      : false);
+
   const backstoryTab = (
     <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
+      <div className="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-ink-700">
+        <div className="flex items-center gap-3">
+          {character.backstoryRating ? (
+            <span
+              className="text-xs font-medium px-2 py-1 rounded border"
+              style={{
+                color: ratingColor(character.backstoryRating) ?? undefined,
+                borderColor: `${ratingColor(character.backstoryRating)}66`,
+              }}
+            >
+              {ratingLabel(character.backstoryRating)}
+            </span>
+          ) : (
+            <span className="text-xs text-ink-400 italic">Unrated</span>
+          )}
+          <span className={`text-xs ${character.backstoryApproved ? "text-brass-400" : "text-ink-400"}`}>
+            {character.backstoryApproved ? "Approved" : "Pending review"}
+          </span>
+        </div>
+        {canReviewBackstory && (
+          <BackstoryApprovalButton
+            characterId={character.id}
+            reviewerCharacterId={current?.activeCharacter?.id ?? null}
+            isApproved={character.backstoryApproved}
+          />
+        )}
+      </div>
       {character.bio ? (
         <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
           {character.bio}

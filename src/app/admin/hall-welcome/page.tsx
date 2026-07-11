@@ -3,6 +3,7 @@ import { getHallWelcomeMessage } from "@/actions/admin";
 import { getCurrentUser } from "@/lib/current-user";
 import { HALL_VALUES, hallLabel } from "@/lib/halls";
 import { HallWelcomeForm } from "@/components/hall-welcome-form";
+import { HallBlurbForm } from "@/components/hall-blurb-form";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -19,16 +20,24 @@ export default async function AdminHallWelcomePage() {
   );
 
   return (
-    <div className="max-w-xl space-y-8">
+    <div className="max-w-xl space-y-10">
       {messages.map(({ hall, message }) => (
         <div key={hall}>
           <h2 className="font-display text-lg text-parchment-100 mb-3">{hallLabel(hall)}</h2>
-          <HallWelcomeForm
-            hall={hall}
-            title={message?.title ?? "Welcome!"}
-            content={message?.content ?? ""}
-            characterId={null}
-          />
+          <div className="space-y-3">
+            <HallBlurbForm hall={hall} blurb={message?.blurb ?? ""} />
+            <div>
+              <p className="text-xs font-medium text-ink-400 mb-1">
+                RA&apos;s welcome message (also editable by that hall&apos;s Resident Advisor)
+              </p>
+              <HallWelcomeForm
+                hall={hall}
+                title={message?.title ?? "Welcome!"}
+                content={message?.content ?? ""}
+                characterId={null}
+              />
+            </div>
+          </div>
         </div>
       ))}
     </div>

@@ -1,0 +1,1 @@
+ALTER TABLE "hall_welcome_messages" ADD COLUMN "blurb" text DEFAULT '' NOT NULL;

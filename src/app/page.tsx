@@ -1,8 +1,5 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
-import { getOnlineCharacters } from "@/lib/online-status";
-import { CharacterBadge } from "@/components/character-badge";
-import { CharacterHoverCard } from "@/components/character-hover-card";
 import { AnnouncementWidget } from "@/components/announcement-widget";
 import { NewsWidget } from "@/components/news-widget";
 import { SpotlightWidget } from "@/components/spotlight-widget";
@@ -17,7 +14,7 @@ import { HomeWallFeed } from "@/components/home-wall-feed";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [current, online] = await Promise.all([getCurrentUser(), getOnlineCharacters()]);
+  const current = await getCurrentUser();
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -69,32 +66,6 @@ export default async function HomePage() {
         )}
 
         <HomeWallFeed />
-
-        <div>
-          <div className="flex items-center gap-3 mb-3">
-            <Link
-              href="/social"
-              className="font-display text-sm text-brass-400 hover:underline uppercase tracking-wider"
-            >
-              Online
-            </Link>
-            <div className="flex-1 brass-rule" />
-            <span className="text-xs text-ink-400">{online.length}</span>
-          </div>
-          {online.length === 0 ? (
-            <p className="text-xs text-ink-400 italic">Nobody&apos;s around right now.</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {online.slice(0, 20).map((c) => (
-                <CharacterHoverCard key={c.id} characterId={c.id} slug={c.slug} className="relative">
-                  <Link href={`/c/${c.slug}`}>
-                    <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
-                  </Link>
-                </CharacterHoverCard>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

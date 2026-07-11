@@ -1,6 +1,7 @@
 import { eq, desc, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { wallPosts, characters } from "@/db/schema";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 /** One character's wall — pinned post first, then newest first. */
 export async function getWallPosts(wallCharacterId: number) {
@@ -21,7 +22,9 @@ export async function getWallPosts(wallCharacterId: number) {
     .innerJoin(characters, eq(wallPosts.posterCharacterId, characters.id))
     .where(eq(wallPosts.wallCharacterId, wallCharacterId))
     .orderBy(desc(wallPosts.isPinned), desc(wallPosts.createdAt));
-  return rows;
+
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.posterCharacterId));
+  return rows.map((r) => ({ ...r, posterJob: jobsByCharacter.get(r.posterCharacterId) ?? "none" }));
 }
 
 /** Recent wall activity sitewide, for the homepage feed. */
@@ -51,7 +54,10 @@ export async function getRecentWallActivity(limit = 10) {
     })
     .from(characters)
     .where(inArray(characters.id, characterIds));
-  const byId = new Map(characterRows.map((c) => [c.id, c]));
+  const jobsByCharacter = await getPrimaryJobsForCharacters(characterIds);
+  const byId = new Map(
+    characterRows.map((c) => [c.id, { ...c, job: jobsByCharacter.get(c.id) ?? "none" }])
+  );
 
   return rows
     .map((r) => ({

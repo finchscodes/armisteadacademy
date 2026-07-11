@@ -7,6 +7,7 @@ import { deleteWallPostAction, pinWallPostAction } from "@/actions/wall";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { RichTextDisplay } from "@/components/rich-text-display";
+import { jobColor } from "@/lib/roles";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -37,6 +38,7 @@ export function WallPostItem({
     posterLastName: string;
     posterSlug: string;
     posterAvatarUrl: string | null;
+    posterJob: string;
   };
   isWallOwner: boolean;
   isPoster: boolean;
@@ -68,21 +70,23 @@ export function WallPostItem({
   return (
     <div className="bg-ink-900 border border-ink-700 p-4">
       <div className="flex items-start justify-between gap-3 mb-2">
-        <CharacterHoverCard
-          characterId={post.posterCharacterId}
-          slug={post.posterSlug}
-          className="relative flex items-center gap-2.5 min-w-0"
-        >
+        <div className="flex items-center gap-2.5 min-w-0">
           <Link href={`/c/${post.posterSlug}`} className="shrink-0">
             <CharacterBadge name={post.posterName} avatarUrl={post.posterAvatarUrl} size="sm" />
           </Link>
           <div className="min-w-0">
-            <Link href={`/c/${post.posterSlug}`} className="text-sm font-medium text-parchment-100 hover:text-brass-400">
-              {post.posterFirstName} {post.posterLastName}
-            </Link>
+            <CharacterHoverCard characterId={post.posterCharacterId} slug={post.posterSlug} className="relative block">
+              <Link
+                href={`/c/${post.posterSlug}`}
+                className="text-sm font-medium hover:underline"
+                style={{ color: jobColor(post.posterJob as never) ?? "#f6efdc" }}
+              >
+                {post.posterFirstName} {post.posterLastName}
+              </Link>
+            </CharacterHoverCard>
             <p className="text-[11px] text-ink-400">{timeAgo(post.createdAt)}</p>
           </div>
-        </CharacterHoverCard>
+        </div>
         <div className="flex items-center gap-2 shrink-0">
           {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-brass-400">Pinned</span>}
           {isWallOwner && (

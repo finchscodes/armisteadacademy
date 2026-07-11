@@ -3,6 +3,7 @@ import { getRecentWallActivity } from "@/lib/wall";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { stripToPlainText } from "@/lib/sanitize";
+import { jobColor } from "@/lib/roles";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -33,21 +34,31 @@ export async function HomeWallFeed() {
           return (
             <div key={a.id} className="bg-ink-900 border border-ink-700 p-3">
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <CharacterHoverCard characterId={a.poster.id} slug={a.poster.slug} className="relative shrink-0">
-                  <Link href={`/c/${a.poster.slug}`}>
-                    <CharacterBadge name={a.poster.name} avatarUrl={a.poster.avatarUrl} size="sm" />
-                  </Link>
-                </CharacterHoverCard>
+                <Link href={`/c/${a.poster.slug}`} className="shrink-0">
+                  <CharacterBadge name={a.poster.name} avatarUrl={a.poster.avatarUrl} size="sm" />
+                </Link>
                 <p className="text-xs">
-                  <Link href={`/c/${a.poster.slug}`} className="text-parchment-100 hover:text-brass-400">
-                    {a.poster.firstName} {a.poster.lastName}
-                  </Link>
+                  <CharacterHoverCard characterId={a.poster.id} slug={a.poster.slug} className="relative inline">
+                    <Link
+                      href={`/c/${a.poster.slug}`}
+                      className="hover:underline"
+                      style={{ color: jobColor(a.poster.job as never) ?? undefined }}
+                    >
+                      {a.poster.firstName} {a.poster.lastName}
+                    </Link>
+                  </CharacterHoverCard>
                   {!isSelfPost && (
                     <>
                       <span className="text-ink-400"> &rarr; </span>
-                      <Link href={`/c/${a.wallOwner.slug}`} className="text-parchment-100 hover:text-brass-400">
-                        {a.wallOwner.firstName} {a.wallOwner.lastName}
-                      </Link>
+                      <CharacterHoverCard characterId={a.wallOwner.id} slug={a.wallOwner.slug} className="relative inline">
+                        <Link
+                          href={`/c/${a.wallOwner.slug}`}
+                          className="hover:underline"
+                          style={{ color: jobColor(a.wallOwner.job as never) ?? undefined }}
+                        >
+                          {a.wallOwner.firstName} {a.wallOwner.lastName}
+                        </Link>
+                      </CharacterHoverCard>
                     </>
                   )}
                   {isSelfPost && <span className="text-ink-400"> posted on their own wall</span>}

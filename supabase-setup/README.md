@@ -25,8 +25,8 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `42`, you need one new file:
-1. `43-wall-notifications.sql` — adds a notification type for wall posts.
+If you already ran everything through `44`, you need one new file:
+1. `45-hall-blurb.sql` — adds an admin-only hall blurb field.
 
 ## File reference
 
@@ -34,5 +34,5 @@ If you already ran everything through `42`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`42` | (historical) incremental updates, all folded into `01` |
-| `43-wall-notifications.sql` | Adds wall post notifications |
+| `03`–`44` | (historical) incremental updates, all folded into `01` |
+| `45-hall-blurb.sql` | Adds admin-only hall blurb |

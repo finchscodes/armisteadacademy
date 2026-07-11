@@ -52,7 +52,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
             const avatarColor = getMajorColor(m.major) ?? "#7f95a3";
             const nameColor = jobColor(m.characterJob as never) ?? undefined;
             return (
-              <div key={m.id} className="bg-ink-900 border border-ink-700 overflow-hidden group">
+              <div key={m.id} className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden group">
                 <Link href={`/c/${m.slug}`} className="block relative aspect-[4/3] bg-ink-800 overflow-hidden">
                   {m.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element

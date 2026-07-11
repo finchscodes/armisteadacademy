@@ -60,7 +60,7 @@ export default async function CharactersPage() {
               <Link
                 key={c.id}
                 href={`/c/${c.slug}`}
-                className="bg-ink-900 border border-ink-700 overflow-hidden group block"
+                className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden group block"
               >
                 <div className="block relative aspect-[4/3] bg-ink-800 overflow-hidden">
                   {c.avatarUrl ? (

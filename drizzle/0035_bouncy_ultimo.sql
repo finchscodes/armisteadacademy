@@ -1,0 +1,1 @@
+ALTER TABLE "characters" ADD COLUMN "chat_timeout_until" timestamp;

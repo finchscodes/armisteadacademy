@@ -6,7 +6,7 @@ export async function AnnouncementWidget() {
   const [announcement, weather] = await Promise.all([getHomeAnnouncement(), getCurrentWeather()]);
 
   return (
-    <div className="bg-ink-900 border border-ink-700">
+    <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">
       <div className="px-4 py-2.5 border-b border-ink-700 flex items-center justify-between">
         <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">
           {announcement?.title ?? "Welcome!"}

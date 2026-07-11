@@ -49,7 +49,7 @@ export function DraggableGuideSectionList({ sections }: { sections: Section[] })
             dragId === section.id ? "opacity-50" : ""
           }`}
         >
-          <span className="text-ink-500 select-none" title="Drag to reorder">
+          <span className="text-ink-500 select-none" data-tooltip="Drag to reorder">
             &#8942;&#8942;
           </span>
           <span className="text-xs text-ink-500 tabular-nums w-5">{String(i + 1).padStart(2, "0")}</span>

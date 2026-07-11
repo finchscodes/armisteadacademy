@@ -20,16 +20,25 @@ export function CollapsibleChat(props: {
   myCharacterId: number | null;
   myFirstName: string | null;
   myLastName: string | null;
+  isModerator: boolean;
+  myTimeoutUntil: string | null;
 }) {
   const [open, setOpen] = useState(true);
 
-  if (!open) {
-    return (
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out h-[calc(100vh-7rem)] min-h-[500px] ${
+        open ? "w-full lg:w-[420px]" : "w-10"
+      }`}
+    >
+      {/* Collapsed tab — explicit width, not inset-fill, so it can't inherit
+          the parent's mid-transition width and render the wrong shape. */}
       <button
         onClick={() => setOpen(true)}
         data-tooltip="Show chat"
-        data-tooltip-side="left"
-        className="shrink-0 w-10 h-[calc(100vh-7rem)] min-h-[500px] bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center hover:border-brass-500/50 transition-colors"
+        className={`absolute inset-y-0 left-0 w-10 bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center hover:border-brass-500/50 transition-opacity duration-200 ${
+          open ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
       >
         <span
           className="font-display text-xs text-brass-400 uppercase tracking-widest whitespace-nowrap"
@@ -38,28 +47,16 @@ export function CollapsibleChat(props: {
           Chat
         </span>
       </button>
-    );
-  }
 
-  return (
-    <div className="relative shrink-0 w-full lg:w-[420px] h-[calc(100vh-7rem)] min-h-[500px]">
-      <button
-        onClick={() => setOpen(false)}
-        data-tooltip="Hide chat"
-        data-tooltip-side="left"
-        className="absolute right-2 top-2 z-20 w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center"
+      {/* Full panel — fixed 420px width regardless of the outer wrapper's
+          current (possibly mid-transition) width, cross-fades with the tab. */}
+      <div
+        className={`absolute inset-y-0 left-0 w-full lg:w-[420px] transition-opacity duration-200 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
       >
-        <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5">
-          <path
-            d="M14.5 6l-6 6 6 6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      <ChatSidebar {...props} />
+        <ChatSidebar {...props} onCollapse={() => setOpen(false)} />
+      </div>
     </div>
   );
 }

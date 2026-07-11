@@ -56,11 +56,19 @@ export const MAJORS: Major[] = [
     selectable: true,
   },
   {
-    value: "Survival, Communications, & Navigation",
-    label: "Survival, Communications, & Navigation",
+    value: "Survival & Navigation",
+    label: "Survival & Navigation",
     description:
-      "The most slippery major — high-speed driving, wilderness survival, escaping fortresses. The reason anyone gets home when plans fall apart. Also operate as mission support.",
+      "The most slippery major — high-speed driving, wilderness survival, escaping fortresses, finding the way home when a plan falls apart. Also operate as mission support.",
     color: "#B9AD5A",
+    selectable: true,
+  },
+  {
+    value: "Communications & Relay",
+    label: "Communications & Relay",
+    description:
+      "Keeping every team connected — radio operations, signal relay, encrypted field comms. The voice in your ear that gets everyone home. Also operate as mission support.",
+    color: "#7FA6A8",
     selectable: true,
   },
   {

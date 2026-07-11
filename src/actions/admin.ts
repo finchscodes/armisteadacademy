@@ -66,6 +66,7 @@ export async function getUserDetail(userId: number) {
       firstName: characters.firstName,
       middleName: characters.middleName,
       lastName: characters.lastName,
+      chatTimeoutUntil: characters.chatTimeoutUntil,
     })
     .from(characters)
     .where(eq(characters.userId, userId))

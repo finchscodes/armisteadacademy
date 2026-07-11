@@ -106,7 +106,7 @@ export function AdminJobEditor({
                 onClick={() => handleRemove(j.id)}
                 disabled={pending}
                 className="w-4 h-4 rounded-full bg-ink-700 hover:bg-claret-600 text-parchment-100 flex items-center justify-center leading-none disabled:opacity-50"
-                title="Remove"
+                data-tooltip="Remove"
               >
                 &times;
               </button>

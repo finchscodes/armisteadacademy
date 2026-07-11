@@ -26,6 +26,8 @@ export function GlobalShell({
     myCharacterId: number | null;
     myFirstName: string | null;
     myLastName: string | null;
+    isModerator: boolean;
+    myTimeoutUntil: string | null;
   };
 }) {
   const pathname = usePathname();

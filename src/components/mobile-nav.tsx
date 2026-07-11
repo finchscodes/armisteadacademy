@@ -116,7 +116,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
       <button
         onClick={() => setOpen((o) => !o)}
         className="text-ink-200 hover:text-brass-400 transition-colors p-1"
-        title="Menu"
+        data-tooltip="Menu"
       >
         <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
           <path

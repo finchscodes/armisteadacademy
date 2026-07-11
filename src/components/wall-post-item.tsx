@@ -69,7 +69,7 @@ export function WallPostItem({
   const canDelete = isWallOwner || canModerate || isPoster;
 
   return (
-    <div className="bg-ink-900 border border-ink-700 p-4">
+    <div className="bg-ink-900 border border-ink-700 rounded-lg p-4">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <Link href={`/c/${post.posterSlug}`} className="shrink-0">

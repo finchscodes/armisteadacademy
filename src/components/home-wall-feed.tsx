@@ -32,7 +32,7 @@ export async function HomeWallFeed() {
           if (!a.poster || !a.wallOwner) return null;
           const isSelfPost = a.poster.id === a.wallOwner.id;
           return (
-            <div key={a.id} className="w-full bg-ink-900 border border-ink-700 p-3">
+            <div key={a.id} className="w-full bg-ink-900 border border-ink-700 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <Link href={`/c/${a.poster.slug}`} className="shrink-0">
                   <CharacterBadge name={a.poster.name} avatarUrl={a.poster.avatarUrl} size="sm" />

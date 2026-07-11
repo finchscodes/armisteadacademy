@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { sendChatMessageAction } from "@/actions/chat";
+import { sendChatMessageAction, deleteChatMessageAction, deleteAllChatMessagesFromCharacterAction, timeoutCharacterAction } from "@/actions/chat";
 import { jobColor, type CharacterJob } from "@/lib/roles";
 import { CHAT_EMOJI } from "@/lib/chat-emoji";
 import { playPingSound, primeAudio } from "@/lib/ping-sound";
@@ -47,6 +47,9 @@ export function ChatSidebar({
   myCharacterId,
   myFirstName,
   myLastName,
+  isModerator,
+  myTimeoutUntil,
+  onCollapse,
 }: {
   initialMessages: ChatMessage[];
   initialOnline: OnlineCharacter[];
@@ -55,6 +58,9 @@ export function ChatSidebar({
   myCharacterId: number | null;
   myFirstName: string | null;
   myLastName: string | null;
+  isModerator: boolean;
+  myTimeoutUntil: string | null;
+  onCollapse?: () => void;
 }) {
   const [messages, setMessages] = useState(initialMessages);
   const [online, setOnline] = useState(initialOnline);
@@ -64,6 +70,10 @@ export function ChatSidebar({
   const [showEmoji, setShowEmoji] = useState(false);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [pingedIds, setPingedIds] = useState<Set<number>>(new Set());
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [modPending, startModTransition] = useTransition();
+  const [timeoutUntil, setTimeoutUntil] = useState(myTimeoutUntil);
 
   const listRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -127,8 +137,9 @@ export function ChatSidebar({
   }, []);
 
   useEffect(() => {
+    if (!autoScroll) return;
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, autoScroll]);
 
   function handleSubmit(formData: FormData) {
     if (!inputValue.trim()) return;
@@ -137,6 +148,9 @@ export function ChatSidebar({
       const result = await sendChatMessageAction(formData);
       if (result.error) {
         setError(result.error);
+        if (result.error.toLowerCase().includes("timed out") || result.error.includes("Slow down")) {
+          setTimeoutUntil(new Date(Date.now() + 60 * 1000).toISOString());
+        }
       } else {
         formRef.current?.reset();
         setInputValue("");
@@ -218,8 +232,40 @@ export function ChatSidebar({
       ref={containerRef}
       className="bg-ink-900 border border-ink-700 rounded-lg flex flex-col h-[calc(100vh-7rem)] min-h-[500px]"
     >
-      <div className="px-4 py-2.5 border-b border-ink-700 shrink-0">
+      <div className="px-4 py-2.5 border-b border-ink-700 shrink-0 flex items-center justify-between gap-2">
         <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">Chat</h2>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setAutoScroll((v) => !v)}
+            data-tooltip={autoScroll ? "Auto-scroll on" : "Auto-scroll off"}
+            className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded border transition-colors ${
+              autoScroll
+                ? "border-brass-500/50 text-brass-400"
+                : "border-ink-600 text-ink-400 hover:text-parchment-100"
+            }`}
+          >
+            Auto-scroll
+          </button>
+          {onCollapse && (
+            <button
+              type="button"
+              onClick={onCollapse}
+              data-tooltip="Hide chat"
+              className="w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center shrink-0"
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5">
+                <path
+                  d="M14.5 6l-6 6 6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-[0.45rem]">
@@ -257,9 +303,9 @@ export function ChatSidebar({
               );
             }
             return (
-              <p
+              <div
                 key={m.id}
-                className={`text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
+                className={`group relative text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
                   pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
                 }`}
               >
@@ -273,13 +319,110 @@ export function ChatSidebar({
                   </Link>
                 </CharacterHoverCard>
                 <span className="text-parchment-100/90">: {m.content}</span>
-              </p>
+                {isModerator && (
+                  <div className="inline-block relative ml-1 align-middle">
+                    <button
+                      type="button"
+                      onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
+                      className="opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
+                      data-tooltip="Moderate"
+                    >
+                      &#8942;
+                    </button>
+                    {openMenuId === m.id && (
+                      <div className="absolute left-0 top-full z-30 mt-1 w-48 bg-ink-800 border border-ink-600 rounded-md shadow-xl overflow-hidden text-xs">
+                        <button
+                          type="button"
+                          disabled={modPending}
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            startModTransition(async () => {
+                              const fd = new FormData();
+                              fd.set("messageId", String(m.id));
+                              await deleteChatMessageAction(fd);
+                              await refresh();
+                            });
+                          }}
+                          className="block w-full text-left px-3 py-1.5 hover:bg-ink-700 text-claret-500"
+                        >
+                          Delete this message
+                        </button>
+                        <button
+                          type="button"
+                          disabled={modPending}
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            if (!confirm(`Delete every message from ${m.characterFirstName} ${m.characterLastName}?`))
+                              return;
+                            startModTransition(async () => {
+                              const fd = new FormData();
+                              fd.set("characterId", String(m.characterId));
+                              await deleteAllChatMessagesFromCharacterAction(fd);
+                              await refresh();
+                            });
+                          }}
+                          className="block w-full text-left px-3 py-1.5 hover:bg-ink-700 text-claret-500 border-t border-ink-700"
+                        >
+                          Delete all from this user
+                        </button>
+                        <div className="border-t border-ink-700 px-3 py-1 text-[10px] uppercase tracking-wider text-ink-500">
+                          Timeout
+                        </div>
+                        {[1, 5, 10].map((mins) => (
+                          <button
+                            key={mins}
+                            type="button"
+                            disabled={modPending}
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              startModTransition(async () => {
+                                const fd = new FormData();
+                                fd.set("characterId", String(m.characterId));
+                                fd.set("minutes", String(mins));
+                                await timeoutCharacterAction(fd);
+                              });
+                            }}
+                            className="block w-full text-left px-3 py-1.5 hover:bg-ink-700 text-parchment-100"
+                          >
+                            {mins} minute{mins === 1 ? "" : "s"}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          disabled={modPending}
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            const input = prompt("Timeout duration in minutes:");
+                            const mins = Number(input);
+                            if (!input || !mins || mins <= 0) return;
+                            startModTransition(async () => {
+                              const fd = new FormData();
+                              fd.set("characterId", String(m.characterId));
+                              fd.set("minutes", String(mins));
+                              await timeoutCharacterAction(fd);
+                            });
+                          }}
+                          className="block w-full text-left px-3 py-1.5 hover:bg-ink-700 text-parchment-100 border-t border-ink-700"
+                        >
+                          Custom...
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             );
           })
         )}
       </div>
 
-      {canChat ? (
+      {timeoutUntil && new Date(timeoutUntil) > new Date() ? (
+        <div className="border-t border-ink-700 p-3 shrink-0 text-center">
+          <p className="text-xs text-claret-500">
+            You&apos;re timed out from chat until {new Date(timeoutUntil).toLocaleTimeString()}.
+          </p>
+        </div>
+      ) : canChat ? (
         <form
           ref={formRef}
           action={handleSubmit}
@@ -344,7 +487,7 @@ export function ChatSidebar({
               type="button"
               onClick={() => setShowEmoji((v) => !v)}
               className="text-lg px-2 rounded-md border border-ink-600 hover:border-brass-500/50 transition-colors shrink-0"
-              title="Insert emoji"
+              data-tooltip="Insert emoji"
             >
               🙂
             </button>

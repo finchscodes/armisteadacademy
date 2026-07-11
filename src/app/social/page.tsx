@@ -53,7 +53,7 @@ export default async function SocialPage() {
           return (
             <div
               key={m.major}
-              className="px-2 py-1 text-center border flex items-center justify-center min-h-[2.5rem]"
+              className="px-2 py-1 text-center border rounded-md flex items-center justify-center min-h-[2.5rem]"
               style={{ backgroundColor: `${color}1f`, borderColor: `${color}4d` }}
             >
               <p className="text-[11px] italic font-display leading-tight" style={{ color }}>

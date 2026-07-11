@@ -539,4 +539,12 @@ ALTER TABLE "character_jobs" ADD CONSTRAINT "character_jobs_scope_board_id_board
 --> statement-breakpoint
 ALTER TABLE "wall_posts" ADD CONSTRAINT "wall_posts_wall_character_id_characters_id_fk" FOREIGN KEY ("wall_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wall_posts" ADD CONSTRAINT "wall_posts_poster_character_id_characters_id_fk" FOREIGN KEY ("poster_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;ALTER TYPE "public"."notification_type" ADD VALUE 'wall_post';ALTER TABLE "characters" ADD COLUMN "backstory_rating" integer;--> statement-breakpoint
-ALTER TABLE "characters" ADD COLUMN "backstory_approved" boolean DEFAULT false NOT NULL;ALTER TABLE "hall_welcome_messages" ADD COLUMN "blurb" text DEFAULT '' NOT NULL;
+ALTER TABLE "characters" ADD COLUMN "backstory_approved" boolean DEFAULT false NOT NULL;ALTER TABLE "hall_welcome_messages" ADD COLUMN "blurb" text DEFAULT '' NOT NULL;ALTER TABLE "characters" ADD COLUMN "chat_timeout_until" timestamp;ALTER TABLE "characters" ALTER COLUMN "major" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "characters" ALTER COLUMN "major" SET DEFAULT 'Undecided'::text;--> statement-breakpoint
+-- Reassign anyone still on the old combined major before the enum is
+-- recreated without it — otherwise the final cast below fails outright.
+UPDATE "characters" SET "major" = 'Survival & Navigation' WHERE "major" = 'Survival, Communications, & Navigation';--> statement-breakpoint
+DROP TYPE "public"."character_major";--> statement-breakpoint
+CREATE TYPE "public"."character_major" AS ENUM('Threat Elimination', 'Precision Shooting', 'Covert Operations', 'Linguistics, Culture, & Assimilation', 'Advanced Encryption', 'Survival & Navigation', 'Communications & Relay', 'Research & Development', 'Medicine, Chemistry, & Criminology', 'Seduction, Interrogation, & Influence Tactics', 'Protection & Enforcement', 'Undecided');--> statement-breakpoint
+ALTER TABLE "characters" ALTER COLUMN "major" SET DEFAULT 'Undecided'::character_major;--> statement-breakpoint
+ALTER TABLE "characters" ALTER COLUMN "major" SET DATA TYPE character_major USING "major"::character_major;

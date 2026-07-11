@@ -12,7 +12,7 @@ export async function SiteLinksWidget() {
           href={l.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 text-center text-xs bg-ink-900 border border-ink-700 text-parchment-100 px-3 py-2 hover:border-brass-500/50 transition-colors"
+          className="flex-1 text-center text-xs bg-ink-900 border border-ink-700 rounded-md text-parchment-100 px-3 py-2 hover:border-brass-500/50 transition-colors"
         >
           {l.label}
         </a>

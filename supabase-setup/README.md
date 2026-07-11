@@ -25,8 +25,10 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `44`, you need one new file:
-1. `45-hall-blurb.sql` — adds an admin-only hall blurb field.
+If you already ran everything through `46`, you need one new file:
+1. `47-split-survival-major.sql` — splits a major into two, fixes a stale
+   default value. Read the comment at the top before running it — it
+   auto-reassigns existing characters and explains the choice it makes.
 
 ## File reference
 
@@ -34,5 +36,5 @@ If you already ran everything through `44`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`44` | (historical) incremental updates, all folded into `01` |
-| `45-hall-blurb.sql` | Adds admin-only hall blurb |
+| `03`–`46` | (historical) incremental updates, all folded into `01` |
+| `47-split-survival-major.sql` | Splits Survival/Comms major, fixes default |

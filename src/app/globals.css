@@ -69,17 +69,15 @@
   --font-ui: var(--font-ui);
   --font-mono: var(--font-mono);
 
-  /* Sharp corners sitewide — every rounded-sm/md/lg/xl/2xl utility class
-     collapses to 0 here. rounded-full is untouched (fixed 9999px in
-     Tailwind, not part of this scale), so avatars/dots/pills stay circular. */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
+  /* Small, consistent rounding sitewide — not sharp, not overly round. */
+  --radius-xs: 3px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 5px;
+  --radius-2xl: 6px;
+  --radius-3xl: 6px;
+  --radius-4xl: 6px;
 }
 
 body {
@@ -172,6 +170,17 @@ body {
    tooltip anchors from the right instead of centering, so it doesn't get
    clipped off-screen. */
 [data-tooltip-side="left"]::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+/* For triggers in the top-right corner (account menu) — both drops below
+   AND anchors from the right, so it clears the top and doesn't clip off
+   the right edge of the viewport at the same time. */
+[data-tooltip-side="bottom-left"]::after {
+  bottom: auto;
+  top: calc(100% + 7px);
   left: auto;
   right: 0;
   transform: none;

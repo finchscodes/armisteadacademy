@@ -108,7 +108,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         <p
           className="inline-block text-xs font-medium border rounded-full px-3 py-1 mb-3"
           style={{ color: ratingColor(thread.rating) ?? undefined, borderColor: `${ratingColor(thread.rating)}66` }}
-          title={RATING_META[thread.rating]?.description}
+          data-tooltip={RATING_META[thread.rating]?.description}
         >
           {ratingLabel(thread.rating)}
         </p>

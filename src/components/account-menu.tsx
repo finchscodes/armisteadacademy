@@ -52,7 +52,7 @@ export function AccountMenu({
       <button
         onClick={() => setOpen((o) => !o)}
         className="block rounded-md ring-2 ring-transparent hover:ring-brass-500/50 transition-all"
-        data-tooltip="Account menu" data-tooltip-side="bottom"
+        data-tooltip="Account menu" data-tooltip-side="bottom-left"
       >
         <CharacterBadge
           name={activeCharacter?.name ?? "?"}

@@ -58,7 +58,7 @@ export function DraggableLessonList({
           } ${dragId === lesson.id ? "opacity-50" : ""}`}
         >
           {canManage && (
-            <span className="text-ink-500 select-none" title="Drag to reorder">
+            <span className="text-ink-500 select-none" data-tooltip="Drag to reorder">
               &#8942;&#8942;
             </span>
           )}

@@ -19,7 +19,7 @@ export async function NewestMemberWidget() {
   const nameColor = jobColor(primaryJob) ?? undefined;
 
   return (
-    <div className="bg-ink-900 border border-ink-700">
+    <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">
       <div className="px-4 py-2.5 border-b border-ink-700">
         <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">Newest Member</h2>
       </div>

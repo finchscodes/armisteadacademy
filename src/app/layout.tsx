@@ -7,7 +7,7 @@ import { HeartbeatPing } from "@/components/heartbeat-ping";
 import { LevelUpWatcher } from "@/components/level-up-watcher";
 import { GlobalShell } from "@/components/global-shell";
 import { getCurrentUser } from "@/lib/current-user";
-import { getRecentChatMessages } from "@/actions/chat";
+import { getRecentChatMessages, getChatModerationContext } from "@/actions/chat";
 import { getOnlineCharacters } from "@/lib/online-status";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
@@ -81,6 +81,10 @@ export default async function RootLayout({
         ? await characterHasAnyJob(current.activeCharacter.id, MANAGEMENT_JOBS)
         : false)
     : false;
+  const chatModeration = current?.activeCharacter
+    ? await getChatModerationContext(current.activeCharacter.id)
+    : { isModerator: false, timeoutUntil: null };
+  const isChatModerator = Boolean(current?.session.isAdmin) || chatModeration.isModerator;
   const initialChatMessages = chatMessages.map((m) => ({
     ...m,
     createdAt: m.createdAt.toISOString(),
@@ -105,6 +109,8 @@ export default async function RootLayout({
               myCharacterId: current?.activeCharacter?.id ?? null,
               myFirstName: current?.activeCharacter?.firstName ?? null,
               myLastName: current?.activeCharacter?.lastName ?? null,
+              isModerator: isChatModerator,
+              myTimeoutUntil: chatModeration.timeoutUntil,
             }}
           >
             {children}

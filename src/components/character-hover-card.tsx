@@ -89,7 +89,7 @@ export function CharacterHoverCard({
               className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-ink-900 ${
                 profile.isOnline ? "bg-green-500" : "bg-claret-600"
               }`}
-              title={profile.isOnline ? "Online" : "Offline"}
+              data-tooltip={profile.isOnline ? "Online" : "Offline"}
             />
           </Link>
           <div className="text-xs space-y-0.5 py-0.5 min-w-0 flex-1">

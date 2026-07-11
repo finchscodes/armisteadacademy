@@ -107,7 +107,7 @@ export const characters = pgTable(
     firstName: varchar("first_name", { length: 50 }).notNull().default("Unknown"),
     middleName: varchar("middle_name", { length: 50 }),
     lastName: varchar("last_name", { length: 50 }).notNull().default("Unknown"),
-    major: characterMajorEnum("major").notNull().default("Undecided/Witness Protection"),
+    major: characterMajorEnum("major").notNull().default("Undecided"),
     // Set once at creation (18-25), then locked — same pattern as major.
     // Admin can override.
     age: integer("age").notNull().default(18),
@@ -133,6 +133,9 @@ export const characters = pgTable(
     // Updated by a periodic heartbeat while this character is the active one
     // in an open tab — drives "who's online" and who can be pinged in chat.
     lastActiveAt: timestamp("last_active_at"),
+    // Set by a chat moderator (or auto-spam detection) — the character can't
+    // post in chat again until this passes. Null means no active timeout.
+    chatTimeoutUntil: timestamp("chat_timeout_until"),
     isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

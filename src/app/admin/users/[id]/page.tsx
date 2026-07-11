@@ -5,6 +5,7 @@ import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
 import { AdminBoardAccessEditor } from "@/components/admin-board-access-editor";
+import { AdminChatTimeoutStatus } from "@/components/admin-chat-timeout-status";
 import { AdminStatusEditor } from "@/components/admin-status-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
@@ -128,6 +129,13 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
                   <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} boards={allBoards} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Chat</p>
+                  <AdminChatTimeoutStatus
+                    characterId={c.id}
+                    timeoutUntil={c.chatTimeoutUntil ? c.chatTimeoutUntil.toISOString() : null}
+                  />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Board access</p>

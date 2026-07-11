@@ -92,6 +92,9 @@ export function isListedJob(job: CharacterJob): boolean {
  */
 export const MANAGEMENT_JOBS: CharacterJob[] = ["spymaster", "secretary", "head_staff"];
 
+/** Who can timeout/delete in chat — management, plus Assistant Instructors and Enforcers specifically. */
+export const CHAT_MODERATOR_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "assistant_instructor", "enforcer"];
+
 export function isManagementJob(job: CharacterJob): boolean {
   return MANAGEMENT_JOBS.includes(job);
 }

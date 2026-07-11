@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getHallTotalReputation, getHallLeaderboard } from "@/lib/reputation";
 import { HALL_VALUES, hallLabel, hallColor } from "@/lib/halls";
-import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { jobColor } from "@/lib/roles";
 
 // Reputation totals change constantly — must render per-request, never
 // prerendered at build time.
@@ -43,20 +43,18 @@ export default async function ReputationPage() {
                 <p className="px-4 py-4 text-xs text-ink-400 text-center">No one sorted here yet.</p>
               ) : (
                 leaderboard.map((c, i) => (
-                  <div key={c.id} className="flex items-center gap-2 px-3 py-2">
-                    <span className="text-xs text-ink-500 w-4 shrink-0">{i + 1}</span>
-                    <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative shrink-0">
-                      <Link href={`/c/${c.slug}`}>
-                        <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} size="sm" />
+                  <div key={c.id} className="flex items-start gap-2 px-3 py-2">
+                    <span className="text-xs text-ink-500 w-4 shrink-0 pt-0.5">{i + 1}</span>
+                    <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative flex-1 min-w-0">
+                      <Link
+                        href={`/c/${c.slug}`}
+                        className="text-xs hover:underline block"
+                        style={{ color: jobColor(c.characterJob) ?? undefined }}
+                      >
+                        {c.firstName} {c.lastName}
                       </Link>
                     </CharacterHoverCard>
-                    <Link
-                      href={`/c/${c.slug}`}
-                      className="text-xs text-parchment-100 hover:text-brass-400 flex-1 min-w-0 truncate"
-                    >
-                      {c.firstName} {c.lastName}
-                    </Link>
-                    <span className="text-xs font-mono text-brass-400 shrink-0">{c.reputation}</span>
+                    <span className="text-xs font-mono text-brass-400 shrink-0 pt-0.5">{c.reputation}</span>
                   </div>
                 ))
               )}

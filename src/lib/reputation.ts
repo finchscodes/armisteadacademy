@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { reputationLedger, characters } from "@/db/schema";
 import type { Hall } from "@/lib/halls";
 import { MAJOR_VALUES } from "@/lib/majors";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 /** Reputation awarded per action. Adjust freely — nothing else depends on the exact numbers. */
 export const REPUTATION_AWARDS = {
@@ -76,9 +77,14 @@ export async function getHallLeaderboard(hall: Hall, limit = 25) {
     .where(inArray(reputationLedger.characterId, ids))
     .groupBy(reputationLedger.characterId);
   const totalByCharacter = new Map(totals.map((t) => [t.characterId, Number(t.total ?? 0)]));
+  const jobsByCharacter = await getPrimaryJobsForCharacters(ids);
 
   return hallCharacters
-    .map((c) => ({ ...c, reputation: totalByCharacter.get(c.id) ?? 0 }))
+    .map((c) => ({
+      ...c,
+      reputation: totalByCharacter.get(c.id) ?? 0,
+      characterJob: jobsByCharacter.get(c.id) ?? "none",
+    }))
     .sort((a, b) => b.reputation - a.reputation)
     .slice(0, limit);
 }

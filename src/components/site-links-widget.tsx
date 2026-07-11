@@ -4,19 +4,26 @@ export async function SiteLinksWidget() {
   const links = await getSiteLinks();
   if (links.length === 0) return null;
 
+  const isOdd = links.length % 2 !== 0;
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {links.map((l) => (
-        <a
-          key={l.id}
-          href={l.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 text-center text-xs bg-ink-900 border border-ink-700 rounded-md text-parchment-100 px-3 py-2 hover:border-brass-500/50 transition-colors"
-        >
-          {l.label}
-        </a>
-      ))}
+    <div className="grid grid-cols-2 gap-2">
+      {links.map((l, i) => {
+        const isLastOdd = isOdd && i === links.length - 1;
+        return (
+          <a
+            key={l.id}
+            href={l.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-center bg-ink-900 border border-ink-700 rounded-md text-parchment-100 px-3 py-2 hover:border-brass-500/50 hover:text-brass-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider ${
+              isLastOdd ? "col-span-2" : ""
+            }`}
+          >
+            {l.label}
+          </a>
+        );
+      })}
     </div>
   );
 }

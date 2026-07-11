@@ -8,7 +8,7 @@ import { getPrimaryJob } from "@/lib/character-jobs";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
 import { jobColor } from "@/lib/roles";
 import { hallLabel, hallColor } from "@/lib/halls";
-import { ONLINE_WINDOW_MS } from "@/lib/online-status";
+import { getPresenceStatus, type PresenceStatus } from "@/lib/online-status";
 
 export type MiniProfile = {
   firstName: string;
@@ -18,7 +18,7 @@ export type MiniProfile = {
   year: string;
   age: number;
   nameColor: string | null;
-  isOnline: boolean;
+  presence: PresenceStatus;
   statuses: string[];
   hallLabel: string | null;
   hallColor: string | null;
@@ -34,10 +34,6 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     getStatusesForCharacter(character.id),
   ]);
 
-  const isOnline = Boolean(
-    character.lastActiveAt && Date.now() - character.lastActiveAt.getTime() < ONLINE_WINDOW_MS
-  );
-
   return {
     firstName: character.firstName,
     lastName: character.lastName,
@@ -46,7 +42,7 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     year,
     age: character.age,
     nameColor: jobColor(primaryJob),
-    isOnline,
+    presence: getPresenceStatus(character.lastActiveAt),
     statuses: statuses.map((s) => s.label),
     hallLabel: character.hall ? hallLabel(character.hall) : null,
     hallColor: character.hall ? hallColor(character.hall) : null,

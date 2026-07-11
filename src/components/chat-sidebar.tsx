@@ -74,6 +74,17 @@ export function ChatSidebar({
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [modPending, startModTransition] = useTransition();
   const [timeoutUntil, setTimeoutUntil] = useState(myTimeoutUntil);
+  const [, forceTick] = useState(0);
+
+  // The timeout banner's "is it still active" check only re-runs when
+  // something re-renders this component — without this, it would silently
+  // stay stuck showing "timed out" even after the time has actually passed,
+  // until something else (like sending a message) happened to re-render it.
+  useEffect(() => {
+    if (!timeoutUntil) return;
+    const interval = setInterval(() => forceTick((t) => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, [timeoutUntil]);
 
   const listRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -135,6 +146,15 @@ export function ChatSidebar({
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (openMenuId === null) return;
+    function handleClickAway() {
+      setOpenMenuId(null);
+    }
+    document.addEventListener("click", handleClickAway);
+    return () => document.removeEventListener("click", handleClickAway);
+  }, [openMenuId]);
 
   useEffect(() => {
     if (!autoScroll) return;
@@ -239,6 +259,7 @@ export function ChatSidebar({
             type="button"
             onClick={() => setAutoScroll((v) => !v)}
             data-tooltip={autoScroll ? "Auto-scroll on" : "Auto-scroll off"}
+            data-tooltip-side="bottom"
             className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded border transition-colors ${
               autoScroll
                 ? "border-brass-500/50 text-brass-400"
@@ -268,7 +289,7 @@ export function ChatSidebar({
         </div>
       </div>
 
-      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-[0.45rem]">
+      <div ref={listRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 space-y-[0.45rem]">
         {messages.length === 0 ? (
           <p className="text-xs text-ink-400 italic">No messages yet — say something.</p>
         ) : (
@@ -305,32 +326,28 @@ export function ChatSidebar({
             return (
               <div
                 key={m.id}
-                className={`group relative text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors ${
+                className={`group relative text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors break-words ${
                   pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
                 }`}
               >
-                <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
-                  <Link
-                    href={`/c/${m.characterSlug}`}
-                    className="hover:underline font-medium text-parchment-100"
-                    style={{ color: jobColor(m.characterJob) ?? undefined }}
-                  >
-                    {m.characterFirstName} {m.characterLastName}
-                  </Link>
-                </CharacterHoverCard>
-                <span className="text-parchment-100/90">: {m.content}</span>
                 {isModerator && (
-                  <div className="inline-block relative ml-1 align-middle">
+                  <span className="relative inline-block align-middle mr-1">
                     <button
                       type="button"
-                      onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === m.id ? null : m.id);
+                      }}
                       className="opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
                       data-tooltip="Moderate"
                     >
                       &#8942;
                     </button>
                     {openMenuId === m.id && (
-                      <div className="absolute left-0 top-full z-30 mt-1 w-48 bg-ink-800 border border-ink-600 rounded-md shadow-xl overflow-hidden text-xs">
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute left-0 bottom-full z-30 mb-1 w-48 bg-ink-800 border border-ink-600 rounded-md shadow-xl overflow-hidden text-xs"
+                      >
                         <button
                           type="button"
                           disabled={modPending}
@@ -408,8 +425,18 @@ export function ChatSidebar({
                         </button>
                       </div>
                     )}
-                  </div>
+                  </span>
                 )}
+                <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
+                  <Link
+                    href={`/c/${m.characterSlug}`}
+                    className="hover:underline font-medium text-parchment-100"
+                    style={{ color: jobColor(m.characterJob) ?? undefined }}
+                  >
+                    {m.characterFirstName} {m.characterLastName}
+                  </Link>
+                </CharacterHoverCard>
+                <span className="text-parchment-100/90">: {m.content}</span>
               </div>
             );
           })

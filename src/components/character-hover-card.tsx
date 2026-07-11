@@ -87,9 +87,15 @@ export function CharacterHoverCard({
             )}
             <span
               className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-ink-900 ${
-                profile.isOnline ? "bg-green-500" : "bg-claret-600"
+                profile.presence === "online"
+                  ? "bg-green-500"
+                  : profile.presence === "away"
+                    ? "bg-yellow-500"
+                    : "bg-claret-600"
               }`}
-              data-tooltip={profile.isOnline ? "Online" : "Offline"}
+              data-tooltip={
+                profile.presence === "online" ? "Online" : profile.presence === "away" ? "Away" : "Offline"
+              }
             />
           </Link>
           <div className="text-xs space-y-0.5 py-0.5 min-w-0 flex-1">

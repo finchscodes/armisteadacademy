@@ -41,7 +41,7 @@ export default async function SocialPage() {
         </p>
         <Link
           href="/members"
-          className="shrink-0 text-sm bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+          className="shrink-0 bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 hover:text-brass-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider"
         >
           Member List
         </Link>

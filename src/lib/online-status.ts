@@ -6,6 +6,17 @@ import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 /** A character counts as online if their heartbeat landed within this window. */
 export const ONLINE_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
+export const AWAY_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+export type PresenceStatus = "online" | "away" | "offline";
+
+export function getPresenceStatus(lastActiveAt: Date | null): PresenceStatus {
+  if (!lastActiveAt) return "offline";
+  const idleMs = Date.now() - lastActiveAt.getTime();
+  if (idleMs < ONLINE_WINDOW_MS) return "online";
+  if (idleMs < AWAY_WINDOW_MS) return "away";
+  return "offline";
+}
 
 export async function markCharacterActive(characterId: number) {
   await db.update(characters).set({ lastActiveAt: new Date() }).where(eq(characters.id, characterId));

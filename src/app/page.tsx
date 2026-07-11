@@ -26,7 +26,7 @@ export default async function HomePage() {
         <SiteLinksWidget />
       </div>
 
-      <div className="flex-1 min-w-0 space-y-6">
+      <div className="flex-1 w-full min-w-0 space-y-6">
         {!current && (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
             <h1 className="font-display text-2xl text-brass-400 mb-1">Armistead Academy</h1>

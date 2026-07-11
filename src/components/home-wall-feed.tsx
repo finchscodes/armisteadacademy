@@ -22,7 +22,7 @@ export async function HomeWallFeed() {
   if (activity.length === 0) return null;
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center gap-3 mb-3">
         <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Wall activity</h2>
         <div className="flex-1 brass-rule" />
@@ -32,7 +32,7 @@ export async function HomeWallFeed() {
           if (!a.poster || !a.wallOwner) return null;
           const isSelfPost = a.poster.id === a.wallOwner.id;
           return (
-            <div key={a.id} className="bg-ink-900 border border-ink-700 p-3">
+            <div key={a.id} className="w-full bg-ink-900 border border-ink-700 p-3">
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <Link href={`/c/${a.poster.slug}`} className="shrink-0">
                   <CharacterBadge name={a.poster.name} avatarUrl={a.poster.avatarUrl} size="sm" />

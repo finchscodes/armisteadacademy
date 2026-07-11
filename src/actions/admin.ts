@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -316,34 +316,6 @@ export async function adminUpdateCharacterNameAction(
 /*  Class assignments                                                         */
 /* -------------------------------------------------------------------------- */
 
-/** All class boards, plus every character currently assigned to each. */
-export async function getClassAssignmentOverview() {
-  await requireAdmin();
-
-  const classBoards = await db
-    .select({ id: boards.id, name: boards.name, slug: boards.slug })
-    .from(boards)
-    .where(eq(boards.kind, "class"))
-    .orderBy(boards.position);
-
-  const assignments = await db
-    .select({
-      id: classAssignments.id,
-      boardId: classAssignments.boardId,
-      characterId: characters.id,
-      characterSlug: characters.slug,
-      characterFirstName: characters.firstName,
-      characterLastName: characters.lastName,
-    })
-    .from(classAssignments)
-    .innerJoin(characters, eq(classAssignments.characterId, characters.id));
-
-  return classBoards.map((b) => ({
-    ...b,
-    assigned: assignments.filter((a) => a.boardId === b.id),
-  }));
-}
-
 /**
  * Look up a character by their locked legal name (first + last), not their
  * code name — code names can be changed anytime by the owner, so keying
@@ -363,71 +335,6 @@ export async function findCharacterByLegalName(firstName: string, lastName: stri
     )
     .limit(1);
   return character ?? null;
-}
-
-const assignSchema = z.object({
-  boardId: z.coerce.number().int(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  visible: z.coerce.boolean(),
-});
-
-export async function assignClassAction(
-  _prevState: AdminActionState,
-  formData: FormData
-): Promise<AdminActionState> {
-  await requireAdmin();
-
-  const parsed = assignSchema.safeParse({
-    boardId: formData.get("boardId"),
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    visible: formData.get("visible") === "on" || formData.get("visible") === "true",
-  });
-  if (!parsed.success) {
-    return { error: "Enter the character's first and last name" };
-  }
-
-  const character = await findCharacterByLegalName(parsed.data.firstName, parsed.data.lastName);
-  if (!character) {
-    return {
-      error: `No character found with the legal name "${parsed.data.firstName} ${parsed.data.lastName}"`,
-    };
-  }
-
-  await db
-    .insert(classAssignments)
-    .values({ characterId: character.id, boardId: parsed.data.boardId })
-    .onConflictDoNothing();
-
-  // "Visible" is the normal case: assigning them to teach a class also gives
-  // them the Instructor job on the Job List (on top of whatever else they
-  // hold). "Hidden" grants class access without a public job — for helpers
-  // who tend a class quietly without being listed.
-  let note = "";
-  if (parsed.data.visible) {
-    const [alreadyInstructor] = await db
-      .select({ id: characterJobs.id })
-      .from(characterJobs)
-      .where(and(eq(characterJobs.characterId, character.id), eq(characterJobs.job, "instructor")));
-    if (!alreadyInstructor) {
-      await db.insert(characterJobs).values({ characterId: character.id, job: "instructor" });
-      note = " and made them an Instructor";
-    }
-  }
-
-  revalidatePath("/admin/classes");
-  revalidatePath("/jobs");
-  return { success: `Assigned ${character.firstName} ${character.lastName}${note}` };
-}
-
-export async function unassignClassAction(formData: FormData) {
-  await requireAdmin();
-  const assignmentId = Number(formData.get("assignmentId"));
-  if (assignmentId) {
-    await db.delete(classAssignments).where(eq(classAssignments.id, assignmentId));
-    revalidatePath("/admin/classes");
-  }
 }
 
 /* -------------------------------------------------------------------------- */

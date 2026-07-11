@@ -35,7 +35,7 @@ export function CollapsibleChat(props: {
         <button
           onClick={() => setOpen(true)}
           className="absolute inset-0 w-10 bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center hover:border-brass-500/50 transition-colors z-10"
-          title="Show chat"
+          data-tooltip="Show chat"
         >
           <span
             className="font-display text-xs text-brass-400 uppercase tracking-widest"
@@ -50,7 +50,7 @@ export function CollapsibleChat(props: {
         <button
           onClick={() => setOpen(false)}
           className="absolute right-3 top-2 z-20 w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center"
-          title="Hide chat"
+          data-tooltip="Hide chat"
         >
           <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5">
             <path

@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 
 const SECTIONS = [
   { href: "/admin/users", label: "Users" },
-  { href: "/admin/classes", label: "Class Assignments" },
   { href: "/admin/boards", label: "Boards" },
   { href: "/admin/guide", label: "Guidebook" },
   { href: "/admin/home-board", label: "Home Board" },

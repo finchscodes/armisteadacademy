@@ -124,6 +124,43 @@ body {
   font-size: 85%;
 }
 
+/* Custom tooltips — replaces the native browser title="" tooltip, which
+   can't be restyled. Usage: <button data-tooltip="Quote">...</button> */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink-800);
+  color: var(--parchment-100);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 9px;
+  border-radius: 3px;
+  border: 1px solid var(--ink-600);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
+  z-index: 60;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.3s;
+}
+
 /* The small "board"/"class"/"article" signifiers in the nav dropdown. */
 .kind-badge {
   font-family: var(--font-ui);
@@ -132,7 +169,7 @@ body {
 /* Hairline separators with a faint accent glow, used to mark thread/board dividers */
 .brass-rule {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(127, 149, 163, 0.5), transparent);
+  background: var(--ink-700);
 }
 
 ::selection {
@@ -265,7 +302,7 @@ body {
 
 .rich-text-content blockquote {
   border-left: 2px solid var(--ink-600);
-  padding-left: 1.5em;
+  padding-left: 2.5em;
   margin: 0.75em 0;
   color: var(--ink-200, #acacac);
   font-style: italic;

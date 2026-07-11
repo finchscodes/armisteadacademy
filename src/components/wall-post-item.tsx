@@ -48,6 +48,7 @@ export function WallPostItem({
   const [pending, startTransition] = useTransition();
 
   function handleDelete() {
+    if (!confirm("Delete this wall post?")) return;
     startTransition(async () => {
       const formData = new FormData();
       formData.set("postId", String(post.id));
@@ -95,7 +96,7 @@ export function WallPostItem({
               onClick={handlePin}
               disabled={pending}
               className="text-ink-400 hover:text-brass-400 disabled:opacity-50"
-              title={post.isPinned ? "Unpin" : "Pin to top"}
+              data-tooltip={post.isPinned ? "Unpin" : "Pin to top"}
             >
               📌
             </button>
@@ -106,7 +107,7 @@ export function WallPostItem({
               onClick={handleDelete}
               disabled={pending}
               className="text-ink-400 hover:text-claret-500 disabled:opacity-50"
-              title="Delete"
+              data-tooltip="Delete"
             >
               &times;
             </button>

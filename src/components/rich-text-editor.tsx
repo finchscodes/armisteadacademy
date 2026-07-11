@@ -53,7 +53,7 @@ function ToolbarButton({
     <button
       type="button"
       onClick={onClick}
-      title={label}
+      data-tooltip={label}
       className={`text-xs px-2 py-1 rounded border transition-colors ${
         active
           ? "bg-brass-500/20 border-brass-500 text-brass-400"

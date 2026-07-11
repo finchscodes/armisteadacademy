@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { getMajorColor } from "@/lib/majors";
 import { jobColor } from "@/lib/roles";
+import { hallLabel, hallColor } from "@/lib/halls";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 
 type Member = {
@@ -15,6 +16,7 @@ type Member = {
   avatarUrl: string | null;
   age: number;
   major: string;
+  hall: string | null;
   year: string;
   characterJob: string;
 };
@@ -82,19 +84,29 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                       {m.lastName}
                     </Link>
                   </CharacterHoverCard>
-                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px]">
-                    <div className="flex items-center gap-2">
+                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px] leading-tight">
+                    <div className="flex items-start gap-2">
                       <span className="text-ink-400">Age</span>
                       <span className="text-parchment-200 ml-auto">{m.age}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-ink-400">Major</span>
-                      <span className="text-parchment-200 ml-auto text-right">{m.major}</span>
+                    <div className="flex items-start gap-2">
+                      <span className="text-ink-400 shrink-0">Major</span>
+                      <span className="ml-auto text-right" style={{ color: getMajorColor(m.major) ?? undefined }}>
+                        {m.major}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <span className="text-ink-400">Year</span>
                       <span className="text-parchment-200 ml-auto">{m.year}</span>
                     </div>
+                    {m.hall && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-ink-400">Hall</span>
+                        <span className="ml-auto text-right" style={{ color: hallColor(m.hall) ?? undefined }}>
+                          {hallLabel(m.hall)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

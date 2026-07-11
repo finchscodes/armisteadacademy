@@ -7,6 +7,7 @@ import { getCharacterYearLabel } from "@/lib/year";
 import { getMajorColor } from "@/lib/majors";
 import { jobColor } from "@/lib/roles";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
+import { hallLabel, hallColor } from "@/lib/halls";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -86,20 +87,30 @@ export default async function CharactersPage() {
                   <p className="font-display text-base -mt-1 truncate" style={{ color: nameColor }}>
                     {c.lastName}
                   </p>
-                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-ink-400">Major</span>
-                      <span className="text-parchment-200 ml-auto text-right">{c.major}</span>
+                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px] leading-tight">
+                    <div className="flex items-start gap-2">
+                      <span className="text-ink-400 shrink-0">Major</span>
+                      <span className="ml-auto text-right" style={{ color: getMajorColor(c.major) ?? undefined }}>
+                        {c.major}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    {c.hall && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-ink-400">Hall</span>
+                        <span className="ml-auto text-right" style={{ color: hallColor(c.hall) ?? undefined }}>
+                          {hallLabel(c.hall)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-start gap-2">
                       <span className="text-ink-400">Year</span>
                       <span className="text-parchment-200 ml-auto">{s?.year}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <span className="text-ink-400">Level</span>
                       <span className="text-parchment-200 ml-auto">{s?.level ?? 1}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <span className="text-ink-400">Money</span>
                       <span className="text-brass-400 ml-auto">{s?.balance ?? 0}</span>
                     </div>

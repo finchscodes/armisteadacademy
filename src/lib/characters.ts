@@ -21,6 +21,7 @@ export async function getAllCharactersDirectory() {
       avatarUrl: characters.avatarUrl,
       age: characters.age,
       major: characters.major,
+      hall: characters.hall,
       yearOverride: characters.yearOverride,
     })
     .from(characters)

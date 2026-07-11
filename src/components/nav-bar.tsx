@@ -81,7 +81,7 @@ export async function NavBar() {
           <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/social"
-              title="Socials"
+              data-tooltip="Socials"
               className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
             >
               <SocialIcon />
@@ -94,7 +94,7 @@ export async function NavBar() {
             {current.activeCharacter && (
               <Link
                 href="/grading"
-                title="Grading"
+                data-tooltip="Grading"
                 className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
               >
                 <GradingIcon />
@@ -108,7 +108,7 @@ export async function NavBar() {
             {current.activeCharacter && (
               <Link
                 href="/messages"
-                title="Messages"
+                data-tooltip="Messages"
                 className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
               >
                 <MailIcon />

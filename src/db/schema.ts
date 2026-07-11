@@ -35,6 +35,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "thread_reply",
   "relation_request",
   "homework_graded",
+  "wall_post",
 ]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",

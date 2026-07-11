@@ -2,7 +2,7 @@ import { eq, desc, and, count } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications } from "@/db/schema";
 
-type NotificationType = "thread_reply" | "relation_request" | "homework_graded";
+type NotificationType = "thread_reply" | "relation_request" | "homework_graded" | "wall_post";
 
 export async function createNotification(
   characterId: number,

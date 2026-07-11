@@ -9,6 +9,7 @@ import { requireSessionAndCharacter } from "@/lib/session-character";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
+import { createNotification } from "@/lib/notifications";
 import type { ActionState } from "./auth";
 
 const createPostSchema = z.object({
@@ -46,6 +47,21 @@ export async function createWallPostAction(
     posterCharacterId: characterId,
     content,
   });
+
+  if (wallOwner.id !== characterId) {
+    const [poster] = await db
+      .select({ firstName: characters.firstName, lastName: characters.lastName })
+      .from(characters)
+      .where(eq(characters.id, characterId));
+    if (poster) {
+      await createNotification(
+        wallOwner.id,
+        "wall_post",
+        `${poster.firstName} ${poster.lastName} posted on your wall`,
+        `/c/${wallOwner.slug}`
+      );
+    }
+  }
 
   revalidatePath(`/c/${wallOwner.slug}`);
   revalidatePath("/");

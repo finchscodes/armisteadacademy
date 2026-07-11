@@ -538,4 +538,4 @@ ALTER TABLE "character_jobs" ADD CONSTRAINT "character_jobs_scope_board_id_board
 );
 --> statement-breakpoint
 ALTER TABLE "wall_posts" ADD CONSTRAINT "wall_posts_wall_character_id_characters_id_fk" FOREIGN KEY ("wall_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "wall_posts" ADD CONSTRAINT "wall_posts_poster_character_id_characters_id_fk" FOREIGN KEY ("poster_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "wall_posts" ADD CONSTRAINT "wall_posts_poster_character_id_characters_id_fk" FOREIGN KEY ("poster_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;ALTER TYPE "public"."notification_type" ADD VALUE 'wall_post';

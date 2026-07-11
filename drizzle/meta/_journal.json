@@ -225,6 +225,13 @@
       "when": 1783749181590,
       "tag": "0031_fearless_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1783749830482,
+      "tag": "0032_mean_the_liberteens",
+      "breakpoints": true
     }
   ]
 }

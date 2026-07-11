@@ -218,6 +218,13 @@
       "when": 1783748127562,
       "tag": "0030_married_spirit",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1783749181590,
+      "tag": "0031_fearless_lord_tyger",
+      "breakpoints": true
     }
   ]
 }

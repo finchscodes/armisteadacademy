@@ -25,8 +25,8 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `40`, you need one new file:
-1. `41-hidden-hires.sql` — adds hidden hire support to job assignments.
+If you already ran everything through `41`, you need one new file:
+1. `42-wall-posts.sql` — adds character walls.
 
 ## File reference
 
@@ -34,5 +34,5 @@ If you already ran everything through `40`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`40` | (historical) incremental updates, all folded into `01` |
-| `41-hidden-hires.sql` | Adds hidden hire support |
+| `03`–`41` | (historical) incremental updates, all folded into `01` |
+| `42-wall-posts.sql` | Adds character walls |

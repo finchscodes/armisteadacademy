@@ -81,7 +81,7 @@ export async function NavBar() {
           <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/social"
-              title="Social Media"
+              title="Socials"
               className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
             >
               <SocialIcon />

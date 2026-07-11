@@ -169,6 +169,24 @@ export const characterJobs = pgTable(
   })
 );
 
+/**
+ * A character's "wall" — anyone (including the wall owner) can post here.
+ * The wall owner can delete any post on it and pin exactly one; admin and
+ * management can delete any post anywhere. Posts are never editable.
+ */
+export const wallPosts = pgTable("wall_posts", {
+  id: serial("id").primaryKey(),
+  wallCharacterId: integer("wall_character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  posterCharacterId: integer("poster_character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isPinned: boolean("is_pinned").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 /** External link buttons shown at the bottom of the home board (Discord, socials, etc). */
 export const siteLinks = pgTable("site_links", {
   id: serial("id").primaryKey(),

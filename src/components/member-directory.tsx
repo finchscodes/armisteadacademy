@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { getMajorColor } from "@/lib/majors";
+import { jobColor } from "@/lib/roles";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 
 type Member = {
@@ -15,6 +16,7 @@ type Member = {
   age: number;
   major: string;
   year: string;
+  characterJob: string;
 };
 
 export function MemberDirectory({ members }: { members: Member[] }) {
@@ -45,7 +47,8 @@ export function MemberDirectory({ members }: { members: Member[] }) {
       ) : (
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
           {filtered.map((m) => {
-            const color = getMajorColor(m.major) ?? "#7f95a3";
+            const avatarColor = getMajorColor(m.major) ?? "#7f95a3";
+            const nameColor = jobColor(m.characterJob as never) ?? undefined;
             return (
               <div key={m.id} className="bg-ink-900 border border-ink-700 overflow-hidden group">
                 <Link href={`/c/${m.slug}`} className="block relative aspect-[4/3] bg-ink-800 overflow-hidden">
@@ -59,7 +62,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                   ) : (
                     <div
                       className="w-full h-full flex items-center justify-center text-2xl font-display"
-                      style={{ backgroundColor: `${color}26`, color }}
+                      style={{ backgroundColor: `${avatarColor}26`, color: avatarColor }}
                     >
                       {m.firstName.charAt(0)}
                     </div>
@@ -74,7 +77,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                     <Link
                       href={`/c/${m.slug}`}
                       className="font-display text-base -mt-1 block truncate hover:underline"
-                      style={{ color }}
+                      style={{ color: nameColor }}
                     >
                       {m.lastName}
                     </Link>
@@ -86,7 +89,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-ink-400">Major</span>
-                      <span className="text-parchment-200 ml-auto text-right truncate">{m.major}</span>
+                      <span className="text-parchment-200 ml-auto text-right">{m.major}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-ink-400">Year</span>

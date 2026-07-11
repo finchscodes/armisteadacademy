@@ -2,6 +2,7 @@ import { eq, or, and, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { characterRelations, characters } from "@/db/schema";
 import { relationLabel, inverseRelationType } from "@/lib/relations";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 type OtherCharacter = {
   id: number;
@@ -10,6 +11,7 @@ type OtherCharacter = {
   lastName: string;
   slug: string;
   avatarUrl: string | null;
+  job?: string;
 };
 
 export type AcceptedRelation = {
@@ -49,6 +51,8 @@ export async function getAcceptedRelations(characterId: number): Promise<Accepte
     )
     .orderBy(desc(characterRelations.respondedAt));
 
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.otherId));
+
   return rows.map((r) => {
     // Label from THIS character's point of view: if they were the sender,
     // use the type as stored; if they were the recipient, use its inverse.
@@ -64,6 +68,7 @@ export async function getAcceptedRelations(characterId: number): Promise<Accepte
         lastName: r.otherLastName,
         slug: r.otherSlug,
         avatarUrl: r.otherAvatarUrl,
+        job: jobsByCharacter.get(r.otherId) ?? "none",
       },
     };
   });

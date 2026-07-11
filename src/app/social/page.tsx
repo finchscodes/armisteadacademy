@@ -34,7 +34,7 @@ export default async function SocialPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Social Media</h1>
+      <h1 className="font-display text-3xl text-brass-400 mb-1">Socials</h1>
       <div className="flex items-center justify-between mb-3">
         <p className="text-ink-400 text-sm">
           Where Armistead keeps in touch — and who&apos;s around right now.

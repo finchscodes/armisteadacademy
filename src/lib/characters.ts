@@ -2,6 +2,7 @@ import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
 import { getCharacterYearLabel } from "@/lib/year";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 export async function getCharacterBySlug(slug: string) {
   const [character] = await db.select().from(characters).where(eq(characters.slug, slug));
@@ -25,9 +26,12 @@ export async function getAllCharactersDirectory() {
     .from(characters)
     .orderBy(characters.firstName, characters.lastName);
 
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.id));
+
   return Promise.all(
     rows.map(async (r) => ({
       ...r,
+      characterJob: jobsByCharacter.get(r.id) ?? "none",
       year: await getCharacterYearLabel(r.id, r.major, r.yearOverride),
     }))
   );

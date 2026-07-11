@@ -1,6 +1,7 @@
 const SIZES = {
   sm: { box: "w-8 h-8", text: "text-sm", border: "border", radius: "rounded-md" },
   md: { box: "w-14 h-14", text: "text-xl", border: "border-2", radius: "rounded-lg" },
+  lg: { box: "w-24 h-24", text: "text-4xl", border: "border-2", radius: "rounded-lg" },
 } as const;
 
 export function CharacterBadge({

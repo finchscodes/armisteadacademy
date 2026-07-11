@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { removeRelationAction } from "@/actions/relations";
 import { CharacterBadge } from "@/components/character-badge";
+import { jobColor } from "@/lib/roles";
 import type { AcceptedRelation } from "@/lib/character-relations";
 
 export function AcceptedRelationsList({
@@ -23,8 +24,9 @@ export function AcceptedRelationsList({
 
   return (
     <div className={compact ? "flex flex-wrap gap-2" : "space-y-2"}>
-      {relations.map((r) =>
-        compact ? (
+      {relations.map((r) => {
+        const nameColor = jobColor((r.other.job ?? "none") as never) ?? undefined;
+        return compact ? (
           <Link
             key={r.id}
             href={`/c/${r.other.slug}`}
@@ -32,7 +34,9 @@ export function AcceptedRelationsList({
           >
             <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
             <span className="text-ink-400">{r.label}</span>
-            <span className="text-parchment-100">{r.other.firstName} {r.other.lastName}</span>
+            <span style={{ color: nameColor }} className={nameColor ? "" : "text-parchment-100"}>
+              {r.other.firstName} {r.other.lastName}
+            </span>
           </Link>
         ) : (
           <div
@@ -43,7 +47,11 @@ export function AcceptedRelationsList({
               <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
               <p className="text-sm">
                 <span className="text-brass-400">{r.label}</span>{" "}
-                <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-brass-400">
+                <Link
+                  href={`/c/${r.other.slug}`}
+                  className={`hover:text-brass-400 ${nameColor ? "" : "text-parchment-100"}`}
+                  style={{ color: nameColor }}
+                >
                   {r.other.firstName} {r.other.lastName}
                 </Link>
               </p>
@@ -61,8 +69,8 @@ export function AcceptedRelationsList({
               </form>
             )}
           </div>
-        )
-      )}
+        );
+      })}
     </div>
   );
 }

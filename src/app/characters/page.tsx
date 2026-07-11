@@ -5,6 +5,8 @@ import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
 import { getMajorColor } from "@/lib/majors";
+import { jobColor } from "@/lib/roles";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -25,6 +27,7 @@ export default async function CharactersPage() {
     }))
   );
   const statMap = new Map(stats.map((s) => [s.id, s]));
+  const jobsByCharacter = await getPrimaryJobsForCharacters(current.characters.map((c) => c.id));
 
   return (
     <div>
@@ -49,7 +52,8 @@ export default async function CharactersPage() {
       ) : (
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
           {current.characters.map((c) => {
-            const color = getMajorColor(c.major) ?? "#7f95a3";
+            const avatarColor = getMajorColor(c.major) ?? "#7f95a3";
+            const nameColor = jobColor(jobsByCharacter.get(c.id) ?? "none") ?? undefined;
             const s = statMap.get(c.id);
             return (
               <Link
@@ -68,7 +72,7 @@ export default async function CharactersPage() {
                   ) : (
                     <div
                       className="w-full h-full flex items-center justify-center text-2xl font-display"
-                      style={{ backgroundColor: `${color}26`, color }}
+                      style={{ backgroundColor: `${avatarColor}26`, color: avatarColor }}
                     >
                       {c.firstName.charAt(0)}
                     </div>
@@ -79,13 +83,13 @@ export default async function CharactersPage() {
                   <p className="text-[10px] uppercase tracking-widest text-ink-400 truncate">
                     {c.firstName}
                   </p>
-                  <p className="font-display text-base -mt-1 truncate" style={{ color }}>
+                  <p className="font-display text-base -mt-1 truncate" style={{ color: nameColor }}>
                     {c.lastName}
                   </p>
                   <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px]">
                     <div className="flex items-center gap-2">
                       <span className="text-ink-400">Major</span>
-                      <span className="text-parchment-200 ml-auto text-right truncate">{c.major}</span>
+                      <span className="text-parchment-200 ml-auto text-right">{c.major}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-ink-400">Year</span>

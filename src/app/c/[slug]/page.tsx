@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { getCharacterBySlug } from "@/lib/characters";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
-import { jobColor, jobLabel } from "@/lib/roles";
-import { getJobsForCharacter, getPrimaryJob } from "@/lib/character-jobs";
+import { jobColor, jobLabel, MANAGEMENT_JOBS } from "@/lib/roles";
+import { getJobsForCharacter, getPrimaryJob, characterHasAnyJob } from "@/lib/character-jobs";
 import { getCurrentUser } from "@/lib/current-user";
 import { getParticipatedThreads } from "@/lib/topics";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
@@ -15,8 +15,10 @@ import {
   getIncomingRequests,
   getOutgoingRequests,
 } from "@/lib/character-relations";
+import { getWallPosts } from "@/lib/wall";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
+import { WallFeed } from "@/components/wall-feed";
 import { AcceptedRelationsList } from "@/components/accepted-relations-list";
 import { IncomingRequestsList, OutgoingRequestsList } from "@/components/relation-request-lists";
 import { RelationRequestForm } from "@/components/relation-request-form";
@@ -39,6 +41,18 @@ function timeAgo(date: Date) {
   return date.toLocaleDateString();
 }
 
+function InfoRow({ label, value, color }: { label: string; value: React.ReactNode; color?: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-ink-400">{label}</span>
+      <span className="ml-auto text-right" style={{ color }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
 export default async function CharacterProfilePage({
   params,
 }: {
@@ -48,7 +62,7 @@ export default async function CharacterProfilePage({
   const character = await getCharacterBySlug(slug);
   if (!character) notFound();
 
-  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses] =
+  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses, wallPosts] =
     await Promise.all([
       getCharacterLevelProgress(character.id),
       getCharacterYearLabel(character.id, character.major, character.yearOverride),
@@ -58,6 +72,7 @@ export default async function CharacterProfilePage({
       getParticipatedThreads(character.id),
       getAcceptedRelations(character.id),
       getStatusesForCharacter(character.id),
+      getWallPosts(character.id),
     ]);
 
   const legalName = [character.firstName, character.middleName, character.lastName]
@@ -71,17 +86,21 @@ export default async function CharacterProfilePage({
     ? await Promise.all([getIncomingRequests(character.id), getOutgoingRequests(character.id)])
     : [[], []];
 
-  const overview = (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
-      <div className="flex items-start gap-5">
-        <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} />
-        <div className="flex-1 min-w-0">
-          <h1 className="font-display text-2xl text-parchment-100" style={{ color: nameColor }}>
+  const wallCanModerate = current?.activeCharacter
+    ? await characterHasAnyJob(current.activeCharacter.id, MANAGEMENT_JOBS)
+    : false;
+
+  const sidebar = (
+    <div className="w-full lg:w-72 shrink-0 space-y-4">
+      <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
+        <div className="flex flex-col items-center text-center">
+          <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} size="lg" />
+          <h1 className="font-display text-xl text-parchment-100 mt-3" style={{ color: nameColor }}>
             {legalName}
           </h1>
           <p className="text-xs text-ink-400 mt-0.5">{character.name}</p>
           {statuses.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1.5">
+            <div className="flex flex-wrap justify-center gap-1.5 mt-2">
               {statuses.map((s) => (
                 <span
                   key={s.id}
@@ -98,71 +117,48 @@ export default async function CharacterProfilePage({
             </div>
           )}
           {jobs.length > 0 && (
-            <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
+            <div className="flex flex-col items-center gap-0.5 mt-2">
               {jobs.map((j) => (
-                <span
-                  key={j.id}
-                  className="text-sm font-medium"
-                  style={{ color: jobColor(j.job) ?? undefined }}
-                >
+                <span key={j.id} className="text-sm font-medium" style={{ color: jobColor(j.job) ?? undefined }}>
                   {j.jobTitle || jobLabel(j.job)}
                 </span>
               ))}
             </div>
           )}
-          <p className="text-sm mt-1" style={{ color: getMajorColor(character.major) ?? undefined }}>
-            {character.major}
-          </p>
-          <p className="text-xs text-ink-400 mt-1">{yearLabel}</p>
-          {character.hall && (
-            <p className="text-sm font-medium mt-1" style={{ color: hallColor(character.hall) ?? undefined }}>
-              {hallLabel(character.hall)}
-            </p>
-          )}
-          {(character.gender || character.socialStatus) && (
-            <p className="text-xs text-ink-400 mt-1">
-              {[character.gender, character.socialStatus].filter(Boolean).join(" · ")}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <span className="text-[10px] uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-2 py-1">
-            Level {levelProgress.level}
-          </span>
           {isOwner && (
-            <Link href={`/c/${character.slug}/edit`} className="text-xs text-brass-400 hover:underline">
-              Edit
+            <Link
+              href={`/c/${character.slug}/edit`}
+              className="text-xs text-brass-400 hover:underline mt-3"
+            >
+              Edit profile
             </Link>
           )}
         </div>
+
+        <div className="border-t border-ink-700 mt-4 pt-4 space-y-2">
+          <InfoRow label="Age" value={character.age} />
+          <InfoRow
+            label="Major"
+            value={character.major}
+            color={getMajorColor(character.major) ?? undefined}
+          />
+          <InfoRow label="Year" value={yearLabel} />
+          {character.hall && (
+            <InfoRow label="Hall" value={hallLabel(character.hall)} color={hallColor(character.hall) ?? undefined} />
+          )}
+          <InfoRow label="Gender" value={character.gender} />
+          <InfoRow label="Status" value={character.socialStatus} />
+          <InfoRow label="Level" value={levelProgress.level} />
+          <InfoRow label="Joined" value={timeAgo(character.createdAt)} />
+          <InfoRow
+            label="Last seen"
+            value={character.lastActiveAt ? timeAgo(character.lastActiveAt) : "a while ago"}
+          />
+        </div>
       </div>
 
-      {character.personality && (
-        <div className="border-t border-ink-700 mt-4 pt-4">
-          <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
-            Personality
-          </h2>
-          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-            {character.personality}
-          </p>
-        </div>
-      )}
-
-      {character.appearance && (
-        <div className="border-t border-ink-700 mt-4 pt-4">
-          <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
-            Appearance
-          </h2>
-          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-            {character.appearance}
-          </p>
-        </div>
-      )}
-
-      <div className="border-t border-ink-700 mt-4 pt-4">
-        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
-          Relations
-        </h2>
+      <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
+        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-3">Relations</h2>
         <div className="space-y-4">
           {isOwner && <RelationRequestForm />}
           {isOwner && incomingRequests.length > 0 && <IncomingRequestsList requests={incomingRequests} />}
@@ -182,6 +178,31 @@ export default async function CharacterProfilePage({
       ) : (
         <p className="text-sm text-ink-400 italic">No backstory written yet.</p>
       )}
+    </div>
+  );
+
+  const appearanceTab = (
+    <div className="bg-ink-900 border border-ink-700 rounded-lg p-6 space-y-6">
+      <div>
+        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">Appearance</h2>
+        {character.appearance ? (
+          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
+            {character.appearance}
+          </p>
+        ) : (
+          <p className="text-sm text-ink-400 italic">Nothing written yet.</p>
+        )}
+      </div>
+      <div className="border-t border-ink-700 pt-6">
+        <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">Personality</h2>
+        {character.personality ? (
+          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
+            {character.personality}
+          </p>
+        ) : (
+          <p className="text-sm text-ink-400 italic">Nothing written yet.</p>
+        )}
+      </div>
     </div>
   );
 
@@ -226,14 +247,28 @@ export default async function CharacterProfilePage({
     </div>
   );
 
+  const wallTab = (
+    <WallFeed
+      wallCharacterId={character.id}
+      posts={wallPosts}
+      myCharacterId={current?.activeCharacter?.id ?? null}
+      canModerate={Boolean(current?.session.isAdmin) || wallCanModerate}
+      canPost={Boolean(current?.activeCharacter)}
+    />
+  );
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <ProfileTabs
-        overview={overview}
-        backstory={backstoryTab}
-        topics={topicsTab}
-        topicsCount={topics.length}
-      />
+    <div className="max-w-4xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
+      {sidebar}
+      <div className="flex-1 min-w-0">
+        <ProfileTabs
+          backstory={backstoryTab}
+          appearance={appearanceTab}
+          wall={wallTab}
+          topics={topicsTab}
+          topicsCount={topics.length}
+        />
+      </div>
     </div>
   );
 }

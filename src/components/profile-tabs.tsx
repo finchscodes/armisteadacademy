@@ -3,27 +3,30 @@
 import { useState } from "react";
 
 export function ProfileTabs({
-  overview,
   backstory,
+  appearance,
+  wall,
   topics,
   topicsCount,
 }: {
-  overview: React.ReactNode;
   backstory: React.ReactNode;
+  appearance: React.ReactNode;
+  wall: React.ReactNode;
   topics: React.ReactNode;
   topicsCount: number;
 }) {
-  const [tab, setTab] = useState<"overview" | "backstory" | "topics">("overview");
+  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics">("backstory");
 
   const tabs = [
-    { key: "overview" as const, label: "Overview" },
     { key: "backstory" as const, label: "Backstory" },
+    { key: "appearance" as const, label: "Appearance & Personality" },
+    { key: "wall" as const, label: "Wall" },
     { key: "topics" as const, label: `Topics (${topicsCount})` },
   ];
 
   return (
     <div>
-      <div className="flex gap-1 border-b border-ink-700 mb-6">
+      <div className="flex gap-1 border-b border-ink-700 mb-6 flex-wrap">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -40,8 +43,9 @@ export function ProfileTabs({
         ))}
       </div>
 
-      {tab === "overview" && overview}
       {tab === "backstory" && backstory}
+      {tab === "appearance" && appearance}
+      {tab === "wall" && wall}
       {tab === "topics" && topics}
     </div>
   );

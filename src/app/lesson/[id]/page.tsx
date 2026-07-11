@@ -78,24 +78,33 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       {/* Submit / view your own submission */}
       <section className="mb-8">
         <h2 className="font-display text-lg text-parchment-100 mb-3">Your homework</h2>
-        {!mySubmission && !enrolled && !canManage ? (
-          <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 text-center">
-            <p className="text-sm text-parchment-100 mb-3">
-              Enroll in this class first to submit homework for it.
+        {!enrolled && board && (
+          <div
+            className={`bg-ink-900 border border-ink-700 rounded-lg text-center ${
+              canManage ? "p-3 mb-3" : "p-5"
+            }`}
+          >
+            <p className={`text-parchment-100 ${canManage ? "text-xs mb-2" : "text-sm mb-3"}`}>
+              {canManage
+                ? "You're not enrolled in this class — enroll to have its homework count toward your grading bin."
+                : "Enroll in this class first to submit homework for it."}
             </p>
-            {board && (
-              <form action={enrollInClassAction}>
-                <input type="hidden" name="boardId" value={board.id} />
-                <button
-                  type="submit"
-                  className="text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
-                >
-                  Enroll
-                </button>
-              </form>
-            )}
+            <form action={enrollInClassAction}>
+              <input type="hidden" name="boardId" value={board.id} />
+              <button
+                type="submit"
+                className={
+                  canManage
+                    ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+                    : "text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                }
+              >
+                Enroll
+              </button>
+            </form>
           </div>
-        ) : !mySubmission ? (
+        )}
+        {!enrolled && !canManage ? null : !mySubmission ? (
           <SubmitHomeworkForm lessonId={lesson.id} />
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">

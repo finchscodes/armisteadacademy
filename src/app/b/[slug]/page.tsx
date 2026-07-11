@@ -109,37 +109,48 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
               </Link>
             )}
           </div>
-          {!canPostLesson && !isEnrolled ? (
-            current?.activeCharacter ? (
-              <div className="bg-ink-900 border border-ink-700 rounded-lg p-5 text-center">
-                <p className="text-sm text-parchment-100 mb-3">
-                  Enroll in this class to see its lessons and submit homework.
-                </p>
-                <form action={enrollInClassAction}>
-                  <input type="hidden" name="boardId" value={board.id} />
-                  <button
-                    type="submit"
-                    className="text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
-                  >
-                    Enroll
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <p className="text-sm text-ink-400">
-                {current ? "Pick an active character to enroll." : "Log in to enroll in this class."}
+          {!isEnrolled && current?.activeCharacter && (
+            <div
+              className={`bg-ink-900 border border-ink-700 rounded-lg text-center ${
+                canPostLesson ? "p-3 mb-4" : "p-5"
+              }`}
+            >
+              <p className={`text-parchment-100 ${canPostLesson ? "text-xs mb-2" : "text-sm mb-3"}`}>
+                {canPostLesson
+                  ? "You're not enrolled in this class — enroll to have its homework count toward your grading bin."
+                  : "Enroll in this class to see its lessons and submit homework."}
               </p>
-            )
-          ) : lessons.length === 0 ? (
-            <p className="text-sm text-ink-400">No lessons posted yet.</p>
-          ) : (
-            <>
-              {canPostLesson && lessons.length > 1 && (
-                <p className="text-[11px] text-ink-400 mb-1.5">Drag to reorder.</p>
-              )}
-              <DraggableLessonList boardId={board.id} lessons={lessons} canManage={canPostLesson} />
-            </>
+              <form action={enrollInClassAction}>
+                <input type="hidden" name="boardId" value={board.id} />
+                <button
+                  type="submit"
+                  className={
+                    canPostLesson
+                      ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+                      : "text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                  }
+                >
+                  Enroll
+                </button>
+              </form>
+            </div>
           )}
+          {!isEnrolled && !canPostLesson && !current?.activeCharacter && (
+            <p className="text-sm text-ink-400">
+              {current ? "Pick an active character to enroll." : "Log in to enroll in this class."}
+            </p>
+          )}
+          {(canPostLesson || isEnrolled) &&
+            (lessons.length === 0 ? (
+              <p className="text-sm text-ink-400">No lessons posted yet.</p>
+            ) : (
+              <>
+                {canPostLesson && lessons.length > 1 && (
+                  <p className="text-[11px] text-ink-400 mb-1.5">Drag to reorder.</p>
+                )}
+                <DraggableLessonList boardId={board.id} lessons={lessons} canManage={canPostLesson} />
+              </>
+            ))}
         </div>
       )}
 

@@ -56,7 +56,7 @@ export default async function ReputationPage() {
                     >
                       {c.firstName} {c.lastName}
                     </Link>
-                    <span className="text-xs text-brass-400 shrink-0">{c.reputation}</span>
+                    <span className="text-xs font-mono text-brass-400 shrink-0">{c.reputation}</span>
                   </div>
                 ))
               )}

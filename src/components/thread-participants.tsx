@@ -73,7 +73,7 @@ export function ThreadParticipants({
 
       {isCreator && (
         <div className="mt-2 flex items-start gap-2">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <RecipientPicker
               selected={adding}
               onChange={setAdding}

@@ -222,7 +222,7 @@ export function ChatSidebar({
         <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Chat</h2>
       </div>
 
-      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-[0.45rem]">
         {messages.length === 0 ? (
           <p className="text-xs text-ink-400 italic">No messages yet — say something.</p>
         ) : (
@@ -271,7 +271,7 @@ export function ChatSidebar({
                     {m.characterFirstName} {m.characterLastName}
                   </Link>
                 </CharacterHoverCard>
-                <span className="text-parchment-100/90"> {m.content}</span>
+                <span className="text-parchment-100/90">: {m.content}</span>
               </p>
             );
           })

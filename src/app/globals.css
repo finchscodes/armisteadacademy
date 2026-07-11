@@ -165,21 +165,29 @@ body {
   font-family: var(--font-display);
   font-size: 1.7rem;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   color: var(--parchment-100);
   margin: 1.6em 0 0.8em;
-  position: relative;
-  padding-top: 1.4em;
+  padding: 0.7em 0;
+}
+
+.rich-text-content h1::before,
+.rich-text-content h1::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 1px;
+  margin: 0 auto;
+  background: var(--ink-600);
 }
 
 .rich-text-content h1::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 1em;
-  background: var(--ink-600);
+  margin-bottom: 0.7em;
+}
+
+.rich-text-content h1::after {
+  margin-top: 0.7em;
 }
 
 .rich-text-content h2 {
@@ -207,13 +215,12 @@ body {
 }
 
 .rich-text-content h4 {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font-size: 1.3rem;
+  text-align: center;
   color: var(--parchment-200, #dcdcdc);
-  margin: 1em 0 0.4em;
+  margin: 1em 0 0.5em;
 }
 
 .rich-text-content h5 {
@@ -256,8 +263,8 @@ body {
 }
 
 .rich-text-content blockquote {
-  border-left: 2px solid var(--claret-500, #c43030);
-  padding-left: 0.85em;
+  border-left: 2px solid var(--ink-600);
+  padding-left: 1.5em;
   margin: 0.75em 0;
   color: var(--ink-200, #acacac);
   font-style: italic;
@@ -266,6 +273,14 @@ body {
 .rich-text-content a {
   color: var(--brass-400, #7f95a3);
   text-decoration: underline;
+}
+
+.rich-text-content strong {
+  font-weight: 700;
+  font-family: var(--font-ui);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 85%;
 }
 
 .rich-text-content code {

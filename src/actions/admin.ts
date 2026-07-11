@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, or, ilike, count, and, inArray, desc } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages } from "@/db/schema";
+import { users, characters, boards, classAssignments, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -1367,4 +1367,53 @@ export async function updateHallWelcomeAction(
 
   revalidatePath(`/hall/${hall}/welcome`);
   return { success: "Welcome message updated" };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Site links — external link buttons on the home board                      */
+/* -------------------------------------------------------------------------- */
+
+export async function getSiteLinks() {
+  return db.select().from(siteLinks).orderBy(siteLinks.position);
+}
+
+const addSiteLinkSchema = z.object({
+  label: z.string().min(1, "Enter a label").max(60),
+  url: z.string().url("Enter a valid URL"),
+});
+
+export async function adminAddSiteLinkAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = addSiteLinkSchema.safeParse({
+    label: formData.get("label"),
+    url: formData.get("url"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const existing = await db.select({ id: siteLinks.id }).from(siteLinks);
+  await db.insert(siteLinks).values({
+    label: parsed.data.label,
+    url: parsed.data.url,
+    position: existing.length,
+  });
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/home-board");
+  return { success: "Link added" };
+}
+
+export async function adminRemoveSiteLinkAction(formData: FormData) {
+  await requireAdmin();
+  const linkId = Number(formData.get("linkId"));
+  if (!linkId) return;
+
+  await db.delete(siteLinks).where(eq(siteLinks.id, linkId));
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/home-board");
 }

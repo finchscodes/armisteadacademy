@@ -49,7 +49,7 @@ export function RecipientPicker({
         {selected.map((c) => (
           <span
             key={c.id}
-            className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-2.5 pr-1 py-1"
+            className="inline-flex items-center gap-2 text-xs bg-ink-800 border border-ink-600 rounded-full pl-3.5 pr-1.5 py-1.5"
           >
             {c.firstName} {c.lastName}
             <input type="hidden" name={name} value={c.id} />

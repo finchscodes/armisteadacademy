@@ -231,12 +231,13 @@ export function ChatSidebar({
               return (
                 <div
                   key={m.id}
-                  className="text-center text-xs rounded-md px-3 py-2 my-1 bg-gradient-to-r from-brass-500/10 via-brass-500/20 to-brass-500/10 border border-brass-500/40"
+                  className="text-center text-xs px-3 py-2.5 my-1.5 bg-brass-500/10 border border-brass-500/40"
                 >
                   <span className="uppercase tracking-wider text-brass-400 font-semibold">
                     {m.characterFirstName} {m.characterLastName}
                   </span>
-                  <span className="text-parchment-100"> {m.content}</span>
+                  <span className="text-ink-400 mx-1.5">&bull;</span>
+                  <span className="text-parchment-100">{m.content}</span>
                 </div>
               );
             }

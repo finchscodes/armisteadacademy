@@ -12,6 +12,7 @@ export function sanitizeRichText(html: string): string {
     allowedTags: [
       "p",
       "br",
+      "b",
       "strong",
       "em",
       "u",

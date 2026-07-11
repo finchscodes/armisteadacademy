@@ -520,4 +520,9 @@ ALTER TABLE "message_thread_participants" ADD CONSTRAINT "message_thread_partici
 ALTER TABLE "message_threads" ADD CONSTRAINT "message_threads_creator_character_id_characters_id_fk" FOREIGN KEY ("creator_character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_thread_id_message_threads_id_fk" FOREIGN KEY ("thread_id") REFERENCES "public"."message_threads"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_character_id_characters_id_fk" FOREIGN KEY ("character_id") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "message_participants_unique_idx" ON "message_thread_participants" USING btree ("thread_id","character_id");ALTER TABLE "boards" ADD COLUMN "image_url" text;
+CREATE UNIQUE INDEX "message_participants_unique_idx" ON "message_thread_participants" USING btree ("thread_id","character_id");ALTER TABLE "boards" ADD COLUMN "image_url" text;CREATE TABLE "site_links" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"label" varchar(60) NOT NULL,
+	"url" text NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL
+);

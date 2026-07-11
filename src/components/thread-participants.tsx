@@ -53,7 +53,7 @@ export function ThreadParticipants({
         {participants.map((p) => (
           <span
             key={p.characterId}
-            className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-2.5 pr-1 py-1"
+            className="inline-flex items-center gap-2 text-xs bg-ink-800 border border-ink-600 rounded-full pl-3.5 pr-1.5 py-1.5"
           >
             {p.characterFirstName} {p.characterLastName}
             {isCreator && p.characterId !== myCharacterId && (

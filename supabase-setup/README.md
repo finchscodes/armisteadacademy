@@ -25,8 +25,8 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `37`, you need one new file:
-1. `38-board-image.sql` — adds an optional image field to boards.
+If you already ran everything through `38`, you need one new file:
+1. `39-site-links.sql` — adds the home board's external link buttons table.
 
 ## File reference
 
@@ -34,5 +34,5 @@ If you already ran everything through `37`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`37` | (historical) incremental updates, all folded into `01` |
-| `38-board-image.sql` | Adds board image field |
+| `03`–`38` | (historical) incremental updates, all folded into `01` |
+| `39-site-links.sql` | Adds home board link buttons |

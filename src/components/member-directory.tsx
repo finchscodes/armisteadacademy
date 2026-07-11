@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { getMajorColor } from "@/lib/majors";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 type Member = {
   id: number;
@@ -42,12 +43,12 @@ export function MemberDirectory({ members }: { members: Member[] }) {
       {filtered.length === 0 ? (
         <p className="text-sm text-ink-400">No one matches that search.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {filtered.map((m) => {
             const color = getMajorColor(m.major) ?? "#7f95a3";
             return (
               <div key={m.id} className="bg-ink-900 border border-ink-700 overflow-hidden group">
-                <Link href={`/c/${m.slug}`} className="block relative aspect-[3/2] bg-ink-800 overflow-hidden">
+                <Link href={`/c/${m.slug}`} className="block relative aspect-[4/3] bg-ink-800 overflow-hidden">
                   {m.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -57,7 +58,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                     />
                   ) : (
                     <div
-                      className="w-full h-full flex items-center justify-center text-4xl font-display"
+                      className="w-full h-full flex items-center justify-center text-2xl font-display"
                       style={{ backgroundColor: `${color}26`, color }}
                     >
                       {m.firstName.charAt(0)}
@@ -65,24 +66,29 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent" />
                 </Link>
-                <div className="p-4">
-                  <p className="text-xs uppercase tracking-widest text-ink-400">{m.firstName}</p>
-                  <p className="font-display text-xl -mt-1" style={{ color }}>
-                    {m.lastName}
+                <div className="p-2.5">
+                  <p className="text-[10px] uppercase tracking-widest text-ink-400 truncate">
+                    {m.firstName}
                   </p>
-                  <div className="mt-3 pt-3 border-t border-ink-800 space-y-1.5 text-xs">
+                  <CharacterHoverCard characterId={m.id} slug={m.slug} className="relative block">
+                    <Link
+                      href={`/c/${m.slug}`}
+                      className="font-display text-base -mt-1 block truncate hover:underline"
+                      style={{ color }}
+                    >
+                      {m.lastName}
+                    </Link>
+                  </CharacterHoverCard>
+                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px]">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-ink-500 w-3">1</span>
                       <span className="text-ink-400">Age</span>
                       <span className="text-parchment-200 ml-auto">{m.age}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-ink-500 w-3">2</span>
                       <span className="text-ink-400">Major</span>
                       <span className="text-parchment-200 ml-auto text-right truncate">{m.major}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-ink-500 w-3">3</span>
                       <span className="text-ink-400">Year</span>
                       <span className="text-parchment-200 ml-auto">{m.year}</span>
                     </div>

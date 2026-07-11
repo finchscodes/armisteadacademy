@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress } from "@/lib/xp";
 import { getCharacterYearLabel } from "@/lib/year";
-import { CharacterBadge } from "@/components/character-badge";
+import { getMajorColor } from "@/lib/majors";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -47,35 +47,63 @@ export default async function CharactersPage() {
           .
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {current.characters.map((c) => (
-            <Link
-              key={c.id}
-              href={`/c/${c.slug}`}
-              className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <CharacterBadge name={c.name} avatarUrl={c.avatarUrl} />
-                <div className="min-w-0">
-                  <p className="font-display text-lg text-parchment-100">
-                    {c.firstName} {c.lastName}
-                  </p>
-                  <p className="text-xs text-ink-400">{c.name}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {current.characters.map((c) => {
+            const color = getMajorColor(c.major) ?? "#7f95a3";
+            const s = statMap.get(c.id);
+            return (
+              <Link
+                key={c.id}
+                href={`/c/${c.slug}`}
+                className="bg-ink-900 border border-ink-700 overflow-hidden group block"
+              >
+                <div className="block relative aspect-[4/3] bg-ink-800 overflow-hidden">
+                  {c.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={c.avatarUrl}
+                      alt={c.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center text-2xl font-display"
+                      style={{ backgroundColor: `${color}26`, color }}
+                    >
+                      {c.firstName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-transparent" />
                 </div>
-              </div>
-              <p className="text-xs text-ink-400 mt-2">
-                {[c.major, statMap.get(c.id)?.year].filter(Boolean).join(" · ")}
-              </p>
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-ink-700">
-                <span className="text-brass-400 text-sm">
-                  {statMap.get(c.id)?.balance ?? 0} dollars
-                </span>
-                <span className="text-ink-400 text-xs">
-                  Level {statMap.get(c.id)?.level ?? 1}
-                </span>
-              </div>
-            </Link>
-          ))}
+                <div className="p-2.5">
+                  <p className="text-[10px] uppercase tracking-widest text-ink-400 truncate">
+                    {c.firstName}
+                  </p>
+                  <p className="font-display text-base -mt-1 truncate" style={{ color }}>
+                    {c.lastName}
+                  </p>
+                  <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink-400">Major</span>
+                      <span className="text-parchment-200 ml-auto text-right truncate">{c.major}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink-400">Year</span>
+                      <span className="text-parchment-200 ml-auto">{s?.year}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink-400">Level</span>
+                      <span className="text-parchment-200 ml-auto">{s?.level ?? 1}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink-400">Money</span>
+                      <span className="text-brass-400 ml-auto">{s?.balance ?? 0}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

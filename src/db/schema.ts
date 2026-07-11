@@ -157,6 +157,14 @@ export const characterJobs = pgTable(
   })
 );
 
+/** External link buttons shown at the bottom of the home board (Discord, socials, etc). */
+export const siteLinks = pgTable("site_links", {
+  id: serial("id").primaryKey(),
+  label: varchar("label", { length: 60 }).notNull(),
+  url: text("url").notNull(),
+  position: integer("position").notNull().default(0),
+});
+
 /**
  * The welcome message shown to a newly-sorted character, "from" that hall's
  * Resident Advisor. One row per hall. Editable by that hall's own Resident

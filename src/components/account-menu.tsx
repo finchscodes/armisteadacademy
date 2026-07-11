@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CharacterSwitcher } from "./character-switcher";
 import { CharacterBadge } from "./character-badge";
 import { logoutAction } from "@/actions/auth";
+import { getMajorColor } from "@/lib/majors";
 
 type Character = { id: number; firstName: string; lastName: string };
 
@@ -25,6 +26,7 @@ export function AccountMenu({
     lastName: string;
     slug: string;
     avatarUrl: string | null;
+    major: string;
   } | null;
   balance: number | null;
   level: number | null;
@@ -74,9 +76,17 @@ export function AccountMenu({
                 className="flex items-center gap-3 hover:bg-ink-800/60 -mx-4 px-4 py-2 transition-colors"
               >
                 <CharacterBadge name={activeCharacter.name} avatarUrl={activeCharacter.avatarUrl} />
-                <span className="text-sm text-parchment-100">
-                  {activeCharacter.firstName} {activeCharacter.lastName}
-                </span>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-widest text-ink-400 truncate">
+                    {activeCharacter.firstName}
+                  </p>
+                  <p
+                    className="font-display text-lg -mt-1 truncate"
+                    style={{ color: getMajorColor(activeCharacter.major) ?? undefined }}
+                  >
+                    {activeCharacter.lastName}
+                  </p>
+                </div>
               </Link>
             )}
 

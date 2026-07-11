@@ -2,6 +2,7 @@ import { eq, gt, count } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
 import { getCharacterYearLabel } from "@/lib/year";
+import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 
 /** A character counts as online if their heartbeat landed within this window. */
 export const ONLINE_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
@@ -54,9 +55,12 @@ export async function getOnlineCharactersDetailed() {
     .from(characters)
     .where(gt(characters.lastActiveAt, cutoff));
 
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.id));
+
   return Promise.all(
     rows.map(async (r) => ({
       ...r,
+      characterJob: jobsByCharacter.get(r.id) ?? "none",
       year: await getCharacterYearLabel(r.id, r.major, r.yearOverride),
     }))
   );

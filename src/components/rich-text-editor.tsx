@@ -2,10 +2,41 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Bold from "@tiptap/extension-bold";
+import { Mark, mergeAttributes } from "@tiptap/core";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useRef } from "react";
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    strongCallout: {
+      toggleStrongCallout: () => ReturnType;
+    };
+  }
+}
+
+// A second, visually distinct "strong" emphasis — separate from Bold. Bold
+// renders as <b> (plain bold); this renders as <strong> and gets the
+// small-caps callout treatment in CSS (see .rich-text-content strong).
+const StrongCallout = Mark.create({
+  name: "strongCallout",
+  parseHTML() {
+    return [{ tag: "strong" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["strong", mergeAttributes(HTMLAttributes), 0];
+  },
+  addCommands() {
+    return {
+      toggleStrongCallout:
+        () =>
+        ({ commands }) =>
+          commands.toggleMark(this.name),
+    };
+  },
+});
 
 function ToolbarButton({
   onClick,
@@ -49,7 +80,17 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4, 5, 6] },
+        bold: false,
       }),
+      Bold.extend({
+        parseHTML() {
+          return [{ tag: "b" }];
+        },
+        renderHTML({ HTMLAttributes }) {
+          return ["b", mergeAttributes(HTMLAttributes), 0];
+        },
+      }),
+      StrongCallout,
       Underline,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Write something..." }),
@@ -103,6 +144,15 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().toggleBold().run()}
         >
           <strong>B</strong>
+        </ToolbarButton>
+        <ToolbarButton
+          label="Strong (small-caps callout)"
+          active={editor.isActive("strongCallout")}
+          onClick={() => editor.chain().focus().toggleStrongCallout().run()}
+        >
+          <span className="callout" style={{ fontSize: "inherit" }}>
+            St
+          </span>
         </ToolbarButton>
         <ToolbarButton
           label="Italic"

@@ -228,11 +228,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         <p className="text-center text-sm text-ink-400 border border-ink-700 rounded-lg py-4">
           This thread is locked.
         </p>
-      ) : board?.kind === "article" ? (
-        <p className="text-center text-sm text-ink-400 border border-ink-700 rounded-lg py-4">
-          Use the comments above to respond to this article.
-        </p>
-      ) : (
+      ) : board?.kind === "article" ? null : (
         <ReplyForm threadSlug={thread.slug} />
       )}
     </div>

@@ -197,6 +197,13 @@
       "when": 1783738362524,
       "tag": "0027_big_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1783742116618,
+      "tag": "0028_chubby_viper",
+      "breakpoints": true
     }
   ]
 }

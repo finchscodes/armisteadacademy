@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
 import { getCharacterYearLabel } from "@/lib/year";
@@ -31,4 +31,14 @@ export async function getAllCharactersDirectory() {
       year: await getCharacterYearLabel(r.id, r.major, r.yearOverride),
     }))
   );
+}
+
+/** Most recently created character — for the homepage's "Newest Member" widget. */
+export async function getNewestCharacter() {
+  const [character] = await db
+    .select()
+    .from(characters)
+    .orderBy(desc(characters.createdAt))
+    .limit(1);
+  return character ?? null;
 }

@@ -6,6 +6,8 @@ import { CharacterHoverCard } from "@/components/character-hover-card";
 import { AnnouncementWidget } from "@/components/announcement-widget";
 import { NewsWidget } from "@/components/news-widget";
 import { SpotlightWidget } from "@/components/spotlight-widget";
+import { NewestMemberWidget } from "@/components/newest-member-widget";
+import { SiteLinksWidget } from "@/components/site-links-widget";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -20,8 +22,10 @@ export default async function HomePage() {
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       <div className="w-full lg:w-72 shrink-0 space-y-6">
         <AnnouncementWidget />
+        <NewestMemberWidget />
         <SpotlightWidget />
         <NewsWidget />
+        <SiteLinksWidget />
       </div>
 
       <div className="flex-1 min-w-0 space-y-6">

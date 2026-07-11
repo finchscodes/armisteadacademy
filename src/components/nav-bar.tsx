@@ -60,10 +60,10 @@ export async function NavBar() {
       <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="flex items-baseline gap-1.5 shrink-0 leading-none">
-            <span className="font-hero text-base md:text-lg uppercase tracking-[0.15em] text-brass-400">
+            <span className="font-hero text-base md:text-lg uppercase tracking-normal text-brass-400">
               armistead
             </span>
-            <span className="font-hero text-base md:text-lg uppercase tracking-tighter text-parchment-100">
+            <span className="font-hero text-base md:text-lg uppercase tracking-normal text-parchment-100">
               academy
             </span>
           </Link>
@@ -138,6 +138,7 @@ export async function NavBar() {
                       lastName: current.activeCharacter.lastName,
                       slug: current.activeCharacter.slug,
                       avatarUrl: current.activeCharacter.avatarUrl,
+                      major: current.activeCharacter.major,
                     }
                   : null
               }

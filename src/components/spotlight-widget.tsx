@@ -10,9 +10,11 @@ export async function SpotlightWidget() {
   if (entries.length === 0) return null;
 
   return (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-brass-600 to-brass-500 px-4 py-2.5">
-        <h2 className="font-display text-ink-950">Spotlight of the Week</h2>
+    <div className="bg-ink-900 border border-ink-700">
+      <div className="px-4 py-2.5 border-b border-ink-700">
+        <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">
+          Spotlight of the Week
+        </h2>
       </div>
       <div className="p-4 space-y-4">
         {entries.map((e) => {

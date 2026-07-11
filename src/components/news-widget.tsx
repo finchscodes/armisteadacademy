@@ -16,9 +16,9 @@ export async function NewsWidget() {
   const news = await getRecentNews(6);
 
   return (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-ink-800 to-ink-700 px-4 py-2.5">
-        <h2 className="font-display text-parchment-100">News</h2>
+    <div className="bg-ink-900 border border-ink-700">
+      <div className="px-4 py-2.5 border-b border-ink-700">
+        <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">News</h2>
       </div>
       <div className="p-4">
         {news.length === 0 ? (

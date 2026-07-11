@@ -1,0 +1,1 @@
+ALTER TABLE "character_jobs" ADD COLUMN "is_hidden" boolean DEFAULT false NOT NULL;

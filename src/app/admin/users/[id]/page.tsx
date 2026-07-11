@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getUserDetail, getAllBoardsFlat } from "@/actions/admin";
+import { getUserDetail, getAllBoardsFlat, getBoardGrantsForCharacter } from "@/actions/admin";
 import { EditUserForm } from "@/components/edit-user-form";
 import { AdminMajorEditor } from "@/components/admin-major-editor";
 import { AdminJobEditor } from "@/components/admin-job-editor";
+import { AdminBoardAccessEditor } from "@/components/admin-board-access-editor";
 import { AdminStatusEditor } from "@/components/admin-status-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
@@ -33,6 +34,11 @@ export default async function AdminUserDetailPage({
   if (!detail) notFound();
 
   const { user, characters } = detail;
+  const boardGrantsByCharacter = new Map(
+    await Promise.all(
+      characters.map(async (c) => [c.id, await getBoardGrantsForCharacter(c.id)] as const)
+    )
+  );
 
   return (
     <div className="max-w-xl mx-auto">
@@ -122,6 +128,15 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
                   <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} boards={allBoards} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Board access</p>
+                  <AdminBoardAccessEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    currentGrants={boardGrantsByCharacter.get(c.id) ?? []}
+                    boards={allBoards}
+                  />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">

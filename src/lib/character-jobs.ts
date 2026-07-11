@@ -43,9 +43,12 @@ export async function getPrimaryJob(characterId: number): Promise<CharacterJob> 
   return map.get(characterId) ?? "none";
 }
 
-/** Every job a character holds, with any custom title. */
+/** Every job a character holds, with any custom title — excludes hidden hires (profile display only). */
 export async function getJobsForCharacter(characterId: number) {
-  return db.select().from(characterJobs).where(eq(characterJobs.characterId, characterId));
+  return db
+    .select()
+    .from(characterJobs)
+    .where(and(eq(characterJobs.characterId, characterId), eq(characterJobs.isHidden, false)));
 }
 
 /** All jobs held by a character, as a plain array (no metadata). */
@@ -113,7 +116,8 @@ export async function getJobBoardData() {
     })
     .from(characterJobs)
     .innerJoin(characters, eq(characterJobs.characterId, characters.id))
-    .leftJoin(boards, eq(characterJobs.scopeBoardId, boards.id));
+    .leftJoin(boards, eq(characterJobs.scopeBoardId, boards.id))
+    .where(eq(characterJobs.isHidden, false));
 
   const byJob = new Map<CharacterJob, typeof rows>();
   for (const job of PRIORITY_ORDER) byJob.set(job, []);

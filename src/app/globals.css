@@ -162,7 +162,8 @@ body {
 }
 
 .rich-text-content h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-hero);
+  font-weight: 700;
   font-size: 1.7rem;
   text-align: center;
   text-transform: uppercase;
@@ -215,7 +216,7 @@ body {
 }
 
 .rich-text-content h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-hero);
   font-weight: 700;
   font-size: 1.3rem;
   text-align: center;
@@ -235,11 +236,11 @@ body {
 
 .rich-text-content h6 {
   font-family: var(--font-ui);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--parchment-100);
+  letter-spacing: 2px;
+  color: var(--brass-400, #7f95a3);
   margin: 1em 0 0.3em;
 }
 

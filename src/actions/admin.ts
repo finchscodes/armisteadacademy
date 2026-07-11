@@ -82,6 +82,7 @@ export async function getUserDetail(userId: number) {
             jobTitle: characterJobs.jobTitle,
             scopeBoardId: characterJobs.scopeBoardId,
             scopeBoardName: boards.name,
+            isHidden: characterJobs.isHidden,
           })
           .from(characterJobs)
           .leftJoin(boards, eq(characterJobs.scopeBoardId, boards.id))
@@ -198,6 +199,7 @@ const addCharacterJobSchema = z.object({
   job: z.enum(JOB_VALUES),
   jobTitle: z.string().max(100).optional().or(z.literal("")),
   scopeBoardId: z.coerce.number().int().optional(),
+  isHidden: z.coerce.boolean().optional(),
 });
 
 export async function adminAddCharacterJobAction(
@@ -212,13 +214,14 @@ export async function adminAddCharacterJobAction(
     job: formData.get("job"),
     jobTitle: formData.get("jobTitle") || undefined,
     scopeBoardId: formData.get("scopeBoardId") || undefined,
+    isHidden: formData.get("isHidden") ? true : undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, userId, job, jobTitle, scopeBoardId } = parsed.data;
+  const { characterId, userId, job, jobTitle, scopeBoardId, isHidden } = parsed.data;
 
   if (job === "none") {
     return { error: "Pick an actual job to add" };
@@ -238,10 +241,10 @@ export async function adminAddCharacterJobAction(
   const [existing] = await db.select({ id: characterJobs.id }).from(characterJobs).where(matchConditions);
 
   if (existing) {
-    // Already holds this job (at this scope) — just update the title if one was given.
+    // Already holds this job (at this scope) — just update the title/hidden flag if given.
     await db
       .update(characterJobs)
-      .set({ jobTitle: jobTitle || null })
+      .set({ jobTitle: jobTitle || null, isHidden: Boolean(isHidden) })
       .where(eq(characterJobs.id, existing.id));
   } else {
     await db.insert(characterJobs).values({
@@ -249,6 +252,7 @@ export async function adminAddCharacterJobAction(
       job,
       jobTitle: jobTitle || null,
       scopeBoardId: scopeBoardId ?? null,
+      isHidden: Boolean(isHidden),
     });
   }
 
@@ -534,85 +538,6 @@ export async function adminDeleteUserAction(formData: FormData) {
 /* -------------------------------------------------------------------------- */
 /*  Article board permissions (Notice Board, Community Board)                 */
 /* -------------------------------------------------------------------------- */
-
-/** Every article board, plus every character explicitly granted posting rights on each. */
-export async function getArticleBoardPermissionOverview() {
-  await requireAdmin();
-
-  const articleBoards = await db
-    .select({
-      id: boards.id,
-      name: boards.name,
-      slug: boards.slug,
-      extraArticleJob: boards.extraArticleJob,
-    })
-    .from(boards)
-    .where(eq(boards.kind, "article"))
-    .orderBy(boards.position);
-
-  const grants = await db
-    .select({
-      id: boardPostPermissions.id,
-      boardId: boardPostPermissions.boardId,
-      characterId: characters.id,
-      characterSlug: characters.slug,
-      characterFirstName: characters.firstName,
-      characterLastName: characters.lastName,
-    })
-    .from(boardPostPermissions)
-    .innerJoin(characters, eq(boardPostPermissions.characterId, characters.id));
-
-  return articleBoards.map((b) => ({
-    ...b,
-    granted: grants.filter((g) => g.boardId === b.id),
-  }));
-}
-
-const grantArticlePermissionSchema = z.object({
-  boardId: z.coerce.number().int(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-});
-
-export async function grantArticlePermissionAction(
-  _prevState: AdminActionState,
-  formData: FormData
-): Promise<AdminActionState> {
-  await requireAdmin();
-
-  const parsed = grantArticlePermissionSchema.safeParse({
-    boardId: formData.get("boardId"),
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-  });
-  if (!parsed.success) {
-    return { error: "Enter the character's first and last name" };
-  }
-
-  const character = await findCharacterByLegalName(parsed.data.firstName, parsed.data.lastName);
-  if (!character) {
-    return {
-      error: `No character found with the legal name "${parsed.data.firstName} ${parsed.data.lastName}"`,
-    };
-  }
-
-  await db
-    .insert(boardPostPermissions)
-    .values({ characterId: character.id, boardId: parsed.data.boardId })
-    .onConflictDoNothing();
-
-  revalidatePath("/admin/article-boards");
-  return { success: `Granted ${character.firstName} ${character.lastName} posting rights` };
-}
-
-export async function revokeArticlePermissionAction(formData: FormData) {
-  await requireAdmin();
-  const grantId = Number(formData.get("grantId"));
-  if (grantId) {
-    await db.delete(boardPostPermissions).where(eq(boardPostPermissions.id, grantId));
-    revalidatePath("/admin/article-boards");
-  }
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Editing board names and descriptions                                      */
@@ -1452,4 +1377,38 @@ export async function getAllBoardsFlat() {
     .from(boards)
     .where(ne(boards.kind, "category"))
     .orderBy(boards.name);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Board access grants — per character (replaces the old /admin/article-boards page) */
+/* -------------------------------------------------------------------------- */
+
+export async function getBoardGrantsForCharacter(characterId: number) {
+  await requireAdmin();
+  return db
+    .select({ id: boardPostPermissions.id, boardId: boardPostPermissions.boardId, boardName: boards.name })
+    .from(boardPostPermissions)
+    .innerJoin(boards, eq(boardPostPermissions.boardId, boards.id))
+    .where(eq(boardPostPermissions.characterId, characterId));
+}
+
+export async function adminGrantBoardAccessAction(formData: FormData) {
+  await requireAdmin();
+  const characterId = Number(formData.get("characterId"));
+  const boardId = Number(formData.get("boardId"));
+  const userId = Number(formData.get("userId"));
+  if (!characterId || !boardId) return;
+
+  await db.insert(boardPostPermissions).values({ characterId, boardId }).onConflictDoNothing();
+  revalidatePath(`/admin/users/${userId}`);
+}
+
+export async function adminRevokeBoardAccessAction(formData: FormData) {
+  await requireAdmin();
+  const grantId = Number(formData.get("grantId"));
+  const userId = Number(formData.get("userId"));
+  if (!grantId) return;
+
+  await db.delete(boardPostPermissions).where(eq(boardPostPermissions.id, grantId));
+  revalidatePath(`/admin/users/${userId}`);
 }

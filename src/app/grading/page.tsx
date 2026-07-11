@@ -6,6 +6,7 @@ import { canGradeHomework } from "@/lib/xp";
 import { GRADING_LEVEL_REQUIREMENT } from "@/db/schema";
 import { GradeForm } from "@/components/grade-form";
 import { MyResultsByClass } from "@/components/my-results-by-class";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -53,9 +54,11 @@ export default async function GradingBinPage() {
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-ink-400">
                       by{" "}
-                      <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
-                        {s.characterName}
-                      </Link>
+                      <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
+                        <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                          {s.characterName}
+                        </Link>
+                      </CharacterHoverCard>
                     </p>
                     <Link
                       href={`/b/${s.boardSlug}`}

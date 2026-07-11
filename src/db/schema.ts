@@ -159,6 +159,9 @@ export const characterJobs = pgTable(
     // aren't inherently board-specific (Spymaster, Enforcer, etc) leave
     // this null.
     scopeBoardId: integer("scope_board_id").references(() => boards.id, { onDelete: "cascade" }),
+    // Grants the same access as a normal job assignment, but doesn't show
+    // on the Job List or on the character's own profile — for quiet hires.
+    isHidden: boolean("is_hidden").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({

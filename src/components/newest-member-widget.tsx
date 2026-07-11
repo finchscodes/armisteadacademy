@@ -17,12 +17,14 @@ export async function NewestMemberWidget() {
       <div className="px-4 py-2.5 border-b border-ink-700">
         <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">Newest Member</h2>
       </div>
-      <div className="p-4 flex items-center gap-3">
-        <CharacterHoverCard characterId={character.id} slug={character.slug} className="relative shrink-0">
-          <Link href={`/c/${character.slug}`}>
-            <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} />
-          </Link>
-        </CharacterHoverCard>
+      <CharacterHoverCard
+        characterId={character.id}
+        slug={character.slug}
+        className="relative p-4 flex items-center gap-3 min-w-0"
+      >
+        <Link href={`/c/${character.slug}`} className="shrink-0">
+          <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} />
+        </Link>
         <div className="min-w-0">
           <Link
             href={`/c/${character.slug}`}
@@ -35,7 +37,7 @@ export async function NewestMemberWidget() {
             {character.major} &middot; {year}
           </p>
         </div>
-      </div>
+      </CharacterHoverCard>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { adminAddCharacterJobAction, adminRemoveCharacterJobAction } from "@/actions/admin";
 import { JOB_VALUES, jobLabel } from "@/lib/roles";
 
-type JobRow = { id: number; job: string; jobTitle: string | null; scopeBoardId: number | null; scopeBoardName: string | null };
+type JobRow = { id: number; job: string; jobTitle: string | null; scopeBoardId: number | null; scopeBoardName: string | null; isHidden: boolean };
 type BoardOption = { id: number; name: string; kind: string; restrictedToHall: string | null };
 
 // Which jobs are tied to one specific board, and which board kind qualifies.
@@ -32,6 +32,7 @@ export function AdminJobEditor({
   const [scopeBoardId, setScopeBoardId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [titleTouched, setTitleTouched] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -52,7 +53,7 @@ export function AdminJobEditor({
     setScopeBoardId(nextScopeBoardId);
     if (titleTouched) return;
     const board = scopeOptions.find((b) => String(b.id) === nextScopeBoardId);
-    setTitle(board ? `${jobLabel(job as never)} of ${board.name}` : "");
+    setTitle(board ? board.name.replace(/ Hall$/, "") : "");
   }
 
   function handleAdd() {
@@ -64,12 +65,14 @@ export function AdminJobEditor({
       formData.set("job", job);
       formData.set("jobTitle", title);
       if (scopeBoardId) formData.set("scopeBoardId", scopeBoardId);
+      if (isHidden) formData.set("isHidden", "1");
       const result = await adminAddCharacterJobAction(undefined, formData);
       if (result?.error) setError(result.error);
       else {
         setTitle("");
         setScopeBoardId("");
         setTitleTouched(false);
+        setIsHidden(false);
       }
       router.refresh();
     });
@@ -97,6 +100,7 @@ export function AdminJobEditor({
               {jobLabel(j.job as never)}
               {j.scopeBoardName && <span className="text-brass-400">&middot; {j.scopeBoardName}</span>}
               {j.jobTitle && <span className="text-ink-400">&middot; {j.jobTitle}</span>}
+              {j.isHidden && <span className="text-claret-500">&middot; hidden</span>}
               <button
                 type="button"
                 onClick={() => handleRemove(j.id)}
@@ -157,6 +161,10 @@ export function AdminJobEditor({
           {pending ? "..." : "Add job"}
         </button>
       </div>
+      <label className="flex items-center gap-1.5 text-[11px] text-ink-400">
+        <input type="checkbox" checked={isHidden} onChange={(e) => setIsHidden(e.target.checked)} />
+        Hidden hire — grants access, doesn&apos;t appear on the Job List or their profile
+      </label>
       {scopeRule && !scopeBoardId && (
         <p className="text-[11px] text-ink-400">
           {jobLabel(job as never)} needs a specific {scopeRule.hallOnly ? "hall" : scopeRule.boardKind} to grant

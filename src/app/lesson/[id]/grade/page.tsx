@@ -10,6 +10,7 @@ import { isAssignedToClass } from "@/lib/class-assignments";
 import { GRADING_LEVEL_REQUIREMENT } from "@/db/schema";
 import { GradeForm } from "@/components/grade-form";
 import { InstructorGradeForm } from "@/components/instructor-grade-form";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 import { tierLabel, type GradeTier } from "@/lib/grading";
 
 // Forced dynamic — several pages in this app were getting statically
@@ -57,9 +58,11 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-ink-400">
                     by{" "}
-                    <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
-                      {s.characterName}
-                    </Link>
+                    <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
+                      <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                        {s.characterName}
+                      </Link>
+                    </CharacterHoverCard>
                   </p>
                   {s.status === "graded" && s.finalTier && (
                     <span className="text-xs text-brass-400">Current: {tierLabel(s.finalTier as GradeTier)}</span>
@@ -100,9 +103,11 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
             <div key={s.id} className="bg-ink-900 border border-ink-700 rounded-lg p-5">
               <p className="text-xs text-ink-400 mb-2">
                 by{" "}
-                <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
-                  {s.characterName}
-                </Link>
+                <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
+                  <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                    {s.characterName}
+                  </Link>
+                </CharacterHoverCard>
               </p>
               <p className="whitespace-pre-wrap text-sm text-parchment-100/90">{s.content}</p>
               <GradeForm submissionId={s.id} />

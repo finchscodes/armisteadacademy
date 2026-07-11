@@ -7,7 +7,6 @@ const SECTIONS = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/classes", label: "Class Assignments" },
   { href: "/admin/boards", label: "Boards" },
-  { href: "/admin/article-boards", label: "Article Boards" },
   { href: "/admin/guide", label: "Guidebook" },
   { href: "/admin/home-board", label: "Home Board" },
   { href: "/admin/sorting-quiz", label: "Sorting Quiz" },

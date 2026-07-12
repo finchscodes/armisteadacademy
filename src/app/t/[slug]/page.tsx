@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
 import { getLessonsTakenCounts, yearLabelForOverrideOrLessons } from "@/lib/year";
 import { getReactionsForPosts, getCommentsForPosts } from "@/lib/post-interactions";
-import { jobColor } from "@/lib/roles";
-import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
+import { jobColor, MANAGEMENT_JOBS } from "@/lib/roles";
+import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
 import { canModeratePosts, canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { getCurrentUser } from "@/lib/current-user";
@@ -46,6 +46,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
   const viewerCharacterId = current?.activeCharacter?.id ?? null;
   const canModerate =
     Boolean(session?.isAdmin) || (viewerCharacterId ? await canModeratePosts(viewerCharacterId) : false);
+  const canModerateComments =
+    Boolean(session?.isAdmin) ||
+    (viewerCharacterId ? await characterHasAnyJob(viewerCharacterId, [...MANAGEMENT_JOBS, "chief_editor"]) : false);
 
   if (board?.restrictedToHall) {
     const allowed =
@@ -95,7 +98,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         )}
         {canModerate && (
           <div className="flex items-center gap-3">
-            <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
+            {board?.kind !== "article" && (
+              <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
+            )}
             <DeleteThreadButton threadId={thread.id} />
           </div>
         )}
@@ -218,6 +223,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   reactions={reactionsByPost.get(post.id) ?? []}
                   comments={commentsByPost.get(post.id) ?? []}
                   canInteract={Boolean(viewerCharacterId)}
+                  canModerateComments={canModerateComments}
                   posterCharacterId={post.characterId}
                   posterName={`${post.characterFirstName} ${post.characterLastName}`}
                   posterSlug={post.characterSlug}

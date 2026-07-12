@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { toggleReactionAction, addCommentAction } from "@/actions/post-interactions";
+import { toggleReactionAction, addCommentAction, deleteCommentAction } from "@/actions/post-interactions";
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
 import { jobColor, type CharacterJob } from "@/lib/roles";
 import { CharacterBadge } from "./character-badge";
@@ -27,6 +27,7 @@ export function ArticleInteractions({
   reactions,
   comments,
   canInteract,
+  canModerateComments = false,
   posterCharacterId,
   posterName,
   posterSlug,
@@ -37,6 +38,8 @@ export function ArticleInteractions({
   reactions: ReactionSummary[];
   comments: PostCommentRow[];
   canInteract: boolean;
+  /** Management/admin and Chief Editors can delete article comments. */
+  canModerateComments?: boolean;
   posterCharacterId: number;
   posterName: string;
   posterSlug: string;
@@ -45,6 +48,13 @@ export function ArticleInteractions({
 }) {
   const [pending, startTransition] = useTransition();
   const [commentValue, setCommentValue] = useState("");
+
+  function deleteComment(commentId: number) {
+    if (!confirm("Delete this comment?")) return;
+    const formData = new FormData();
+    formData.set("commentId", String(commentId));
+    startTransition(() => deleteCommentAction(formData));
+  }
 
   const likeSummary = reactions.find((r) => r.emoji === LIKE_EMOJI);
   const likeCount = likeSummary?.count ?? 0;
@@ -130,7 +140,7 @@ export function ArticleInteractions({
         ) : (
           <div className="space-y-3">
             {comments.map((c) => (
-              <div key={c.id} className="flex gap-2.5 items-start">
+              <div key={c.id} className="flex gap-2.5 items-start group">
                 <CharacterHoverCard
                   characterId={c.characterId}
                   slug={c.characterSlug}
@@ -140,7 +150,7 @@ export function ArticleInteractions({
                     <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
                   </Link>
                 </CharacterHoverCard>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm">
                     <CharacterHoverCard characterId={c.characterId} slug={c.characterSlug}>
                       <Link
@@ -155,6 +165,16 @@ export function ArticleInteractions({
                   </p>
                   <p className="text-xs text-ink-400 mt-0.5">{timeAgo(c.createdAt)}</p>
                 </div>
+                {canModerateComments && (
+                  <button
+                    type="button"
+                    onClick={() => deleteComment(c.id)}
+                    disabled={pending}
+                    className="text-xs text-ink-500 hover:text-claret-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 disabled:opacity-60"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))}
           </div>

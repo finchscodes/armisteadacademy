@@ -390,6 +390,9 @@ export async function toggleThreadLockAction(formData: FormData) {
   const [thread] = await db.select().from(threads).where(eq(threads.id, threadId));
   if (!thread) return;
 
+  const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
+  if (threadBoard?.kind === "article") return; // article boards reply via comments, not thread posts — no lock
+
   await db.update(threads).set({ isLocked: !thread.isLocked }).where(eq(threads.id, threadId));
   revalidatePath(`/t/${thread.slug}`);
 }

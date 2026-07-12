@@ -133,23 +133,22 @@ export function ImageCropper({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
           className="relative mx-auto overflow-hidden rounded-md border border-ink-600 bg-ink-950 cursor-grab active:cursor-grabbing touch-none"
-          style={{ width: FRAME_SIZE, height: FRAME_SIZE }}
-        >
-          {imageUrl && imgSize && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt="Crop preview"
-              draggable={false}
-              className="absolute top-1/2 left-1/2 select-none pointer-events-none"
-              style={{
-                width: imgSize.width * effectiveZoom,
-                height: imgSize.height * effectiveZoom,
-                transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px)`,
-              }}
-            />
-          )}
-        </div>
+          style={{
+            width: FRAME_SIZE,
+            height: FRAME_SIZE,
+            backgroundImage: imgSize ? `url(${imageUrl})` : undefined,
+            backgroundRepeat: "no-repeat",
+            // Explicit pixel background-size can't be reinterpreted by the
+            // browser the way an <img>'s width/height sometimes can — this
+            // is what actually fixed the preview rendering stretched.
+            backgroundSize: imgSize
+              ? `${imgSize.width * effectiveZoom}px ${imgSize.height * effectiveZoom}px`
+              : undefined,
+            backgroundPosition: imgSize
+              ? `calc(50% + ${offset.x}px) calc(50% + ${offset.y}px)`
+              : undefined,
+          }}
+        />
 
         <div className="flex items-center gap-2 mt-4">
           <span className="text-xs text-ink-400 shrink-0">Zoom</span>

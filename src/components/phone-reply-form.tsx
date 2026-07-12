@@ -4,14 +4,22 @@ import { useActionState } from "react";
 import { createPostAction } from "@/actions/forum";
 import { PhoneMessageComposer } from "@/components/phone-message-composer";
 
-export function PhoneReplyForm({ threadSlug }: { threadSlug: string }) {
+type Participant = { id: number; name: string; avatarUrl: string | null };
+
+export function PhoneReplyForm({
+  threadSlug,
+  participants,
+}: {
+  threadSlug: string;
+  participants: Participant[];
+}) {
   const [state, formAction, pending] = useActionState(createPostAction, undefined);
 
   return (
     <form action={formAction} className="space-y-3 bg-ink-900 border border-ink-700 rounded-lg p-5">
       <input type="hidden" name="threadSlug" value={threadSlug} />
       <label className="block text-sm font-medium">Reply</label>
-      <PhoneMessageComposer />
+      <PhoneMessageComposer participants={participants} />
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
       <button
         type="submit"

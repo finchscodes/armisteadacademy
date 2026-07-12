@@ -93,7 +93,7 @@ export async function createThreadAction(
   }
 
   const isArticle = board.kind === "article";
-  if (!isArticle && !isPhone && !rating) {
+  if (!isArticle && !rating) {
     return { error: "Pick a rating" };
   }
   let scheduledFor: Date | null = null;
@@ -123,7 +123,7 @@ export async function createThreadAction(
       timeSetting: isArticle || isPhone ? null : timeSetting || null,
       surroundings: isArticle || isPhone ? null : surroundings || null,
       ooc: isArticle || isPhone ? null : ooc || null,
-      rating: isArticle || isPhone ? null : rating ?? null,
+      rating: isArticle ? null : rating ?? null,
       scheduledFor,
       lastPostAt: now,
     })

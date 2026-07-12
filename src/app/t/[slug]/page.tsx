@@ -12,6 +12,7 @@ import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 import { PhoneReplyForm } from "@/components/phone-reply-form";
 import { EditablePhonePost } from "@/components/editable-phone-post";
+import { PhoneCommentSection } from "@/components/phone-comment-section";
 import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
 import { ToggleThreadLockButton } from "@/components/toggle-thread-lock-button";
 import { PostInteractions } from "@/components/post-interactions";
@@ -78,6 +79,20 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
     getReactionsForPosts(postIds, viewerCharacterId),
     getCommentsForPosts(postIds),
   ]);
+  // Phone boards: "my side" (right, highlighted) is whichever character the
+  // *viewer* is currently playing, but only if that character has actually
+  // posted in this conversation — otherwise everyone shows as the other
+  // party (left, grey), since the viewer isn't part of this text thread.
+  const viewerParticipates = Boolean(
+    viewerCharacterId && posts.some((p) => p.characterId === viewerCharacterId)
+  );
+  // Every character who's posted here — offered as "who's being called"
+  // targets in the call composer, and to resolve a call's callee avatar.
+  const phoneParticipants = [...new Map(posts.map((p) => [p.characterId, p])).values()].map((p) => ({
+    id: p.characterId,
+    name: `${p.characterFirstName} ${p.characterLastName}`,
+    avatarUrl: p.characterAvatarUrl,
+  }));
   const [lessonsTakenMap, jobsByCharacter] = await Promise.all([
     getLessonsTakenCounts(uniqueCharacterIds),
     getPrimaryJobsForCharacters(uniqueCharacterIds),
@@ -164,10 +179,11 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           const isPhone = board?.kind === "phone";
 
           if (isPhone) {
-            // The topic's opening poster is "whose phone this is" — their
-            // messages sit on the right, like a real texting app; everyone
-            // else sits on the left.
-            const side: "left" | "right" = post.characterId === thread.characterId ? "right" : "left";
+            // "My side" (right) is the viewer's own active character, but
+            // only if they've actually posted here — otherwise every
+            // message shows as the other party (left).
+            const side: "left" | "right" =
+              viewerParticipates && post.characterId === viewerCharacterId ? "right" : "left";
             const canEditThis = Boolean(session) && (session!.userId === post.authorUserId || canModerate);
             const canDeleteThis =
               Boolean(session) &&
@@ -206,6 +222,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                     editedAt={post.editedAt}
                     canEdit={canEditThis}
                     side={side}
+                    participants={phoneParticipants.filter((p) => p.id !== post.characterId)}
                   />
                 </div>
               </div>
@@ -294,9 +311,21 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           This thread is locked.
         </p>
       ) : board?.kind === "article" ? null : board?.kind === "phone" ? (
-        <PhoneReplyForm threadSlug={thread.slug} />
+        <PhoneReplyForm
+          threadSlug={thread.slug}
+          participants={phoneParticipants.filter((p) => p.id !== viewerCharacterId)}
+        />
       ) : (
         <ReplyForm threadSlug={thread.slug} />
+      )}
+
+      {board?.kind === "phone" && openingPostId && (
+        <PhoneCommentSection
+          postId={openingPostId}
+          comments={commentsByPost.get(openingPostId) ?? []}
+          canInteract={Boolean(viewerCharacterId)}
+          canModerateComments={canModerateComments}
+        />
       )}
     </div>
   );

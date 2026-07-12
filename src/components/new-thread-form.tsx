@@ -36,27 +36,29 @@ export function NewThreadForm({
         />
       </div>
 
+      {!isArticle && (
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="rating">
+            Rating
+          </label>
+          <select
+            id="rating"
+            name="rating"
+            defaultValue={RATING_VALUES[0]}
+            required
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          >
+            {RATING_VALUES.map((r) => (
+              <option key={r} value={r}>
+                {RATING_META[r].label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {!isArticle && !isPhone && (
         <>
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="rating">
-              Rating
-            </label>
-            <select
-              id="rating"
-              name="rating"
-              defaultValue={RATING_VALUES[0]}
-              required
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
-            >
-              {RATING_VALUES.map((r) => (
-                <option key={r} value={r}>
-                  {RATING_META[r].label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div>
             <button
               type="button"

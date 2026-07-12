@@ -19,6 +19,8 @@ export function FaceclaimUpload({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlDraft, setUrlDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   function uploadFile(file: File) {
@@ -34,6 +36,18 @@ export function FaceclaimUpload({
         setUrl(result.url);
       }
     });
+  }
+
+  function confirmUrl() {
+    const trimmed = urlDraft.trim();
+    if (!/^https?:\/\/\S+$/i.test(trimmed)) {
+      setError("Enter a valid image URL starting with http:// or https://");
+      return;
+    }
+    setError(null);
+    setUrl(trimmed);
+    setUrlDraft("");
+    setShowUrlInput(false);
   }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -83,6 +97,36 @@ export function FaceclaimUpload({
             PNG, JPG, GIF, or WEBP — up to 25MB. You&apos;ll get to crop it before it&apos;s
             saved. Optional.
           </p>
+          <button
+            type="button"
+            onClick={() => setShowUrlInput((v) => !v)}
+            className="text-[11px] text-brass-400 hover:underline mt-1"
+          >
+            {showUrlInput ? "Cancel" : "or paste an image URL instead"}
+          </button>
+          {showUrlInput && (
+            <div className="flex items-center gap-2 mt-2">
+              <input
+                value={urlDraft}
+                onChange={(e) => setUrlDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    confirmUrl();
+                  }
+                }}
+                placeholder="https://..."
+                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-brass-500"
+              />
+              <button
+                type="button"
+                onClick={confirmUrl}
+                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors shrink-0"
+              >
+                Use URL
+              </button>
+            </div>
+          )}
           {url && (
             <button
               type="button"

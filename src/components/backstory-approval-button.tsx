@@ -37,7 +37,7 @@ export function BackstoryApprovalButton({
           : "border-brass-500/50 text-brass-400 hover:bg-brass-500/10"
       }`}
     >
-      {pending ? "..." : isApproved ? "Unapprove" : "Approve backstory"}
+      {pending ? "..." : isApproved ? "Unapprove" : "Approve transcript"}
     </button>
   );
 }

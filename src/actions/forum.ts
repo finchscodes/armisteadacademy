@@ -88,9 +88,9 @@ export async function createThreadAction(
   if (board.slug === "missions") {
     const allowed =
       session.isAdmin ||
-      (await characterHasAnyJob(characterId, [...MANAGEMENT_JOBS, "operator"]));
+      (await characterHasAnyJob(characterId, [...MANAGEMENT_JOBS, "handler"]));
     if (!allowed) {
-      return { error: "Only Operators and management can start a topic in Missions" };
+      return { error: "Only Handlers and management can start a topic in Missions" };
     }
   }
   if (board.kind === "article") {

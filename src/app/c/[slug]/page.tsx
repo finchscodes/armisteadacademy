@@ -16,7 +16,7 @@ import {
   getIncomingRequests,
   getOutgoingRequests,
 } from "@/lib/character-relations";
-import { getWallPosts } from "@/lib/wall";
+import { getWallPosts, getLikesForWallPosts, getCommentsForWallPosts } from "@/lib/wall";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
 import { WallFeed } from "@/components/wall-feed";
@@ -83,6 +83,12 @@ export default async function CharacterProfilePage({
   const isOwner = current?.session.userId === character.userId;
   const nameColor = jobColor(primaryJob) ?? undefined;
   const majorColorHex = getMajorColor(character.major) ?? "#d9b64a";
+
+  const viewerCharacterIdForWall = current?.activeCharacter?.id ?? null;
+  const [wallLikes, wallComments] = await Promise.all([
+    getLikesForWallPosts(wallPosts.map((p) => p.id), viewerCharacterIdForWall),
+    getCommentsForWallPosts(wallPosts.map((p) => p.id)),
+  ]);
 
   const [incomingRequests, outgoingRequests] = isOwner
     ? await Promise.all([getIncomingRequests(character.id), getOutgoingRequests(character.id)])
@@ -194,7 +200,7 @@ export default async function CharacterProfilePage({
   const canReviewBackstory =
     Boolean(current?.session.isAdmin) ||
     (current?.activeCharacter
-      ? await characterHasAnyJob(current.activeCharacter.id, [...MANAGEMENT_JOBS, "gatekeeper"])
+      ? await characterHasAnyJob(current.activeCharacter.id, [...MANAGEMENT_JOBS, "registrar"])
       : false);
 
   const backstoryTab = (
@@ -231,7 +237,7 @@ export default async function CharacterProfilePage({
           {character.bio}
         </p>
       ) : (
-        <p className="text-sm text-ink-400 italic">No backstory written yet.</p>
+        <p className="text-sm text-ink-400 italic">No transcript written yet.</p>
       )}
     </div>
   );
@@ -306,6 +312,8 @@ export default async function CharacterProfilePage({
     <WallFeed
       wallCharacterId={character.id}
       posts={wallPosts}
+      likes={wallLikes}
+      comments={wallComments}
       myCharacterId={current?.activeCharacter?.id ?? null}
       canModerate={Boolean(current?.session.isAdmin) || wallCanModerate}
       canPost={Boolean(current?.activeCharacter)}

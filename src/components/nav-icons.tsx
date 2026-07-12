@@ -99,6 +99,19 @@ export function DocumentIcon({ className = "w-5 h-5" }: { className?: string }) 
     </svg>
   );
 }
+export function HeartIcon({ className = "w-5 h-5", filled = false }: { className?: string; filled?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} className={className}>
+      <path
+        d="M12 20.3s-7.5-4.6-9.9-9.2C.5 7.8 2 4.5 5.3 3.7c2-.5 4 .3 5.2 2 .3.4.9.4 1.2 0 1.2-1.7 3.2-2.5 5.2-2 3.3.8 4.8 4.1 3.2 7.4-2.4 4.6-9.9 9.2-9.9 9.2Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ImageIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>

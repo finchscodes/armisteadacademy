@@ -25,8 +25,8 @@ export type CharacterJob =
   | "writer"
   | "media_team"
   | "library_handler"
-  | "gatekeeper"
-  | "operator";
+  | "registrar"
+  | "handler";
 
 export const JOB_VALUES: [CharacterJob, ...CharacterJob[]] = [
   "none",
@@ -42,8 +42,8 @@ export const JOB_VALUES: [CharacterJob, ...CharacterJob[]] = [
   "writer",
   "media_team",
   "library_handler",
-  "gatekeeper",
-  "operator",
+  "registrar",
+  "handler",
 ];
 
 type JobMeta = {
@@ -66,8 +66,8 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   writer: { label: "Writer", color: "#E0435A" }, // Scarlett
   media_team: { label: "Media Team", color: "#C13E7A" }, // Boysenberry
   library_handler: { label: "Library Handler", color: "#E08A3C" }, // Orange
-  gatekeeper: { label: "Gatekeeper", color: "#29ABE2" }, // Smurf
-  operator: { label: "Operator", color: "#A15C56" }, // Muted Red
+  registrar: { label: "Registrar", color: "#29ABE2" }, // Smurf
+  handler: { label: "Handler", color: "#A15C56" }, // Muted Red
 };
 
 export function jobLabel(job: CharacterJob): string {

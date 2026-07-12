@@ -791,3 +791,47 @@ ALTER TABLE "posts" ADD COLUMN "letter_from" varchar(200);
 
 ALTER TYPE "character_job" RENAME VALUE 'student_council' TO 'prefect';
 ALTER TYPE "character_job" RENAME VALUE 'school_board_member' TO 'student_council';
+
+-- ----------------------------------------------------------------------------
+-- 60-registrar-and-handler-rename.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 59-prefect-and-student-council-rename.sql.
+--
+-- Renames two more jobs at the database level, matching the label changes:
+--   "gatekeeper" -> "registrar"
+--   "operator" -> "handler"
+--
+-- Postgres requires enum value renames to run outside a transaction block,
+-- so these are standalone statements.
+
+ALTER TYPE "character_job" RENAME VALUE 'gatekeeper' TO 'registrar';
+ALTER TYPE "character_job" RENAME VALUE 'operator' TO 'handler';
+
+
+-- ----------------------------------------------------------------------------
+-- 61-wall-likes-and-comments.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 60-registrar-and-handler-rename.sql.
+--
+-- Adds likes and comments to wall posts (both the character wall page and
+-- the homepage "Wall activity" feed) — previously wall posts could only be
+-- created, deleted, and pinned.
+
+CREATE TABLE "wall_post_likes" (
+  "id" serial PRIMARY KEY,
+  "wall_post_id" integer NOT NULL REFERENCES "wall_posts"("id") ON DELETE CASCADE,
+  "character_id" integer NOT NULL REFERENCES "characters"("id") ON DELETE CASCADE,
+  "created_at" timestamp NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX "wall_post_likes_unique_idx" ON "wall_post_likes" ("wall_post_id", "character_id");
+
+CREATE TABLE "wall_post_comments" (
+  "id" serial PRIMARY KEY,
+  "wall_post_id" integer NOT NULL REFERENCES "wall_posts"("id") ON DELETE CASCADE,
+  "character_id" integer NOT NULL REFERENCES "characters"("id") ON DELETE CASCADE,
+  "user_id" integer NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "content" varchar(1000) NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT now()
+);

@@ -7,7 +7,7 @@ depends on whether you're starting fresh or already have a database.
 ## Fresh install (brand new Supabase project)
 
 Run, in order:
-1. `01-schema.sql` — full schema, includes everything through migration `59`
+1. `01-schema.sql` — full schema, includes everything through migration `61`
 2. `02-seed.sql` — an admin login + a starter shop
 3. `05-storage-bucket.sql` — storage bucket for faceclaim uploads
 4. `06-armistead-boards.sql` — the full Armistead board structure
@@ -18,22 +18,23 @@ Run, in order:
    categories (skip the DELETE statements at the top on a fresh install)
 7. `13-merge-covert-team-operations.sql` — merges two classes into one
 
-Skip everything else — `03`–`58` are incremental updates already folded into
+Skip everything else — `03`–`59` are incremental updates already folded into
 `01` for a fresh install (`03`, `04`, `07`, `10`, `12` into the original
-schema snapshot; `48`–`59` appended on top of that). Running any of them
+schema snapshot; `48`–`61` appended on top of that). Running any of them
 after `01` will error (trying to add/drop things that already don't exist
 that way).
 
 ## Already had this running before this update
 
-If you already ran everything through `58`, you only need the one new file:
-1. `59-prefect-and-student-council-rename.sql`
+If you already ran everything through `59`, you only need these two new files, in order:
+1. `60-registrar-and-handler-rename.sql`
+2. `61-wall-likes-and-comments.sql`
 
 ## File reference
 
 | File | What it does |
 |---|---|
-| `01-schema.sql` | Full schema through migration `59` (fresh installs only) |
+| `01-schema.sql` | Full schema through migration `61` (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
 | `03`–`47` | (historical) incremental updates, all folded into `01` |
 | `48-physical-education-class.sql` | Adds Physical Education class |
@@ -48,4 +49,6 @@ If you already ran everything through `58`, you only need the one new file:
 | `57-letter-format.sql` | Adds the alternate "letter" layout (to/body/from) for email boards |
 | `58-email-format-on-posts.sql` | Moves email/letter format from threads to posts — replies can now independently be an email or a letter |
 | `59-prefect-and-student-council-rename.sql` | Renames the `student_council` job (formerly Enforcer) to `prefect`, and `school_board_member` to `student_council` |
+| `60-registrar-and-handler-rename.sql` | Renames `gatekeeper` to `registrar`, and `operator` to `handler` |
+| `61-wall-likes-and-comments.sql` | Adds likes and comments to wall posts |
 

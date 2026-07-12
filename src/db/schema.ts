@@ -135,7 +135,7 @@ export const characters = pgTable(
     // 1-5, same scale as topic content ratings — set by the character's
     // owner so readers know what to expect before opening the backstory.
     backstoryRating: integer("backstory_rating"),
-    // Set by a Gatekeeper or admin/management reviewing the backstory.
+    // Set by a Registrar or admin/management reviewing the backstory.
     // Unapproved backstories just show as "Pending" — nothing is blocked.
     backstoryApproved: boolean("backstory_approved").notNull().default(false),
     // Freely editable, no locking (unlike major/age) — just profile info.
@@ -208,6 +208,39 @@ export const wallPosts = pgTable("wall_posts", {
     .references(() => characters.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   isPinned: boolean("is_pinned").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+/** One like per (wall post, character) — a simple heart, not the multi-emoji reaction set forum posts get. */
+export const wallPostLikes = pgTable(
+  "wall_post_likes",
+  {
+    id: serial("id").primaryKey(),
+    wallPostId: integer("wall_post_id")
+      .notNull()
+      .references(() => wallPosts.id, { onDelete: "cascade" }),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueLike: uniqueIndex("wall_post_likes_unique_idx").on(table.wallPostId, table.characterId),
+  })
+);
+
+export const wallPostComments = pgTable("wall_post_comments", {
+  id: serial("id").primaryKey(),
+  wallPostId: integer("wall_post_id")
+    .notNull()
+    .references(() => wallPosts.id, { onDelete: "cascade" }),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: varchar("content", { length: 1000 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

@@ -84,7 +84,7 @@ export function EditCharacterForm({
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="bio">
-          Bio / Backstory
+          Bio / Transcript
         </label>
         <textarea
           id="bio"
@@ -94,13 +94,13 @@ export function EditCharacterForm({
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
         <p className="text-[11px] text-ink-400 mt-1">
-          Editing this puts your backstory back to pending review.
+          Editing this puts your transcript back to pending review.
         </p>
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="backstoryRating">
-          Backstory rating
+          Transcript rating
         </label>
         <select
           id="backstoryRating"
@@ -116,7 +116,7 @@ export function EditCharacterForm({
           ))}
         </select>
         <p className="text-[11px] text-ink-400 mt-1">
-          So readers know what to expect before opening your backstory.
+          So readers know what to expect before opening your transcript.
         </p>
       </div>
 

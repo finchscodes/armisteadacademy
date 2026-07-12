@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toggleReactionAction, addCommentAction, deleteCommentAction } from "@/actions/post-interactions";
 import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
 import { jobColor, type CharacterJob } from "@/lib/roles";
+import { HeartIcon, ChatBubbleIcon } from "@/components/nav-icons";
 import { CharacterBadge } from "./character-badge";
 import { CharacterHoverCard } from "./character-hover-card";
 
@@ -85,11 +86,12 @@ export function ArticleInteractions({
               liked ? "text-claret-500" : "text-parchment-100/80 hover:text-claret-500"
             }`}
           >
-            <span>{liked ? "❤️" : "🤍"}</span>
+            <HeartIcon className="w-4 h-4" filled={liked} />
             Likes ({likeCount})
           </button>
           <span className="flex items-center gap-1.5 text-sm font-medium text-parchment-100/80">
-            💬 Comments ({comments.length})
+            <ChatBubbleIcon className="w-4 h-4" />
+            Comments ({comments.length})
           </span>
         </div>
         <p className="text-xs text-ink-400">

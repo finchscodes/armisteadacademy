@@ -257,7 +257,7 @@ export async function updateCharacterAction(
   const majorToSave =
     existing.major === UNDECIDED_MAJOR && major ? major : existing.major;
 
-  // Editing the backstory puts it back to pending — a Gatekeeper should see
+  // Editing the backstory puts it back to pending — a Registrar should see
   // the new version before it counts as approved again.
   const bioChanged = (bio || null) !== (existing.bio || null);
 
@@ -303,7 +303,7 @@ export async function setActiveCharacterAction(formData: FormData) {
 }
 
 /**
- * Approve (or un-approve) a character's backstory. Gatekeepers and
+ * Approve (or un-approve) a character's backstory. Registrars and
  * admin/management can do this for any character — nothing is blocked
  * while pending, it's purely an informational badge.
  */
@@ -317,7 +317,7 @@ export async function toggleBackstoryApprovalAction(formData: FormData) {
   if (!session.isAdmin) {
     const reviewerCharacterId = Number(formData.get("reviewerCharacterId"));
     if (!reviewerCharacterId) return;
-    const allowed = await characterHasAnyJob(reviewerCharacterId, [...MANAGEMENT_JOBS, "gatekeeper"]);
+    const allowed = await characterHasAnyJob(reviewerCharacterId, [...MANAGEMENT_JOBS, "registrar"]);
     if (!allowed) return;
   }
 

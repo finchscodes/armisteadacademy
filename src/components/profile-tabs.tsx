@@ -20,7 +20,7 @@ export function ProfileTabs({
   const tabs = [
     { key: "wall" as const, label: "Wall" },
     { key: "appearance" as const, label: "Dossier" },
-    { key: "backstory" as const, label: "Backstory" },
+    { key: "backstory" as const, label: "Transcript" },
     { key: "topics" as const, label: `Topics (${topicsCount})` },
   ];
 

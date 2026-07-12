@@ -180,7 +180,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="bio">
-          Bio / Backstory
+          Bio / Transcript
         </label>
         <textarea
           id="bio"

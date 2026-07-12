@@ -380,6 +380,15 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   editedAt: timestamp("edited_at"),
+  // Out-of-character notes on this specific reply — separate from the
+  // thread-level `ooc` above, which is only ever set on the opening post.
+  ooc: text("ooc"),
+  // Regular topics only: an optional 1d10 roll attached to this post. The
+  // die itself (rollValue) is always generated server-side and never
+  // editable afterward — rollModifier is the only thing the poster
+  // controls, everything else here is for display/audit.
+  rollValue: integer("roll_value"),
+  rollModifier: integer("roll_modifier"),
   // Email boards only: which layout this specific post uses — "email" or
   // "letter". Null for every other board kind. A reply can use either
   // format regardless of what the opening post used.

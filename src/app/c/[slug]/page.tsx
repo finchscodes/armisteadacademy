@@ -135,13 +135,22 @@ export default async function CharacterProfilePage({
               ))}
             </div>
           )}
-          {isOwner && (
+          {isOwner ? (
             <Link
               href={`/c/${character.slug}/edit`}
               className="text-xs text-brass-400 hover:underline mt-3"
             >
               Edit profile
             </Link>
+          ) : (
+            current?.activeCharacter && (
+              <Link
+                href={`/messages/new?to=${character.id}`}
+                className="text-xs text-brass-400 hover:underline mt-3"
+              >
+                Send message
+              </Link>
+            )
           )}
         </div>
 

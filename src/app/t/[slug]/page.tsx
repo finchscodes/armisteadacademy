@@ -324,6 +324,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                     content={post.content}
                     editedAt={post.editedAt}
                     canEdit={Boolean(session) && (session!.userId === post.authorUserId || canModerate)}
+                    ooc={isArticle ? undefined : post.ooc}
+                    rollValue={isArticle ? undefined : post.rollValue}
+                    rollModifier={isArticle ? undefined : post.rollModifier}
                   />
                   {!isArticle && (
                     <PostInteractions

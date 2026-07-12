@@ -57,6 +57,7 @@ function ToolbarButton({
   return (
     <button
       type="button"
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       data-tooltip={label}
       className={`text-xs px-2 py-1 rounded border transition-colors ${
@@ -131,8 +132,21 @@ export function RichTextEditor({
 
   if (!editor) {
     return (
-      <div className="min-h-[10rem] rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-ink-400">
-        Loading editor...
+      <div>
+        {/* The hidden input must exist even while the editor is still
+            initializing (immediatelyRender: false delays this by a tick) —
+            otherwise submitting the form in that window has no "content"
+            field at all, and the save silently fails. This was the bug. */}
+        <input
+          ref={inputRef}
+          type="hidden"
+          id={`richtext-${name}`}
+          name={name}
+          defaultValue={initialValue ?? ""}
+        />
+        <div className="min-h-[10rem] rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-ink-400">
+          Loading editor...
+        </div>
       </div>
     );
   }
@@ -291,6 +305,7 @@ export function RichTextEditor({
                     key={j}
                     type="button"
                     data-tooltip={JOB_META[j].label}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       editor.chain().focus().setColor(JOB_META[j].color as string).run();
                       setShowColorPicker(false);
@@ -307,6 +322,7 @@ export function RichTextEditor({
                     key={h}
                     type="button"
                     data-tooltip={HALL_META[h].label}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       editor.chain().focus().setColor(HALL_META[h].color).run();
                       setShowColorPicker(false);
@@ -318,6 +334,7 @@ export function RichTextEditor({
               </div>
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   editor.chain().focus().unsetColor().run();
                   setShowColorPicker(false);

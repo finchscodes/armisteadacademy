@@ -21,6 +21,7 @@ export function NewThreadForm({
 }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
+  const [showRoll, setShowRoll] = useState(false);
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -68,7 +69,7 @@ export function NewThreadForm({
 
       {!isArticle && !isPhone && !isEmail && (
         <>
-          <div>
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setShowDetails((v) => !v)}
@@ -76,7 +77,36 @@ export function NewThreadForm({
             >
               {showDetails ? "− Hide details" : "+ Add details (location, time, surroundings)"}
             </button>
+            <button
+              type="button"
+              onClick={() => setShowRoll((v) => !v)}
+              className="text-xs text-brass-400 hover:underline"
+            >
+              {showRoll ? "− Remove roll" : "+ Add a roll (1d10)"}
+            </button>
           </div>
+
+          {showRoll && (
+            <div>
+              <label className="block text-xs font-medium mb-1" htmlFor="rollModifier">
+                Roll modifier
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="rollModifier"
+                  name="rollModifier"
+                  type="number"
+                  defaultValue={0}
+                  step={1}
+                  className="w-24 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                />
+                <p className="text-[11px] text-ink-400">
+                  The die (1d10) is rolled automatically when you post — this is just your bonus
+                  or penalty (e.g. 2 or -1).
+                </p>
+              </div>
+            </div>
+          )}
 
           {showDetails && (
             <div className="space-y-3 border border-ink-700 rounded-lg p-4 bg-ink-800/40">

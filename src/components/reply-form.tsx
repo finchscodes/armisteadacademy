@@ -1,17 +1,74 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useActionState } from "react";
 import { createPostAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
 
 export function ReplyForm({ threadSlug }: { threadSlug: string }) {
   const [state, formAction, pending] = useActionState(createPostAction, undefined);
+  const [showOoc, setShowOoc] = useState(false);
+  const [showRoll, setShowRoll] = useState(false);
 
   return (
     <form action={formAction} className="space-y-3 bg-ink-900 border border-ink-700 rounded-lg p-5">
       <input type="hidden" name="threadSlug" value={threadSlug} />
       <label className="block text-sm font-medium">Reply</label>
       <RichTextEditor name="content" placeholder="Write your reply..." />
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setShowOoc((v) => !v)}
+          className="text-xs text-brass-400 hover:underline"
+        >
+          {showOoc ? "− Hide OOC" : "+ Add OOC"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowRoll((v) => !v)}
+          className="text-xs text-brass-400 hover:underline"
+        >
+          {showRoll ? "− Remove roll" : "+ Add a roll (1d10)"}
+        </button>
+      </div>
+
+      {showOoc && (
+        <div>
+          <label className="block text-xs font-medium mb-1" htmlFor="ooc">
+            OOC notes
+          </label>
+          <textarea
+            id="ooc"
+            name="ooc"
+            rows={2}
+            placeholder="Anything out-of-character — reactions, pacing, plotting notes, etc."
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          />
+        </div>
+      )}
+
+      {showRoll && (
+        <div>
+          <label className="block text-xs font-medium mb-1" htmlFor="rollModifier">
+            Roll modifier
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              id="rollModifier"
+              name="rollModifier"
+              type="number"
+              defaultValue={0}
+              step={1}
+              className="w-24 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+            <p className="text-[11px] text-ink-400">
+              The die (1d10) is rolled automatically when you post — this is just your bonus or
+              penalty (e.g. 2 or -1).
+            </p>
+          </div>
+        </div>
+      )}
+
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
       <button
         type="submit"

@@ -835,3 +835,29 @@ CREATE TABLE "wall_post_comments" (
   "content" varchar(1000) NOT NULL,
   "created_at" timestamp NOT NULL DEFAULT now()
 );
+
+-- ----------------------------------------------------------------------------
+-- 62-ooc-on-posts.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 61-wall-likes-and-comments.sql.
+--
+-- Adds an out-of-character note field to individual posts (replies), not
+-- just the thread's opening post — so anyone replying in a topic can
+-- attach their own OOC alongside their in-character reply.
+
+ALTER TABLE "posts" ADD COLUMN "ooc" text;
+
+-- ----------------------------------------------------------------------------
+-- 63-post-dice-rolls.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 62-ooc-on-posts.sql.
+--
+-- Adds an optional 1d10 dice roll to posts in regular topics. roll_value is
+-- always generated server-side (never trust a client-submitted die result)
+-- and is never editable after the fact — roll_modifier is the only value
+-- the poster controls.
+
+ALTER TABLE "posts" ADD COLUMN "roll_value" integer;
+ALTER TABLE "posts" ADD COLUMN "roll_modifier" integer;

@@ -7,9 +7,9 @@ import { RichTextEditor } from "@/components/rich-text-editor";
 
 type CharacterOption = { id: number; name: string; firstName: string; lastName: string; slug: string };
 
-export function NewMessageForm() {
+export function NewMessageForm({ initialRecipient }: { initialRecipient?: CharacterOption | null }) {
   const [state, formAction, pending] = useActionState(createMessageThreadAction, undefined);
-  const [recipients, setRecipients] = useState<CharacterOption[]>([]);
+  const [recipients, setRecipients] = useState<CharacterOption[]>(initialRecipient ? [initialRecipient] : []);
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">

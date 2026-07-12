@@ -28,6 +28,11 @@ async function canModerateTopics(): Promise<boolean> {
 import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import type { ActionState } from "./auth";
 
+/** A single ten-sided die roll (1-10) — always generated server-side, never from client input, so it can't be gamed. */
+function rollD10(): number {
+  return 1 + Math.floor(Math.random() * 10);
+}
+
 const newThreadSchema = z.object({
   boardSlug: z.string().min(1),
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
@@ -45,6 +50,7 @@ const newThreadSchema = z.object({
   emailFormat: z.enum(["email", "letter"]).optional(),
   letterTo: z.string().max(200).optional().or(z.literal("")),
   letterFrom: z.string().max(200).optional().or(z.literal("")),
+  rollModifier: z.coerce.number().int().min(-99).max(99).optional(),
 });
 
 export async function createThreadAction(
@@ -66,14 +72,26 @@ export async function createThreadAction(
     emailFormat: formData.get("emailFormat") || undefined,
     letterTo: formData.get("letterTo") || undefined,
     letterFrom: formData.get("letterFrom") || undefined,
+    rollModifier: formData.get("rollModifier") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, location, timeSetting, surroundings, ooc, rating, emailFormat, letterTo, letterFrom } =
-    parsed.data;
+  const {
+    boardSlug,
+    title,
+    location,
+    timeSetting,
+    surroundings,
+    ooc,
+    rating,
+    emailFormat,
+    letterTo,
+    letterFrom,
+    rollModifier,
+  } = parsed.data;
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) {
@@ -81,6 +99,7 @@ export async function createThreadAction(
   }
   const isPhone = board.kind === "phone";
   const isEmail = board.kind === "email";
+  const isBoard = board.kind === "board";
   const content = isPhone ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
   if (board.kind === "class") {
     return { error: "This is a class board — it only takes lessons, not topics" };
@@ -144,6 +163,8 @@ export async function createThreadAction(
       characterId,
       userId: session.userId,
       content,
+      rollValue: isBoard && rollModifier !== undefined ? rollD10() : null,
+      rollModifier: isBoard && rollModifier !== undefined ? rollModifier : null,
       emailFormat: isEmail ? emailFormat ?? "email" : null,
       letterTo: isEmail && emailFormat === "letter" ? letterTo || null : null,
       letterFrom: isEmail && emailFormat === "letter" ? letterFrom || null : null,
@@ -182,6 +203,8 @@ const newPostSchema = z.object({
   emailFormat: z.enum(["email", "letter"]).optional(),
   letterTo: z.string().max(200).optional().or(z.literal("")),
   letterFrom: z.string().max(200).optional().or(z.literal("")),
+  ooc: z.string().max(4000).optional().or(z.literal("")),
+  rollModifier: z.coerce.number().int().min(-99).max(99).optional(),
 });
 
 export async function createPostAction(
@@ -196,13 +219,15 @@ export async function createPostAction(
     emailFormat: formData.get("emailFormat") || undefined,
     letterTo: formData.get("letterTo") || undefined,
     letterFrom: formData.get("letterFrom") || undefined,
+    ooc: formData.get("ooc") || undefined,
+    rollModifier: formData.get("rollModifier") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { threadSlug, emailFormat, letterTo, letterFrom } = parsed.data;
+  const { threadSlug, emailFormat, letterTo, letterFrom, ooc, rollModifier } = parsed.data;
 
   const [thread] = await db.select().from(threads).where(eq(threads.slug, threadSlug));
   if (!thread) {
@@ -217,6 +242,8 @@ export async function createPostAction(
     return { error: "Use comments to respond to an article, not a reply post" };
   }
   const isEmailBoard = threadBoard?.kind === "email";
+  const isPhoneBoard = threadBoard?.kind === "phone";
+  const isBoardKind = threadBoard?.kind === "board";
   const content =
     threadBoard?.kind === "phone" ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
 
@@ -227,6 +254,9 @@ export async function createPostAction(
       characterId,
       userId: session.userId,
       content,
+      ooc: !isEmailBoard && !isPhoneBoard ? ooc || null : null,
+      rollValue: isBoardKind && rollModifier !== undefined ? rollD10() : null,
+      rollModifier: isBoardKind && rollModifier !== undefined ? rollModifier : null,
       emailFormat: isEmailBoard ? emailFormat ?? "email" : null,
       letterTo: isEmailBoard && emailFormat === "letter" ? letterTo || null : null,
       letterFrom: isEmailBoard && emailFormat === "letter" ? letterFrom || null : null,
@@ -291,6 +321,7 @@ const editPostSchema = z.object({
     .min(1, "Post can't be empty")
     .max(60000, "That's too long")
     .refine((v) => richTextLength(v) > 0, "Post can't be empty"),
+  ooc: z.string().max(4000).optional().or(z.literal("")),
 });
 
 export async function updatePostAction(
@@ -302,12 +333,13 @@ export async function updatePostAction(
   const parsed = editPostSchema.safeParse({
     postId: formData.get("postId"),
     content: formData.get("content"),
+    ooc: formData.get("ooc") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { postId, content: rawContent } = parsed.data;
+  const { postId, content: rawContent, ooc } = parsed.data;
 
   const [post] = await db.select().from(posts).where(eq(posts.id, postId));
   if (!post) return { error: "That post no longer exists" };
@@ -324,7 +356,10 @@ export async function updatePostAction(
     return { error: "You don't have permission to edit this post" };
   }
 
-  await db.update(posts).set({ content, editedAt: new Date() }).where(eq(posts.id, postId));
+  await db
+    .update(posts)
+    .set({ content, ooc: postBoard?.kind === "phone" || postBoard?.kind === "email" ? null : ooc || null, editedAt: new Date() })
+    .where(eq(posts.id, postId));
 
   const [thread] = await db.select({ slug: threads.slug }).from(threads).where(eq(threads.id, post.threadId));
   if (thread) revalidatePath(`/t/${thread.slug}`);

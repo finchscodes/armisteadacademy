@@ -18,7 +18,7 @@ import { JOB_VALUES } from "@/lib/roles";
 /* -------------------------------------------------------------------------- */
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
-export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article"]);
+export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued

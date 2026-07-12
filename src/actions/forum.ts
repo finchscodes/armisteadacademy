@@ -10,7 +10,7 @@ import { requireSessionAndCharacter } from "@/lib/session-character";
 import { getSession, getActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { XP_AWARDS } from "@/lib/xp";
-import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
+import { sanitizeRichText, sanitizePlainText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
 import { characterHasAnyJob } from "@/lib/character-jobs";
@@ -67,12 +67,13 @@ export async function createThreadAction(
   }
 
   const { boardSlug, title, location, timeSetting, surroundings, ooc, rating } = parsed.data;
-  const content = sanitizeRichText(parsed.data.content);
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) {
     return { error: "That board no longer exists" };
   }
+  const isPhone = board.kind === "phone";
+  const content = isPhone ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
   if (board.kind === "class") {
     return { error: "This is a class board — it only takes lessons, not topics" };
   }
@@ -92,7 +93,7 @@ export async function createThreadAction(
   }
 
   const isArticle = board.kind === "article";
-  if (!isArticle && !rating) {
+  if (!isArticle && !isPhone && !rating) {
     return { error: "Pick a rating" };
   }
   let scheduledFor: Date | null = null;
@@ -118,11 +119,11 @@ export async function createThreadAction(
       userId: session.userId,
       title,
       slug: threadSlug,
-      location: isArticle ? null : location || null,
-      timeSetting: isArticle ? null : timeSetting || null,
-      surroundings: isArticle ? null : surroundings || null,
-      ooc: isArticle ? null : ooc || null,
-      rating: isArticle ? null : rating ?? null,
+      location: isArticle || isPhone ? null : location || null,
+      timeSetting: isArticle || isPhone ? null : timeSetting || null,
+      surroundings: isArticle || isPhone ? null : surroundings || null,
+      ooc: isArticle || isPhone ? null : ooc || null,
+      rating: isArticle || isPhone ? null : rating ?? null,
       scheduledFor,
       lastPostAt: now,
     })
@@ -185,7 +186,6 @@ export async function createPostAction(
   }
 
   const { threadSlug } = parsed.data;
-  const content = sanitizeRichText(parsed.data.content);
 
   const [thread] = await db.select().from(threads).where(eq(threads.slug, threadSlug));
   if (!thread) {
@@ -199,6 +199,8 @@ export async function createPostAction(
   if (threadBoard?.kind === "article") {
     return { error: "Use comments to respond to an article, not a reply post" };
   }
+  const content =
+    threadBoard?.kind === "phone" ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
 
   const [newPost] = await db
     .insert(posts)
@@ -285,10 +287,15 @@ export async function updatePostAction(
   }
 
   const { postId, content: rawContent } = parsed.data;
-  const content = sanitizeRichText(rawContent);
 
   const [post] = await db.select().from(posts).where(eq(posts.id, postId));
   if (!post) return { error: "That post no longer exists" };
+
+  const [postThread] = await db.select({ boardId: threads.boardId }).from(threads).where(eq(threads.id, post.threadId));
+  const [postBoard] = postThread
+    ? await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, postThread.boardId))
+    : [undefined];
+  const content = postBoard?.kind === "phone" ? sanitizePlainText(rawContent) : sanitizeRichText(rawContent);
 
   const isAuthor = post.userId === session.userId;
   const canModerate = session.isAdmin || (await canModeratePosts(characterId));
@@ -324,7 +331,9 @@ export async function deletePostAction(formData: FormData) {
 
   const isOwnPost = post.userId === session.userId;
   if (!isOwnPost && !session.isAdmin) {
-    return; // not your post and not an admin
+    const activeCharacterId = await getActiveCharacterId();
+    const isModerator = activeCharacterId ? await canModeratePosts(activeCharacterId) : false;
+    if (!isModerator) return; // not your post and not a moderator
   }
 
   const [thread] = await db.select().from(threads).where(eq(threads.id, post.threadId));

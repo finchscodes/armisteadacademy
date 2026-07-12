@@ -31,10 +31,14 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="font-display text-3xl text-brass-400 mb-1">
-        {data.board.kind === "article" ? "New article" : "New thread"}
+        {data.board.kind === "article" ? "New article" : data.board.kind === "phone" ? "New conversation" : "New thread"}
       </h1>
       <p className="text-ink-400 text-sm mb-6">Posting in {data.board.name}</p>
-      <NewThreadForm boardSlug={slug} isArticle={data.board.kind === "article"} />
+      <NewThreadForm
+        boardSlug={slug}
+        isArticle={data.board.kind === "article"}
+        isPhone={data.board.kind === "phone"}
+      />
     </div>
   );
 }

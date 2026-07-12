@@ -4,9 +4,18 @@ import { useState } from "react";
 import { useActionState } from "react";
 import { createThreadAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { PhoneMessageComposer } from "@/components/phone-message-composer";
 import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 
-export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: string; isArticle?: boolean }) {
+export function NewThreadForm({
+  boardSlug,
+  isArticle = false,
+  isPhone = false,
+}: {
+  boardSlug: string;
+  isArticle?: boolean;
+  isPhone?: boolean;
+}) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -16,17 +25,18 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="title">
-          {isArticle ? "Article title" : "Thread title"}
+          {isArticle ? "Article title" : isPhone ? "Conversation title" : "Thread title"}
         </label>
         <input
           id="title"
           name="title"
           required
+          placeholder={isPhone ? "e.g. Texts with Celeste" : undefined}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>
 
-      {!isArticle && (
+      {!isArticle && !isPhone && (
         <>
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="rating">
@@ -130,9 +140,9 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          {isArticle ? "Article body" : "Opening post"}
+          {isArticle ? "Article body" : isPhone ? "First message" : "Opening post"}
         </label>
-        <RichTextEditor name="content" />
+        {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" />}
       </div>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
@@ -142,7 +152,7 @@ export function NewThreadForm({ boardSlug, isArticle = false }: { boardSlug: str
         disabled={pending}
         className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
       >
-        {pending ? "Posting..." : isArticle ? "Post article" : "Post thread"}
+        {pending ? "Posting..." : isArticle ? "Post article" : isPhone ? "Start conversation" : "Post thread"}
       </button>
     </form>
   );

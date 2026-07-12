@@ -43,6 +43,16 @@ export function sanitizeRichText(html: string): string {
   }).trim();
 }
 
+/**
+ * Strips any HTML tags but preserves line breaks and whitespace — for the
+ * phone/texting board format, which is plain text (each line is its own
+ * message, or a /action or /img line) rather than rich HTML like every
+ * other board.
+ */
+export function sanitizePlainText(text: string): string {
+  return sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} }).trim();
+}
+
 /** Roughly how long the plain text is, ignoring markup — used for length validation. */
 export function richTextLength(html: string): number {
   return sanitizeHtml(html, { allowedTags: [], allowedAttributes: {} }).length;

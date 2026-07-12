@@ -8,7 +8,7 @@ type Category = { id: number; name: string };
 
 export function NewBoardForm({ categories }: { categories: Category[] }) {
   const [state, formAction, pending] = useActionState(adminCreateBoardAction, undefined);
-  const [kind, setKind] = useState<"category" | "board" | "class" | "article">("board");
+  const [kind, setKind] = useState<"category" | "board" | "class" | "article" | "phone">("board");
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -39,6 +39,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
           <option value="board">Topic area (regular threads)</option>
           <option value="class">Class (lessons only, no topics)</option>
           <option value="article">Article board (management posts, comments)</option>
+          <option value="phone">Phone/texting board (message-bubble topics)</option>
         </select>
       </div>
 

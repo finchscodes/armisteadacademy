@@ -347,6 +347,15 @@ body {
   text-decoration: underline;
 }
 
+.rich-text-content a.mention {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rich-text-content a.mention:hover {
+  text-decoration: underline;
+}
+
 .rich-text-content strong {
   font-weight: 700;
   font-family: var(--font-ui);

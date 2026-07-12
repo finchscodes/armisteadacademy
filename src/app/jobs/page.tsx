@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getJobBoardData } from "@/lib/character-jobs";
-import { JOB_META, jobLabel, isListedJob } from "@/lib/roles";
+import { JOB_META, jobLabel, isListedJob, INACTIVE_JOBS } from "@/lib/roles";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function JobsPage() {
   const byJob = await getJobBoardData();
 
-  const jobsInOrder = [...byJob.keys()].filter(isListedJob);
+  const jobsInOrder = [...byJob.keys()].filter(isListedJob).filter((j) => !INACTIVE_JOBS.includes(j));
 
   return (
     <div className="max-w-4xl mx-auto">

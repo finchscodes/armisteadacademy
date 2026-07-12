@@ -11,7 +11,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import { useEffect, useRef, useState } from "react";
 import { CharacterMention } from "@/components/mention-extension";
-import { JOB_VALUES, JOB_META } from "@/lib/roles";
+import { ACTIVE_JOB_VALUES, JOB_META } from "@/lib/roles";
 import { HALL_VALUES, HALL_META } from "@/lib/halls";
 
 declare module "@tiptap/core" {
@@ -286,7 +286,7 @@ export function RichTextEditor({
             <div className="absolute left-0 top-full mt-1 z-20 w-56 bg-ink-900 border border-ink-600 rounded-md shadow-xl p-2">
               <p className="text-[10px] uppercase tracking-wider text-ink-400 px-1 mb-1">Jobs</p>
               <div className="grid grid-cols-6 gap-1 mb-2">
-                {JOB_VALUES.filter((j) => j !== "none" && JOB_META[j].color).map((j) => (
+                {ACTIVE_JOB_VALUES.filter((j) => j !== "none" && JOB_META[j].color).map((j) => (
                   <button
                     key={j}
                     type="button"

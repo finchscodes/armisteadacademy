@@ -5,6 +5,7 @@ import { uploadFaceclaimAction } from "@/actions/uploads";
 import { formatActionLine, formatImageLine, formatCallContent, parseCallContent } from "@/lib/phone-messages";
 import { ChatBubbleIcon, PhoneCallIcon } from "@/components/nav-icons";
 import { CHAT_EMOJI } from "@/lib/chat-emoji";
+import { StyledSelect } from "@/components/styled-select";
 
 type Participant = { id: number; name: string; avatarUrl: string | null };
 
@@ -275,18 +276,14 @@ export function PhoneMessageComposer({
           <div>
             <label className="block text-xs font-medium text-ink-400 mb-1">Calling</label>
             {participants.length > 0 ? (
-              <select
+              <StyledSelect
                 value={callTargetId}
-                onChange={(e) => setCallTargetId(e.target.value)}
-                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
-              >
-                {participants.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-                <option value="__custom">Someone else...</option>
-              </select>
+                onChange={setCallTargetId}
+                options={[
+                  ...participants.map((p) => ({ value: String(p.id), label: p.name })),
+                  { value: "__custom", label: "Someone else..." },
+                ]}
+              />
             ) : null}
             {(participants.length === 0 || callTargetId === "__custom") && (
               <input

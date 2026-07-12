@@ -43,12 +43,12 @@ export const CharacterMention = Mention.extend({
     return [
       "a",
       mergeAttributes({ href: `/c/${node.attrs.slug}`, class: "mention" }, HTMLAttributes),
-      `@${node.attrs.label}`,
+      node.attrs.label,
     ];
   },
 
   renderText({ node }) {
-    return `@${node.attrs.label}`;
+    return node.attrs.label;
   },
 }).configure({
   HTMLAttributes: { class: "mention" },
@@ -89,7 +89,7 @@ export const CharacterMention = Mention.extend({
         if (items.length === 0) {
           const empty = document.createElement("div");
           empty.textContent = "No matches";
-          empty.style.cssText = "padding:6px 12px;font-size:12px;color:#999;";
+          empty.className = "px-3 py-1.5 text-xs text-ink-400";
           popup.appendChild(empty);
           return;
         }
@@ -97,9 +97,10 @@ export const CharacterMention = Mention.extend({
           const btn = document.createElement("button");
           btn.type = "button";
           btn.textContent = `${item.firstName} ${item.lastName}`;
-          btn.style.cssText = `display:block;width:100%;text-align:left;padding:6px 12px;font-size:13px;background:${
-            i === selectedIndex ? "#46403d" : "transparent"
-          };border:none;cursor:pointer;color:${item.color ?? "#f6efdc"};`;
+          btn.className = `w-full flex items-center text-left px-3 py-1 text-sm transition-colors ${
+            i === selectedIndex ? "bg-ink-700" : "hover:bg-ink-700"
+          }`;
+          btn.style.color = item.color ?? "#f6efdc";
           btn.addEventListener("mousedown", (e) => {
             e.preventDefault();
             command?.(item);
@@ -120,8 +121,8 @@ export const CharacterMention = Mention.extend({
           command = props.command as unknown as (item: MentionCandidate) => void;
           selectedIndex = 0;
           popup = document.createElement("div");
-          popup.style.cssText =
-            "position:fixed;z-index:9999;background:#2d2928;border:1px solid #46403d;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-height:220px;overflow-y:auto;min-width:160px;padding:4px 0;";
+          popup.className =
+            "fixed z-[9999] bg-ink-800 border border-ink-600 rounded-md shadow-xl shadow-black/40 max-h-56 overflow-y-auto min-w-[160px] py-1";
           document.body.appendChild(popup);
           position(props.clientRect?.() ?? null);
           paint();

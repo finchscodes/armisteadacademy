@@ -7,8 +7,8 @@ type BoardSpec = {
   name: string;
   slug: string;
   description?: string;
-  kind?: "board" | "article";
-  extraArticleJob?: "writer" | "field_agent";
+  kind?: "board" | "article" | "class";
+  extraArticleJob?: "writer" | "field_agent" | "chief_editor";
   restrictedToHall?: "undercroft" | "veil" | "rampart" | "eaves";
 };
 
@@ -61,8 +61,9 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "Food Court", slug: "food-court" },
       { name: "Auditorium", slug: "auditorium" },
       { name: "Pool/Gym/Spa", slug: "pool-gym-spa" },
-      { name: "Armistead Weekly", slug: "armistead-weekly", kind: "article", extraArticleJob: "writer" },
-      { name: "Inside Ploy", slug: "inside-ploy", kind: "article", extraArticleJob: "writer" },
+      { name: "Physical Education", slug: "physical-education", kind: "class" },
+      { name: "Armistead Weekly", slug: "armistead-weekly", kind: "article", extraArticleJob: "chief_editor" },
+      { name: "Inside Ploy", slug: "inside-ploy", kind: "article", extraArticleJob: "chief_editor" },
     ],
   },
   {
@@ -110,16 +111,6 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
     ],
   },
   {
-    name: "Communications",
-    slug: "communications",
-    boards: [
-      { name: "Text Messages", slug: "text-messages" },
-      { name: "Social Media", slug: "social-media" },
-      { name: "Emails/Letters", slug: "emails-letters" },
-      { name: "Phone Calls", slug: "phone-calls" },
-    ],
-  },
-  {
     name: "Outside Armistead",
     slug: "outside-armistead",
     boards: [
@@ -129,6 +120,16 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
       { name: "The Past", slug: "the-past" },
       { name: "Missions", slug: "missions" },
       { name: "Elsewhere", slug: "elsewhere" },
+    ],
+  },
+  {
+    name: "Communications",
+    slug: "communications",
+    boards: [
+      { name: "Text Messages", slug: "text-messages" },
+      { name: "Social Media", slug: "social-media" },
+      { name: "Emails/Letters", slug: "emails-letters" },
+      { name: "Phone Calls", slug: "phone-calls" },
     ],
   },
 ];

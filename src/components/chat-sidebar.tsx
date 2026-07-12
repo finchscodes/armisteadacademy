@@ -93,20 +93,19 @@ export function ChatSidebar({
   const knownIds = useRef<Set<number>>(new Set(initialMessages.map((m) => m.id)));
 
   // Audio needs a real user gesture to unlock before an async poll can play a
-  // sound later — prime it on the first click/keypress anywhere in the widget.
+  // sound later — prime it on the first click/keypress anywhere on the site,
+  // since most interaction happens outside the chat widget itself.
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
     function unlock() {
       primeAudio();
-      el?.removeEventListener("pointerdown", unlock);
-      el?.removeEventListener("keydown", unlock);
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
     }
-    el.addEventListener("pointerdown", unlock);
-    el.addEventListener("keydown", unlock);
+    document.addEventListener("pointerdown", unlock);
+    document.addEventListener("keydown", unlock);
     return () => {
-      el.removeEventListener("pointerdown", unlock);
-      el.removeEventListener("keydown", unlock);
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
     };
   }, []);
 
@@ -303,8 +302,7 @@ export function ChatSidebar({
                   <span className="uppercase tracking-wider text-brass-400 font-semibold">
                     {m.characterFirstName} {m.characterLastName}
                   </span>
-                  <span className="text-ink-400 mx-1.5">&bull;</span>
-                  <span className="text-parchment-100">{m.content}</span>
+                  <span className="text-parchment-100"> {m.content}</span>
                 </div>
               );
             }

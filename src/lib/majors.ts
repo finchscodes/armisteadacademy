@@ -68,7 +68,7 @@ export const MAJORS: Major[] = [
     label: "Communications & Relay",
     description:
       "Keeping every team connected — radio operations, signal relay, encrypted field comms. The voice in your ear that gets everyone home. Also operate as mission support.",
-    color: "#7FA6A8",
+    color: "#C59B6D",
     selectable: true,
   },
   {

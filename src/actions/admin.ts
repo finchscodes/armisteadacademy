@@ -13,7 +13,7 @@ import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES } from "@/lib/halls";
-import { getPrimaryJobsForCharacters, isScopedToBoard } from "@/lib/character-jobs";
+import { getPrimaryJobsForCharacters, isScopedToBoard, characterHasAnyJob } from "@/lib/character-jobs";
 import { GRADE_TIER_VALUES, GRADE_TIER_META, computePayout } from "@/lib/grading";
 
 async function requireAdmin() {
@@ -24,8 +24,27 @@ async function requireAdmin() {
   return session;
 }
 
+/**
+ * Same as requireAdmin, but also lets through characters holding one of the
+ * limited-admin-access jobs (management + Resident Advisor) — used only by
+ * the hiring-focused functions (search users, view a user's jobs, add/remove
+ * a job). Everything else in this file stays true-admin-only.
+ */
+async function requireAdminOrHiringAccess() {
+  const session = await getSession();
+  if (!session) throw new Error("Not authorized");
+  if (session.isAdmin) return session;
+
+  const { ADMIN_PANEL_JOBS } = await import("@/lib/admin-access");
+  const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
+  for (const c of myCharacters) {
+    if (await characterHasAnyJob(c.id, ADMIN_PANEL_JOBS)) return session;
+  }
+  throw new Error("Not authorized");
+}
+
 export async function searchUsers(query: string) {
-  await requireAdmin();
+  await requireAdminOrHiringAccess();
 
   const trimmed = query.trim();
   const cols = {
@@ -47,7 +66,7 @@ export async function searchUsers(query: string) {
 }
 
 export async function getUserDetail(userId: number) {
-  await requireAdmin();
+  await requireAdminOrHiringAccess();
 
   const [user] = await db.select().from(users).where(eq(users.id, userId));
   if (!user) return null;
@@ -207,7 +226,7 @@ export async function adminAddCharacterJobAction(
   _prevState: AdminActionState,
   formData: FormData
 ): Promise<AdminActionState> {
-  await requireAdmin();
+  await requireAdminOrHiringAccess();
 
   const parsed = addCharacterJobSchema.safeParse({
     characterId: formData.get("characterId"),
@@ -263,7 +282,7 @@ export async function adminAddCharacterJobAction(
 }
 
 export async function adminRemoveCharacterJobAction(formData: FormData) {
-  await requireAdmin();
+  await requireAdminOrHiringAccess();
   const jobRowId = Number(formData.get("jobRowId"));
   const userId = Number(formData.get("userId"));
   if (!jobRowId) return;
@@ -1082,8 +1101,18 @@ export async function adminUpdateCharacterHallAction(
 /*  Admin: override a submission's grade after the fact                       */
 /* -------------------------------------------------------------------------- */
 
-export async function getRecentGradedSubmissions(limit = 50) {
-  await requireAdmin();
+export async function getRecentGradedSubmissions(limit = 50, boardIds?: number[]) {
+  const session = await getSession();
+  if (!session) throw new Error("Not authorized");
+  if (!session.isAdmin) {
+    const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
+    let allowed = false;
+    for (const c of myCharacters) {
+      if (await characterHasAnyJob(c.id, ["instructor", "assistant_instructor"])) allowed = true;
+    }
+    if (!allowed) throw new Error("Not authorized");
+  }
+
   const rows = await db
     .select({
       id: submissions.id,
@@ -1105,7 +1134,11 @@ export async function getRecentGradedSubmissions(limit = 50) {
     .innerJoin(characters, eq(submissions.characterId, characters.id))
     .innerJoin(lessons, eq(submissions.lessonId, lessons.id))
     .innerJoin(boards, eq(lessons.boardId, boards.id))
-    .where(eq(submissions.status, "graded"))
+    .where(
+      boardIds && boardIds.length > 0
+        ? and(eq(submissions.status, "graded"), inArray(lessons.boardId, boardIds))
+        : eq(submissions.status, "graded")
+    )
     .orderBy(desc(submissions.gradedAt))
     .limit(limit);
   return rows;
@@ -1120,7 +1153,16 @@ export async function adminUpdateSubmissionGradeAction(
   _prevState: AdminActionState,
   formData: FormData
 ): Promise<AdminActionState> {
-  await requireAdmin();
+  const session = await getSession();
+  if (!session) return { error: "Not signed in" };
+  if (!session.isAdmin) {
+    const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
+    let allowed = false;
+    for (const c of myCharacters) {
+      if (await characterHasAnyJob(c.id, ["instructor", "assistant_instructor"])) allowed = true;
+    }
+    if (!allowed) return { error: "Not authorized" };
+  }
 
   const parsed = updateGradeSchema.safeParse({
     submissionId: formData.get("submissionId"),
@@ -1312,7 +1354,7 @@ export async function adminRemoveSiteLinkAction(formData: FormData) {
 
 /** Flat list of every non-category board — used to populate the role-scope picker. */
 export async function getAllBoardsFlat() {
-  await requireAdmin();
+  await requireAdminOrHiringAccess();
   return db
     .select({ id: boards.id, name: boards.name, kind: boards.kind, restrictedToHall: boards.restrictedToHall })
     .from(boards)

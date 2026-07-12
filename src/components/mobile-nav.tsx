@@ -60,7 +60,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
               active.children.map((board) => (
                 <Link
                   key={board.id}
-                  href={`/b/${board.slug}`}
+                  href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                   onClick={() => setOpen(false)}
                   className="block text-sm text-parchment-100 py-1.5 border-b border-ink-800"
                 >

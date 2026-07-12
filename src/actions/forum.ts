@@ -13,6 +13,8 @@ import { XP_AWARDS } from "@/lib/xp";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
+import { characterHasAnyJob } from "@/lib/character-jobs";
+import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import type { ActionState } from "./auth";
 
@@ -63,6 +65,14 @@ export async function createThreadAction(
   }
   if (board.kind === "class") {
     return { error: "This is a class board — it only takes lessons, not topics" };
+  }
+  if (board.slug === "missions") {
+    const allowed =
+      session.isAdmin ||
+      (await characterHasAnyJob(characterId, [...MANAGEMENT_JOBS, "operator"]));
+    if (!allowed) {
+      return { error: "Only Operators and management can start a topic in Missions" };
+    }
   }
   if (board.kind === "article") {
     const allowed = session.isAdmin || (await canPostArticle(characterId, board.id));

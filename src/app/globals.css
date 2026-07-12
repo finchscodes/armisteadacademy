@@ -327,8 +327,8 @@ body {
 
 .rich-text-content blockquote {
   border-left: 2px solid var(--ink-600);
-  padding-left: 2.5em;
-  margin: 0.75em 0;
+  margin: 0.75em 0 0.75em 1.5em;
+  padding-left: 1.5em;
   color: var(--ink-200, #acacac);
   font-style: italic;
 }

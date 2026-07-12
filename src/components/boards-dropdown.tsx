@@ -83,7 +83,7 @@ export function BoardsDropdown({
                   categories[0].children.map((board) => (
                     <Link
                       key={board.id}
-                      href={`/b/${board.slug}`}
+                      href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                       onClick={() => setOpen(false)}
                       className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
                     >
@@ -100,59 +100,94 @@ export function BoardsDropdown({
             </div>
           ) : (
           <div className="grid grid-cols-4 xl:grid-cols-6 gap-x-5 gap-y-3">
-            {categories.map((category) => (
-              <div key={category.id}>
-                <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
-                  {category.name}
-                </p>
-                <div className="space-y-0.5">
-                  {category.children.length === 0 && category.slug !== "dormitories" ? (
-                    <p className="text-[11px] text-ink-400 italic">Empty</p>
-                  ) : (
-                    category.children.map((board) => (
-                      <Link
-                        key={board.id}
-                        href={`/b/${board.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
-                      >
-                        {board.name}
-                        {KIND_BADGE[board.kind] && (
-                          <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
-                            {KIND_BADGE[board.kind]}
-                          </span>
-                        )}
-                      </Link>
-                    ))
-                  )}
-                  {/* Job List and Reputation live with the dorms — they're pages, not real topic areas. */}
-                  {category.slug === "dormitories" && (
-                    <>
-                      <Link
-                        href="/jobs"
-                        onClick={() => setOpen(false)}
-                        className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
-                      >
-                        Job List
-                        <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
-                          directory
-                        </span>
-                      </Link>
-                      <Link
-                        href="/reputation"
-                        onClick={() => setOpen(false)}
-                        className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
-                      >
-                        Reputation
-                        <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
-                          rankings
-                        </span>
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
+            {categories
+              .filter((c) => c.slug !== "communications")
+              .map((category) => {
+                const communications =
+                  category.slug === "dormitories"
+                    ? categories.find((c) => c.slug === "communications")
+                    : null;
+                return (
+                  <div key={category.id}>
+                    <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                      {category.name}
+                    </p>
+                    <div className="space-y-0.5">
+                      {category.children.length === 0 && category.slug !== "dormitories" ? (
+                        <p className="text-[11px] text-ink-400 italic">Empty</p>
+                      ) : (
+                        category.children.map((board) => (
+                          <Link
+                            key={board.id}
+                            href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
+                            onClick={() => setOpen(false)}
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                          >
+                            {board.name}
+                            {KIND_BADGE[board.kind] && (
+                              <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                                {KIND_BADGE[board.kind]}
+                              </span>
+                            )}
+                          </Link>
+                        ))
+                      )}
+                      {/* Job List and Reputation live with the dorms — they're pages, not real topic areas. */}
+                      {category.slug === "dormitories" && (
+                        <>
+                          <Link
+                            href="/jobs"
+                            onClick={() => setOpen(false)}
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                          >
+                            Job List
+                            <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                              directory
+                            </span>
+                          </Link>
+                          <Link
+                            href="/reputation"
+                            onClick={() => setOpen(false)}
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                          >
+                            Reputation
+                            <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                              rankings
+                            </span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Communications rides along in the same column as Dormitories —
+                        no gap, just a label acting as a natural divider between them. */}
+                    {communications && (
+                      <>
+                        <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700 mt-3">
+                          {communications.name}
+                        </p>
+                        <div className="space-y-0.5">
+                          {communications.children.map((board) => (
+                            <Link
+                              key={board.id}
+                              href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
+                              onClick={() => setOpen(false)}
+                              className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                            >
+                              {board.name}
+                              {KIND_BADGE[board.kind] && (
+                                <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                                  {KIND_BADGE[board.kind]}
+                                </span>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
 
             {uncategorized.length > 0 && (
               <div>
@@ -163,7 +198,7 @@ export function BoardsDropdown({
                   {uncategorized.map((board) => (
                     <Link
                       key={board.id}
-                      href={`/b/${board.slug}`}
+                      href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                       onClick={() => setOpen(false)}
                       className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
                     >

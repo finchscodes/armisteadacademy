@@ -38,9 +38,9 @@ export function GlobalShell({
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 items-start">
+    <div className="flex flex-col lg:flex-row gap-6">
       <div className="flex-1 min-w-0">{children}</div>
-      <div className="w-full lg:w-auto lg:sticky lg:top-14">
+      <div className="w-full lg:w-auto lg:sticky lg:top-14 lg:self-start">
         <CollapsibleChat {...chatProps} />
       </div>
     </div>

@@ -112,7 +112,7 @@ export async function createCharacterAction(
 
   const { firstName, middleName, lastName, age, gender, socialStatus, name, major, avatarUrl, bio } =
     parsed.data;
-  const slug = slugifyUnique(name);
+  const slug = slugifyUnique(`${firstName} ${lastName}`);
 
   const [character] = await db
     .insert(characters)

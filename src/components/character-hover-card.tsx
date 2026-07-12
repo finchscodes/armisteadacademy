@@ -65,9 +65,9 @@ export function CharacterHoverCard({
       {show && profile && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}
-          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
+          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-center gap-2.5 text-left"
         >
-          <Link href={`/c/${slug}`} className="shrink-0 relative self-start">
+          <Link href={`/c/${slug}`} className="shrink-0 relative block w-20 h-20">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={profile.avatarUrl ?? undefined}
@@ -86,7 +86,7 @@ export function CharacterHoverCard({
               </div>
             )}
             <span
-              className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-ink-900 ${
+              className={`absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-ink-900 ${
                 profile.presence === "online"
                   ? "bg-green-500"
                   : profile.presence === "away"

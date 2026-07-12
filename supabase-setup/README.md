@@ -25,10 +25,11 @@ folded into `01` for a fresh install. Running them after `01` will error
 
 ## Already had this running before this update
 
-If you already ran everything through `46`, you need one new file:
-1. `47-split-survival-major.sql` — splits a major into two, fixes a stale
-   default value. Read the comment at the top before running it — it
-   auto-reassigns existing characters and explains the choice it makes.
+If you already ran everything through `47`, you need four new files, in order:
+1. `48-physical-education-class.sql`
+2. `49-regenerate-character-slugs.sql` — **changes every existing character's profile URL.** Read the comment at the top before running it.
+3. `50-reorder-mobile-categories.sql`
+4. `51-chief-editor-boards.sql`
 
 ## File reference
 
@@ -36,5 +37,8 @@ If you already ran everything through `46`, you need one new file:
 |---|---|
 | `01-schema.sql` | Full schema (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
-| `03`–`46` | (historical) incremental updates, all folded into `01` |
-| `47-split-survival-major.sql` | Splits Survival/Comms major, fixes default |
+| `03`–`47` | (historical) incremental updates, all folded into `01` |
+| `48-physical-education-class.sql` | Adds Physical Education class |
+| `49-regenerate-character-slugs.sql` | Profile URLs now from legal name |
+| `50-reorder-mobile-categories.sql` | Mobile nav category order |
+| `51-chief-editor-boards.sql` | Armistead Weekly/Inside Ploy → Chief Editor |

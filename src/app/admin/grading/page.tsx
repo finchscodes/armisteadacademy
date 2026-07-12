@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getRecentGradedSubmissions } from "@/actions/admin";
 import { AdminGradeEditor } from "@/components/admin-grade-editor";
 import { tierLabel, tierColor, type GradeTier } from "@/lib/grading";
+import { getCurrentUser } from "@/lib/current-user";
+import { getAdminAccessContext } from "@/lib/admin-access";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -10,7 +12,15 @@ import { tierLabel, tierColor, type GradeTier } from "@/lib/grading";
 export const dynamic = "force-dynamic";
 
 export default async function AdminGradingPage() {
-  const submissions = await getRecentGradedSubmissions();
+  const current = await getCurrentUser();
+  const access = await getAdminAccessContext(
+    current?.activeCharacter?.id ?? null,
+    Boolean(current?.session.isAdmin)
+  );
+  const submissions = await getRecentGradedSubmissions(
+    50,
+    access.isFullAdmin ? undefined : access.gradingBoardIds
+  );
 
   return (
     <div className="max-w-2xl">

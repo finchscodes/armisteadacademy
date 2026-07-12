@@ -76,14 +76,12 @@ export default async function SocialPage() {
                 className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
               >
                 <div className="flex items-center gap-2.5 mb-2">
-                  <CharacterHoverCard
-                    characterId={t.characterId}
-                    slug={t.characterSlug}
-                    className="relative flex items-center gap-2.5 min-w-0"
-                  >
+                  <Link href={`/c/${t.characterSlug}`} className="shrink-0">
                     <CharacterBadge name={t.characterName} avatarUrl={t.characterAvatarUrl} size="sm" />
-                    <div className="min-w-0">
-                      <p className="text-sm truncate">
+                  </Link>
+                  <div className="min-w-0">
+                    <p className="text-sm truncate">
+                      <CharacterHoverCard characterId={t.characterId} slug={t.characterSlug} className="relative inline">
                         <Link
                           href={`/c/${t.characterSlug}`}
                           className="hover:underline"
@@ -91,16 +89,16 @@ export default async function SocialPage() {
                         >
                           {t.characterFirstName} {t.characterLastName}
                         </Link>
-                        <span className="text-ink-400"> posted in </span>
-                        <Link href={`/t/${t.threadSlug}`} className="text-brass-400 hover:underline">
-                          {t.threadTitle}
-                        </Link>
-                      </p>
-                      <p className="text-xs text-ink-400">
-                        {t.boardName} &middot; {timeAgo(t.postCreatedAt)}
-                      </p>
-                    </div>
-                  </CharacterHoverCard>
+                      </CharacterHoverCard>
+                      <span className="text-ink-400"> posted in </span>
+                      <Link href={`/t/${t.threadSlug}`} className="text-brass-400 hover:underline">
+                        {t.threadTitle}
+                      </Link>
+                    </p>
+                    <p className="text-xs text-ink-400">
+                      {t.boardName} &middot; {timeAgo(t.postCreatedAt)}
+                    </p>
+                  </div>
                 </div>
                 <Link href={`/t/${t.threadSlug}`} className="block text-xs text-parchment-100/80 line-clamp-3">
                   {t.excerpt}

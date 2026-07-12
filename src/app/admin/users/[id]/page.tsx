@@ -18,6 +18,8 @@ import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor
 import { AdminHallEditor } from "@/components/admin-hall-editor";
 import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
 import { levelForXp } from "@/lib/xp";
+import { getCurrentUser } from "@/lib/current-user";
+import { getAdminAccessContext } from "@/lib/admin-access";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -31,10 +33,40 @@ export default async function AdminUserDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const current = await getCurrentUser();
+  const access = await getAdminAccessContext(
+    current?.activeCharacter?.id ?? null,
+    Boolean(current?.session.isAdmin)
+  );
+
   const [detail, allBoards] = await Promise.all([getUserDetail(Number(id)), getAllBoardsFlat()]);
   if (!detail) notFound();
 
   const { user, characters } = detail;
+
+  // Limited (hire-only) access — just the job editor per character, nothing else.
+  if (!access.isFullAdmin) {
+    return (
+      <div className="max-w-xl mx-auto">
+        <Link href="/admin/users" className="text-sm text-ink-400 hover:text-brass-400">
+          &larr; All users
+        </Link>
+        <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.username}</h1>
+        <div className="space-y-6">
+          {characters.map((c) => (
+            <div key={c.id} className="bg-ink-900 border border-ink-700 rounded-lg p-4">
+              <p className="font-display text-lg text-parchment-100 mb-2">
+                {c.firstName} {c.lastName}
+              </p>
+              <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} boards={allBoards} />
+            </div>
+          ))}
+          {characters.length === 0 && <p className="text-sm text-ink-400">No characters yet.</p>}
+        </div>
+      </div>
+    );
+  }
+
   const boardGrantsByCharacter = new Map(
     await Promise.all(
       characters.map(async (c) => [c.id, await getBoardGrantsForCharacter(c.id)] as const)

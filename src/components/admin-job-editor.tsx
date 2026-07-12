@@ -11,6 +11,7 @@ type BoardOption = { id: number; name: string; kind: string; restrictedToHall: s
 // Which jobs are tied to one specific board, and which board kind qualifies.
 const SCOPE_RULES: Record<string, { boardKind: string; hallOnly?: boolean }> = {
   writer: { boardKind: "article" },
+  chief_editor: { boardKind: "article" },
   instructor: { boardKind: "class" },
   assistant_instructor: { boardKind: "class" },
   field_agent: { boardKind: "article", hallOnly: true },

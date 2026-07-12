@@ -49,9 +49,11 @@ export function EmailView({
             <span className="text-[10px] uppercase tracking-wider text-ink-400 font-medium mr-1.5">
               From:
             </span>
-            <Link href={`/c/${senderSlug}`} className="text-parchment-100 hover:text-brass-400 transition-colors">
-              {senderName}
-            </Link>
+            <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative inline">
+              <Link href={`/c/${senderSlug}`} className="text-parchment-100 hover:text-brass-400 transition-colors">
+                {senderName}
+              </Link>
+            </CharacterHoverCard>
           </p>
           <p className="text-sm">
             <span className="text-[10px] uppercase tracking-wider text-ink-400 font-medium mr-1.5">

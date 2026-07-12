@@ -74,7 +74,7 @@ export async function canPostArticle(characterId: number, boardId: number): Prom
 
 /**
  * Can this character edit ANY topic post (not just their own)? Management
- * and Student Council get this moderation-style capability. Admin bypass and
+ * and Prefects get this moderation-style capability. Admin bypass and
  * post-author checks are handled by the caller.
  */
 export async function canModeratePosts(characterId: number): Promise<boolean> {

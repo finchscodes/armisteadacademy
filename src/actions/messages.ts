@@ -8,7 +8,6 @@ import { db } from "@/db";
 import { messageThreads, messageThreadParticipants, messages, characters } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
-import { createNotification } from "@/lib/notifications";
 import type { ActionState } from "./auth";
 
 /** Search characters by legal or code name, for the recipient picker. */
@@ -78,21 +77,6 @@ export async function createMessageThreadAction(
   );
 
   await db.insert(messages).values({ threadId: thread.id, characterId, content });
-
-  const [sender] = await db
-    .select({ firstName: characters.firstName, lastName: characters.lastName })
-    .from(characters)
-    .where(eq(characters.id, characterId));
-  if (sender) {
-    for (const recipientId of parsed.data.recipientIds) {
-      await createNotification(
-        recipientId,
-        "relation_request", // reuse the generic "someone reached out" style
-        `${sender.firstName} ${sender.lastName} sent you a message: "${parsed.data.subject}"`,
-        `/messages/${thread.id}`
-      );
-    }
-  }
 
   redirect(`/messages/${thread.id}`);
 }

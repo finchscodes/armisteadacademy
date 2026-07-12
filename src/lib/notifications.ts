@@ -34,7 +34,7 @@ export async function getUnreadNotificationCount(characterId: number): Promise<n
   return row?.total ?? 0;
 }
 
-export async function getNotifications(characterId: number, limit = 20) {
+export async function getNotifications(characterId: number, limit = 15) {
   return db
     .select()
     .from(notifications)

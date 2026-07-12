@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 import { PhoneReplyForm } from "@/components/phone-reply-form";
+import { EmailReplyForm } from "@/components/email-reply-form";
 import { EditablePhonePost } from "@/components/editable-phone-post";
 import { EmailView } from "@/components/email-view";
 import { LetterView } from "@/components/letter-view";
@@ -183,7 +184,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
           if (isEmail) {
             const canEditThis = Boolean(session) && (session!.userId === post.authorUserId || canModerate);
-            if (thread.emailFormat === "letter") {
+            if (post.emailFormat === "letter") {
               return (
                 <LetterView
                   key={post.id}
@@ -191,8 +192,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   content={post.content}
                   editedAt={post.editedAt}
                   canEdit={canEditThis}
-                  letterTo={thread.letterTo}
-                  letterFrom={thread.letterFrom}
+                  letterTo={post.letterTo}
+                  letterFrom={post.letterFrom}
+                  senderCharacterId={post.characterId}
+                  senderName={`${post.characterFirstName} ${post.characterLastName}`}
+                  senderSlug={post.characterSlug}
+                  senderAvatarUrl={post.characterAvatarUrl}
                 />
               );
             }
@@ -239,13 +244,15 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                 </CharacterHoverCard>
                 <div className={`flex-1 min-w-0 flex flex-col ${side === "right" ? "items-end" : "items-start"}`}>
                   <div className={`flex items-center gap-2 mb-1 ${side === "right" ? "flex-row-reverse" : ""}`}>
-                    <Link
-                      href={`/c/${post.characterSlug}`}
-                      className="text-sm font-medium hover:underline"
-                      style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? "#f6efdc" }}
-                    >
-                      {post.characterFirstName} {post.characterLastName}
-                    </Link>
+                    <CharacterHoverCard characterId={post.characterId} slug={post.characterSlug}>
+                      <Link
+                        href={`/c/${post.characterSlug}`}
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? "#f6efdc" }}
+                      >
+                        {post.characterFirstName} {post.characterLastName}
+                      </Link>
+                    </CharacterHoverCard>
                     <span className="text-[11px] text-ink-400">{formatDate(post.createdAt)}</span>
                     {canDeleteThis && (
                       <DeletePostButton postId={post.id} isOpeningPost={post.id === openingPostId} />
@@ -345,11 +352,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         <p className="text-center text-sm text-ink-400 border border-ink-700 rounded-lg py-4">
           This thread is locked.
         </p>
-      ) : board?.kind === "article" || board?.kind === "email" ? null : board?.kind === "phone" ? (
+      ) : board?.kind === "article" ? null : board?.kind === "phone" ? (
         <PhoneReplyForm
           threadSlug={thread.slug}
           participants={phoneParticipants.filter((p) => p.id !== viewerCharacterId)}
         />
+      ) : board?.kind === "email" ? (
+        <EmailReplyForm threadSlug={thread.slug} />
       ) : (
         <ReplyForm threadSlug={thread.slug} />
       )}

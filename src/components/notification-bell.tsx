@@ -94,7 +94,7 @@ export function NotificationBell({ initial }: { initial: NotificationItem[] }) {
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[320px] overflow-y-auto">
             {items.length === 0 ? (
               <p className="px-4 py-6 text-sm text-ink-400 text-center">Nothing yet.</p>
             ) : (

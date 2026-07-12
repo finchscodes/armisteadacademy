@@ -754,3 +754,40 @@ ALTER TYPE "board_kind" ADD VALUE 'email';
 ALTER TABLE "threads" ADD COLUMN "email_format" varchar(10);
 ALTER TABLE "threads" ADD COLUMN "letter_to" varchar(200);
 ALTER TABLE "threads" ADD COLUMN "letter_from" varchar(200);
+
+-- ----------------------------------------------------------------------------
+-- 58-email-format-on-posts.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 57-letter-format.sql.
+--
+-- Moves the email/letter format fields from threads to posts — replies now
+-- need to independently be an email or a letter (a correspondence can mix
+-- formats), so this can't live on the thread anymore. Since 57 only just
+-- shipped, there's no real letter/email data yet worth preserving — this
+-- is a clean cutover, not a data migration.
+
+ALTER TABLE "threads" DROP COLUMN "email_format";
+ALTER TABLE "threads" DROP COLUMN "letter_to";
+ALTER TABLE "threads" DROP COLUMN "letter_from";
+
+ALTER TABLE "posts" ADD COLUMN "email_format" varchar(10);
+ALTER TABLE "posts" ADD COLUMN "letter_to" varchar(200);
+ALTER TABLE "posts" ADD COLUMN "letter_from" varchar(200);
+
+-- ----------------------------------------------------------------------------
+-- 59-prefect-and-student-council-rename.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 58-email-format-on-posts.sql.
+--
+-- Two renames, order matters (the first frees up the "student_council"
+-- name for the second to reuse):
+--   1. "student_council" (the job previously renamed from "enforcer") -> "prefect"
+--   2. "school_board_member" -> "student_council"
+--
+-- Postgres requires enum value renames to run outside a transaction block,
+-- so these are standalone statements, one per line.
+
+ALTER TYPE "character_job" RENAME VALUE 'student_council' TO 'prefect';
+ALTER TYPE "character_job" RENAME VALUE 'school_board_member' TO 'student_council';

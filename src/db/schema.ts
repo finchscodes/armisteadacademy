@@ -180,7 +180,7 @@ export const characterJobs = pgTable(
     // Armistead Weekly can only post there, an instructor scoped to Threat
     // Elimination can only manage that class, a Resident Advisor scoped to
     // Undercroft Hall can only post/moderate that hall's board. Jobs that
-    // aren't inherently board-specific (Spymaster, Student Council, etc) leave
+    // aren't inherently board-specific (Spymaster, Prefect, etc) leave
     // this null.
     scopeBoardId: integer("scope_board_id").references(() => boards.id, { onDelete: "cascade" }),
     // Grants the same access as a normal job assignment, but doesn't show
@@ -329,11 +329,6 @@ export const threads = pgTable("threads", {
   // Article boards only: if set and in the future, the article is hidden
   // from public view until this time — management/authors can still see it.
   scheduledFor: timestamp("scheduled_for"),
-  // Email boards only: which layout this topic uses. Null for every other
-  // board kind. "letter" adds the salutation/signature fields below.
-  emailFormat: varchar("email_format", { length: 10 }),
-  letterTo: varchar("letter_to", { length: 200 }),
-  letterFrom: varchar("letter_from", { length: 200 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastPostAt: timestamp("last_post_at").notNull().defaultNow(),
 });
@@ -352,6 +347,12 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   editedAt: timestamp("edited_at"),
+  // Email boards only: which layout this specific post uses — "email" or
+  // "letter". Null for every other board kind. A reply can use either
+  // format regardless of what the opening post used.
+  emailFormat: varchar("email_format", { length: 10 }),
+  letterTo: varchar("letter_to", { length: 200 }),
+  letterFrom: varchar("letter_from", { length: 200 }),
 });
 
 /**

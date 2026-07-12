@@ -151,6 +151,9 @@ export async function getThreadBySlug(slug: string) {
       characterMajor: characters.major,
       characterYearOverride: characters.yearOverride,
       characterAvatarUrl: characters.avatarUrl,
+      emailFormat: posts.emailFormat,
+      letterTo: posts.letterTo,
+      letterFrom: posts.letterFrom,
     })
     .from(posts)
     .innerJoin(characters, eq(posts.characterId, characters.id))

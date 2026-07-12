@@ -229,7 +229,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
-                  {isArticleBoard || isEmailBoard ? (
+                  {isArticleBoard ? (
                     <>
                       <p className="text-xs text-ink-400 text-right">{timeAgo(t.createdAt)}</p>
                       <CharacterHoverCard

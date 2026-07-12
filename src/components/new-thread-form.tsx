@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { createThreadAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { PhoneMessageComposer } from "@/components/phone-message-composer";
-import { MailIcon, DocumentIcon } from "@/components/nav-icons";
+import { EmailComposerFields } from "@/components/email-composer-fields";
 import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 
 export function NewThreadForm({
@@ -21,7 +21,6 @@ export function NewThreadForm({
 }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
-  const [emailFormat, setEmailFormat] = useState<"email" | "letter">("email");
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -34,9 +33,7 @@ export function NewThreadForm({
             : isPhone
               ? "Conversation title"
               : isEmail
-                ? emailFormat === "letter"
-                  ? "Title (for the topic list — not shown on the letter itself)"
-                  : "Subject"
+                ? "Title (for the topic list)"
                 : "Thread title"}
         </label>
         <input
@@ -47,65 +44,6 @@ export function NewThreadForm({
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>
-
-      {isEmail && (
-        <>
-          <input type="hidden" name="emailFormat" value={emailFormat} />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setEmailFormat("email")}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
-                emailFormat === "email"
-                  ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-                  : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
-              }`}
-            >
-              <MailIcon className="w-3.5 h-3.5" />
-              Email
-            </button>
-            <button
-              type="button"
-              onClick={() => setEmailFormat("letter")}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
-                emailFormat === "letter"
-                  ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-                  : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
-              }`}
-            >
-              <DocumentIcon className="w-3.5 h-3.5" />
-              Letter
-            </button>
-          </div>
-
-          {emailFormat === "letter" && (
-            <div className="space-y-3 border border-ink-700 rounded-lg p-4 bg-ink-800/40">
-              <div>
-                <label className="block text-xs font-medium mb-1" htmlFor="letterTo">
-                  To
-                </label>
-                <input
-                  id="letterTo"
-                  name="letterTo"
-                  placeholder="e.g. Erandi Moon,"
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1" htmlFor="letterFrom">
-                  From
-                </label>
-                <input
-                  id="letterFrom"
-                  name="letterFrom"
-                  placeholder="e.g. — Genji Ikenaga"
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
-                />
-              </div>
-            </div>
-          )}
-        </>
-      )}
 
       {!isArticle && !isEmail && (
         <div>
@@ -211,20 +149,16 @@ export function NewThreadForm({
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          {isArticle
-            ? "Article body"
-            : isPhone
-              ? "First message"
-              : isEmail
-                ? emailFormat === "letter"
-                  ? "Letter body"
-                  : "Email body"
-                : "Opening post"}
-        </label>
-        {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" />}
-      </div>
+      {isEmail ? (
+        <EmailComposerFields />
+      ) : (
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            {isArticle ? "Article body" : isPhone ? "First message" : "Opening post"}
+          </label>
+          {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" />}
+        </div>
+      )}
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
 
@@ -240,9 +174,7 @@ export function NewThreadForm({
             : isPhone
               ? "Start conversation"
               : isEmail
-                ? emailFormat === "letter"
-                  ? "Send letter"
-                  : "Send email"
+                ? "Send"
                 : "Post thread"}
       </button>
     </form>

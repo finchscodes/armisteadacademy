@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updateLetterAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { RichTextDisplay } from "@/components/rich-text-display";
+import { CharacterBadge } from "@/components/character-badge";
+import { CharacterHoverCard } from "@/components/character-hover-card";
 
 export function LetterView({
   postId,
@@ -13,6 +16,10 @@ export function LetterView({
   canEdit,
   letterTo,
   letterFrom,
+  senderCharacterId,
+  senderName,
+  senderSlug,
+  senderAvatarUrl,
 }: {
   postId: number;
   content: string;
@@ -20,6 +27,11 @@ export function LetterView({
   canEdit: boolean;
   letterTo: string | null;
   letterFrom: string | null;
+  /** The letter's actual author — shown separately from the free-text "from" signature, so it's always clear who really sent it. */
+  senderCharacterId: number;
+  senderName: string;
+  senderSlug: string;
+  senderAvatarUrl: string | null;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -52,7 +64,7 @@ export function LetterView({
             id="letterTo"
             name="letterTo"
             defaultValue={letterTo ?? ""}
-            placeholder="e.g. Erandi Moon,"
+            placeholder="e.g. recipient's name"
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
           />
         </div>
@@ -68,7 +80,7 @@ export function LetterView({
             id="letterFrom"
             name="letterFrom"
             defaultValue={letterFrom ?? ""}
-            placeholder="e.g. — Genji Ikenaga"
+            placeholder="e.g. your name"
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
           />
         </div>
@@ -94,14 +106,30 @@ export function LetterView({
   }
 
   return (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg p-8 font-display">
-      {letterTo && <p className="font-semibold text-steel-400 mb-4">{letterTo}</p>}
-
-      <div className="text-parchment-100/90 leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0">
-        <RichTextDisplay html={content} />
+    <div className="bg-ink-900 border border-ink-700 rounded-lg p-8">
+      {/* Who actually wrote this — separate from the stylized "to,"/"from" text below, which is free-form and can say anything. */}
+      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-ink-700 font-sans">
+        <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative shrink-0">
+          <Link href={`/c/${senderSlug}`}>
+            <CharacterBadge name={senderName} avatarUrl={senderAvatarUrl} size="sm" />
+          </Link>
+        </CharacterHoverCard>
+        <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative">
+          <Link href={`/c/${senderSlug}`} className="text-sm text-ink-300 hover:text-brass-400 transition-colors">
+            Written by {senderName}
+          </Link>
+        </CharacterHoverCard>
       </div>
 
-      {letterFrom && <p className="italic text-steel-400 text-right mt-6">{letterFrom}</p>}
+      <div className="font-display">
+        {letterTo && <p className="font-semibold text-steel-400 mb-4">{letterTo}</p>}
+
+        <div className="text-parchment-100/90 leading-relaxed [&_p]:mb-4 [&_p:last-child]:mb-0">
+          <RichTextDisplay html={content} />
+        </div>
+
+        {letterFrom && <p className="italic text-steel-400 text-right mt-6">{letterFrom}</p>}
+      </div>
 
       <div className="flex items-center gap-2 mt-4 justify-end font-sans">
         {editedAt && <span className="text-[11px] text-ink-500 italic">edited</span>}

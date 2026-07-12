@@ -16,7 +16,7 @@ import { createNotifications } from "@/lib/notifications";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 
-/** Admin, or a character holding a topic-moderator job (management, Student Council) — same set as post moderation. */
+/** Admin, or a character holding a topic-moderator job (management, Prefect) — same set as post moderation. */
 async function canModerateTopics(): Promise<boolean> {
   const session = await getSession();
   if (!session) return false;
@@ -132,9 +132,6 @@ export async function createThreadAction(
       surroundings: isArticle || isPhone || isEmail ? null : surroundings || null,
       ooc: isArticle || isPhone || isEmail ? null : ooc || null,
       rating: isArticle || isEmail ? null : rating ?? null,
-      emailFormat: isEmail ? emailFormat ?? "email" : null,
-      letterTo: isEmail && emailFormat === "letter" ? letterTo || null : null,
-      letterFrom: isEmail && emailFormat === "letter" ? letterFrom || null : null,
       scheduledFor,
       lastPostAt: now,
     })
@@ -147,6 +144,9 @@ export async function createThreadAction(
       characterId,
       userId: session.userId,
       content,
+      emailFormat: isEmail ? emailFormat ?? "email" : null,
+      letterTo: isEmail && emailFormat === "letter" ? letterTo || null : null,
+      letterFrom: isEmail && emailFormat === "letter" ? letterFrom || null : null,
     })
     .returning({ id: posts.id });
 
@@ -179,6 +179,9 @@ const newPostSchema = z.object({
     .min(1, "Reply can't be empty")
     .max(60000, "That's too long")
     .refine((v) => richTextLength(v) > 0, "Reply can't be empty"),
+  emailFormat: z.enum(["email", "letter"]).optional(),
+  letterTo: z.string().max(200).optional().or(z.literal("")),
+  letterFrom: z.string().max(200).optional().or(z.literal("")),
 });
 
 export async function createPostAction(
@@ -190,13 +193,16 @@ export async function createPostAction(
   const parsed = newPostSchema.safeParse({
     threadSlug: formData.get("threadSlug"),
     content: formData.get("content"),
+    emailFormat: formData.get("emailFormat") || undefined,
+    letterTo: formData.get("letterTo") || undefined,
+    letterFrom: formData.get("letterFrom") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { threadSlug } = parsed.data;
+  const { threadSlug, emailFormat, letterTo, letterFrom } = parsed.data;
 
   const [thread] = await db.select().from(threads).where(eq(threads.slug, threadSlug));
   if (!thread) {
@@ -207,9 +213,10 @@ export async function createPostAction(
   }
 
   const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
-  if (threadBoard?.kind === "article" || threadBoard?.kind === "email") {
-    return { error: "Use comments to respond, not a reply post" };
+  if (threadBoard?.kind === "article") {
+    return { error: "Use comments to respond to an article, not a reply post" };
   }
+  const isEmailBoard = threadBoard?.kind === "email";
   const content =
     threadBoard?.kind === "phone" ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
 
@@ -220,6 +227,9 @@ export async function createPostAction(
       characterId,
       userId: session.userId,
       content,
+      emailFormat: isEmailBoard ? emailFormat ?? "email" : null,
+      letterTo: isEmailBoard && emailFormat === "letter" ? letterTo || null : null,
+      letterFrom: isEmailBoard && emailFormat === "letter" ? letterFrom || null : null,
     })
     .returning({ id: posts.id });
 
@@ -361,11 +371,10 @@ export async function updateLetterAction(
     return { error: "You don't have permission to edit this letter" };
   }
 
-  await db.update(posts).set({ content, editedAt: new Date() }).where(eq(posts.id, postId));
   await db
-    .update(threads)
-    .set({ letterTo: letterTo || null, letterFrom: letterFrom || null })
-    .where(eq(threads.id, post.threadId));
+    .update(posts)
+    .set({ content, letterTo: letterTo || null, letterFrom: letterFrom || null, editedAt: new Date() })
+    .where(eq(posts.id, postId));
 
   const [thread] = await db.select({ slug: threads.slug }).from(threads).where(eq(threads.id, post.threadId));
   if (thread) revalidatePath(`/t/${thread.slug}`);
@@ -431,7 +440,7 @@ export async function deletePostAction(formData: FormData) {
   redirect(`/t/${thread.slug}`);
 }
 
-/** Delete an entire thread outright. Admin, management, or Student Council. */
+/** Delete an entire thread outright. Admin, management, or Prefect. */
 export async function deleteThreadAction(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -449,7 +458,7 @@ export async function deleteThreadAction(formData: FormData) {
   redirect(`/b/${board?.slug ?? ""}`);
 }
 
-/** Lock or unlock a thread — locked threads can't receive new replies. Admin, management, or Student Council. */
+/** Lock or unlock a thread — locked threads can't receive new replies. Admin, management, or Prefect. */
 export async function toggleThreadLockAction(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -462,7 +471,7 @@ export async function toggleThreadLockAction(formData: FormData) {
   if (!thread) return;
 
   const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
-  if (threadBoard?.kind === "article" || threadBoard?.kind === "email") return; // no reply-posts to lock — comments only
+  if (threadBoard?.kind === "article") return; // article boards reply via comments, not thread posts — no lock
 
   await db.update(threads).set({ isLocked: !thread.isLocked }).where(eq(threads.id, threadId));
   revalidatePath(`/t/${thread.slug}`);

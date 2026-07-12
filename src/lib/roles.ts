@@ -20,8 +20,8 @@ export type CharacterJob =
   | "instructor"
   | "chief_editor"
   | "assistant_instructor"
+  | "prefect"
   | "student_council"
-  | "school_board_member"
   | "writer"
   | "media_team"
   | "library_handler"
@@ -37,8 +37,8 @@ export const JOB_VALUES: [CharacterJob, ...CharacterJob[]] = [
   "instructor",
   "chief_editor",
   "assistant_instructor",
+  "prefect",
   "student_council",
-  "school_board_member",
   "writer",
   "media_team",
   "library_handler",
@@ -61,8 +61,8 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   instructor: { label: "Instructor", color: "#A8D948" }, // Lime
   chief_editor: { label: "Chief Editor", color: "#5AA9A3" }, // Teal
   assistant_instructor: { label: "Assistant Instructor", color: "#E8E8E8" }, // White
-  student_council: { label: "Student Council", color: "#9B6FD1" }, // Purple
-  school_board_member: { label: "School Board Member", color: "#C6A8E8" }, // Lilac
+  prefect: { label: "Prefect", color: "#9B6FD1" }, // Purple — was "Student Council" (originally Enforcer)
+  student_council: { label: "Student Council", color: "#C6A8E8" }, // Lilac — was "School Board Member"
   writer: { label: "Writer", color: "#E0435A" }, // Scarlett
   media_team: { label: "Media Team", color: "#C13E7A" }, // Boysenberry
   library_handler: { label: "Library Handler", color: "#E08A3C" }, // Orange
@@ -92,11 +92,11 @@ export function isListedJob(job: CharacterJob): boolean {
  */
 export const MANAGEMENT_JOBS: CharacterJob[] = ["spymaster", "secretary", "head_staff"];
 
-/** Who can timeout/delete in chat — management, plus Assistant Instructors and Student Council specifically. */
-export const CHAT_MODERATOR_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "assistant_instructor", "student_council"];
+/** Who can timeout/delete in chat — management, plus Assistant Instructors and Prefects specifically. */
+export const CHAT_MODERATOR_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "assistant_instructor", "prefect"];
 
-/** Who can lock/unlock a topic, or delete it outright — management, plus Student Council. */
-export const TOPIC_MODERATOR_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "student_council"];
+/** Who can lock/unlock a topic, or delete it outright — management, plus Prefects. */
+export const TOPIC_MODERATOR_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "prefect"];
 
 export function isManagementJob(job: CharacterJob): boolean {
   return MANAGEMENT_JOBS.includes(job);

@@ -8,23 +8,41 @@ import { RichTextEditor } from "@/components/rich-text-editor";
 import { RichTextDisplay } from "@/components/rich-text-display";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { DeletePostButton } from "@/components/delete-buttons";
+import { jobColor, type CharacterJob } from "@/lib/roles";
+
+function formatLetterDate(date: Date) {
+  return date.toLocaleString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 export function LetterView({
   postId,
   content,
   editedAt,
   canEdit,
+  canDelete,
+  isOpeningPost,
   letterTo,
   letterFrom,
   senderCharacterId,
   senderName,
   senderSlug,
   senderAvatarUrl,
+  senderJob,
+  postedAt,
 }: {
   postId: number;
   content: string;
   editedAt: Date | null;
   canEdit: boolean;
+  canDelete: boolean;
+  isOpeningPost: boolean;
   letterTo: string | null;
   letterFrom: string | null;
   /** The letter's actual author — shown separately from the free-text "from" signature, so it's always clear who really sent it. */
@@ -32,6 +50,8 @@ export function LetterView({
   senderName: string;
   senderSlug: string;
   senderAvatarUrl: string | null;
+  senderJob: CharacterJob;
+  postedAt: Date;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -107,18 +127,25 @@ export function LetterView({
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg p-8">
-      {/* Who actually wrote this — separate from the stylized "to,"/"from" text below, which is free-form and can say anything. */}
-      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-ink-700 font-sans">
-        <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative shrink-0">
-          <Link href={`/c/${senderSlug}`}>
+      {/* Who actually wrote this, and when — separate from the stylized "to,"/"from" text below, which is free-form and can say anything. */}
+      <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-ink-700 font-sans">
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Avatar is decorative here — the hover card lives on the name. */}
+          <Link href={`/c/${senderSlug}`} className="shrink-0">
             <CharacterBadge name={senderName} avatarUrl={senderAvatarUrl} size="sm" />
           </Link>
-        </CharacterHoverCard>
-        <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative">
-          <Link href={`/c/${senderSlug}`} className="text-sm text-ink-300 hover:text-brass-400 transition-colors">
-            Written by {senderName}
-          </Link>
-        </CharacterHoverCard>
+          <CharacterHoverCard characterId={senderCharacterId} slug={senderSlug} className="relative">
+            <Link
+              href={`/c/${senderSlug}`}
+              className="text-sm hover:underline transition-colors"
+              style={{ color: jobColor(senderJob) ?? "#f6efdc" }}
+            >
+              {senderName}
+            </Link>
+          </CharacterHoverCard>
+          <span className="text-[11px] text-ink-400">{formatLetterDate(postedAt)}</span>
+        </div>
+        {canDelete && <DeletePostButton postId={postId} isOpeningPost={isOpeningPost} />}
       </div>
 
       <div className="font-display">

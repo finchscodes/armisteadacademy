@@ -118,7 +118,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         )}
         {canModerate && (
           <div className="flex items-center gap-3">
-            {board?.kind !== "article" && board?.kind !== "email" && (
+            {board?.kind !== "article" && (
               <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
             )}
             <DeleteThreadButton threadId={thread.id} />
@@ -184,6 +184,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
           if (isEmail) {
             const canEditThis = Boolean(session) && (session!.userId === post.authorUserId || canModerate);
+            const canDeleteThis =
+              Boolean(session) &&
+              ((session!.userId === post.authorUserId && post.id !== openingPostId) ||
+                session!.isAdmin ||
+                canModerate);
+            const senderJob = jobsByCharacter.get(post.characterId) ?? "none";
             if (post.emailFormat === "letter") {
               return (
                 <LetterView
@@ -192,12 +198,16 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                   content={post.content}
                   editedAt={post.editedAt}
                   canEdit={canEditThis}
+                  canDelete={canDeleteThis}
+                  isOpeningPost={post.id === openingPostId}
                   letterTo={post.letterTo}
                   letterFrom={post.letterFrom}
                   senderCharacterId={post.characterId}
                   senderName={`${post.characterFirstName} ${post.characterLastName}`}
                   senderSlug={post.characterSlug}
                   senderAvatarUrl={post.characterAvatarUrl}
+                  senderJob={senderJob}
+                  postedAt={post.createdAt}
                 />
               );
             }
@@ -208,11 +218,14 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                 content={post.content}
                 editedAt={post.editedAt}
                 canEdit={canEditThis}
+                canDelete={canDeleteThis}
+                isOpeningPost={post.id === openingPostId}
                 subject={thread.title}
                 senderCharacterId={post.characterId}
                 senderName={`${post.characterFirstName} ${post.characterLastName}`}
                 senderSlug={post.characterSlug}
                 senderAvatarUrl={post.characterAvatarUrl}
+                senderJob={senderJob}
                 postedAt={post.createdAt}
               />
             );
@@ -233,15 +246,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
             return (
               <div key={post.id} className={`flex gap-3 ${side === "right" ? "flex-row-reverse" : ""}`}>
-                <CharacterHoverCard
-                  characterId={post.characterId}
-                  slug={post.characterSlug}
-                  className="relative shrink-0"
-                >
-                  <Link href={`/c/${post.characterSlug}`}>
-                    <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} size="sm" />
-                  </Link>
-                </CharacterHoverCard>
+                <Link href={`/c/${post.characterSlug}`} className="shrink-0">
+                  <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} size="sm" />
+                </Link>
                 <div className={`flex-1 min-w-0 flex flex-col ${side === "right" ? "items-end" : "items-start"}`}>
                   <div className={`flex items-center gap-2 mb-1 ${side === "right" ? "flex-row-reverse" : ""}`}>
                     <CharacterHoverCard characterId={post.characterId} slug={post.characterSlug}>

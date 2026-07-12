@@ -495,6 +495,16 @@ export const homeAnnouncement = pgTable("home_announcement", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+/**
+ * Intro blurb shown at the top of the sorting quiz, before the questions.
+ * Always a single row (id fixed at 1), same pattern as homeAnnouncement.
+ */
+export const sortingQuizBlurb = pgTable("sorting_quiz_blurb", {
+  id: integer("id").primaryKey().default(1),
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 /** "Spotlight of the week" — admin picks up to two characters to feature on every homepage. */
 export const spotlightEntries = pgTable("spotlight_entries", {
   id: serial("id").primaryKey(),

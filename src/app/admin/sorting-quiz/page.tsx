@@ -1,6 +1,7 @@
-import { getSortingQuestionsWithAnswers } from "@/actions/admin";
+import { getSortingQuestionsWithAnswers, getSortingQuizBlurb } from "@/actions/admin";
 import { SortingQuestionCard } from "@/components/sorting-question-card";
 import { NewSortingQuestionForm } from "@/components/new-sorting-question-form";
+import { SortingQuizBlurbForm } from "@/components/sorting-quiz-blurb-form";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -9,10 +10,12 @@ import { NewSortingQuestionForm } from "@/components/new-sorting-question-form";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSortingQuizPage() {
-  const questions = await getSortingQuestionsWithAnswers();
+  const [questions, blurb] = await Promise.all([getSortingQuestionsWithAnswers(), getSortingQuizBlurb()]);
 
   return (
     <div className="max-w-2xl space-y-4">
+      <SortingQuizBlurbForm blurb={blurb} />
+
       {questions.length === 0 ? (
         <p className="text-sm text-ink-400">No questions yet.</p>
       ) : (

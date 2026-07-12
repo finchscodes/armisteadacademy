@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -984,6 +984,40 @@ export async function adminRemoveSpotlightAction(formData: FormData) {
 /* -------------------------------------------------------------------------- */
 
 const MAX_SORTING_QUESTIONS = 12;
+
+/** Intro blurb shown at the top of the sorting quiz, before the questions. */
+export async function getSortingQuizBlurb() {
+  const [row] = await db.select().from(sortingQuizBlurb).where(eq(sortingQuizBlurb.id, 1));
+  return row?.content ?? "";
+}
+
+const updateSortingQuizBlurbSchema = z.object({
+  content: z.string().max(4000).optional().or(z.literal("")),
+});
+
+export async function updateSortingQuizBlurbAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateSortingQuizBlurbSchema.safeParse({ content: formData.get("content") || "" });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db
+    .insert(sortingQuizBlurb)
+    .values({ id: 1, content: parsed.data.content || "" })
+    .onConflictDoUpdate({
+      target: sortingQuizBlurb.id,
+      set: { content: parsed.data.content || "", updatedAt: new Date() },
+    });
+
+  revalidatePath("/sorting-quiz");
+  revalidatePath("/admin/sorting-quiz");
+  return { success: "Blurb updated" };
+}
 
 export async function getSortingQuestionsWithAnswers() {
   const questions = await db.select().from(sortingQuestions).orderBy(sortingQuestions.position);

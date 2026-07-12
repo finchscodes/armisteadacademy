@@ -7,7 +7,12 @@ import { Mark, mergeAttributes } from "@tiptap/core";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect, useRef } from "react";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import { useEffect, useRef, useState } from "react";
+import { CharacterMention } from "@/components/mention-extension";
+import { JOB_VALUES, JOB_META } from "@/lib/roles";
+import { HALL_VALUES, HALL_META } from "@/lib/halls";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -75,6 +80,7 @@ export function RichTextEditor({
   placeholder?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -92,6 +98,9 @@ export function RichTextEditor({
       }),
       StrongCallout,
       Underline,
+      TextStyle,
+      Color,
+      CharacterMention,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Write something..." }),
     ],
@@ -258,6 +267,68 @@ export function RichTextEditor({
         >
           Link
         </ToolbarButton>
+        <span className="w-px bg-ink-600 mx-1" />
+        <div className="relative">
+          <ToolbarButton
+            label="Text color"
+            active={editor.isActive("textStyle") && Boolean(editor.getAttributes("textStyle").color)}
+            onClick={() => setShowColorPicker((v) => !v)}
+          >
+            <span className="inline-flex items-center gap-1">
+              <span
+                className="w-3 h-3 rounded-full border border-ink-500 inline-block"
+                style={{ backgroundColor: editor.getAttributes("textStyle").color || "#f6efdc" }}
+              />
+              Color
+            </span>
+          </ToolbarButton>
+          {showColorPicker && (
+            <div className="absolute left-0 top-full mt-1 z-20 w-56 bg-ink-900 border border-ink-600 rounded-md shadow-xl p-2">
+              <p className="text-[10px] uppercase tracking-wider text-ink-400 px-1 mb-1">Jobs</p>
+              <div className="grid grid-cols-6 gap-1 mb-2">
+                {JOB_VALUES.filter((j) => j !== "none" && JOB_META[j].color).map((j) => (
+                  <button
+                    key={j}
+                    type="button"
+                    data-tooltip={JOB_META[j].label}
+                    onClick={() => {
+                      editor.chain().focus().setColor(JOB_META[j].color as string).run();
+                      setShowColorPicker(false);
+                    }}
+                    className="w-6 h-6 rounded-full border border-ink-600 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: JOB_META[j].color ?? undefined }}
+                  />
+                ))}
+              </div>
+              <p className="text-[10px] uppercase tracking-wider text-ink-400 px-1 mb-1">Halls</p>
+              <div className="grid grid-cols-6 gap-1 mb-2">
+                {HALL_VALUES.map((h) => (
+                  <button
+                    key={h}
+                    type="button"
+                    data-tooltip={HALL_META[h].label}
+                    onClick={() => {
+                      editor.chain().focus().setColor(HALL_META[h].color).run();
+                      setShowColorPicker(false);
+                    }}
+                    className="w-6 h-6 rounded-full border border-ink-600 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: HALL_META[h].color }}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  editor.chain().focus().unsetColor().run();
+                  setShowColorPicker(false);
+                }}
+                className="w-full text-xs text-ink-400 hover:text-parchment-100 transition-colors text-left px-1 py-1"
+              >
+                Clear color
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <EditorContent editor={editor} />
     </div>

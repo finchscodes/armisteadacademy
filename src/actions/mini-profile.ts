@@ -1,10 +1,10 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, or, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
 import { getCharacterYearLabel } from "@/lib/year";
-import { getPrimaryJob } from "@/lib/character-jobs";
+import { getPrimaryJob, getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
 import { jobColor } from "@/lib/roles";
 import { hallLabel, hallColor } from "@/lib/halls";
@@ -47,4 +47,36 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     hallLabel: character.hall ? hallLabel(character.hall) : null,
     hallColor: character.hall ? hallColor(character.hall) : null,
   };
+}
+
+export type MentionCandidate = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  slug: string;
+  color: string | null;
+};
+
+/** Character search for the @mention autocomplete in rich text editors (articles, guide, etc). */
+export async function searchCharactersForMentionAction(query: string): Promise<MentionCandidate[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const rows = await db
+    .select({
+      id: characters.id,
+      firstName: characters.firstName,
+      lastName: characters.lastName,
+      slug: characters.slug,
+    })
+    .from(characters)
+    .where(or(ilike(characters.firstName, `%${trimmed}%`), ilike(characters.lastName, `%${trimmed}%`)))
+    .limit(8);
+
+  const jobsByCharacter = await getPrimaryJobsForCharacters(rows.map((r) => r.id));
+
+  return rows.map((r) => ({
+    ...r,
+    color: jobColor(jobsByCharacter.get(r.id) ?? "none"),
+  }));
 }

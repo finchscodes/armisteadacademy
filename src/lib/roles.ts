@@ -79,6 +79,17 @@ export function jobColor(job: CharacterJob): string | null {
   return JOB_META[job]?.color ?? null;
 }
 
+/**
+ * Retired jobs — not offered in any "assign a job" dropdown anymore, but
+ * kept in CharacterJob/JOB_META (not deleted) so any character who already
+ * holds one still displays correctly, and so they're easy to bring back
+ * later if needed.
+ */
+export const INACTIVE_JOBS: CharacterJob[] = ["media_team", "library_handler"];
+
+/** JOB_VALUES minus retired jobs — use this for any new-assignment dropdown. */
+export const ACTIVE_JOB_VALUES: CharacterJob[] = JOB_VALUES.filter((j) => !INACTIVE_JOBS.includes(j));
+
 /** Jobs worth showing on the public Job List page (everything except "none"). */
 export function isListedJob(job: CharacterJob): boolean {
   return job !== "none";

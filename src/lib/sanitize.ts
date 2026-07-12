@@ -31,12 +31,22 @@ export function sanitizeRichText(html: string): string {
       "a",
       "code",
       "pre",
+      "span",
     ],
     allowedAttributes: {
-      a: ["href", "target", "rel"],
+      a: ["href", "target", "rel", "class", "data-mention-id", "data-mention-label", "data-mention-slug", "style"],
+      span: ["style"],
     },
     // Only allow safe URL schemes on links — blocks javascript:, data:, etc.
     allowedSchemes: ["http", "https", "mailto"],
+    // The only inline style we ever generate is text color (job/hall
+    // palette, or a mention's job color) — restrict to hex values so this
+    // can't become a vector for arbitrary CSS.
+    allowedStyles: {
+      "*": {
+        color: [/^#[0-9a-fA-F]{3,8}$/],
+      },
+    },
     transformTags: {
       a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer nofollow" }),
     },

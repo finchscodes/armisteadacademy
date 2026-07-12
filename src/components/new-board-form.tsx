@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { adminCreateBoardAction } from "@/actions/admin";
-import { JOB_VALUES, jobLabel } from "@/lib/roles";
+import { ACTIVE_JOB_VALUES, jobLabel } from "@/lib/roles";
 
 type Category = { id: number; name: string };
 
@@ -76,7 +76,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
           >
             <option value="">None — management only</option>
-            {JOB_VALUES.filter((j) => j !== "none").map((j) => (
+            {ACTIVE_JOB_VALUES.filter((j) => j !== "none").map((j) => (
               <option key={j} value={j}>
                 {jobLabel(j)}
               </option>

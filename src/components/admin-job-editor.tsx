@@ -3,7 +3,7 @@
 import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { adminAddCharacterJobAction, adminRemoveCharacterJobAction } from "@/actions/admin";
-import { JOB_VALUES, jobLabel } from "@/lib/roles";
+import { ACTIVE_JOB_VALUES, jobLabel } from "@/lib/roles";
 
 type JobRow = { id: number; job: string; jobTitle: string | null; scopeBoardId: number | null; scopeBoardName: string | null; isHidden: boolean };
 type BoardOption = { id: number; name: string; kind: string; restrictedToHall: string | null };
@@ -29,7 +29,7 @@ export function AdminJobEditor({
   boards: BoardOption[];
 }) {
   const router = useRouter();
-  const [job, setJob] = useState<string>(JOB_VALUES.find((j) => j !== "none") ?? "none");
+  const [job, setJob] = useState<string>(ACTIVE_JOB_VALUES.find((j) => j !== "none") ?? "none");
   const [scopeBoardId, setScopeBoardId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [titleTouched, setTitleTouched] = useState(false);
@@ -122,7 +122,7 @@ export function AdminJobEditor({
           onChange={(e) => handleJobChange(e.target.value)}
           className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
         >
-          {JOB_VALUES.filter((j) => j !== "none").map((j) => (
+          {ACTIVE_JOB_VALUES.filter((j) => j !== "none").map((j) => (
             <option key={j} value={j}>
               {jobLabel(j)}
             </option>

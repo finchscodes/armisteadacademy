@@ -1,10 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getHallWelcomeMessage, canEditHallWelcome } from "@/actions/admin";
-import { getCurrentUser } from "@/lib/current-user";
+import { getHallWelcomeMessage } from "@/actions/admin";
 import { HALL_VALUES, hallLabel, hallColor } from "@/lib/halls";
 import { RichTextDisplay } from "@/components/rich-text-display";
-import { HallWelcomeForm } from "@/components/hall-welcome-form";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -16,11 +14,7 @@ export default async function HallWelcomePage({ params }: { params: Promise<{ ha
   const { hall } = await params;
   if (!HALL_VALUES.includes(hall as (typeof HALL_VALUES)[number])) notFound();
 
-  const [message, current] = await Promise.all([getHallWelcomeMessage(hall), getCurrentUser()]);
-
-  const canEdit =
-    Boolean(current?.session.isAdmin) ||
-    (current?.activeCharacter ? await canEditHallWelcome(current.activeCharacter.id, hall) : false);
+  const message = await getHallWelcomeMessage(hall);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -70,20 +64,6 @@ export default async function HallWelcomePage({ params }: { params: Promise<{ ha
           Continue to Armistead Academy
         </Link>
       </div>
-
-      {canEdit && (
-        <div className="mt-10 pt-6 border-t border-ink-700">
-          <p className="text-xs uppercase tracking-wider text-ink-400 mb-3">
-            Edit this welcome message
-          </p>
-          <HallWelcomeForm
-            hall={hall}
-            title={message?.title ?? "Welcome!"}
-            content={message?.content ?? ""}
-            characterId={current?.activeCharacter?.id ?? null}
-          />
-        </div>
-      )}
     </div>
   );
 }

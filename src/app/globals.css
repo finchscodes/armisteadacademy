@@ -124,11 +124,17 @@ body {
 
 /* Custom tooltips — replaces the native browser title="" tooltip, which
    can't be restyled. Usage: <button data-tooltip="Quote">...</button>
-   :where() keeps this at zero specificity so it never fights an element's
-   own position: absolute/fixed (e.g. a status dot that also needs a
-   tooltip) — it only supplies a default when nothing else sets one. */
-:where([data-tooltip]) {
-  position: relative;
+   This lives in @layer utilities (not left unlayered) because unlayered
+   CSS always beats Tailwind's utility classes regardless of specificity —
+   an unlayered rule here would permanently win over an element's own
+   position: absolute/fixed (e.g. a status dot that also needs a tooltip),
+   no matter how we tune specificity. Inside the same layer as Tailwind's
+   utilities, :where() keeps this at zero specificity so it only supplies
+   a default when nothing else sets a position. */
+@layer utilities {
+  :where([data-tooltip]) {
+    position: relative;
+  }
 }
 
 [data-tooltip]::after {

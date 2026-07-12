@@ -74,7 +74,19 @@ export function ChatSidebar({
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [modPending, startModTransition] = useTransition();
   const [timeoutUntil, setTimeoutUntil] = useState(myTimeoutUntil);
+  const [prevMyTimeoutUntil, setPrevMyTimeoutUntil] = useState(myTimeoutUntil);
   const [, forceTick] = useState(0);
+
+  // This component lives in the persistent root layout, so logging out and
+  // into a different account doesn't remount it — only the server-computed
+  // myTimeoutUntil prop changes. Re-derive the displayed timeout from that
+  // prop whenever it changes (during render, not an effect) so a timeout on
+  // one account never bleeds into another; the original character's timeout
+  // in the database is untouched either way.
+  if (myTimeoutUntil !== prevMyTimeoutUntil) {
+    setPrevMyTimeoutUntil(myTimeoutUntil);
+    setTimeoutUntil(myTimeoutUntil);
+  }
 
   // The timeout banner's "is it still active" check only re-runs when
   // something re-renders this component — without this, it would silently
@@ -337,7 +349,7 @@ export function ChatSidebar({
                         e.stopPropagation();
                         setOpenMenuId(openMenuId === m.id ? null : m.id);
                       }}
-                      className="absolute left-0 -translate-x-full top-0 h-full flex items-center opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
+                      className="absolute left-0 -translate-x-[65%] top-0 h-full flex items-center opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
                     >
                       &#8942;
                     </button>

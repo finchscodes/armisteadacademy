@@ -8,6 +8,7 @@ import { getOnlineCount } from "@/lib/online-status";
 import { getNotifications } from "@/lib/notifications";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
+import { getAdminAccessContext, hasAnyAdminAccess } from "@/lib/admin-access";
 import { BoardsDropdown } from "./boards-dropdown";
 import { MobileNav } from "./mobile-nav";
 import { AccountMenu } from "./account-menu";
@@ -54,6 +55,14 @@ export async function NavBar() {
     current?.activeCharacter?.hall ?? null,
     canSeeAllHalls
   );
+
+  // Same limited-admin-panel logic used by /admin itself — a character with
+  // a scoped job (Resident Advisor, Instructor, etc.) or a management/hiring
+  // job should see the Admin link too, not just true site admins.
+  const adminAccess = current
+    ? await getAdminAccessContext(current.activeCharacter?.id ?? null, current.session.isAdmin)
+    : null;
+  const canAccessAdminPanel = adminAccess ? hasAnyAdminAccess(adminAccess) : false;
 
   return (
     <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
@@ -149,6 +158,7 @@ export async function NavBar() {
                 levelProgress ? levelProgress.nextLevelFloor - levelProgress.currentLevelFloor : null
               }
               isAdmin={current.session.isAdmin}
+              canAccessAdminPanel={canAccessAdminPanel}
             />
           </div>
         ) : (

@@ -17,6 +17,7 @@ export function AccountMenu({
   xpIntoLevel,
   xpForLevel,
   isAdmin,
+  canAccessAdminPanel = false,
 }: {
   characters: Character[];
   activeCharacter: {
@@ -33,6 +34,8 @@ export function AccountMenu({
   xpIntoLevel: number | null;
   xpForLevel: number | null;
   isAdmin: boolean;
+  /** True admin, or a character holding a job the limited admin panel grants access to. */
+  canAccessAdminPanel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -130,9 +133,9 @@ export function AccountMenu({
                 Edit Profile
               </Link>
             )}
-            {isAdmin && (
+            {canAccessAdminPanel && (
               <Link
-                href="/admin/users"
+                href={isAdmin ? "/admin/users" : "/admin"}
                 onClick={() => setOpen(false)}
                 className="block px-4 py-2 text-sm text-claret-500 hover:bg-ink-800/60 hover:text-claret-400 transition-colors"
               >

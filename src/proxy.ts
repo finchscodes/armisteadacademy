@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 const SESSION_COOKIE = "session";
 
 // Routes an unauthenticated visitor can still reach.
-const PUBLIC_PATHS = ["/", "/login", "/register"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password"];
 
 function getSecretKey() {
   const secret = process.env.SESSION_SECRET;
@@ -27,20 +27,33 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (PUBLIC_PATHS.includes(pathname)) {
-    return NextResponse.next();
-  }
-
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const secretKey = getSecretKey();
 
-  if (token && secretKey) {
+  async function hasValidSession() {
+    if (!token || !secretKey) return false;
     try {
       await jwtVerify(token, secretKey);
-      return NextResponse.next();
+      return true;
     } catch {
-      // Invalid/expired token — fall through to redirect.
+      return false;
     }
+  }
+
+  // Only useful to someone who can't log in — send an already-logged-in
+  // visitor back home instead.
+  if (pathname === "/forgot-password" && (await hasValidSession())) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/reset-password/")) {
+    return NextResponse.next();
+  }
+
+  if (await hasValidSession()) {
+    return NextResponse.next();
   }
 
   const url = request.nextUrl.clone();

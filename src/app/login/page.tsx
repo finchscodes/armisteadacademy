@@ -12,21 +12,26 @@ export default function LoginPage() {
     <AuthCard title="Welcome back" subtitle="Log in to continue your story">
       <form action={formAction} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="identifier">
-            Email or username
+          <label className="block text-sm font-medium mb-1" htmlFor="email">
+            Email
           </label>
           <input
-            id="identifier"
-            name="identifier"
-            type="text"
+            id="email"
+            name="email"
+            type="email"
             required
             className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="password">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium" htmlFor="password">
+              Password
+            </label>
+            <Link href="/forgot-password" className="text-xs text-claret-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <input
             id="password"
             name="password"

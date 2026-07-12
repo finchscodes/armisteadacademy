@@ -51,7 +51,7 @@ export default async function AdminUserDetailPage({
         <Link href="/admin/users" className="text-sm text-ink-400 hover:text-brass-400">
           &larr; All users
         </Link>
-        <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.username}</h1>
+        <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.email}</h1>
         <div className="space-y-6">
           {characters.map((c) => (
             <div key={c.id} className="bg-ink-900 border border-ink-700 rounded-lg p-4">
@@ -79,16 +79,21 @@ export default async function AdminUserDetailPage({
         &larr; All users
       </Link>
       <div className="flex items-center justify-between mt-2 mb-6">
-        <h1 className="font-display text-2xl text-parchment-100">{user.username}</h1>
-        <DeleteAccountButton userId={user.id} username={user.username} />
+        <h1 className="font-display text-2xl text-parchment-100">{user.email}</h1>
+        <DeleteAccountButton userId={user.id} email={user.email} />
       </div>
 
-      <EditUserForm
-        userId={user.id}
-        username={user.username}
-        email={user.email}
-        isAdmin={user.isAdmin}
-      />
+      <EditUserForm userId={user.id} email={user.email} isAdmin={user.isAdmin} />
+
+      <div className="mt-6">
+        <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+          Chat (applies to every character on this account)
+        </p>
+        <AdminChatTimeoutStatus
+          userId={user.id}
+          timeoutUntil={user.chatTimeoutUntil ? user.chatTimeoutUntil.toISOString() : null}
+        />
+      </div>
 
       <div className="mt-6">
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">
@@ -161,13 +166,6 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Jobs</p>
                   <AdminJobEditor characterId={c.id} userId={user.id} currentJobs={c.jobs} boards={allBoards} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Chat</p>
-                  <AdminChatTimeoutStatus
-                    characterId={c.id}
-                    timeoutUntil={c.chatTimeoutUntil ? c.chatTimeoutUntil.toISOString() : null}
-                  />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Board access</p>

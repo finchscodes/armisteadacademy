@@ -7,8 +7,7 @@ depends on whether you're starting fresh or already have a database.
 ## Fresh install (brand new Supabase project)
 
 Run, in order:
-1. `01-schema.sql` — full schema, includes everything through the grading
-   overhaul and job titles
+1. `01-schema.sql` — full schema, includes everything through migration `53`
 2. `02-seed.sql` — an admin login + a starter shop
 3. `05-storage-bucket.sql` — storage bucket for faceclaim uploads
 4. `06-armistead-boards.sql` — the full Armistead board structure
@@ -19,26 +18,28 @@ Run, in order:
    categories (skip the DELETE statements at the top on a fresh install)
 7. `13-merge-covert-team-operations.sql` — merges two classes into one
 
-Skip `03`, `04`, `07`, `10`, `12` — those are incremental updates already
-folded into `01` for a fresh install. Running them after `01` will error
-(trying to add things that already exist).
+Skip everything else — `03`–`52` are incremental updates already folded into
+`01` for a fresh install (`03`, `04`, `07`, `10`, `12` into the original
+schema snapshot; `48`–`53` appended on top of that). Running any of them
+after `01` will error (trying to add/drop things that already don't exist
+that way).
 
 ## Already had this running before this update
 
-If you already ran everything through `47`, you need four new files, in order:
-1. `48-physical-education-class.sql`
-2. `49-regenerate-character-slugs.sql` — **changes every existing character's profile URL.** Read the comment at the top before running it.
-3. `50-reorder-mobile-categories.sql`
-4. `51-chief-editor-boards.sql`
+If you already ran everything through `52`, you only need the one new file:
+1. `53-rename-enforcer-to-student-council.sql`
 
 ## File reference
 
 | File | What it does |
 |---|---|
-| `01-schema.sql` | Full schema (fresh installs only) |
+| `01-schema.sql` | Full schema through migration `53` (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
 | `03`–`47` | (historical) incremental updates, all folded into `01` |
 | `48-physical-education-class.sql` | Adds Physical Education class |
 | `49-regenerate-character-slugs.sql` | Profile URLs now from legal name |
 | `50-reorder-mobile-categories.sql` | Mobile nav category order |
 | `51-chief-editor-boards.sql` | Armistead Weekly/Inside Ploy → Chief Editor |
+| `52-account-timeouts-and-email-auth.sql` | Chat timeouts move to the account (not character) level; usernames removed (email-only accounts); adds password-reset tokens |
+| `53-rename-enforcer-to-student-council.sql` | Renames the `enforcer` job enum value to `student_council` |
+

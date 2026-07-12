@@ -5,12 +5,10 @@ import { updateUserAction } from "@/actions/admin";
 
 export function EditUserForm({
   userId,
-  username,
   email,
   isAdmin,
 }: {
   userId: number;
-  username: string;
   email: string;
   isAdmin: boolean;
 }) {
@@ -19,19 +17,6 @@ export function EditUserForm({
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
       <input type="hidden" name="userId" value={userId} />
-
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="username">
-          Username
-        </label>
-        <input
-          id="username"
-          name="username"
-          defaultValue={username}
-          required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-        />
-      </div>
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="email">

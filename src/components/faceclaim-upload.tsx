@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { uploadFaceclaimAction } from "@/actions/uploads";
+import { ImageCropper } from "@/components/image-cropper";
 
 export function FaceclaimUpload({
   name = "avatarUrl",
@@ -17,13 +18,11 @@ export function FaceclaimUpload({
   const [url, setUrl] = useState(initialUrl ?? "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  function uploadFile(file: File) {
     setError(null);
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -35,6 +34,23 @@ export function FaceclaimUpload({
         setUrl(result.url);
       }
     });
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset the input so choosing the same file again still fires onChange.
+    e.target.value = "";
+
+    // GIFs would lose their animation if run through the canvas-based
+    // cropper (canvas only ever captures a single frame), so skip cropping
+    // for those and upload as-is. Same for "wide" uploads (board banner
+    // images) — the square crop here is specifically for profile pictures.
+    if (file.type === "image/gif" || wide) {
+      uploadFile(file);
+      return;
+    }
+    setPendingCropFile(file);
   }
 
   const previewClass = wide
@@ -63,7 +79,10 @@ export function FaceclaimUpload({
             onChange={handleFile}
             className="text-xs text-ink-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-ink-700 file:text-parchment-100 file:text-xs hover:file:bg-ink-600"
           />
-          <p className="text-[11px] text-ink-400 mt-1">PNG, JPG, GIF, or WEBP — up to 25MB. Optional.</p>
+          <p className="text-[11px] text-ink-400 mt-1">
+            PNG, JPG, GIF, or WEBP — up to 25MB. You&apos;ll get to crop it before it&apos;s
+            saved. Optional.
+          </p>
           {url && (
             <button
               type="button"
@@ -77,6 +96,17 @@ export function FaceclaimUpload({
           {error && <p className="text-xs text-claret-500 mt-1">{error}</p>}
         </div>
       </div>
+
+      {pendingCropFile && (
+        <ImageCropper
+          file={pendingCropFile}
+          onCancel={() => setPendingCropFile(null)}
+          onConfirm={(cropped) => {
+            setPendingCropFile(null);
+            uploadFile(cropped);
+          }}
+        />
+      )}
     </div>
   );
 }

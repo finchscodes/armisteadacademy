@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { resetChatTimeoutAction } from "@/actions/chat";
 
 export function AdminChatTimeoutStatus({
-  characterId,
+  userId,
   timeoutUntil,
 }: {
-  characterId: number;
+  userId: number;
   timeoutUntil: string | null;
 }) {
   const router = useRouter();
@@ -22,7 +22,7 @@ export function AdminChatTimeoutStatus({
   function handleReset() {
     startTransition(async () => {
       const formData = new FormData();
-      formData.set("characterId", String(characterId));
+      formData.set("userId", String(userId));
       await resetChatTimeoutAction(formData);
       router.refresh();
     });

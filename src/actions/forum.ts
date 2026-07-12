@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { boards, threads, posts, xpLedger, characters } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-import { getSession } from "@/lib/auth";
+import { getSession, getActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
 import { XP_AWARDS } from "@/lib/xp";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
@@ -15,6 +15,16 @@ import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
+
+/** Admin, or a character holding a topic-moderator job (management, Student Council) — same set as post moderation. */
+async function canModerateTopics(): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
+  if (session.isAdmin) return true;
+  const activeCharacterId = await getActiveCharacterId();
+  if (!activeCharacterId) return false;
+  return canModeratePosts(activeCharacterId);
+}
 import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
 import type { ActionState } from "./auth";
 
@@ -350,11 +360,11 @@ export async function deletePostAction(formData: FormData) {
   redirect(`/t/${thread.slug}`);
 }
 
-/** Delete an entire thread outright. Admin only. */
+/** Delete an entire thread outright. Admin, management, or Student Council. */
 export async function deleteThreadAction(formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
-  if (!session.isAdmin) return;
+  if (!(await canModerateTopics())) return;
 
   const threadId = Number(formData.get("threadId"));
   if (!threadId) return;
@@ -366,4 +376,20 @@ export async function deleteThreadAction(formData: FormData) {
   await db.delete(threads).where(eq(threads.id, threadId));
   revalidatePath(`/b/${board?.slug ?? ""}`);
   redirect(`/b/${board?.slug ?? ""}`);
+}
+
+/** Lock or unlock a thread — locked threads can't receive new replies. Admin, management, or Student Council. */
+export async function toggleThreadLockAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (!(await canModerateTopics())) return;
+
+  const threadId = Number(formData.get("threadId"));
+  if (!threadId) return;
+
+  const [thread] = await db.select().from(threads).where(eq(threads.id, threadId));
+  if (!thread) return;
+
+  await db.update(threads).set({ isLocked: !thread.isLocked }).where(eq(threads.id, threadId));
+  revalidatePath(`/t/${thread.slug}`);
 }

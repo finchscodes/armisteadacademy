@@ -548,3 +548,150 @@ DROP TYPE "public"."character_major";--> statement-breakpoint
 CREATE TYPE "public"."character_major" AS ENUM('Threat Elimination', 'Precision Shooting', 'Covert Operations', 'Linguistics, Culture, & Assimilation', 'Advanced Encryption', 'Survival & Navigation', 'Communications & Relay', 'Research & Development', 'Medicine, Chemistry, & Criminology', 'Seduction, Interrogation, & Influence Tactics', 'Protection & Enforcement', 'Undecided');--> statement-breakpoint
 ALTER TABLE "characters" ALTER COLUMN "major" SET DEFAULT 'Undecided'::character_major;--> statement-breakpoint
 ALTER TABLE "characters" ALTER COLUMN "major" SET DATA TYPE character_major USING "major"::character_major;
+
+-- ============================================================================
+-- Everything below is appended from the individual numbered migration files
+-- listed above (48 through 52) — folded in here so a fresh install only
+-- needs this one file plus 02/05/06/08/09/13 per the README, instead of
+-- also running 48-52 separately. Do not hand-edit below this line —
+-- edit the numbered file instead, then re-append.
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- 48-physical-education-class.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 47-split-survival-major.sql.
+-- Adds a "Physical Education" class under First Floor, right after
+-- Pool/Gym/Spa.
+
+-- Make room after Pool/Gym/Spa
+UPDATE boards
+SET position = position + 1
+WHERE parent_id = (SELECT id FROM boards WHERE slug = 'first-floor' AND kind = 'category')
+  AND position > (SELECT position FROM boards WHERE slug = 'pool-gym-spa');
+
+INSERT INTO boards (kind, parent_id, name, slug, position)
+SELECT 'class', t.id, 'Physical Education', 'physical-education',
+  (SELECT position FROM boards WHERE slug = 'pool-gym-spa') + 1
+FROM boards t
+WHERE t.slug = 'first-floor' AND t.kind = 'category'
+ON CONFLICT DO NOTHING;
+
+-- Confirm the result:
+select b.name, b.slug, b.position from boards b
+join boards p on p.id = b.parent_id
+where p.slug = 'first-floor'
+order by b.position;
+
+-- ----------------------------------------------------------------------------
+-- 49-regenerate-character-slugs.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 48-physical-education-class.sql.
+--
+-- Profile URLs (/c/[slug]) are now generated from a character's legal
+-- first + last name instead of their code name, so the URL doesn't change
+-- just because someone updates their code name later. This regenerates
+-- slugs for every character that already exists to match.
+--
+-- IMPORTANT: this changes every existing character's profile URL. Any
+-- bookmarks, off-site links, or anything pasted elsewhere pointing at an
+-- old /c/[old-slug] URL will 404 after this runs. There's no way around
+-- that given what's being asked here — it's a direct trade-off of fixing
+-- the underlying slug source.
+
+UPDATE characters
+SET slug = lower(
+  regexp_replace(
+    regexp_replace(trim(first_name || ' ' || last_name), '[^a-zA-Z0-9\s-]', '', 'g'),
+    '\s+', '-', 'g'
+  )
+) || '-' || substr(md5(random()::text || id::text), 1, 5);
+
+-- Confirm the result:
+select id, first_name, last_name, slug from characters order by id;
+
+-- ----------------------------------------------------------------------------
+-- 50-reorder-mobile-categories.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 49-regenerate-character-slugs.sql.
+--
+-- The mobile nav shows every category in one combined row, ordered by
+-- position — unlike desktop, where Inside/Outside Armistead are separate
+-- menus and their relative position doesn't matter. This swaps just these
+-- two categories' positions so Communications ends up last (rightmost) on
+-- mobile, with Outside Armistead right before it. This has no effect on
+-- the desktop "Inside Armistead" grid, since Outside Armistead is excluded
+-- from it regardless of position.
+
+UPDATE boards SET position = 6 WHERE slug = 'outside-armistead' AND kind = 'category';
+UPDATE boards SET position = 7 WHERE slug = 'communications' AND kind = 'category';
+
+-- Confirm the result:
+select name, slug, position from boards where kind = 'category' order by position;
+
+-- ----------------------------------------------------------------------------
+-- 51-chief-editor-boards.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 50-reorder-mobile-categories.sql.
+-- Armistead Weekly and Inside Ploy are now scoped to Chief Editor instead
+-- of Writer — a Chief Editor has posting rights on their own board, same
+-- mechanism as Writer, just without any management/hiring power.
+
+UPDATE boards SET extra_article_job = 'chief_editor' WHERE slug IN ('armistead-weekly', 'inside-ploy');
+
+-- Confirm the result:
+select name, slug, extra_article_job from boards where slug IN ('armistead-weekly', 'inside-ploy');
+
+-- ----------------------------------------------------------------------------
+-- 52-account-timeouts-and-email-auth.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 51-chief-editor-boards.sql.
+--
+-- Three unrelated changes bundled together since they all touch the users
+-- table:
+--
+-- 1. Chat timeouts move from characters to users — a timeout now applies to
+--    the whole account (every character on it), not just the one character
+--    that got called out in chat. Old per-character timeouts are dropped
+--    rather than migrated: they're short-lived (minutes) and any that still
+--    mattered will have long since expired.
+--
+-- 2. Usernames are removed — accounts are identified by email only now.
+--    Existing usernames aren't preserved anywhere; login/registration/admin
+--    screens all switch to email.
+--
+-- 3. Password reset tokens — supports "forgot password" email links.
+
+ALTER TABLE "users" ADD COLUMN "chat_timeout_until" timestamp;
+ALTER TABLE "characters" DROP COLUMN "chat_timeout_until";
+
+DROP INDEX IF EXISTS "users_username_idx";
+ALTER TABLE "users" DROP COLUMN "username";
+
+CREATE TABLE "password_reset_tokens" (
+  "id" serial PRIMARY KEY,
+  "user_id" integer NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+  "token" varchar(64) NOT NULL,
+  "expires_at" timestamp NOT NULL,
+  "used_at" timestamp,
+  "created_at" timestamp NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX "password_reset_tokens_token_idx" ON "password_reset_tokens" ("token");
+
+-- ----------------------------------------------------------------------------
+-- 53-rename-enforcer-to-student-council.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 52-account-timeouts-and-email-auth.sql.
+--
+-- Renames the "enforcer" job to "student_council" at the database level too
+-- (the display label was already changed to "Student Council" in a prior
+-- update — this catches up the underlying enum value/DB key to match, so
+-- the app code and the stored data use the same name).
+
+ALTER TYPE "character_job" RENAME VALUE 'enforcer' TO 'student_council';

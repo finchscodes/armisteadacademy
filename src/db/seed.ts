@@ -141,12 +141,11 @@ async function main() {
     .insert(users)
     .values({
       email: "admin@armistead.local",
-      username: "admin",
       passwordHash,
       isAdmin: true,
     })
     .onConflictDoNothing();
-  console.log('  -> login: "admin" / "changeme123" (change this password after first login)');
+  console.log('  -> login: "admin@armistead.local" / "changeme123" (change this password after first login)');
 
   console.log("Seeding boards...");
 

@@ -86,7 +86,7 @@ export function CharacterHoverCard({
               </div>
             )}
             <span
-              className={`absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-ink-900 ${
+              className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-ink-900 ${
                 profile.presence === "online"
                   ? "bg-green-500"
                   : profile.presence === "away"

@@ -1,34 +1,22 @@
 "use client";
 
 import { useActionState } from "react";
+import { use } from "react";
 import Link from "next/link";
-import { registerAction } from "@/actions/auth";
+import { resetPasswordAction } from "@/actions/auth";
 import { AuthCard } from "@/components/auth-card";
 
-export default function RegisterPage() {
-  const [state, formAction, pending] = useActionState(registerAction, undefined);
+export default function ResetPasswordPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = use(params);
+  const [state, formAction, pending] = useActionState(resetPasswordAction, undefined);
 
   return (
-    <AuthCard title="Join Armistead" subtitle="Create your account, then your first character">
+    <AuthCard title="Choose a new password" subtitle="This link is single-use and expires in an hour">
       <form action={formAction} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
-          />
-          <p className="text-xs text-parchment-ink/60 mt-1">
-            This is your account login — your character will have its own display name.
-          </p>
-        </div>
+        <input type="hidden" name="token" value={token} />
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="password">
-            Password
+            New password
           </label>
           <input
             id="password"
@@ -36,6 +24,7 @@ export default function RegisterPage() {
             type="password"
             required
             minLength={8}
+            autoFocus
             className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
           />
         </div>
@@ -47,14 +36,13 @@ export default function RegisterPage() {
           disabled={pending}
           className="w-full bg-claret-600 text-parchment-100 rounded-md py-2.5 font-medium hover:bg-claret-500 transition-colors disabled:opacity-60"
         >
-          {pending ? "Creating account..." : "Create account"}
+          {pending ? "Saving..." : "Reset password"}
         </button>
       </form>
 
       <p className="text-sm text-center mt-5 text-parchment-ink/70">
-        Already have an account?{" "}
-        <Link href="/login" className="text-claret-600 font-medium hover:underline">
-          Log in
+        <Link href="/forgot-password" className="text-claret-600 font-medium hover:underline">
+          Request a new link
         </Link>
       </p>
     </AuthCard>

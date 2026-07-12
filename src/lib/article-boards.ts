@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { boardPostPermissions, boards, characters } from "@/db/schema";
 import { characterHasAnyJob, isScopedToBoard } from "@/lib/character-jobs";
-import { MANAGEMENT_JOBS } from "@/lib/roles";
+import { MANAGEMENT_JOBS, TOPIC_MODERATOR_JOBS } from "@/lib/roles";
 
 /**
  * Can this character even SEE a board? Only matters for hall-restricted
@@ -74,9 +74,9 @@ export async function canPostArticle(characterId: number, boardId: number): Prom
 
 /**
  * Can this character edit ANY topic post (not just their own)? Management
- * and Enforcers get this moderation-style capability. Admin bypass and
+ * and Student Council get this moderation-style capability. Admin bypass and
  * post-author checks are handled by the caller.
  */
 export async function canModeratePosts(characterId: number): Promise<boolean> {
-  return characterHasAnyJob(characterId, [...MANAGEMENT_JOBS, "enforcer"]);
+  return characterHasAnyJob(characterId, TOPIC_MODERATOR_JOBS);
 }

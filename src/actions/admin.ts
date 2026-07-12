@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, or, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
+import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
 import { getSession } from "@/lib/auth";
@@ -50,16 +50,16 @@ export async function searchUsers(query: string) {
   const trimmed = query.trim();
   const cols = {
     id: users.id,
-    username: users.username,
     email: users.email,
     isAdmin: users.isAdmin,
     createdAt: users.createdAt,
+    chatTimeoutUntil: users.chatTimeoutUntil,
   };
   const rows = trimmed
     ? await db
         .select(cols)
         .from(users)
-        .where(or(ilike(users.username, `%${trimmed}%`), ilike(users.email, `%${trimmed}%`)))
+        .where(ilike(users.email, `%${trimmed}%`))
         .limit(50)
     : await db.select(cols).from(users).limit(50);
 
@@ -86,7 +86,6 @@ export async function getUserDetail(userId: number) {
       firstName: characters.firstName,
       middleName: characters.middleName,
       lastName: characters.lastName,
-      chatTimeoutUntil: characters.chatTimeoutUntil,
     })
     .from(characters)
     .where(eq(characters.userId, userId))
@@ -129,7 +128,6 @@ export async function getUserDetail(userId: number) {
 
 const updateUserSchema = z.object({
   userId: z.coerce.number().int(),
-  username: z.string().min(3).max(32),
   email: z.string().email(),
   isAdmin: z.coerce.boolean(),
 });
@@ -144,7 +142,6 @@ export async function updateUserAction(
 
   const parsed = updateUserSchema.safeParse({
     userId: formData.get("userId"),
-    username: formData.get("username"),
     email: formData.get("email"),
     isAdmin: formData.get("isAdmin") === "on" || formData.get("isAdmin") === "true",
   });
@@ -153,7 +150,7 @@ export async function updateUserAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { userId, username, email, isAdmin } = parsed.data;
+  const { userId, email, isAdmin } = parsed.data;
 
   // Safety net: don't let the last admin remove their own admin access with
   // no one left who can restore it.
@@ -167,15 +164,12 @@ export async function updateUserAction(
     }
   }
 
-  const [existing] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(or(eq(users.username, username), eq(users.email, email)));
+  const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
   if (existing && existing.id !== userId) {
-    return { error: "That username or email is already in use by another account" };
+    return { error: "That email is already in use by another account" };
   }
 
-  await db.update(users).set({ username, email, isAdmin }).where(eq(users.id, userId));
+  await db.update(users).set({ email, isAdmin }).where(eq(users.id, userId));
 
   revalidatePath(`/admin/users/${userId}`);
   revalidatePath("/admin/users");

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { chatMessages, characters, xpLedger, ME_COMMAND_LEVEL_REQUIREMENT } from "@/db/schema";
+import { chatMessages, characters, users, xpLedger, ME_COMMAND_LEVEL_REQUIREMENT } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { XP_AWARDS, getCharacterXp, levelForXp } from "@/lib/xp";
 import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
@@ -22,13 +22,13 @@ export type SendChatResult = { error?: string };
 export async function sendChatMessageAction(formData: FormData): Promise<SendChatResult> {
   const { session, characterId } = await requireSessionAndCharacter();
 
-  const [character] = await db
-    .select({ chatTimeoutUntil: characters.chatTimeoutUntil })
-    .from(characters)
-    .where(eq(characters.id, characterId));
+  const [account] = await db
+    .select({ chatTimeoutUntil: users.chatTimeoutUntil })
+    .from(users)
+    .where(eq(users.id, session.userId));
 
-  if (character?.chatTimeoutUntil && character.chatTimeoutUntil > new Date()) {
-    const minutesLeft = Math.ceil((character.chatTimeoutUntil.getTime() - Date.now()) / 60000);
+  if (account?.chatTimeoutUntil && account.chatTimeoutUntil > new Date()) {
+    const minutesLeft = Math.ceil((account.chatTimeoutUntil.getTime() - Date.now()) / 60000);
     return { error: `You're timed out from chat for ${minutesLeft} more minute${minutesLeft === 1 ? "" : "s"}.` };
   }
 
@@ -75,7 +75,7 @@ export async function sendChatMessageAction(formData: FormData): Promise<SendCha
 
   if (isAllThem) {
     const until = new Date(Date.now() + SPAM_TIMEOUT_MINUTES * 60 * 1000);
-    await db.update(characters).set({ chatTimeoutUntil: until }).where(eq(characters.id, characterId));
+    await db.update(users).set({ chatTimeoutUntil: until }).where(eq(users.id, session.userId));
     return {
       error: `Slow down! You've sent ${SPAM_STREAK_LIMIT} messages in a row — wait a minute or let someone else talk before sending more.`,
     };
@@ -117,11 +117,19 @@ export async function getRecentChatMessages(limit = 50) {
 export async function getChatModerationContext(characterId: number) {
   const [isModerator, [character]] = await Promise.all([
     characterHasAnyJob(characterId, CHAT_MODERATOR_JOBS),
-    db.select({ chatTimeoutUntil: characters.chatTimeoutUntil }).from(characters).where(eq(characters.id, characterId)),
+    db.select({ userId: characters.userId }).from(characters).where(eq(characters.id, characterId)),
   ]);
+
+  if (!character) return { isModerator, timeoutUntil: null };
+
+  const [account] = await db
+    .select({ chatTimeoutUntil: users.chatTimeoutUntil })
+    .from(users)
+    .where(eq(users.id, character.userId));
+
   const timeoutUntil =
-    character?.chatTimeoutUntil && character.chatTimeoutUntil > new Date()
-      ? character.chatTimeoutUntil.toISOString()
+    account?.chatTimeoutUntil && account.chatTimeoutUntil > new Date()
+      ? account.chatTimeoutUntil.toISOString()
       : null;
   return { isModerator, timeoutUntil };
 }
@@ -139,17 +147,20 @@ export async function timeoutCharacterAction(formData: FormData) {
   const minutes = Number(formData.get("minutes"));
   if (!characterId || !minutes || minutes <= 0) return;
 
+  const [character] = await db.select({ userId: characters.userId }).from(characters).where(eq(characters.id, characterId));
+  if (!character) return;
+
   const until = new Date(Date.now() + minutes * 60 * 1000);
-  await db.update(characters).set({ chatTimeoutUntil: until }).where(eq(characters.id, characterId));
+  await db.update(users).set({ chatTimeoutUntil: until }).where(eq(users.id, character.userId));
   revalidatePath("/", "layout");
 }
 
 export async function resetChatTimeoutAction(formData: FormData) {
   await requireChatModerator();
-  const characterId = Number(formData.get("characterId"));
-  if (!characterId) return;
+  const userId = Number(formData.get("userId"));
+  if (!userId) return;
 
-  await db.update(characters).set({ chatTimeoutUntil: null }).where(eq(characters.id, characterId));
+  await db.update(users).set({ chatTimeoutUntil: null }).where(eq(users.id, userId));
   revalidatePath("/", "layout");
   revalidatePath("/admin/users");
 }

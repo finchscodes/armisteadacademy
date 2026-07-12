@@ -24,7 +24,6 @@ export async function verifyPassword(password: string, hash: string) {
 
 export type SessionPayload = {
   userId: number;
-  username: string;
   isAdmin: boolean;
 };
 

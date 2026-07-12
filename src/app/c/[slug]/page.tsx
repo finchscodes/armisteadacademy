@@ -122,7 +122,9 @@ export default async function CharacterProfilePage({
             <div className="flex flex-col items-center gap-0.5 mt-2">
               {jobs.map((j) => (
                 <span key={j.id} className="text-sm font-medium" style={{ color: jobColor(j.job) ?? undefined }}>
-                  {j.jobTitle || jobLabel(j.job)}
+                  {(j.job === "instructor" || j.job === "assistant_instructor") && j.jobTitle
+                    ? `${jobLabel(j.job)} (${j.jobTitle})`
+                    : j.jobTitle || jobLabel(j.job)}
                 </span>
               ))}
             </div>

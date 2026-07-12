@@ -22,7 +22,7 @@ export default async function AdminUsersPage({
           type="text"
           name="q"
           defaultValue={q ?? ""}
-          placeholder="Search by username or email..."
+          placeholder="Search by email..."
           className="w-full max-w-md rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
         />
       </form>
@@ -38,8 +38,10 @@ export default async function AdminUsersPage({
               className="flex items-center justify-between px-4 py-3 hover:bg-ink-800/60 transition-colors"
             >
               <div>
-                <p className="text-parchment-100">{u.username}</p>
-                <p className="text-xs text-ink-400">{u.email}</p>
+                <p className="text-parchment-100">{u.email}</p>
+                {u.chatTimeoutUntil && new Date(u.chatTimeoutUntil) > new Date() && (
+                  <p className="text-xs text-claret-500">Timed out from chat</p>
+                )}
               </div>
               {u.isAdmin && (
                 <span className="text-xs uppercase tracking-wider text-claret-500 border border-claret-500/40 rounded px-2 py-1">

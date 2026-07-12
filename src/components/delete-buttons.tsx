@@ -97,7 +97,7 @@ export function DeleteCharacterButton({
   );
 }
 
-export function DeleteAccountButton({ userId, username }: { userId: number; username: string }) {
+export function DeleteAccountButton({ userId, email }: { userId: number; email: string }) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -105,7 +105,7 @@ export function DeleteAccountButton({ userId, username }: { userId: number; user
       action={(fd) => {
         if (
           confirm(
-            `Permanently delete the account "${username}"? This deletes every character on it and all of their threads, posts, and history. This can't be undone.`
+            `Permanently delete the account "${email}"? This deletes every character on it and all of their threads, posts, and history. This can't be undone.`
           )
         ) {
           startTransition(() => adminDeleteUserAction(fd));

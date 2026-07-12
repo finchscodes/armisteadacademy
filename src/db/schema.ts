@@ -80,18 +80,35 @@ export const users = pgTable(
   {
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
-    username: varchar("username", { length: 32 }).notNull(),
     passwordHash: text("password_hash").notNull(),
     // Admin is the one account-level permission: every character on an admin's
     // account gets hidden admin access, regardless of the character's job.
     isAdmin: boolean("is_admin").notNull().default(false),
+    // Set by a chat moderator (or auto-spam detection) — blocks every
+    // character on this account from posting in chat until this passes.
+    // Account-level (not per-character) so switching characters can't be
+    // used to dodge a timeout. Null means no active timeout.
+    chatTimeoutUntil: timestamp("chat_timeout_until"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
     emailIdx: uniqueIndex("users_email_idx").on(table.email),
-    usernameIdx: uniqueIndex("users_username_idx").on(table.username),
   })
 );
+
+/** Password-reset links emailed to a user — single-use, short-lived. */
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 64 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => ({
+  tokenIdx: uniqueIndex("password_reset_tokens_token_idx").on(table.token),
+}));
 
 export const characters = pgTable(
   "characters",
@@ -133,9 +150,6 @@ export const characters = pgTable(
     // Updated by a periodic heartbeat while this character is the active one
     // in an open tab — drives "who's online" and who can be pinged in chat.
     lastActiveAt: timestamp("last_active_at"),
-    // Set by a chat moderator (or auto-spam detection) — the character can't
-    // post in chat again until this passes. Null means no active timeout.
-    chatTimeoutUntil: timestamp("chat_timeout_until"),
     isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
@@ -166,7 +180,7 @@ export const characterJobs = pgTable(
     // Armistead Weekly can only post there, an instructor scoped to Threat
     // Elimination can only manage that class, a Resident Advisor scoped to
     // Undercroft Hall can only post/moderate that hall's board. Jobs that
-    // aren't inherently board-specific (Spymaster, Enforcer, etc) leave
+    // aren't inherently board-specific (Spymaster, Student Council, etc) leave
     // this null.
     scopeBoardId: integer("scope_board_id").references(() => boards.id, { onDelete: "cascade" }),
     // Grants the same access as a normal job assignment, but doesn't show

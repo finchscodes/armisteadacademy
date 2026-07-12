@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
+import { ToggleThreadLockButton } from "@/components/toggle-thread-lock-button";
 import { PostInteractions } from "@/components/post-interactions";
 import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
@@ -92,7 +93,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         ) : (
           <span />
         )}
-        {session?.isAdmin && <DeleteThreadButton threadId={thread.id} />}
+        {canModerate && (
+          <div className="flex items-center gap-3">
+            <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
+            <DeleteThreadButton threadId={thread.id} />
+          </div>
+        )}
       </div>
       <h1 className="font-display text-3xl text-brass-400 mb-2">{thread.title}</h1>
 

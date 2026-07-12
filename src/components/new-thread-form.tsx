@@ -5,19 +5,23 @@ import { useActionState } from "react";
 import { createThreadAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { PhoneMessageComposer } from "@/components/phone-message-composer";
+import { MailIcon, DocumentIcon } from "@/components/nav-icons";
 import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 
 export function NewThreadForm({
   boardSlug,
   isArticle = false,
   isPhone = false,
+  isEmail = false,
 }: {
   boardSlug: string;
   isArticle?: boolean;
   isPhone?: boolean;
+  isEmail?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
+  const [emailFormat, setEmailFormat] = useState<"email" | "letter">("email");
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -25,18 +29,85 @@ export function NewThreadForm({
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="title">
-          {isArticle ? "Article title" : isPhone ? "Conversation title" : "Thread title"}
+          {isArticle
+            ? "Article title"
+            : isPhone
+              ? "Conversation title"
+              : isEmail
+                ? emailFormat === "letter"
+                  ? "Title (for the topic list — not shown on the letter itself)"
+                  : "Subject"
+                : "Thread title"}
         </label>
         <input
           id="title"
           name="title"
           required
-          placeholder={isPhone ? "e.g. Texts with Celeste" : undefined}
+          placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : undefined}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>
 
-      {!isArticle && (
+      {isEmail && (
+        <>
+          <input type="hidden" name="emailFormat" value={emailFormat} />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setEmailFormat("email")}
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
+                emailFormat === "email"
+                  ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
+                  : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              }`}
+            >
+              <MailIcon className="w-3.5 h-3.5" />
+              Email
+            </button>
+            <button
+              type="button"
+              onClick={() => setEmailFormat("letter")}
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
+                emailFormat === "letter"
+                  ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
+                  : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              }`}
+            >
+              <DocumentIcon className="w-3.5 h-3.5" />
+              Letter
+            </button>
+          </div>
+
+          {emailFormat === "letter" && (
+            <div className="space-y-3 border border-ink-700 rounded-lg p-4 bg-ink-800/40">
+              <div>
+                <label className="block text-xs font-medium mb-1" htmlFor="letterTo">
+                  To
+                </label>
+                <input
+                  id="letterTo"
+                  name="letterTo"
+                  placeholder="e.g. Erandi Moon,"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" htmlFor="letterFrom">
+                  From
+                </label>
+                <input
+                  id="letterFrom"
+                  name="letterFrom"
+                  placeholder="e.g. — Genji Ikenaga"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {!isArticle && !isEmail && (
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="rating">
             Rating
@@ -57,7 +128,7 @@ export function NewThreadForm({
         </div>
       )}
 
-      {!isArticle && !isPhone && (
+      {!isArticle && !isPhone && !isEmail && (
         <>
           <div>
             <button
@@ -142,7 +213,15 @@ export function NewThreadForm({
 
       <div>
         <label className="block text-sm font-medium mb-1">
-          {isArticle ? "Article body" : isPhone ? "First message" : "Opening post"}
+          {isArticle
+            ? "Article body"
+            : isPhone
+              ? "First message"
+              : isEmail
+                ? emailFormat === "letter"
+                  ? "Letter body"
+                  : "Email body"
+                : "Opening post"}
         </label>
         {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" />}
       </div>
@@ -154,7 +233,17 @@ export function NewThreadForm({
         disabled={pending}
         className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
       >
-        {pending ? "Posting..." : isArticle ? "Post article" : isPhone ? "Start conversation" : "Post thread"}
+        {pending
+          ? "Posting..."
+          : isArticle
+            ? "Post article"
+            : isPhone
+              ? "Start conversation"
+              : isEmail
+                ? emailFormat === "letter"
+                  ? "Send letter"
+                  : "Send email"
+                : "Post thread"}
       </button>
     </form>
   );

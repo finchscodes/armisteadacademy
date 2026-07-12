@@ -70,3 +70,17 @@ export function formatCallContent(target: { calleeId: number | null; calleeName:
   const marker = target.calleeId ? `/call ${target.calleeId}` : `/callname ${target.calleeName.trim()}`;
   return `${marker}\n${body.trim()}`;
 }
+
+/**
+ * A readable, marker-free version of a phone board post's content — for
+ * excerpts/feeds, where showing the raw "/action ..." or "/img ..." lines
+ * would look like broken text instead of an intentional format.
+ */
+export function phoneContentToPlainText(raw: string): string {
+  const call = parseCallContent(raw);
+  if (call) return call.body;
+  return parsePhoneContent(raw)
+    .filter((l) => l.type === "message")
+    .map((l) => l.text)
+    .join(" ");
+}

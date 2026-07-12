@@ -12,7 +12,9 @@ import { CharacterBadge } from "@/components/character-badge";
 import { ReplyForm } from "@/components/reply-form";
 import { PhoneReplyForm } from "@/components/phone-reply-form";
 import { EditablePhonePost } from "@/components/editable-phone-post";
-import { PhoneCommentSection } from "@/components/phone-comment-section";
+import { EmailView } from "@/components/email-view";
+import { LetterView } from "@/components/letter-view";
+import { TopicCommentSection } from "@/components/topic-comment-section";
 import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
 import { ToggleThreadLockButton } from "@/components/toggle-thread-lock-button";
 import { PostInteractions } from "@/components/post-interactions";
@@ -115,7 +117,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         )}
         {canModerate && (
           <div className="flex items-center gap-3">
-            {board?.kind !== "article" && (
+            {board?.kind !== "article" && board?.kind !== "email" && (
               <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
             )}
             <DeleteThreadButton threadId={thread.id} />
@@ -177,6 +179,39 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           );
           const isArticle = board?.kind === "article";
           const isPhone = board?.kind === "phone";
+          const isEmail = board?.kind === "email";
+
+          if (isEmail) {
+            const canEditThis = Boolean(session) && (session!.userId === post.authorUserId || canModerate);
+            if (thread.emailFormat === "letter") {
+              return (
+                <LetterView
+                  key={post.id}
+                  postId={post.id}
+                  content={post.content}
+                  editedAt={post.editedAt}
+                  canEdit={canEditThis}
+                  letterTo={thread.letterTo}
+                  letterFrom={thread.letterFrom}
+                />
+              );
+            }
+            return (
+              <EmailView
+                key={post.id}
+                postId={post.id}
+                content={post.content}
+                editedAt={post.editedAt}
+                canEdit={canEditThis}
+                subject={thread.title}
+                senderCharacterId={post.characterId}
+                senderName={`${post.characterFirstName} ${post.characterLastName}`}
+                senderSlug={post.characterSlug}
+                senderAvatarUrl={post.characterAvatarUrl}
+                postedAt={post.createdAt}
+              />
+            );
+          }
 
           if (isPhone) {
             // "My side" (right) is the viewer's own active character, but
@@ -310,7 +345,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         <p className="text-center text-sm text-ink-400 border border-ink-700 rounded-lg py-4">
           This thread is locked.
         </p>
-      ) : board?.kind === "article" ? null : board?.kind === "phone" ? (
+      ) : board?.kind === "article" || board?.kind === "email" ? null : board?.kind === "phone" ? (
         <PhoneReplyForm
           threadSlug={thread.slug}
           participants={phoneParticipants.filter((p) => p.id !== viewerCharacterId)}
@@ -319,8 +354,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         <ReplyForm threadSlug={thread.slug} />
       )}
 
-      {board?.kind === "phone" && openingPostId && (
-        <PhoneCommentSection
+      {(board?.kind === "phone" || board?.kind === "email") && openingPostId && (
+        <TopicCommentSection
           postId={openingPostId}
           comments={commentsByPost.get(openingPostId) ?? []}
           canInteract={Boolean(viewerCharacterId)}

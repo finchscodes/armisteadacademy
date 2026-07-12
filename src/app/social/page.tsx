@@ -35,10 +35,7 @@ export default async function SocialPage() {
   return (
     <div>
       <h1 className="font-display text-3xl text-brass-400 mb-1">Socials</h1>
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-ink-400 text-sm">
-          Where Armistead keeps in touch — and who&apos;s around right now.
-        </p>
+      <div className="flex items-center justify-end mb-3">
         <Link
           href="/members"
           className="shrink-0 bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 hover:text-brass-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider"

@@ -724,3 +724,33 @@ CREATE TABLE "sorting_quiz_blurb" (
 -- standalone statement.
 
 ALTER TYPE "board_kind" ADD VALUE 'phone';
+
+-- ----------------------------------------------------------------------------
+-- 56-email-boards.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 55-phone-boards.sql.
+--
+-- Adds "email" as a board kind — an Emails/Letters board where each topic
+-- is a single email (envelope-style header, rich-text body, no threaded
+-- replies) with a comment section underneath, similar in shape to an
+-- article board but open to everyone and styled like a letter instead.
+-- Postgres requires enum additions to run outside a transaction block, so
+-- this is a single standalone statement.
+
+ALTER TYPE "board_kind" ADD VALUE 'email';
+
+-- ----------------------------------------------------------------------------
+-- 57-letter-format.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 56-email-boards.sql.
+--
+-- Adds "letter" as an alternate layout for email boards — a to/body/from
+-- letter format instead of the From/Date/Subject envelope. email_format
+-- is null for every board except email boards, where it's "email" or
+-- "letter"; letter_to/letter_from are only used when it's "letter".
+
+ALTER TABLE "threads" ADD COLUMN "email_format" varchar(10);
+ALTER TABLE "threads" ADD COLUMN "letter_to" varchar(200);
+ALTER TABLE "threads" ADD COLUMN "letter_from" varchar(200);

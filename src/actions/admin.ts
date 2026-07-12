@@ -560,7 +560,7 @@ export async function getCategoriesForAdmin() {
 
 const createBoardSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
-  kind: z.enum(["category", "board", "class", "article", "phone"]),
+  kind: z.enum(["category", "board", "class", "article", "phone", "email"]),
   parentId: z.coerce.number().int().optional(),
   description: z.string().max(2000).optional().or(z.literal("")),
   extraArticleJob: z.enum(JOB_VALUES).optional(),

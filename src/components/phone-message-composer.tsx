@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { uploadFaceclaimAction } from "@/actions/uploads";
 import { formatActionLine, formatImageLine, formatCallContent, parseCallContent } from "@/lib/phone-messages";
+import { ChatBubbleIcon, PhoneCallIcon } from "@/components/nav-icons";
+import { CHAT_EMOJI } from "@/lib/chat-emoji";
 
 type Participant = { id: number; name: string; avatarUrl: string | null };
 
@@ -32,6 +34,7 @@ export function PhoneMessageComposer({
   const [actionText, setActionText] = useState("");
   const [showPhotoUrlInput, setShowPhotoUrlInput] = useState(false);
   const [photoUrl, setPhotoUrl] = useState("");
+  const [showEmoji, setShowEmoji] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,6 +49,23 @@ export function PhoneMessageComposer({
   function appendLine(line: string) {
     setValue((prev) => (prev.trim().length > 0 ? `${prev.replace(/\n+$/, "")}\n${line}` : line));
     requestAnimationFrame(() => textareaRef.current?.focus());
+  }
+
+  function insertAtCursor(text: string) {
+    const el = textareaRef.current;
+    if (!el) {
+      setValue((prev) => prev + text);
+      return;
+    }
+    const start = el.selectionStart ?? value.length;
+    const end = el.selectionEnd ?? value.length;
+    const next = value.slice(0, start) + text + value.slice(end);
+    setValue(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + text.length;
+      el.setSelectionRange(pos, pos);
+    });
   }
 
   function confirmAction() {
@@ -101,24 +121,26 @@ export function PhoneMessageComposer({
         <button
           type="button"
           onClick={() => setMode("message")}
-          className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
+          className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             mode === "message"
               ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
               : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
           }`}
         >
-          💬 Texting
+          <ChatBubbleIcon className="w-3.5 h-3.5" />
+          Texting
         </button>
         <button
           type="button"
           onClick={() => setMode("call")}
-          className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
+          className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             mode === "call"
               ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
               : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
           }`}
         >
-          📞 Call
+          <PhoneCallIcon className="w-3.5 h-3.5" />
+          Call
         </button>
       </div>
 
@@ -160,6 +182,33 @@ export function PhoneMessageComposer({
             >
               + Photo (URL)
             </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowEmoji((v) => !v)}
+                data-tooltip="Insert emoji"
+                className="text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+              >
+                🙂
+              </button>
+              {showEmoji && (
+                <div className="absolute bottom-full left-0 mb-1 w-56 bg-ink-800 border border-ink-600 rounded-md shadow-xl p-2 grid grid-cols-8 gap-1 z-10">
+                  {CHAT_EMOJI.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        insertAtCursor(emoji);
+                        setShowEmoji(false);
+                      }}
+                      className="text-lg hover:bg-ink-700 rounded p-0.5 transition-colors"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <input
               ref={fileInputRef}
               type="file"

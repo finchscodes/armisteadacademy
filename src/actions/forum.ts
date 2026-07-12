@@ -42,6 +42,9 @@ const newThreadSchema = z.object({
   ooc: z.string().max(4000).optional().or(z.literal("")),
   rating: z.coerce.number().int().min(1).max(5).optional(),
   scheduledFor: z.string().optional().or(z.literal("")),
+  emailFormat: z.enum(["email", "letter"]).optional(),
+  letterTo: z.string().max(200).optional().or(z.literal("")),
+  letterFrom: z.string().max(200).optional().or(z.literal("")),
 });
 
 export async function createThreadAction(
@@ -60,19 +63,24 @@ export async function createThreadAction(
     ooc: formData.get("ooc") || undefined,
     rating: formData.get("rating") || undefined,
     scheduledFor: formData.get("scheduledFor") || undefined,
+    emailFormat: formData.get("emailFormat") || undefined,
+    letterTo: formData.get("letterTo") || undefined,
+    letterFrom: formData.get("letterFrom") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, location, timeSetting, surroundings, ooc, rating } = parsed.data;
+  const { boardSlug, title, location, timeSetting, surroundings, ooc, rating, emailFormat, letterTo, letterFrom } =
+    parsed.data;
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
   if (!board) {
     return { error: "That board no longer exists" };
   }
   const isPhone = board.kind === "phone";
+  const isEmail = board.kind === "email";
   const content = isPhone ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
   if (board.kind === "class") {
     return { error: "This is a class board — it only takes lessons, not topics" };
@@ -93,7 +101,7 @@ export async function createThreadAction(
   }
 
   const isArticle = board.kind === "article";
-  if (!isArticle && !rating) {
+  if (!isArticle && !isEmail && !rating) {
     return { error: "Pick a rating" };
   }
   let scheduledFor: Date | null = null;
@@ -119,11 +127,14 @@ export async function createThreadAction(
       userId: session.userId,
       title,
       slug: threadSlug,
-      location: isArticle || isPhone ? null : location || null,
-      timeSetting: isArticle || isPhone ? null : timeSetting || null,
-      surroundings: isArticle || isPhone ? null : surroundings || null,
-      ooc: isArticle || isPhone ? null : ooc || null,
-      rating: isArticle ? null : rating ?? null,
+      location: isArticle || isPhone || isEmail ? null : location || null,
+      timeSetting: isArticle || isPhone || isEmail ? null : timeSetting || null,
+      surroundings: isArticle || isPhone || isEmail ? null : surroundings || null,
+      ooc: isArticle || isPhone || isEmail ? null : ooc || null,
+      rating: isArticle || isEmail ? null : rating ?? null,
+      emailFormat: isEmail ? emailFormat ?? "email" : null,
+      letterTo: isEmail && emailFormat === "letter" ? letterTo || null : null,
+      letterFrom: isEmail && emailFormat === "letter" ? letterFrom || null : null,
       scheduledFor,
       lastPostAt: now,
     })
@@ -196,8 +207,8 @@ export async function createPostAction(
   }
 
   const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
-  if (threadBoard?.kind === "article") {
-    return { error: "Use comments to respond to an article, not a reply post" };
+  if (threadBoard?.kind === "article" || threadBoard?.kind === "email") {
+    return { error: "Use comments to respond, not a reply post" };
   }
   const content =
     threadBoard?.kind === "phone" ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
@@ -310,6 +321,57 @@ export async function updatePostAction(
   return { error: undefined };
 }
 
+const editLetterSchema = z.object({
+  postId: z.coerce.number().int(),
+  content: z
+    .string()
+    .min(1, "Letter can't be empty")
+    .max(60000, "That's too long")
+    .refine((v) => richTextLength(v) > 0, "Letter can't be empty"),
+  letterTo: z.string().max(200).optional().or(z.literal("")),
+  letterFrom: z.string().max(200).optional().or(z.literal("")),
+});
+
+/** Letters have salutation/signature fields on the thread, alongside the post content — edited together. */
+export async function updateLetterAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const { session, characterId } = await requireSessionAndCharacter();
+
+  const parsed = editLetterSchema.safeParse({
+    postId: formData.get("postId"),
+    content: formData.get("content"),
+    letterTo: formData.get("letterTo") || undefined,
+    letterFrom: formData.get("letterFrom") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { postId, letterTo, letterFrom } = parsed.data;
+  const content = sanitizeRichText(parsed.data.content);
+
+  const [post] = await db.select().from(posts).where(eq(posts.id, postId));
+  if (!post) return { error: "That post no longer exists" };
+
+  const isAuthor = post.userId === session.userId;
+  const canModerate = session.isAdmin || (await canModeratePosts(characterId));
+  if (!isAuthor && !canModerate) {
+    return { error: "You don't have permission to edit this letter" };
+  }
+
+  await db.update(posts).set({ content, editedAt: new Date() }).where(eq(posts.id, postId));
+  await db
+    .update(threads)
+    .set({ letterTo: letterTo || null, letterFrom: letterFrom || null })
+    .where(eq(threads.id, post.threadId));
+
+  const [thread] = await db.select({ slug: threads.slug }).from(threads).where(eq(threads.id, post.threadId));
+  if (thread) revalidatePath(`/t/${thread.slug}`);
+  return { error: undefined };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Deleting threads and posts                                                */
 /* -------------------------------------------------------------------------- */
@@ -400,7 +462,7 @@ export async function toggleThreadLockAction(formData: FormData) {
   if (!thread) return;
 
   const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
-  if (threadBoard?.kind === "article") return; // article boards reply via comments, not thread posts — no lock
+  if (threadBoard?.kind === "article" || threadBoard?.kind === "email") return; // no reply-posts to lock — comments only
 
   await db.update(threads).set({ isLocked: !thread.isLocked }).where(eq(threads.id, threadId));
   revalidatePath(`/t/${thread.slug}`);

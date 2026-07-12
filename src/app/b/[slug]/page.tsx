@@ -39,6 +39,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
   const { board, childBoards, threads: allThreads } = data;
   const isClassBoard = board.kind === "class";
   const isArticleBoard = board.kind === "article";
+  const isEmailBoard = board.kind === "email";
   const [lessons, current] = await Promise.all([
     isClassBoard ? getLessonsForBoard(board.id) : Promise.resolve([]),
     getCurrentUser(),
@@ -103,7 +104,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             href={`/b/${board.slug}/new`}
             className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
           >
-            {isArticleBoard ? "+ New article" : "+ New thread"}
+            {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
           </Link>
         )}
       </div>
@@ -185,12 +186,12 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
           {threads.length === 0 ? (
             <p className="px-4 py-6 text-sm text-ink-400 text-center">
-              {isArticleBoard ? "No articles posted yet." : "No threads yet."}
+              {isArticleBoard ? "No articles posted yet." : isEmailBoard ? "No emails yet." : "No threads yet."}
               {canPostHere && (
                 <>
                   {" "}
                   <Link href={`/b/${board.slug}/new`} className="text-brass-400 hover:underline">
-                    {isArticleBoard ? "Post the first one" : "Start the first one"}
+                    {isArticleBoard ? "Post the first one" : isEmailBoard ? "Send the first one" : "Start the first one"}
                   </Link>
                   .
                 </>
@@ -228,7 +229,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
-                  {isArticleBoard ? (
+                  {isArticleBoard || isEmailBoard ? (
                     <>
                       <p className="text-xs text-ink-400 text-right">{timeAgo(t.createdAt)}</p>
                       <CharacterHoverCard

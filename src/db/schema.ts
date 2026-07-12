@@ -18,7 +18,7 @@ import { JOB_VALUES } from "@/lib/roles";
 /* -------------------------------------------------------------------------- */
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
-export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone"]);
+export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
@@ -329,6 +329,11 @@ export const threads = pgTable("threads", {
   // Article boards only: if set and in the future, the article is hidden
   // from public view until this time — management/authors can still see it.
   scheduledFor: timestamp("scheduled_for"),
+  // Email boards only: which layout this topic uses. Null for every other
+  // board kind. "letter" adds the salutation/signature fields below.
+  emailFormat: varchar("email_format", { length: 10 }),
+  letterTo: varchar("letter_to", { length: 200 }),
+  letterFrom: varchar("letter_from", { length: 200 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastPostAt: timestamp("last_post_at").notNull().defaultNow(),
 });

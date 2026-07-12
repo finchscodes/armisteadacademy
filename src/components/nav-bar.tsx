@@ -69,10 +69,26 @@ export async function NavBar() {
       <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="flex items-baseline gap-1.5 shrink-0 leading-none">
-            <span className="font-hero text-base md:text-lg normal-case tracking-normal text-parchment-100">
+            <span
+              className="font-hero text-base md:text-lg normal-case text-parchment-100"
+              style={{
+                fontWeight: 400,
+                letterSpacing: "0.01em",
+                fontVariantLigatures: "common-ligatures discretionary-ligatures",
+                fontFeatureSettings: '"liga" 1, "dlig" 1',
+              }}
+            >
               armistead
             </span>
-            <span className="font-hero text-base md:text-lg uppercase tracking-normal text-parchment-100">
+            <span
+              className="font-hero text-base md:text-lg uppercase text-parchment-100"
+              style={{
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                fontVariantLigatures: "common-ligatures discretionary-ligatures",
+                fontFeatureSettings: '"liga" 1, "dlig" 1',
+              }}
+            >
               academy
             </span>
           </Link>

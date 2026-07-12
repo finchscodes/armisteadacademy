@@ -15,6 +15,7 @@ import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES } from "@/lib/halls";
 import { getPrimaryJobsForCharacters, isScopedToBoard, characterHasAnyJob } from "@/lib/character-jobs";
 import { GRADE_TIER_VALUES, GRADE_TIER_META, computePayout } from "@/lib/grading";
+import { GRADING_ACCESS_JOBS } from "@/lib/admin-access";
 
 async function requireAdmin() {
   const session = await getSession();
@@ -482,6 +483,31 @@ export async function getAllBoardsForAdmin() {
     ...cat,
     children: others.filter((b) => b.parentId === cat.id),
   }));
+}
+
+/**
+ * Reorders a sibling group of boards — either the top-level categories, or
+ * the boards inside one category. The caller only ever passes ids from a
+ * single drag list, so there's no cross-group mixing to worry about.
+ */
+export async function reorderBoardsAction(formData: FormData) {
+  await requireAdmin();
+  const orderedIdsRaw = formData.get("orderedIds");
+  if (typeof orderedIdsRaw !== "string") return;
+
+  const orderedIds = orderedIdsRaw
+    .split(",")
+    .map((s) => Number(s))
+    .filter((n) => Number.isInteger(n));
+
+  let position = 0;
+  for (const id of orderedIds) {
+    await db.update(boards).set({ position }).where(eq(boards.id, id));
+    position++;
+  }
+
+  revalidatePath("/admin/boards");
+  revalidatePath("/");
 }
 
 export async function getBoardForAdmin(boardId: number) {
@@ -1108,7 +1134,7 @@ export async function getRecentGradedSubmissions(limit = 50, boardIds?: number[]
     const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
     let allowed = false;
     for (const c of myCharacters) {
-      if (await characterHasAnyJob(c.id, ["instructor", "assistant_instructor"])) allowed = true;
+      if (await characterHasAnyJob(c.id, GRADING_ACCESS_JOBS)) allowed = true;
     }
     if (!allowed) throw new Error("Not authorized");
   }
@@ -1159,7 +1185,7 @@ export async function adminUpdateSubmissionGradeAction(
     const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
     let allowed = false;
     for (const c of myCharacters) {
-      if (await characterHasAnyJob(c.id, ["instructor", "assistant_instructor"])) allowed = true;
+      if (await characterHasAnyJob(c.id, GRADING_ACCESS_JOBS)) allowed = true;
     }
     if (!allowed) return { error: "Not authorized" };
   }

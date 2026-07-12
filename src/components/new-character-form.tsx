@@ -7,8 +7,7 @@ import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES, hallLabel, HALL_META } from "@/lib/halls";
 
-type Answer = { id: number; answerText: string; hall: string };
-type Question = { id: number; questionText: string; answers: Answer[] };
+type Question = { id: number; questionText: string; answers: { id: number; answerText: string; hall: string }[] };
 
 export function NewCharacterForm({ questions }: { questions: Question[] }) {
   const [state, formAction, pending] = useActionState(createCharacterAction, undefined);
@@ -152,20 +151,10 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
             ))}
           </div>
         ) : (
-          <div className="space-y-4">
-            {questions.map((q) => (
-              <div key={q.id}>
-                <p className="text-sm text-parchment-100 mb-1.5">{q.questionText}</p>
-                <div className="space-y-1">
-                  {q.answers.map((a) => (
-                    <label key={a.id} className="flex items-center gap-2 text-sm text-ink-200">
-                      <input type="radio" name={`quiz_q${q.id}`} value={a.id} required />
-                      {a.answerText}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
+          <div className="text-sm text-ink-200 bg-ink-900/60 border border-ink-700 rounded-md px-3 py-3">
+            You&apos;ll take the sorting quiz right after you enroll. Your hall shows as{" "}
+            <span className="text-brass-400">Pending</span> until then — you can still chat and
+            explore Armistead in the meantime.
           </div>
         )}
       </div>

@@ -40,36 +40,14 @@ const createCharacterSchema = z.object({
 
 const STARTING_BALANCE = 50;
 
-/** Resolve a character's hall from either a direct pick or their sorting-quiz answers. */
-async function resolveHall(formData: FormData): Promise<{ hall: string } | { error: string }> {
+/** Resolve a character's hall from a direct pick, or defer it ("pending") for the sorting quiz. */
+function resolveHall(formData: FormData): { hall: string | null } | { error: string } {
   const hallMode = formData.get("hallMode");
 
   if (hallMode === "quiz") {
-    const answerIds: number[] = [];
-    for (const [key, value] of formData.entries()) {
-      if (key.startsWith("quiz_q") && typeof value === "string" && value) {
-        answerIds.push(Number(value));
-      }
-    }
-    if (answerIds.length === 0) {
-      return { error: "Answer the sorting quiz, or switch to choosing your hall directly" };
-    }
-    const rows = await db
-      .select({ hall: sortingAnswers.hall })
-      .from(sortingAnswers)
-      .where(inArray(sortingAnswers.id, answerIds));
-    const tally = new Map<string, number>();
-    for (const r of rows) tally.set(r.hall, (tally.get(r.hall) ?? 0) + 1);
-    let winner: string | null = null;
-    let winnerCount = -1;
-    for (const [hall, count] of tally) {
-      if (count > winnerCount) {
-        winner = hall;
-        winnerCount = count;
-      }
-    }
-    if (!winner) return { error: "Couldn't score the quiz — try again" };
-    return { hall: winner };
+    // Hall stays pending — they'll take the quiz on its own page after
+    // enrolling, and can chat in the meantime.
+    return { hall: null };
   }
 
   const hall = formData.get("hall");
@@ -88,7 +66,7 @@ export async function createCharacterAction(
     redirect("/login");
   }
 
-  const hallResult = await resolveHall(formData);
+  const hallResult = resolveHall(formData);
   if ("error" in hallResult) {
     return { error: hallResult.error };
   }
@@ -122,7 +100,7 @@ export async function createCharacterAction(
       age,
       gender,
       socialStatus,
-      hall: hallResult.hall as (typeof HALL_VALUES)[number],
+      hall: hallResult.hall as (typeof HALL_VALUES)[number] | null,
       middleName: middleName || undefined,
       lastName,
       name,
@@ -147,12 +125,77 @@ export async function createCharacterAction(
   await db.insert(chatMessages).values({
     characterId: character.id,
     userId: session.userId,
-    content: `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
+    content:
+      hallResult.hall === null
+        ? "just enrolled and is awaiting the sorting quiz!"
+        : `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
     isAnnouncement: true,
   });
 
   await setActiveCharacterId(character.id);
-  redirect(`/hall/${hallResult.hall}/welcome`);
+  redirect(hallResult.hall === null ? "/sorting-quiz" : `/hall/${hallResult.hall}/welcome`);
+}
+
+/**
+ * Scores a completed sorting quiz for a character whose hall is still
+ * pending (deferred at creation) and moves them into the winning hall.
+ */
+export async function submitSortingQuizAction(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const characterId = Number(formData.get("characterId"));
+  const [character] = await db.select().from(characters).where(eq(characters.id, characterId));
+  if (!character || character.userId !== session.userId) {
+    return { error: "Not authorized" };
+  }
+  if (character.hall !== null) {
+    // Already sorted — nothing to do, just send them on.
+    redirect(`/hall/${character.hall}/welcome`);
+  }
+
+  const answerIds: number[] = [];
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("quiz_q") && typeof value === "string" && value) {
+      answerIds.push(Number(value));
+    }
+  }
+  if (answerIds.length === 0) {
+    return { error: "Answer every question to be sorted" };
+  }
+
+  const rows = await db
+    .select({ hall: sortingAnswers.hall })
+    .from(sortingAnswers)
+    .where(inArray(sortingAnswers.id, answerIds));
+  const tally = new Map<string, number>();
+  for (const r of rows) tally.set(r.hall, (tally.get(r.hall) ?? 0) + 1);
+  let winner: string | null = null;
+  let winnerCount = -1;
+  for (const [hall, count] of tally) {
+    if (count > winnerCount) {
+      winner = hall;
+      winnerCount = count;
+    }
+  }
+  if (!winner) return { error: "Couldn't score the quiz — try again" };
+
+  await db
+    .update(characters)
+    .set({ hall: winner as (typeof HALL_VALUES)[number] })
+    .where(eq(characters.id, characterId));
+
+  await db.insert(chatMessages).values({
+    characterId: character.id,
+    userId: session.userId,
+    content: `was just sorted into ${hallLabel(winner)} hall!`,
+    isAnnouncement: true,
+  });
+
+  redirect(`/hall/${winner}/welcome`);
 }
 
 const updateCharacterSchema = z.object({

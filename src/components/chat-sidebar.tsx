@@ -272,6 +272,7 @@ export function ChatSidebar({
               type="button"
               onClick={onCollapse}
               data-tooltip="Hide chat"
+              data-tooltip-side="bottom-left"
               className="w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center shrink-0"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5">
@@ -329,15 +330,14 @@ export function ChatSidebar({
                 }`}
               >
                 {isModerator && (
-                  <span className="relative inline-block align-middle mr-1">
+                  <>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenMenuId(openMenuId === m.id ? null : m.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
-                      data-tooltip="Moderate"
+                      className="absolute left-0 -translate-x-full top-0 h-full flex items-center opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
                     >
                       &#8942;
                     </button>
@@ -423,7 +423,7 @@ export function ChatSidebar({
                         </button>
                       </div>
                     )}
-                  </span>
+                  </>
                 )}
                 <CharacterHoverCard characterId={m.characterId} slug={m.characterSlug}>
                   <Link

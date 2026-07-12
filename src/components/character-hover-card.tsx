@@ -65,7 +65,7 @@ export function CharacterHoverCard({
       {show && profile && (
         <div
           style={{ position: "fixed", top: pos.top, left: pos.left }}
-          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-center gap-2.5 text-left"
+          className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
         >
           <Link href={`/c/${slug}`} className="shrink-0 relative block w-20 h-20">
             {/* eslint-disable-next-line @next/next/no-img-element */}

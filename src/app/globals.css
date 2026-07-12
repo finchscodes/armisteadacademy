@@ -123,8 +123,11 @@ body {
 }
 
 /* Custom tooltips — replaces the native browser title="" tooltip, which
-   can't be restyled. Usage: <button data-tooltip="Quote">...</button> */
-[data-tooltip] {
+   can't be restyled. Usage: <button data-tooltip="Quote">...</button>
+   :where() keeps this at zero specificity so it never fights an element's
+   own position: absolute/fixed (e.g. a status dot that also needs a
+   tooltip) — it only supplies a default when nothing else sets one. */
+:where([data-tooltip]) {
   position: relative;
 }
 

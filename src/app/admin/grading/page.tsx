@@ -19,7 +19,7 @@ export default async function AdminGradingPage() {
   );
   const submissions = await getRecentGradedSubmissions(
     50,
-    access.isFullAdmin ? undefined : access.gradingBoardIds
+    access.isFullAdmin || access.canViewAllGrading ? undefined : access.gradingBoardIds
   );
 
   return (

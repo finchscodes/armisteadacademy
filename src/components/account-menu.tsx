@@ -62,7 +62,7 @@ export function AccountMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 z-30 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-72 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 z-30">
           <div className="p-4 space-y-3">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Posting as</p>

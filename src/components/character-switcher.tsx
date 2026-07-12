@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setActiveCharacterAction } from "@/actions/characters";
+import { StyledSelect } from "@/components/styled-select";
 
 type Character = { id: number; firstName: string; lastName: string };
 
@@ -18,10 +19,9 @@ export function CharacterSwitcher({
 
   if (characters.length === 0) return null;
 
-  const current = activeCharacterId ?? characters[0].id;
+  const current = String(activeCharacterId ?? characters[0].id);
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const characterId = e.target.value;
+  function handleChange(characterId: string) {
     startTransition(async () => {
       const formData = new FormData();
       formData.set("characterId", characterId);
@@ -33,17 +33,14 @@ export function CharacterSwitcher({
   }
 
   return (
-    <select
+    <StyledSelect
       value={current}
       onChange={handleChange}
       disabled={pending}
-      className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm text-parchment-100 focus:outline-none focus:border-brass-500 w-full disabled:opacity-60"
-    >
-      {characters.map((c) => (
-        <option key={c.id} value={c.id}>
-          {c.firstName} {c.lastName}
-        </option>
-      ))}
-    </select>
+      options={characters.map((c) => ({
+        value: String(c.id),
+        label: `${c.firstName} ${c.lastName}`,
+      }))}
+    />
   );
 }

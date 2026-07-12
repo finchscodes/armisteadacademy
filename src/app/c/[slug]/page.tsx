@@ -145,8 +145,26 @@ export default async function CharacterProfilePage({
             color={getMajorColor(character.major) ?? undefined}
           />
           <InfoRow label="Year" value={yearLabel} />
-          {character.hall && (
+          {character.hall ? (
             <InfoRow label="Hall" value={hallLabel(character.hall)} color={hallColor(character.hall) ?? undefined} />
+          ) : (
+            <InfoRow
+              label="Hall"
+              value={
+                <>
+                  <span className="text-brass-400">Pending</span>
+                  {isOwner && (
+                    <>
+                      {" "}
+                      &middot;{" "}
+                      <Link href="/sorting-quiz" className="text-brass-400 hover:underline">
+                        Take the quiz
+                      </Link>
+                    </>
+                  )}
+                </>
+              }
+            />
           )}
           <InfoRow label="Gender" value={character.gender} />
           <InfoRow label="Status" value={character.socialStatus} />

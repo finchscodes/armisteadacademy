@@ -44,12 +44,13 @@ export default async function AdminIndexPage() {
   // Limited access — only show the sections this character actually has a reason to see.
   const [hallBoards, gradingBoards] = await Promise.all([
     getBoardNames(access.hallBoardIds),
-    getBoardNames(access.gradingBoardIds),
+    access.canViewAllGrading ? Promise.resolve([]) : getBoardNames(access.gradingBoardIds),
   ]);
 
   const limitedSections = [
     access.canAccessUsers && { href: "/admin/users", label: "Users (hiring)" },
     ...hallBoards.map((b) => ({ href: "/admin/hall-welcome", label: `${b.name} Welcome` })),
+    access.canViewAllGrading && { href: "/admin/grading", label: "Grading (all classes)" },
     ...gradingBoards.map((b) => ({ href: "/admin/grading", label: `${b.name} Grading` })),
   ].filter(Boolean) as { href: string; label: string }[];
 

@@ -7,6 +7,21 @@ import { MANAGEMENT_JOBS, type CharacterJob } from "@/lib/roles";
 /** Jobs that can reach a limited version of the admin panel, beyond true admins. */
 export const ADMIN_PANEL_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "field_agent"];
 
+/**
+ * Secretary/Spymaster oversee grading across every class, not just one
+ * scoped board like Instructor/Assistant Instructor — they get the
+ * Grading tab in the limited admin panel, but no other management access
+ * beyond what MANAGEMENT_JOBS already grants them elsewhere.
+ */
+export const GRADING_OVERSIGHT_JOBS: CharacterJob[] = ["secretary", "spymaster"];
+
+/** Jobs whose members can view/edit the admin Grading tab, board-scoped or not. */
+export const GRADING_ACCESS_JOBS: CharacterJob[] = [
+  "instructor",
+  "assistant_instructor",
+  ...GRADING_OVERSIGHT_JOBS,
+];
+
 export type AdminAccessContext = {
   isFullAdmin: boolean;
   /** Can see the Users page at all (in hire-only mode, unless full admin). */
@@ -15,6 +30,8 @@ export type AdminAccessContext = {
   hallBoardIds: number[];
   /** Class boards this character can grade (Instructor/Assistant Instructor, scoped). */
   gradingBoardIds: number[];
+  /** Secretary/Spymaster: can view the Grading tab across every board, unscoped. */
+  canViewAllGrading: boolean;
 };
 
 export async function getAdminAccessContext(
@@ -22,13 +39,28 @@ export async function getAdminAccessContext(
   isSessionAdmin: boolean
 ): Promise<AdminAccessContext> {
   if (isSessionAdmin) {
-    return { isFullAdmin: true, canAccessUsers: true, hallBoardIds: [], gradingBoardIds: [] };
+    return {
+      isFullAdmin: true,
+      canAccessUsers: true,
+      hallBoardIds: [],
+      gradingBoardIds: [],
+      canViewAllGrading: true,
+    };
   }
   if (!characterId) {
-    return { isFullAdmin: false, canAccessUsers: false, hallBoardIds: [], gradingBoardIds: [] };
+    return {
+      isFullAdmin: false,
+      canAccessUsers: false,
+      hallBoardIds: [],
+      gradingBoardIds: [],
+      canViewAllGrading: false,
+    };
   }
 
-  const canAccessUsers = await characterHasAnyJob(characterId, ADMIN_PANEL_JOBS);
+  const [canAccessUsers, canViewAllGrading] = await Promise.all([
+    characterHasAnyJob(characterId, ADMIN_PANEL_JOBS),
+    characterHasAnyJob(characterId, GRADING_OVERSIGHT_JOBS),
+  ]);
 
   const scopedJobs = await db
     .select({ job: characterJobs.job, scopeBoardId: characterJobs.scopeBoardId })
@@ -42,12 +74,18 @@ export async function getAdminAccessContext(
     .filter((j) => (j.job === "instructor" || j.job === "assistant_instructor") && j.scopeBoardId !== null)
     .map((j) => j.scopeBoardId as number);
 
-  return { isFullAdmin: false, canAccessUsers, hallBoardIds, gradingBoardIds };
+  return { isFullAdmin: false, canAccessUsers, hallBoardIds, gradingBoardIds, canViewAllGrading };
 }
 
 /** Whether this context grants access to the admin panel at all (some limited view). */
 export function hasAnyAdminAccess(ctx: AdminAccessContext): boolean {
-  return ctx.isFullAdmin || ctx.canAccessUsers || ctx.hallBoardIds.length > 0 || ctx.gradingBoardIds.length > 0;
+  return (
+    ctx.isFullAdmin ||
+    ctx.canAccessUsers ||
+    ctx.hallBoardIds.length > 0 ||
+    ctx.gradingBoardIds.length > 0 ||
+    ctx.canViewAllGrading
+  );
 }
 
 /** Names for hallBoardIds/gradingBoardIds, for display. */

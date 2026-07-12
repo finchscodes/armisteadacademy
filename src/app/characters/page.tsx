@@ -94,12 +94,17 @@ export default async function CharactersPage() {
                         {c.major}
                       </span>
                     </div>
-                    {c.hall && (
+                    {c.hall ? (
                       <div className="flex items-start gap-2">
                         <span className="text-ink-400">Hall</span>
                         <span className="ml-auto text-right" style={{ color: hallColor(c.hall) ?? undefined }}>
                           {hallLabel(c.hall)}
                         </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <span className="text-ink-400">Hall</span>
+                        <span className="ml-auto text-right text-brass-400">Pending</span>
                       </div>
                     )}
                     <div className="flex items-start gap-2">

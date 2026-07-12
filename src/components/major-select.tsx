@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MAJORS, SELECTABLE_MAJORS, UNDECIDED_MAJOR, type Major } from "@/lib/majors";
+import { StyledSelect } from "@/components/styled-select";
 
 export function MajorSelect({
   initialValue,
@@ -20,20 +21,13 @@ export function MajorSelect({
       <label className="block text-sm font-medium mb-1" htmlFor="major">
         Major
       </label>
-      <select
+      <StyledSelect
         id="major"
         name="major"
-        required
         value={selected}
-        onChange={(e) => setSelected(e.target.value)}
-        className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-      >
-        {list.map((m) => (
-          <option key={m.value} value={m.value}>
-            {m.label}
-          </option>
-        ))}
-      </select>
+        onChange={setSelected}
+        options={list.map((m) => ({ value: m.value, label: m.label, accentColor: m.color }))}
+      />
       {description && <p className="text-xs text-ink-400 mt-1.5 leading-relaxed">{description}</p>}
     </div>
   );

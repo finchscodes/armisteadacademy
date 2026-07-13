@@ -12,12 +12,12 @@ import { getOnlineCharacters } from "@/lib/online-status";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 
-const voyage = localFont({
+const alloverModern = localFont({
   src: [
-    { path: "./fonts/Voyage_Regular.ttf", weight: "400", style: "normal" },
-    { path: "./fonts/Voyage_Bold.ttf", weight: "700", style: "normal" },
+    { path: "./fonts/AlloverModern_Regular.otf", weight: "400", style: "normal" },
+    { path: "./fonts/AlloverModern_Bold.otf", weight: "700", style: "normal" },
   ],
-  variable: "--font-voyage",
+  variable: "--font-allover-modern",
   display: "swap",
 });
 
@@ -93,7 +93,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`h-full antialiased ${voyage.variable} ${oldStandard.variable} ${ebGaramond.variable} ${workSans.variable} ${istokWeb.variable} ${plexMono.variable}`}
+      className={`h-full antialiased ${alloverModern.variable} ${oldStandard.variable} ${ebGaramond.variable} ${workSans.variable} ${istokWeb.variable} ${plexMono.variable}`}
     >
       <body className="min-h-full flex flex-col">
         <HeartbeatPing />

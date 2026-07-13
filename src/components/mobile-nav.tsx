@@ -8,6 +8,8 @@ import type { BoardNode } from "@/lib/forum";
 const KIND_BADGE: Record<string, string> = {
   class: "class",
   article: "board",
+  shop: "shop",
+  bank: "bank",
 };
 
 export function MobileNav({ tree }: { tree: BoardNode[] }) {

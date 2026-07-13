@@ -12,6 +12,8 @@ import { jobColor } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { ShopBoardView } from "@/components/shop-board-view";
+import { BankBoardView } from "@/components/bank-board-view";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -37,6 +39,14 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
   if (!data) notFound();
 
   const { board, childBoards, threads: allThreads } = data;
+
+  if (board.kind === "shop") {
+    return <ShopBoardView boardId={board.id} boardName={board.name} boardDescription={board.description} />;
+  }
+  if (board.kind === "bank") {
+    return <BankBoardView boardName={board.name} />;
+  }
+
   const isClassBoard = board.kind === "class";
   const isArticleBoard = board.kind === "article";
   const isEmailBoard = board.kind === "email";

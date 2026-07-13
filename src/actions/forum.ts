@@ -104,6 +104,9 @@ export async function createThreadAction(
   if (board.kind === "class") {
     return { error: "This is a class board — it only takes lessons, not topics" };
   }
+  if (board.kind === "shop" || board.kind === "bank") {
+    return { error: "This board doesn't take topics" };
+  }
   if (board.slug === "missions") {
     const allowed =
       session.isAdmin ||

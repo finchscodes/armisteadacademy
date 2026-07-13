@@ -17,6 +17,8 @@ import {
   getOutgoingRequests,
 } from "@/lib/character-relations";
 import { getWallPosts, getLikesForWallPosts, getCommentsForWallPosts } from "@/lib/wall";
+import { getArsenal } from "@/lib/shops";
+import { ArsenalTab } from "@/components/arsenal-tab";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
 import { WallFeed } from "@/components/wall-feed";
@@ -64,7 +66,7 @@ export default async function CharacterProfilePage({
   const character = await getCharacterBySlug(slug);
   if (!character) notFound();
 
-  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses, wallPosts] =
+  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses, wallPosts, arsenalItems] =
     await Promise.all([
       getCharacterLevelProgress(character.id),
       getCharacterYearLabel(character.id, character.major, character.yearOverride),
@@ -75,6 +77,7 @@ export default async function CharacterProfilePage({
       getAcceptedRelations(character.id),
       getStatusesForCharacter(character.id),
       getWallPosts(character.id),
+      getArsenal(character.id),
     ]);
 
   const legalName = [character.firstName, character.middleName, character.lastName]
@@ -339,6 +342,8 @@ export default async function CharacterProfilePage({
           wall={wallTab}
           topics={topicsTab}
           topicsCount={topics.length}
+          arsenal={<ArsenalTab items={arsenalItems} isOwner={isOwner} />}
+          arsenalCount={arsenalItems.length}
         />
       </div>
     </div>

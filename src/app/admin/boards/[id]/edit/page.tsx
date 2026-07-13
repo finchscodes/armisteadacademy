@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBoardForAdmin } from "@/actions/admin";
+import { getBoardForAdmin, getShopItemsForAdmin } from "@/actions/admin";
 import { EditBoardForm } from "@/components/edit-board-form";
 import { DeleteBoardButton } from "@/components/delete-board-button";
+import { ShopItemsEditor } from "@/components/shop-items-editor";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -14,6 +15,8 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const board = await getBoardForAdmin(Number(id));
   if (!board) notFound();
+
+  const shopItems = board.kind === "shop" ? await getShopItemsForAdmin(board.id) : null;
 
   return (
     <div className="max-w-xl">
@@ -30,6 +33,13 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
         description={board.description}
         imageUrl={board.imageUrl}
       />
+
+      {shopItems && (
+        <div className="mt-8">
+          <h2 className="font-display text-lg text-brass-400 mb-3">Items</h2>
+          <ShopItemsEditor boardId={board.id} items={shopItems} />
+        </div>
+      )}
     </div>
   );
 }

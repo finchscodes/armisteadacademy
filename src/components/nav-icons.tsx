@@ -112,6 +112,16 @@ export function HeartIcon({ className = "w-5 h-5", filled = false }: { className
   );
 }
 
+export function CoinIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="5.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M12 8.5v7M10 10h3a1.5 1.5 0 0 1 0 3h-2a1.5 1.5 0 0 0 0 3h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function ImageIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>

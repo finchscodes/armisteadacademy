@@ -861,3 +861,93 @@ ALTER TABLE "posts" ADD COLUMN "ooc" text;
 
 ALTER TABLE "posts" ADD COLUMN "roll_value" integer;
 ALTER TABLE "posts" ADD COLUMN "roll_modifier" integer;
+
+-- ----------------------------------------------------------------------------
+-- 64-shop-and-bank-board-kinds.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 63-post-dice-rolls.sql.
+--
+-- Shops move from a standalone "shops" table to just being board_kind='shop'
+-- boards — reuses all the existing name/description/position/reorder
+-- machinery every other board already has, instead of duplicating it. Also
+-- adds a "bank" board kind for the new bank feature.
+--
+-- Postgres requires enum value additions to run outside a transaction
+-- block, so this file is standalone statements only — the rest of the
+-- structural changes (bank_ledger table, items table rework) are in
+-- 64b-shop-and-bank-tables.sql, which depends on these values existing.
+
+ALTER TYPE "board_kind" ADD VALUE 'shop';
+ALTER TYPE "board_kind" ADD VALUE 'bank';
+ALTER TYPE "ledger_reason" ADD VALUE 'bank_deposit';
+ALTER TYPE "ledger_reason" ADD VALUE 'bank_withdrawal';
+ALTER TYPE "ledger_reason" ADD VALUE 'bank_interest';
+
+
+-- ----------------------------------------------------------------------------
+-- 64b-bank-and-items-tables.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 64-shop-and-bank-board-kinds.sql.
+
+CREATE TABLE "bank_ledger" (
+  "id" serial PRIMARY KEY,
+  "character_id" integer NOT NULL REFERENCES "characters"("id") ON DELETE CASCADE,
+  "amount" integer NOT NULL,
+  "reason" "ledger_reason" NOT NULL,
+  "note" text,
+  "created_at" timestamp NOT NULL DEFAULT now()
+);
+
+-- Clear the old placeholder shop data — the real shops get seeded fresh
+-- against the new board-based structure in the next migration.
+DELETE FROM "inventory";
+DELETE FROM "items";
+ALTER TABLE "items" DROP COLUMN "shop_id";
+DROP TABLE "shops";
+
+ALTER TABLE "items" ADD COLUMN "board_id" integer NOT NULL REFERENCES "boards"("id") ON DELETE CASCADE;
+ALTER TABLE "items" ADD COLUMN "position" integer NOT NULL DEFAULT 0;
+
+
+-- ----------------------------------------------------------------------------
+-- 65-seed-shops-and-bank.sql
+-- ----------------------------------------------------------------------------
+
+-- Run this in Supabase's SQL Editor after 64b-bank-and-items-tables.sql.
+--
+-- Adds the Bank and the 16 placeholder shops under Outside Armistead.
+-- They're appended after whatever's currently last in that category —
+-- drag them into your preferred order afterward from /admin/boards (e.g.
+-- to put Bank directly under Elsewhere) since exact position isn't
+-- something worth hand-computing here.
+
+WITH cat AS (
+  SELECT id FROM boards WHERE slug = 'outside-armistead' AND kind = 'category'
+),
+next_pos AS (
+  SELECT COALESCE(MAX(position), -1) + 1 AS start_pos FROM boards, cat WHERE boards.parent_id = cat.id
+)
+INSERT INTO boards (kind, parent_id, name, slug, description, position)
+SELECT b.kind, cat.id, b.name, b.slug, b.description, next_pos.start_pos + b.sort_offset
+FROM cat, next_pos, (VALUES
+  ('bank'::board_kind, 'Bank', 'bank', 'Store your money and earn interest on it.', 0),
+  ('shop'::board_kind, 'Gun Shop', 'gun-shop', NULL, 1),
+  ('shop'::board_kind, 'Knife/Melee Shop', 'knife-melee-shop', NULL, 2),
+  ('shop'::board_kind, 'Food Shop', 'food-shop', NULL, 3),
+  ('shop'::board_kind, 'Drink Shop', 'drink-shop', NULL, 4),
+  ('shop'::board_kind, 'Clothes Shop', 'clothes-shop', NULL, 5),
+  ('shop'::board_kind, 'Misc/Pawn Shop', 'misc-pawn-shop', NULL, 6),
+  ('shop'::board_kind, 'Book Shop', 'book-shop', NULL, 7),
+  ('shop'::board_kind, 'Pencils/Things Shop', 'pencils-things-shop', NULL, 8),
+  ('shop'::board_kind, 'Pet Shop', 'pet-shop', NULL, 9),
+  ('shop'::board_kind, 'Dessert/Candy Shop', 'dessert-candy-shop', NULL, 10),
+  ('shop'::board_kind, 'Utility Gadgets/Poison Shop', 'utility-gadgets-poison-shop', NULL, 11),
+  ('shop'::board_kind, 'Holiday Shop', 'holiday-shop', NULL, 12),
+  ('shop'::board_kind, 'Mission Shop', 'mission-shop', 'Like stealth clothes.', 13),
+  ('shop'::board_kind, 'Prank Shop', 'prank-shop', NULL, 14),
+  ('shop'::board_kind, 'Dinner/Expensive Food Shop', 'dinner-expensive-food-shop', NULL, 15),
+  ('shop'::board_kind, 'Charms/Trinket Shop', 'charms-trinket-shop', NULL, 16)
+) AS b(kind, name, slug, description, sort_offset)
+ON CONFLICT (slug) DO NOTHING;

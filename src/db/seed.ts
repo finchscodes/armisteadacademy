@@ -1,7 +1,7 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { db } from "./index";
-import { boards, shops, items, users } from "./schema";
+import { boards, users } from "./schema";
 
 type BoardSpec = {
   name: string;
@@ -206,22 +206,6 @@ async function main() {
       position: i,
     }))
   );
-
-  console.log("Seeding a starter shop...");
-  const [generalStore] = await db
-    .insert(shops)
-    .values({
-      name: "The General Store",
-      slug: "general-store",
-      description: "Everyday supplies and oddities.",
-    })
-    .returning();
-
-  await db.insert(items).values([
-    { shopId: generalStore.id, name: "Field Notebook", price: 8, stock: null },
-    { shopId: generalStore.id, name: "Coffee", price: 3, stock: null },
-    { shopId: generalStore.id, name: "Second-hand Field Manual", price: 15, stock: 20 },
-  ]);
 
   console.log("Done.");
   process.exit(0);

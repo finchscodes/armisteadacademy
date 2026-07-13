@@ -8,20 +8,25 @@ export function ProfileTabs({
   wall,
   topics,
   topicsCount,
+  arsenal,
+  arsenalCount,
 }: {
   backstory: React.ReactNode;
   appearance: React.ReactNode;
   wall: React.ReactNode;
   topics: React.ReactNode;
   topicsCount: number;
+  arsenal: React.ReactNode;
+  arsenalCount: number;
 }) {
-  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics">("wall");
+  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics" | "arsenal">("wall");
 
   const tabs = [
     { key: "wall" as const, label: "Wall" },
     { key: "appearance" as const, label: "Dossier" },
     { key: "backstory" as const, label: "Transcript" },
     { key: "topics" as const, label: `Topics (${topicsCount})` },
+    { key: "arsenal" as const, label: `Arsenal (${arsenalCount})` },
   ];
 
   return (
@@ -47,6 +52,7 @@ export function ProfileTabs({
       {tab === "appearance" && appearance}
       {tab === "wall" && wall}
       {tab === "topics" && topics}
+      {tab === "arsenal" && arsenal}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -504,6 +504,132 @@ export async function reorderBoardsAction(formData: FormData) {
   revalidatePath("/");
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Shop items — items belong to a board with kind="shop"                     */
+/* -------------------------------------------------------------------------- */
+
+export async function getShopItemsForAdmin(boardId: number) {
+  await requireAdmin();
+  return db.select().from(items).where(eq(items.boardId, boardId)).orderBy(items.position);
+}
+
+const itemSchema = z.object({
+  boardId: z.coerce.number().int(),
+  name: z.string().min(1, "Name is required").max(120),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  price: z.coerce.number().int().min(0, "Price can't be negative"),
+  stock: z.string().optional().or(z.literal("")), // blank = unlimited
+  imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
+});
+
+export async function adminCreateItemAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = itemSchema.safeParse({
+    boardId: formData.get("boardId"),
+    name: formData.get("name"),
+    description: formData.get("description") || undefined,
+    price: formData.get("price"),
+    stock: formData.get("stock") || undefined,
+    imageUrl: formData.get("imageUrl") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { boardId, name, description, price, stock, imageUrl } = parsed.data;
+  const existing = await db.select({ id: items.id }).from(items).where(eq(items.boardId, boardId));
+
+  await db.insert(items).values({
+    boardId,
+    name,
+    description: description || null,
+    price,
+    stock: stock ? Number(stock) : null,
+    imageUrl: imageUrl || null,
+    position: existing.length,
+  });
+
+  revalidatePath(`/admin/boards/${boardId}/edit`);
+  revalidatePath("/b", "layout");
+  return { success: "Item added" };
+}
+
+const updateItemSchema = itemSchema.extend({ itemId: z.coerce.number().int() });
+
+export async function adminUpdateItemAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updateItemSchema.safeParse({
+    itemId: formData.get("itemId"),
+    boardId: formData.get("boardId"),
+    name: formData.get("name"),
+    description: formData.get("description") || undefined,
+    price: formData.get("price"),
+    stock: formData.get("stock") || undefined,
+    imageUrl: formData.get("imageUrl") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { itemId, boardId, name, description, price, stock, imageUrl } = parsed.data;
+
+  await db
+    .update(items)
+    .set({
+      name,
+      description: description || null,
+      price,
+      stock: stock ? Number(stock) : null,
+      imageUrl: imageUrl || null,
+    })
+    .where(eq(items.id, itemId));
+
+  revalidatePath(`/admin/boards/${boardId}/edit`);
+  revalidatePath("/b", "layout");
+  return { success: "Item saved" };
+}
+
+export async function adminDeleteItemAction(formData: FormData) {
+  await requireAdmin();
+  const itemId = Number(formData.get("itemId"));
+  const boardId = Number(formData.get("boardId"));
+  if (!itemId) return;
+
+  await db.delete(items).where(eq(items.id, itemId));
+
+  revalidatePath(`/admin/boards/${boardId}/edit`);
+  revalidatePath("/b", "layout");
+}
+
+export async function reorderShopItemsAction(formData: FormData) {
+  await requireAdmin();
+  const boardId = Number(formData.get("boardId"));
+  const orderedIdsRaw = formData.get("orderedIds");
+  if (typeof orderedIdsRaw !== "string") return;
+
+  const orderedIds = orderedIdsRaw
+    .split(",")
+    .map((s) => Number(s))
+    .filter((n) => Number.isInteger(n));
+
+  let position = 0;
+  for (const id of orderedIds) {
+    await db.update(items).set({ position }).where(eq(items.id, id));
+    position++;
+  }
+
+  revalidatePath(`/admin/boards/${boardId}/edit`);
+  revalidatePath("/b", "layout");
+}
+
 export async function getBoardForAdmin(boardId: number) {
   await requireAdmin();
   const [board] = await db.select().from(boards).where(eq(boards.id, boardId));
@@ -560,7 +686,7 @@ export async function getCategoriesForAdmin() {
 
 const createBoardSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
-  kind: z.enum(["category", "board", "class", "article", "phone", "email"]),
+  kind: z.enum(["category", "board", "class", "article", "phone", "email", "shop", "bank"]),
   parentId: z.coerce.number().int().optional(),
   description: z.string().max(2000).optional().or(z.literal("")),
   extraArticleJob: z.enum(JOB_VALUES).optional(),

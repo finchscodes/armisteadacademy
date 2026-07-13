@@ -18,7 +18,7 @@ import { JOB_VALUES } from "@/lib/roles";
 /* -------------------------------------------------------------------------- */
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
-export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email"]);
+export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
@@ -43,6 +43,9 @@ export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "shop_purchase",
   "admin_adjustment",
   "starting_balance",
+  "bank_deposit",
+  "bank_withdrawal",
+  "bank_interest",
 ]);
 export const xpReasonEnum = pgEnum("xp_reason", [
   "chat_post",
@@ -752,23 +755,22 @@ export const reputationLedger = pgTable("reputation_ledger", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const shops = pgTable("shops", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 120 }).notNull(),
-  slug: varchar("slug", { length: 140 }).notNull(),
-  description: text("description"),
-});
-
+/**
+ * Shops are just boards with kind="shop" — same name/description/position/
+ * reorder machinery as every other board, admin-managed the same way.
+ * Items belong directly to the board.
+ */
 export const items = pgTable("items", {
   id: serial("id").primaryKey(),
-  shopId: integer("shop_id")
+  boardId: integer("board_id")
     .notNull()
-    .references(() => shops.id, { onDelete: "cascade" }),
+    .references(() => boards.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 120 }).notNull(),
   description: text("description"),
   price: integer("price").notNull(),
   stock: integer("stock"), // null = unlimited
   imageUrl: text("image_url"),
+  position: integer("position").notNull().default(0),
 });
 
 export const inventory = pgTable("inventory", {
@@ -781,6 +783,22 @@ export const inventory = pgTable("inventory", {
     .references(() => items.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
+});
+
+/**
+ * A character's bank balance, tracked completely separately from their
+ * wallet (currencyLedger) — depositing moves money from one ledger to the
+ * other. Interest only ever accrues on money sitting in here.
+ */
+export const bankLedger = pgTable("bank_ledger", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(), // positive = deposit/interest, negative = withdrawal
+  reason: ledgerReasonEnum("reason").notNull(),
+  note: text("note"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 /**

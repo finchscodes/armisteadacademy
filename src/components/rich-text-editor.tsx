@@ -131,6 +131,22 @@ export function RichTextEditor({
     }
   }, [editor]);
 
+  // Belt-and-suspenders: force one final sync right as the form actually
+  // submits, not just on every editor keystroke/change. onUpdate should
+  // always keep this current, but this closes off any possible timing gap
+  // between "last edit" and "browser reads the field" regardless of cause.
+  useEffect(() => {
+    const input = inputRef.current;
+    const form = input?.form;
+    if (!editor || !input || !form) return;
+
+    const handleSubmit = () => {
+      input.value = editor.getHTML();
+    };
+    form.addEventListener("submit", handleSubmit);
+    return () => form.removeEventListener("submit", handleSubmit);
+  }, [editor]);
+
   if (!editor) {
     return (
       <div>

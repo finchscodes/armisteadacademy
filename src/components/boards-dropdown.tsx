@@ -212,33 +212,35 @@ export function BoardsDropdown({
                 the first column looked broken once it was actually several
                 columns wide. */}
             {shopsCategory && shopColumns.length > 0 && (
-              <>
-                <p
-                  className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700"
-                  style={{ gridColumn: `span ${shopColumns.length}` }}
-                >
+              <div style={{ gridColumn: `span ${shopColumns.length}` }}>
+                <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
                   {shopsCategory.name}
                 </p>
-                {shopColumns.map((col, i) => (
-                  <div key={`shops-${i}`} className="space-y-0.5">
-                    {col.map((board) => (
-                      <Link
-                        key={board.id}
-                        href={`/b/${board.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
-                      >
-                        {board.name}
-                        {KIND_BADGE[board.kind] && (
-                          <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
-                            {KIND_BADGE[board.kind]}
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
-              </>
+                <div
+                  className="grid gap-x-5"
+                  style={{ gridTemplateColumns: `repeat(${shopColumns.length}, minmax(0, 1fr))` }}
+                >
+                  {shopColumns.map((col, i) => (
+                    <div key={`shops-${i}`} className="space-y-0.5">
+                      {col.map((board) => (
+                        <Link
+                          key={board.id}
+                          href={`/b/${board.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                        >
+                          {board.name}
+                          {KIND_BADGE[board.kind] && (
+                            <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                              {KIND_BADGE[board.kind]}
+                            </span>
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
             {uncategorized.length > 0 && (

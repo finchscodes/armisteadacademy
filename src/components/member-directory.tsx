@@ -6,6 +6,7 @@ import { getMajorColor } from "@/lib/majors";
 import { jobColor } from "@/lib/roles";
 import { hallLabel, hallColor } from "@/lib/halls";
 import { CharacterHoverCard } from "@/components/character-hover-card";
+import { StyledSelect } from "@/components/styled-select";
 
 type Member = {
   id: number;
@@ -21,28 +22,115 @@ type Member = {
   characterJob: string;
 };
 
+const ALL = "__all";
+
 export function MemberDirectory({ members }: { members: Member[] }) {
   const [query, setQuery] = useState("");
+  const [majorFilter, setMajorFilter] = useState(ALL);
+  const [hallFilter, setHallFilter] = useState(ALL);
+  const [yearFilter, setYearFilter] = useState(ALL);
+  const [ageFilter, setAgeFilter] = useState(ALL);
+
+  const majorOptions = useMemo(
+    () => [...new Set(members.map((m) => m.major))].sort(),
+    [members]
+  );
+  const hallOptions = useMemo(
+    () => [...new Set(members.map((m) => m.hall).filter((h): h is string => Boolean(h)))].sort(),
+    [members]
+  );
+  const yearOptions = useMemo(() => [...new Set(members.map((m) => m.year))].sort(), [members]);
+  const ageOptions = useMemo(
+    () => [...new Set(members.map((m) => m.age))].sort((a, b) => a - b),
+    [members]
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
-        `${m.firstName} ${m.lastName}`.toLowerCase().includes(q) ||
-        m.name.toLowerCase().includes(q)
-    );
-  }, [members, query]);
+    return members.filter((m) => {
+      if (q && !`${m.firstName} ${m.lastName}`.toLowerCase().includes(q) && !m.name.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (majorFilter !== ALL && m.major !== majorFilter) return false;
+      if (hallFilter !== ALL && m.hall !== hallFilter) return false;
+      if (yearFilter !== ALL && m.year !== yearFilter) return false;
+      if (ageFilter !== ALL && String(m.age) !== ageFilter) return false;
+      return true;
+    });
+  }, [members, query, majorFilter, hallFilter, yearFilter, ageFilter]);
+
+  const hasActiveFilters = majorFilter !== ALL || hallFilter !== ALL || yearFilter !== ALL || ageFilter !== ALL;
 
   return (
     <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search by name..."
-        autoComplete="off"
-        className="w-full max-w-sm rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm mb-4 focus:outline-none focus:border-brass-500"
-      />
+      <div className="flex flex-wrap items-end gap-3 mb-4">
+        <div>
+          <label className="block text-[11px] text-ink-400 mb-1">Search</label>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name..."
+            autoComplete="off"
+            className="w-48 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          />
+        </div>
+        <div className="w-40">
+          <label className="block text-[11px] text-ink-400 mb-1">Major</label>
+          <StyledSelect
+            value={majorFilter}
+            onChange={setMajorFilter}
+            options={[{ value: ALL, label: "All majors" }, ...majorOptions.map((m) => ({ value: m, label: m }))]}
+          />
+        </div>
+        <div className="w-36">
+          <label className="block text-[11px] text-ink-400 mb-1">Hall</label>
+          <StyledSelect
+            value={hallFilter}
+            onChange={setHallFilter}
+            options={[
+              { value: ALL, label: "All halls" },
+              ...hallOptions.map((h) => ({ value: h, label: hallLabel(h) })),
+            ]}
+          />
+        </div>
+        <div className="w-32">
+          <label className="block text-[11px] text-ink-400 mb-1">Year</label>
+          <StyledSelect
+            value={yearFilter}
+            onChange={setYearFilter}
+            options={[{ value: ALL, label: "All years" }, ...yearOptions.map((y) => ({ value: y, label: y }))]}
+          />
+        </div>
+        <div className="w-24">
+          <label className="block text-[11px] text-ink-400 mb-1">Age</label>
+          <StyledSelect
+            value={ageFilter}
+            onChange={setAgeFilter}
+            options={[
+              { value: ALL, label: "Any" },
+              ...ageOptions.map((a) => ({ value: String(a), label: String(a) })),
+            ]}
+          />
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setMajorFilter(ALL);
+              setHallFilter(ALL);
+              setYearFilter(ALL);
+              setAgeFilter(ALL);
+            }}
+            className="text-xs text-ink-400 hover:text-brass-400 transition-colors pb-2.5"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      <p className="text-xs text-ink-500 mb-3">
+        {filtered.length} of {members.length} members
+      </p>
 
       {filtered.length === 0 ? (
         <p className="text-sm text-ink-400">No one matches that search.</p>

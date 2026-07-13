@@ -11,6 +11,7 @@ const SECTIONS = [
   { href: "/admin/hall-welcome", label: "Hall Welcome" },
   { href: "/admin/sorting-quiz", label: "Sorting Quiz" },
   { href: "/admin/grading", label: "Grading" },
+  { href: "/admin/mass-message", label: "Mass Message" },
 ];
 
 export function AdminTabs() {

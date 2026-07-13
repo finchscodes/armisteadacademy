@@ -130,7 +130,7 @@ export function EditablePhonePost({
   }
 
   const lines = parsePhoneContent(content);
-  const bubbleColor = side === "right" ? "bg-brass-500/80 text-ink-950" : "bg-ink-700 text-parchment-100";
+  const bubbleColor = side === "right" ? "bg-brass-500/80 text-parchment-100" : "bg-ink-700 text-parchment-100";
   const align = side === "right" ? "items-end" : "items-start";
 
   return (

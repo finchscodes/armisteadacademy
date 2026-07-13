@@ -25,22 +25,22 @@ export function MiniProfileCard({
   return (
     <div
       style={{ position: "fixed", top, left }}
-      className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
+      className="z-50 w-80 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2.5 flex items-start gap-3 text-left"
     >
-      <Link href={`/c/${slug}`} className="shrink-0 relative block w-20 h-20">
+      <Link href={`/c/${slug}`} className="shrink-0 relative block w-16 h-16">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={profile.avatarUrl ?? undefined}
           alt={`${profile.firstName} ${profile.lastName}`}
-          className="w-20 h-20 rounded-md object-cover border border-brass-500/50 bg-ink-800"
+          className="w-16 h-16 rounded-md object-cover border border-brass-500/50 bg-ink-800"
           style={{ display: profile.avatarUrl ? "block" : "none" }}
         />
         {!profile.avatarUrl && (
           <div
-            className="w-20 h-20 rounded-md border border-brass-500/50 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center"
+            className="w-16 h-16 rounded-md border border-brass-500/50 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center"
             style={{ color: profile.nameColor ?? undefined }}
           >
-            <span className="font-display text-2xl text-parchment-100">{profile.firstName.charAt(0)}</span>
+            <span className="font-display text-xl text-parchment-100">{profile.firstName.charAt(0)}</span>
           </div>
         )}
         <span
@@ -60,7 +60,7 @@ export function MiniProfileCard({
             {profile.statuses.map((s) => (
               <span
                 key={s}
-                className="text-[10px] rounded px-1.5 py-0.5 border"
+                className="text-[10px] rounded px-1.5 py-0.5 border whitespace-nowrap"
                 style={{
                   color: hoverMajorColor,
                   backgroundColor: `${hoverMajorColor}26`,
@@ -72,21 +72,21 @@ export function MiniProfileCard({
             ))}
           </div>
         )}
-        <p>
+        <p className="whitespace-nowrap">
           <span className="text-ink-400">Age: </span>
           <span className="text-parchment-100">{profile.age}</span>
         </p>
-        <p>
+        <p className="whitespace-nowrap">
           <span className="text-ink-400">Year: </span>
           <span className="text-parchment-100">{profile.year}</span>
         </p>
         {profile.hallLabel && (
-          <p>
+          <p className="whitespace-nowrap">
             <span className="text-ink-400">Hall: </span>
             <span style={{ color: profile.hallColor ?? undefined }}>{profile.hallLabel}</span>
           </p>
         )}
-        <p className="leading-snug">
+        <p className="leading-snug whitespace-nowrap">
           <span className="text-ink-400">Major: </span>
           <span style={{ color: getMajorColor(profile.major) ?? undefined }}>{profile.major}</span>
         </p>

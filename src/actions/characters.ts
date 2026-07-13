@@ -13,6 +13,7 @@ import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from 
 import { HALL_VALUES, hallLabel } from "@/lib/halls";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
+import { sanitizeRichText } from "@/lib/sanitize";
 import type { ActionState } from "./auth";
 
 const nameRegex = /^[a-zA-Z' -]+$/;
@@ -90,6 +91,7 @@ export async function createCharacterAction(
 
   const { firstName, middleName, lastName, age, gender, socialStatus, name, major, avatarUrl, bio } =
     parsed.data;
+  const sanitizedBio = bio ? sanitizeRichText(bio) : undefined;
   const slug = slugifyUnique(`${firstName} ${lastName}`);
 
   const [character] = await db
@@ -107,7 +109,7 @@ export async function createCharacterAction(
       slug,
       major,
       avatarUrl: avatarUrl || undefined,
-      bio,
+      bio: sanitizedBio,
     })
     .returning({ id: characters.id });
 
@@ -235,6 +237,8 @@ export async function updateCharacterAction(
   }
 
   const { characterId, name, major, avatarUrl, bio, backstoryRating, personality, appearance } = parsed.data;
+  const sanitizedBio = bio ? sanitizeRichText(bio) : undefined;
+  const sanitizedAppearance = appearance ? sanitizeRichText(appearance) : undefined;
 
   const [existing] = await db
     .select({
@@ -259,7 +263,7 @@ export async function updateCharacterAction(
 
   // Editing the backstory puts it back to pending — a Registrar should see
   // the new version before it counts as approved again.
-  const bioChanged = (bio || null) !== (existing.bio || null);
+  const bioChanged = (sanitizedBio || null) !== (existing.bio || null);
 
   await db
     .update(characters)
@@ -267,10 +271,10 @@ export async function updateCharacterAction(
       name,
       major: majorToSave,
       avatarUrl: avatarUrl || null,
-      bio: bio || null,
+      bio: sanitizedBio || null,
       backstoryRating: backstoryRating ?? null,
       personality: personality || null,
-      appearance: appearance || null,
+      appearance: sanitizedAppearance || null,
       ...(bioChanged ? { backstoryApproved: false } : {}),
     })
     .where(eq(characters.id, characterId));

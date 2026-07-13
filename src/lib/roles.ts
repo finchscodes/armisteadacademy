@@ -54,20 +54,23 @@ type JobMeta = {
 
 export const JOB_META: Record<CharacterJob, JobMeta> = {
   none: { label: "None", color: null },
-  spymaster: { label: "Spymaster", color: "#4CAF7D" }, // Green
-  secretary: { label: "Secretary", color: "#3D6FB0" }, // Blue
-  field_agent: { label: "Resident Advisor", color: "#D9534F" }, // Red — one RA per hall, see lib/halls.ts
-  head_staff: { label: "Head Staff", color: "#E0C341" }, // Yellow — placeholder, department TBD
-  instructor: { label: "Instructor", color: "#A8D948" }, // Lime
-  chief_editor: { label: "Chief Editor", color: "#5AA9A3" }, // Teal
-  assistant_instructor: { label: "Assistant Instructor", color: "#E8E8E8" }, // White
-  prefect: { label: "Prefect", color: "#9B6FD1" }, // Purple — was "Student Council" (originally Enforcer)
-  student_council: { label: "Student Council", color: "#C6A8E8" }, // Lilac — was "School Board Member"
-  writer: { label: "Writer", color: "#E0435A" }, // Scarlett
-  media_team: { label: "Media Team", color: "#C13E7A" }, // Boysenberry
-  library_handler: { label: "Library Handler", color: "#E08A3C" }, // Orange
-  registrar: { label: "Registrar", color: "#29ABE2" }, // Smurf
-  handler: { label: "Handler", color: "#A15C56" }, // Muted Red
+  // Job colors are deliberately deep/rich jewel tones — majors are soft
+  // dusty pastels and halls are the four foundational site colors, so jobs
+  // needed their own distinct register instead of colliding with either.
+  spymaster: { label: "Spymaster", color: "#A67C3D" }, // Antique gold
+  secretary: { label: "Secretary", color: "#2F5D6B" }, // Deep navy-teal
+  field_agent: { label: "Resident Advisor", color: "#7A2E3A" }, // Oxblood — one RA per hall, see lib/halls.ts
+  head_staff: { label: "Head Staff", color: "#B8860B" }, // Dark goldenrod — placeholder, department TBD
+  instructor: { label: "Instructor", color: "#3F6B3F" }, // Forest green
+  chief_editor: { label: "Chief Editor", color: "#1F6F64" }, // Deep emerald-teal
+  assistant_instructor: { label: "Assistant Instructor", color: "#4A4A7A" }, // Dusty indigo
+  prefect: { label: "Prefect", color: "#5B3E8E" }, // Royal purple — was "Student Council" (originally Enforcer)
+  student_council: { label: "Student Council", color: "#6B3B6E" }, // Deep plum — was "School Board Member"
+  writer: { label: "Writer", color: "#8B2942" }, // Deep wine
+  media_team: { label: "Media Team", color: "#A13D6E" }, // Deep rose-magenta
+  library_handler: { label: "Library Handler", color: "#A85630" }, // Rust sienna
+  registrar: { label: "Registrar", color: "#166B85" }, // Deep cyan-teal
+  handler: { label: "Handler", color: "#5C4A3D" }, // Dark umber
 };
 
 export function jobLabel(job: CharacterJob): string {

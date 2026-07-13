@@ -91,7 +91,11 @@ export async function NavBar() {
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
-            <BoardsDropdown tree={boardTree} label="Inside Armistead" excludeCategorySlugs={["outside-armistead"]} />
+            <BoardsDropdown
+              tree={boardTree}
+              label="Inside Armistead"
+              excludeCategorySlugs={["outside-armistead", "shops"]}
+            />
             <BoardsDropdown
               tree={boardTree}
               label="Outside Armistead"

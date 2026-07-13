@@ -6,6 +6,7 @@ import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { AGE_OPTIONS, DEFAULT_AGE, GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES, hallLabel, HALL_META } from "@/lib/halls";
+import { RichTextEditor } from "@/components/rich-text-editor";
 
 type Question = { id: number; questionText: string; answers: { id: number; answerText: string; hall: string }[] };
 
@@ -179,16 +180,8 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
       <MajorSelect />
 
       <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="bio">
-          Bio / Transcript
-        </label>
-        <textarea
-          id="bio"
-          name="bio"
-          rows={6}
-          placeholder="Optional — this shows on your character's public profile"
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-        />
+        <label className="block text-sm font-medium mb-1">Bio / Transcript</label>
+        <RichTextEditor name="bio" placeholder="Optional — this shows on your character's public profile" />
       </div>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}

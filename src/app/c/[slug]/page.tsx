@@ -26,6 +26,7 @@ import { BackstoryApprovalButton } from "@/components/backstory-approval-button"
 import { AcceptedRelationsList } from "@/components/accepted-relations-list";
 import { IncomingRequestsList, OutgoingRequestsList } from "@/components/relation-request-lists";
 import { RelationRequestForm } from "@/components/relation-request-form";
+import { RichTextDisplay } from "@/components/rich-text-display";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -245,9 +246,7 @@ export default async function CharacterProfilePage({
         )}
       </div>
       {character.bio ? (
-        <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-          {character.bio}
-        </p>
+        <RichTextDisplay html={character.bio} className="leading-relaxed text-parchment-100/95 text-sm" />
       ) : (
         <p className="text-sm text-ink-400 italic">No transcript written yet.</p>
       )}
@@ -259,9 +258,7 @@ export default async function CharacterProfilePage({
       <div>
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">Appearance</h2>
         {character.appearance ? (
-          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-            {character.appearance}
-          </p>
+          <RichTextDisplay html={character.appearance} className="leading-relaxed text-parchment-100/95 text-sm" />
         ) : (
           <p className="text-sm text-ink-400 italic">Nothing written yet.</p>
         )}

@@ -53,12 +53,16 @@ export function sanitizeRichText(html: string): string {
     },
     // Only allow safe URL schemes on links — blocks javascript:, data:, etc.
     allowedSchemes: ["http", "https", "mailto"],
-    // The only inline style we ever generate is text color (job/hall
-    // palette, or a mention's job color) — restrict to hex values so this
-    // can't become a vector for arbitrary CSS.
+    // The only inline style we ever generate is text color (job/hall/major
+    // palette, or a mention's job color). Browsers frequently normalize a
+    // hex color to rgb(...) when serializing DOM content back to a string
+    // (Tiptap's editor.getHTML() goes through exactly that path), so both
+    // formats need to be allowed here or real colors get silently
+    // stripped. Still restricted to color values only — not a general
+    // CSS injection vector.
     allowedStyles: {
       "*": {
-        color: [/^#[0-9a-fA-F]{3,8}$/],
+        color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/, /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\s*\)$/],
       },
     },
     transformTags: {

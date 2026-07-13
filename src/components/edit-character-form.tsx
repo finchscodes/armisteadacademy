@@ -6,6 +6,7 @@ import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { UNDECIDED_MAJOR } from "@/lib/majors";
 import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
+import { RichTextEditor } from "@/components/rich-text-editor";
 
 export function EditCharacterForm({
   characterId,
@@ -83,16 +84,8 @@ export function EditCharacterForm({
       )}
 
       <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="bio">
-          Bio / Transcript
-        </label>
-        <textarea
-          id="bio"
-          name="bio"
-          rows={6}
-          defaultValue={bio ?? ""}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-        />
+        <label className="block text-sm font-medium mb-1">Bio / Transcript</label>
+        <RichTextEditor name="bio" initialValue={bio ?? ""} />
         <p className="text-[11px] text-ink-400 mt-1">
           Editing this puts your transcript back to pending review.
         </p>
@@ -134,16 +127,8 @@ export function EditCharacterForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="appearance">
-          Appearance
-        </label>
-        <textarea
-          id="appearance"
-          name="appearance"
-          rows={4}
-          defaultValue={appearance ?? ""}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
-        />
+        <label className="block text-sm font-medium mb-1">Appearance</label>
+        <RichTextEditor name="appearance" initialValue={appearance ?? ""} />
       </div>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}

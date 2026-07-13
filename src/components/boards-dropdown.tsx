@@ -48,6 +48,27 @@ export function BoardsDropdown({
     : allCategories.filter((c) => !excludeCategorySlugs.includes(c.slug));
   const uncategorized = onlyCategorySlugs ? [] : tree.filter((b) => b.kind !== "category");
 
+  const isSingleColumn = categories.length === 1 && uncategorized.length === 0;
+
+  // Shops has way more entries than a normal category — split it across a
+  // few columns instead of one very long list towering over everything else.
+  const shopsCategory = categories.find((c) => c.slug === "shops");
+  const shopColumnCount = shopsCategory ? (shopsCategory.children.length > 10 ? 3 : 2) : 0;
+  const shopColumns = shopsCategory
+    ? Array.from({ length: shopColumnCount }, (_, i) => {
+        const perColumn = Math.ceil(shopsCategory.children.length / shopColumnCount);
+        return shopsCategory.children.slice(i * perColumn, i * perColumn + perColumn);
+      }).filter((col) => col.length > 0)
+    : [];
+
+  const regularCategories = categories.filter((c) => c.slug !== "communications" && c.slug !== "shops");
+  // How many actual grid columns this menu needs — sized to content instead
+  // of a fixed count, so a 2-category menu isn't stuck with a 6-column-wide
+  // panel and a wall of empty space on the right.
+  const columnCount = isSingleColumn
+    ? 1
+    : regularCategories.length + shopColumns.length + (uncategorized.length > 0 ? 1 : 0);
+
   return (
     <div ref={ref} className="relative hidden md:block">
       <button
@@ -67,13 +88,10 @@ export function BoardsDropdown({
 
       {open && (
         <div
-          className={`fixed left-1/2 -translate-x-1/2 mt-2 max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30 ${
-            categories.length === 1 && uncategorized.length === 0
-              ? "w-[min(92vw,760px)]"
-              : "w-[min(97vw,1240px)]"
-          }`}
+          className="fixed left-1/2 -translate-x-1/2 mt-2 max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-4 z-30"
+          style={{ width: isSingleColumn ? "min(92vw, 760px)" : `min(97vw, ${columnCount * 185 + 32}px)` }}
         >
-          {categories.length === 1 && uncategorized.length === 0 ? (
+          {isSingleColumn ? (
             <div>
               <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
                 {categories[0].name}
@@ -101,9 +119,8 @@ export function BoardsDropdown({
               </div>
             </div>
           ) : (
-          <div className="grid grid-cols-4 xl:grid-cols-6 gap-x-5 gap-y-3">
-            {categories
-              .filter((c) => c.slug !== "communications" && c.slug !== "shops")
+          <div className="grid gap-x-5 gap-y-3" style={{ gridTemplateColumns: `repeat(${columnCount}, minmax(140px, 1fr))` }}>
+            {regularCategories
               .map((category) => {
                 const communications =
                   category.slug === "dormitories"
@@ -191,27 +208,19 @@ export function BoardsDropdown({
                 );
               })}
 
-            {/* Shops gets its own name but splits across several columns instead of
-                one long list — 16+ items in a single column would tower over
-                every other category. */}
-            {(() => {
-              const shopsCategory = categories.find((c) => c.slug === "shops");
-              if (!shopsCategory) return null;
-              const columnCount = shopsCategory.children.length > 10 ? 3 : 2;
-              const perColumn = Math.ceil(shopsCategory.children.length / columnCount);
-              const columns = Array.from({ length: columnCount }, (_, i) =>
-                shopsCategory.children.slice(i * perColumn, i * perColumn + perColumn)
-              ).filter((col) => col.length > 0);
-
-              return columns.map((col, i) => (
-                <div key={`shops-${i}`}>
-                  {i === 0 && (
-                    <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
-                      {shopsCategory.name}
-                    </p>
-                  )}
-                  {i > 0 && <div className="mb-1.5 pb-1 border-b border-transparent">&nbsp;</div>}
-                  <div className="space-y-0.5">
+            {/* Shops gets one header spanning all its columns — a border under just
+                the first column looked broken once it was actually several
+                columns wide. */}
+            {shopsCategory && shopColumns.length > 0 && (
+              <>
+                <p
+                  className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700"
+                  style={{ gridColumn: `span ${shopColumns.length}` }}
+                >
+                  {shopsCategory.name}
+                </p>
+                {shopColumns.map((col, i) => (
+                  <div key={`shops-${i}`} className="space-y-0.5">
                     {col.map((board) => (
                       <Link
                         key={board.id}
@@ -228,9 +237,9 @@ export function BoardsDropdown({
                       </Link>
                     ))}
                   </div>
-                </div>
-              ));
-            })()}
+                ))}
+              </>
+            )}
 
             {uncategorized.length > 0 && (
               <div>

@@ -57,25 +57,25 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   // Job colors are deliberately deep/rich jewel tones — majors are soft
   // dusty pastels and halls are the four foundational site colors, so jobs
   // needed their own distinct register instead of colliding with either.
-  // Hues below are spaced using a golden-angle distribution (~137.5° steps)
-  // across the 14 active/inactive jobs, then hand-assigned so that roles
-  // that might plausibly sit near each other (management jobs, or ones
-  // with similar-sounding names like Prefect/Student Council) land in
-  // different hue families rather than near-neighbors on the wheel.
-  spymaster: { label: "Spymaster", color: "#2C397D" }, // Deep indigo — isolated from every other job's hue family
-  secretary: { label: "Secretary", color: "#2C7D79" }, // Teal-cyan
-  field_agent: { label: "Resident Advisor", color: "#7D2C3D" }, // Wine-red — one RA per hall, see lib/halls.ts
-  head_staff: { label: "Head Staff", color: "#7D622C" }, // Amber-gold — placeholder, department TBD
-  instructor: { label: "Instructor", color: "#2C7D33" }, // Green
-  chief_editor: { label: "Chief Editor", color: "#2C7D5E" }, // Teal-green
-  assistant_instructor: { label: "Assistant Instructor", color: "#517D2C" }, // Olive-green
-  prefect: { label: "Prefect", color: "#4A2C7D" }, // Purple — was "Student Council" (originally Enforcer)
-  student_council: { label: "Student Council", color: "#7D2C68" }, // Magenta-pink — was "School Board Member"
-  writer: { label: "Writer", color: "#7D472C" }, // Burnt orange-brown
-  media_team: { label: "Media Team", color: "#2C547D" }, // Deep blue
-  library_handler: { label: "Library Handler", color: "#6C7D2C" }, // Olive-yellow
-  registrar: { label: "Registrar", color: "#762C7D" }, // Magenta-purple
-  handler: { label: "Handler", color: "#7D362C" }, // Rust-red
+  // All 14 are spaced at an even 360/14 ≈ 25.7° apart around the hue
+  // wheel — mathematically guaranteed not to cluster, rather than
+  // hand-picked and hoping. Spymaster and Prefect are lighter than the
+  // rest (still saturated, not pastel) since the deep versions were hard
+  // to read on the ink-600 (#574f4b) background used in some UI chrome.
+  spymaster: { label: "Spymaster", color: "#3C4DB4" }, // Bright indigo — lightened for readability
+  secretary: { label: "Secretary", color: "#2C7D7D" }, // Teal-cyan
+  field_agent: { label: "Resident Advisor", color: "#7D2C4E" }, // Wine-rose — one RA per hall, see lib/halls.ts
+  head_staff: { label: "Head Staff", color: "#7D712C" }, // Olive-gold — placeholder, department TBD
+  instructor: { label: "Instructor", color: "#437D2C" }, // Olive-green
+  chief_editor: { label: "Chief Editor", color: "#2C7D5A" }, // Deep emerald
+  assistant_instructor: { label: "Assistant Instructor", color: "#41C855" }, // Bright light green — distinct from Instructor's deeper olive
+  prefect: { label: "Prefect", color: "#5E3CB4" }, // Bright violet — lightened for readability
+  student_council: { label: "Student Council", color: "#7D2C71" }, // Magenta-plum — was "School Board Member"
+  writer: { label: "Writer", color: "#7D4E2C" }, // Burnt sienna
+  media_team: { label: "Media Team", color: "#2C5A7D" }, // Deep sky-blue
+  library_handler: { label: "Library Handler", color: "#667D2C" }, // Chartreuse-olive
+  registrar: { label: "Registrar", color: "#662C7D" }, // Deep violet-plum
+  handler: { label: "Handler", color: "#7D2C2C" }, // Brick red
 };
 
 export function jobLabel(job: CharacterJob): string {

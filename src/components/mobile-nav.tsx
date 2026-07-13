@@ -9,7 +9,7 @@ const KIND_BADGE: Record<string, string> = {
   class: "class",
   article: "board",
   shop: "shop",
-  bank: "bank",
+  bank: "currency",
 };
 
 export function MobileNav({ tree }: { tree: BoardNode[] }) {

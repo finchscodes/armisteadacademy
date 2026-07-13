@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { CharacterMention } from "@/components/mention-extension";
 import { ACTIVE_JOB_VALUES, JOB_META } from "@/lib/roles";
 import { HALL_VALUES, HALL_META } from "@/lib/halls";
+import { MAJORS } from "@/lib/majors";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -297,7 +298,7 @@ export function RichTextEditor({
             </span>
           </ToolbarButton>
           {showColorPicker && (
-            <div className="absolute left-0 top-full mt-1 z-20 w-56 bg-ink-900 border border-ink-600 rounded-md shadow-xl p-2">
+            <div className="absolute left-0 top-full mt-1 z-20 w-56 max-h-80 overflow-y-auto bg-ink-900 border border-ink-600 rounded-md shadow-xl p-2">
               <p className="text-[10px] uppercase tracking-wider text-ink-400 px-1 mb-1">Jobs</p>
               <div className="grid grid-cols-6 gap-1 mb-2">
                 {ACTIVE_JOB_VALUES.filter((j) => j !== "none" && JOB_META[j].color).map((j) => (
@@ -329,6 +330,23 @@ export function RichTextEditor({
                     }}
                     className="w-6 h-6 rounded-full border border-ink-600 hover:scale-110 transition-transform"
                     style={{ backgroundColor: HALL_META[h].color }}
+                  />
+                ))}
+              </div>
+              <p className="text-[10px] uppercase tracking-wider text-ink-400 px-1 mb-1">Majors</p>
+              <div className="grid grid-cols-6 gap-1 mb-2">
+                {MAJORS.map((m) => (
+                  <button
+                    key={m.value}
+                    type="button"
+                    data-tooltip={m.label}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      editor.chain().focus().setColor(m.color).run();
+                      setShowColorPicker(false);
+                    }}
+                    className="w-6 h-6 rounded-full border border-ink-600 hover:scale-110 transition-transform"
+                    style={{ backgroundColor: m.color }}
                   />
                 ))}
               </div>

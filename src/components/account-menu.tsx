@@ -6,6 +6,7 @@ import { CharacterSwitcher } from "./character-switcher";
 import { CharacterBadge } from "./character-badge";
 import { logoutAction } from "@/actions/auth";
 import { getMajorColor } from "@/lib/majors";
+import { CoinIcon } from "@/components/nav-icons";
 
 type Character = { id: number; firstName: string; lastName: string };
 
@@ -97,7 +98,7 @@ export function AccountMenu({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-ink-400">Money</span>
                 <span className="text-brass-400 flex items-center gap-1 font-mono">
-                  <span className="text-ink-400">&#9670;</span>
+                  <CoinIcon className="w-3.5 h-3.5" />
                   {balance}
                 </span>
               </div>

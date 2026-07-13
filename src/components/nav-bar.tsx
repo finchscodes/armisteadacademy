@@ -82,7 +82,7 @@ export async function NavBar() {
             <span
               className="font-hero text-base md:text-lg uppercase tracking-normal text-parchment-100"
               style={{
-                fontWeight: 700,
+                fontWeight: 400,
                 fontVariantLigatures: "common-ligatures discretionary-ligatures",
                 fontFeatureSettings: '"liga" 1, "dlig" 1',
               }}
@@ -92,7 +92,11 @@ export async function NavBar() {
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <BoardsDropdown tree={boardTree} label="Inside Armistead" excludeCategorySlugs={["outside-armistead"]} />
-            <BoardsDropdown tree={boardTree} label="Outside Armistead" onlyCategorySlugs={["outside-armistead"]} />
+            <BoardsDropdown
+              tree={boardTree}
+              label="Outside Armistead"
+              onlyCategorySlugs={["outside-armistead", "shops"]}
+            />
             <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
               Rules &amp; Guidelines
             </Link>

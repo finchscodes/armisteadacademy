@@ -8,7 +8,7 @@ const KIND_BADGE: Record<string, string> = {
   class: "class",
   article: "board",
   shop: "shop",
-  bank: "bank",
+  bank: "currency",
 };
 
 /**
@@ -103,7 +103,7 @@ export function BoardsDropdown({
           ) : (
           <div className="grid grid-cols-4 xl:grid-cols-6 gap-x-5 gap-y-3">
             {categories
-              .filter((c) => c.slug !== "communications")
+              .filter((c) => c.slug !== "communications" && c.slug !== "shops")
               .map((category) => {
                 const communications =
                   category.slug === "dormitories"
@@ -190,6 +190,47 @@ export function BoardsDropdown({
                   </div>
                 );
               })}
+
+            {/* Shops gets its own name but splits across several columns instead of
+                one long list — 16+ items in a single column would tower over
+                every other category. */}
+            {(() => {
+              const shopsCategory = categories.find((c) => c.slug === "shops");
+              if (!shopsCategory) return null;
+              const columnCount = shopsCategory.children.length > 10 ? 3 : 2;
+              const perColumn = Math.ceil(shopsCategory.children.length / columnCount);
+              const columns = Array.from({ length: columnCount }, (_, i) =>
+                shopsCategory.children.slice(i * perColumn, i * perColumn + perColumn)
+              ).filter((col) => col.length > 0);
+
+              return columns.map((col, i) => (
+                <div key={`shops-${i}`}>
+                  {i === 0 && (
+                    <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                      {shopsCategory.name}
+                    </p>
+                  )}
+                  {i > 0 && <div className="mb-1.5 pb-1 border-b border-transparent">&nbsp;</div>}
+                  <div className="space-y-0.5">
+                    {col.map((board) => (
+                      <Link
+                        key={board.id}
+                        href={`/b/${board.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                      >
+                        {board.name}
+                        {KIND_BADGE[board.kind] && (
+                          <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
+                            {KIND_BADGE[board.kind]}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ));
+            })()}
 
             {uncategorized.length > 0 && (
               <div>

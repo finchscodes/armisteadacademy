@@ -62,20 +62,20 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   // hand-picked and hoping. Spymaster and Prefect are lighter than the
   // rest (still saturated, not pastel) since the deep versions were hard
   // to read on the ink-600 (#574f4b) background used in some UI chrome.
-  spymaster: { label: "Spymaster", color: "#3C4DB4" }, // Bright indigo — lightened for readability
-  secretary: { label: "Secretary", color: "#2C7D7D" }, // Teal-cyan
-  field_agent: { label: "Resident Advisor", color: "#7D2C4E" }, // Wine-rose — one RA per hall, see lib/halls.ts
-  head_staff: { label: "Head Staff", color: "#7D712C" }, // Olive-gold — placeholder, department TBD
-  instructor: { label: "Instructor", color: "#437D2C" }, // Olive-green
-  chief_editor: { label: "Chief Editor", color: "#2C7D5A" }, // Deep emerald
-  assistant_instructor: { label: "Assistant Instructor", color: "#41C855" }, // Bright light green — distinct from Instructor's deeper olive
-  prefect: { label: "Prefect", color: "#5E3CB4" }, // Bright violet — lightened for readability
-  student_council: { label: "Student Council", color: "#7D2C71" }, // Magenta-plum — was "School Board Member"
-  writer: { label: "Writer", color: "#7D4E2C" }, // Burnt sienna
+  spymaster: { label: "Spymaster", color: "#7484e2" }, // Bright indigo — lightened for readability
+  secretary: { label: "Secretary", color: "#6db5b5" }, // Teal-cyan
+  field_agent: { label: "Resident Advisor", color: "#b64a4a" }, // Wine-rose — one RA per hall, see lib/halls.ts
+  head_staff: { label: "Head Staff", color: "#c19e5b" }, // Olive-gold — placeholder, department TBD
+  instructor: { label: "Instructor", color: "#6ea15a" }, // Olive-green
+  chief_editor: { label: "Chief Editor", color: "#398b6b" }, // Deep emerald
+  assistant_instructor: { label: "Assistant Instructor", color: "#68846c" }, // Bright light green — distinct from Instructor's deeper olive
+  prefect: { label: "Prefect", color: "#776e8e" }, // Bright violet — lightened for readability
+  student_council: { label: "Student Council", color: "#94668d" }, // Magenta-plum — was "School Board Member"
+  writer: { label: "Writer", color: "#968273" }, // Burnt sienna
   media_team: { label: "Media Team", color: "#2C5A7D" }, // Deep sky-blue
   library_handler: { label: "Library Handler", color: "#667D2C" }, // Chartreuse-olive
-  registrar: { label: "Registrar", color: "#662C7D" }, // Deep violet-plum
-  handler: { label: "Handler", color: "#7D2C2C" }, // Brick red
+  registrar: { label: "Registrar", color: "#63727d" }, // Deep violet-plum
+  handler: { label: "Handler", color: "#935c5c" }, // Brick red
 };
 
 export function jobLabel(job: CharacterJob): string {

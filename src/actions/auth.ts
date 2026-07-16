@@ -4,10 +4,11 @@ import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { users, passwordResetTokens } from "@/db/schema";
+import { users, passwordResetTokens, bannedIps } from "@/db/schema";
 import { eq, and, gt, isNull } from "drizzle-orm";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { getRequestIp } from "@/lib/request-ip";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -29,6 +30,14 @@ export async function registerAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  const ip = await getRequestIp();
+  if (ip) {
+    const [banned] = await db.select({ id: bannedIps.id }).from(bannedIps).where(eq(bannedIps.ipAddress, ip));
+    if (banned) {
+      return { error: "Registration isn't available from this connection." };
+    }
+  }
+
   const { email, password } = parsed.data;
 
   const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
@@ -41,7 +50,7 @@ export async function registerAction(
 
   const [user] = await db
     .insert(users)
-    .values({ email, passwordHash })
+    .values({ email, passwordHash, lastIpAddress: ip })
     .returning({ id: users.id, isAdmin: users.isAdmin });
 
   await createSession({ userId: user.id, isAdmin: user.isAdmin });
@@ -68,15 +77,31 @@ export async function loginAction(
 
   const { email, password } = parsed.data;
 
+  const ip = await getRequestIp();
+  if (ip) {
+    const [banned] = await db.select({ id: bannedIps.id }).from(bannedIps).where(eq(bannedIps.ipAddress, ip));
+    if (banned) {
+      return { error: "Login isn't available from this connection." };
+    }
+  }
+
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
     return { error: "No account found with that email" };
   }
 
+  if (user.isBanned) {
+    return { error: user.banReason ? `This account has been banned: ${user.banReason}` : "This account has been banned." };
+  }
+
   const validPassword = await verifyPassword(password, user.passwordHash);
   if (!validPassword) {
     return { error: "Incorrect password" };
+  }
+
+  if (ip) {
+    await db.update(users).set({ lastIpAddress: ip }).where(eq(users.id, user.id));
   }
 
   await createSession({ userId: user.id, isAdmin: user.isAdmin });

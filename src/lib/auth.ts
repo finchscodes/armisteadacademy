@@ -1,6 +1,9 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 
 const SESSION_COOKIE = "session";
 const ACTIVE_CHARACTER_COOKIE = "active_character";
@@ -51,7 +54,16 @@ export async function getSession(): Promise<SessionPayload | null> {
 
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
-    return payload as unknown as SessionPayload;
+    const session = payload as unknown as SessionPayload;
+
+    // A banned account is treated as logged out everywhere, even with a
+    // still-valid session cookie — this is the single choke point every
+    // other session check goes through, so this is the only place that
+    // needs to know about bans at all.
+    const [user] = await db.select({ isBanned: users.isBanned }).from(users).where(eq(users.id, session.userId));
+    if (user?.isBanned) return null;
+
+    return session;
   } catch {
     return null;
   }

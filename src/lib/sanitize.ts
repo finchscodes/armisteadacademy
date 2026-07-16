@@ -32,6 +32,11 @@ export function sanitizeRichText(html: string): string {
       "code",
       "pre",
       "span",
+      "table",
+      "tbody",
+      "tr",
+      "th",
+      "td",
     ],
     allowedAttributes: {
       a: ["href", "target", "rel", "class", "data-mention-id", "data-mention-label", "data-mention-slug", "style"],
@@ -50,6 +55,8 @@ export function sanitizeRichText(html: string): string {
       h4: ["style"],
       h5: ["style"],
       h6: ["style"],
+      th: ["colspan", "rowspan"],
+      td: ["colspan", "rowspan"],
     },
     // Only allow safe URL schemes on links — blocks javascript:, data:, etc.
     allowedSchemes: ["http", "https", "mailto"],

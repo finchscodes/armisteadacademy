@@ -92,12 +92,30 @@ export const users = pgTable(
     // Account-level (not per-character) so switching characters can't be
     // used to dodge a timeout. Null means no active timeout.
     chatTimeoutUntil: timestamp("chat_timeout_until"),
+    // Full account ban — a banned account is treated as logged out
+    // everywhere (see getSession in lib/auth.ts), regardless of a valid
+    // session cookie.
+    isBanned: boolean("is_banned").notNull().default(false),
+    banReason: text("ban_reason"),
+    // Captured on every successful login/registration — the only purpose
+    // is giving admins something to go on when deciding whether to also
+    // IP-ban someone, not a full audit trail.
+    lastIpAddress: varchar("last_ip_address", { length: 64 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
     emailIdx: uniqueIndex("users_email_idx").on(table.email),
   })
 );
+
+/** IP addresses blocked outright — checked at login/register, before an account even matters. */
+export const bannedIps = pgTable("banned_ips", {
+  id: serial("id").primaryKey(),
+  ipAddress: varchar("ip_address", { length: 64 }).notNull(),
+  reason: text("reason"),
+  bannedByUserId: integer("banned_by_user_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 /** Password-reset links emailed to a user — single-use, short-lived. */
 export const passwordResetTokens = pgTable("password_reset_tokens", {

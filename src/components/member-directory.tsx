@@ -179,7 +179,10 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="text-ink-400 shrink-0">Major</span>
-                      <span className="ml-auto text-right" style={{ color: getMajorColor(m.major) ?? undefined }}>
+                      <span
+                        className="ml-auto text-right min-w-0 break-words"
+                        style={{ color: getMajorColor(m.major) ?? undefined }}
+                      >
                         {m.major}
                       </span>
                     </div>
@@ -189,8 +192,11 @@ export function MemberDirectory({ members }: { members: Member[] }) {
                     </div>
                     {m.hall && (
                       <div className="flex items-start gap-2">
-                        <span className="text-ink-400">Hall</span>
-                        <span className="ml-auto text-right" style={{ color: hallColor(m.hall) ?? undefined }}>
+                        <span className="text-ink-400 shrink-0">Hall</span>
+                        <span
+                          className="ml-auto text-right min-w-0 break-words"
+                          style={{ color: hallColor(m.hall) ?? undefined }}
+                        >
                           {hallLabel(m.hall)}
                         </span>
                       </div>

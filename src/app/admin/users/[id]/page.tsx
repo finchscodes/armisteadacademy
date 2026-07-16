@@ -17,6 +17,7 @@ import { AdminGenderEditor } from "@/components/admin-gender-editor";
 import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor";
 import { AdminHallEditor } from "@/components/admin-hall-editor";
 import { DeleteCharacterButton, DeleteAccountButton } from "@/components/delete-buttons";
+import { BanControls } from "@/components/ban-controls";
 import { levelForXp } from "@/lib/xp";
 import { getCurrentUser } from "@/lib/current-user";
 import { getAdminAccessContext } from "@/lib/admin-access";
@@ -84,6 +85,13 @@ export default async function AdminUserDetailPage({
       </div>
 
       <EditUserForm userId={user.id} email={user.email} isAdmin={user.isAdmin} />
+
+      <BanControls
+        userId={user.id}
+        isBanned={user.isBanned}
+        banReason={user.banReason}
+        lastIpAddress={user.lastIpAddress}
+      />
 
       <div className="mt-6">
         <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">

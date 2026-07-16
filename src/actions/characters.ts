@@ -193,7 +193,7 @@ export async function submitSortingQuizAction(
   await db.insert(chatMessages).values({
     characterId: character.id,
     userId: session.userId,
-    content: `was just sorted into ${hallLabel(winner)} hall!`,
+    content: `just enrolled and moved into ${hallLabel(winner)} hall!`,
     isAnnouncement: true,
   });
 

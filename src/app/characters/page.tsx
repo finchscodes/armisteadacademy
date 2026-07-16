@@ -90,14 +90,20 @@ export default async function CharactersPage() {
                   <div className="mt-2 pt-2 border-t border-ink-800 space-y-1 text-[11px] leading-tight">
                     <div className="flex items-start gap-2">
                       <span className="text-ink-400 shrink-0">Major</span>
-                      <span className="ml-auto text-right" style={{ color: getMajorColor(c.major) ?? undefined }}>
+                      <span
+                        className="ml-auto text-right min-w-0 break-words"
+                        style={{ color: getMajorColor(c.major) ?? undefined }}
+                      >
                         {c.major}
                       </span>
                     </div>
                     {c.hall ? (
                       <div className="flex items-start gap-2">
-                        <span className="text-ink-400">Hall</span>
-                        <span className="ml-auto text-right" style={{ color: hallColor(c.hall) ?? undefined }}>
+                        <span className="text-ink-400 shrink-0">Hall</span>
+                        <span
+                          className="ml-auto text-right min-w-0 break-words"
+                          style={{ color: hallColor(c.hall) ?? undefined }}
+                        >
                           {hallLabel(c.hall)}
                         </span>
                       </div>

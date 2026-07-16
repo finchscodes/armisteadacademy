@@ -372,3 +372,32 @@ body {
   border-radius: 3px;
   font-size: 0.9em;
 }
+
+.rich-text-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.9em;
+}
+
+.rich-text-content th,
+.rich-text-content td {
+  border: 1px solid var(--ink-600, #46403d);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.rich-text-content th {
+  background: rgba(255, 255, 255, 0.05);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+.rich-text-content td p,
+.rich-text-content th p {
+  margin: 0;
+}

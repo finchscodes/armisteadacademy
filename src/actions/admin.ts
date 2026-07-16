@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -1574,4 +1574,112 @@ export async function adminRevokeBoardAccessAction(formData: FormData) {
 
   await db.delete(boardPostPermissions).where(eq(boardPostPermissions.id, grantId));
   revalidatePath(`/admin/users/${userId}`);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Banning — account bans and IP bans                                        */
+/* -------------------------------------------------------------------------- */
+
+const banAccountSchema = z.object({
+  userId: z.coerce.number().int(),
+  reason: z.string().max(500).optional().or(z.literal("")),
+});
+
+export async function adminBanAccountAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = banAccountSchema.safeParse({
+    userId: formData.get("userId"),
+    reason: formData.get("reason") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db
+    .update(users)
+    .set({ isBanned: true, banReason: parsed.data.reason || null })
+    .where(eq(users.id, parsed.data.userId));
+
+  revalidatePath(`/admin/users/${parsed.data.userId}`);
+  revalidatePath("/admin/users");
+  return { success: "Account banned" };
+}
+
+export async function adminUnbanAccountAction(formData: FormData) {
+  await requireAdmin();
+  const userId = Number(formData.get("userId"));
+  if (!userId) return;
+
+  await db.update(users).set({ isBanned: false, banReason: null }).where(eq(users.id, userId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/admin/users");
+}
+
+const banIpSchema = z.object({
+  ipAddress: z.string().min(3, "Enter an IP address").max(64),
+  reason: z.string().max(500).optional().or(z.literal("")),
+  userId: z.coerce.number().int().optional(),
+});
+
+export async function adminBanIpAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  const session = await requireAdmin();
+
+  const parsed = banIpSchema.safeParse({
+    ipAddress: formData.get("ipAddress"),
+    reason: formData.get("reason") || undefined,
+    userId: formData.get("userId") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const existing = await db
+    .select({ id: bannedIps.id })
+    .from(bannedIps)
+    .where(eq(bannedIps.ipAddress, parsed.data.ipAddress));
+  if (existing.length > 0) {
+    return { error: "That IP is already banned" };
+  }
+
+  await db.insert(bannedIps).values({
+    ipAddress: parsed.data.ipAddress,
+    reason: parsed.data.reason || null,
+    bannedByUserId: session.userId,
+  });
+
+  if (parsed.data.userId) revalidatePath(`/admin/users/${parsed.data.userId}`);
+  revalidatePath("/admin/banned-ips");
+  return { success: "IP banned" };
+}
+
+export async function adminUnbanIpAction(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  await db.delete(bannedIps).where(eq(bannedIps.id, id));
+  revalidatePath("/admin/banned-ips");
+}
+
+export async function getBannedIpsForAdmin() {
+  await requireAdmin();
+  return db
+    .select({
+      id: bannedIps.id,
+      ipAddress: bannedIps.ipAddress,
+      reason: bannedIps.reason,
+      createdAt: bannedIps.createdAt,
+      bannedByEmail: users.email,
+    })
+    .from(bannedIps)
+    .leftJoin(users, eq(bannedIps.bannedByUserId, users.id))
+    .orderBy(desc(bannedIps.createdAt));
 }

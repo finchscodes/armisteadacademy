@@ -9,6 +9,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
 import { useEffect, useRef, useState } from "react";
 import { CharacterMention } from "@/components/mention-extension";
 import { ACTIVE_JOB_VALUES, JOB_META } from "@/lib/roles";
@@ -102,6 +103,10 @@ export function RichTextEditor({
       Underline,
       TextStyle,
       Color,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
       CharacterMention,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Write something..." }),
@@ -298,6 +303,32 @@ export function RichTextEditor({
         >
           Link
         </ToolbarButton>
+        <span className="w-px bg-ink-600 mx-1" />
+        <ToolbarButton
+          label="Insert table"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        >
+          Table
+        </ToolbarButton>
+        {editor.isActive("table") && (
+          <>
+            <ToolbarButton label="Add row" onClick={() => editor.chain().focus().addRowAfter().run()}>
+              +Row
+            </ToolbarButton>
+            <ToolbarButton label="Add column" onClick={() => editor.chain().focus().addColumnAfter().run()}>
+              +Col
+            </ToolbarButton>
+            <ToolbarButton label="Delete row" onClick={() => editor.chain().focus().deleteRow().run()}>
+              −Row
+            </ToolbarButton>
+            <ToolbarButton label="Delete column" onClick={() => editor.chain().focus().deleteColumn().run()}>
+              −Col
+            </ToolbarButton>
+            <ToolbarButton label="Delete table" onClick={() => editor.chain().focus().deleteTable().run()}>
+              −Table
+            </ToolbarButton>
+          </>
+        )}
         <span className="w-px bg-ink-600 mx-1" />
         <div className="relative">
           <ToolbarButton

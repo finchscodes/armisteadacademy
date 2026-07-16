@@ -17,6 +17,7 @@ const SECTIONS = [
   { href: "/admin/sorting-quiz", label: "Sorting Quiz" },
   { href: "/admin/grading", label: "Grading" },
   { href: "/admin/mass-message", label: "Mass Message" },
+  { href: "/admin/banned-ips", label: "Banned IPs" },
 ];
 
 export default async function AdminIndexPage() {

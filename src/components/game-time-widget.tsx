@@ -1,19 +1,20 @@
 import { getCurrentGameDate } from "@/lib/game-time";
+import { CalendarIcon } from "@/components/nav-icons";
 
 export async function GameTimeWidget() {
   const date = await getCurrentGameDate();
 
   return (
-    <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-ink-700">
-        <h2 className="font-ui text-xs uppercase tracking-widest text-ink-400">Current Date</h2>
+    <div className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex items-center gap-3">
+      <div className="shrink-0 w-11 h-11 rounded-full bg-brass-500/15 border border-brass-500/30 flex items-center justify-center">
+        <CalendarIcon className="w-5 h-5 text-brass-400" />
       </div>
-      <div className="p-4 text-center">
-        <p className="font-display text-lg text-brass-400">
-          {date.quarter[0].toUpperCase() + date.quarter.slice(1)} &middot; Week {date.week}
+      <div className="min-w-0">
+        <p className="font-display text-base text-parchment-100 leading-tight truncate">
+          Year {date.year}
         </p>
-        <p className="text-sm text-ink-300">
-          {date.dayName}, Year {date.year}
+        <p className="text-sm text-steel-400 leading-tight">
+          Week {date.week} ({date.quarter[0].toUpperCase() + date.quarter.slice(1)})
         </p>
       </div>
     </div>

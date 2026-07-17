@@ -122,7 +122,13 @@ export async function getJobBoardData() {
   const byJob = new Map<CharacterJob, typeof rows>();
   for (const job of PRIORITY_ORDER) byJob.set(job, []);
   for (const row of rows) {
-    byJob.get(row.job)!.push(row);
+    // Defensive: if a row's job value isn't one of the current job keys
+    // (e.g. the DB enum still has an old value from before a rename
+    // migration was run), skip it instead of crashing the whole page —
+    // this list is inherently downstream of the enum, so it shouldn't be
+    // the thing that goes down when they briefly disagree.
+    const bucket = byJob.get(row.job);
+    if (bucket) bucket.push(row);
   }
   return byJob;
 }

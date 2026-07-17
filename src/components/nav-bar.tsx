@@ -18,10 +18,13 @@ import { getUnreadMessageCount } from "@/lib/messages";
 import { getCurrentGameDate } from "@/lib/game-time";
 
 export async function NavBar() {
-  const [current, rawBoardTree, onlineCount, gameDate] = await Promise.all([
+  const [current, rawBoardTree, onlineCount] = await Promise.all([
     getCurrentUser(),
     getBoardTree(),
     getOnlineCount(),
+    // Not displayed here anymore (see GameTimeWidget on the homepage) — but
+    // still called so this remains a reliable trigger for the lazy time
+    // advancement (payroll, birthdays) that lives inside it.
     getCurrentGameDate(),
   ]);
   const [balance, levelProgress] = current?.activeCharacter
@@ -138,12 +141,6 @@ export async function NavBar() {
                 )}
               </Link>
             )}
-            <span
-              className="hidden lg:inline-block text-[11px] text-ink-400 whitespace-nowrap"
-              data-tooltip={`Year ${gameDate.year} — ${gameDate.dayName}`}
-            >
-              {gameDate.quarter[0].toUpperCase() + gameDate.quarter.slice(1)} Wk {gameDate.week}
-            </span>
             {current.activeCharacter && (
               <Link
                 href="/messages"

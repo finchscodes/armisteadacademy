@@ -122,6 +122,17 @@ export function CoinIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
+export function CalendarIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M3.5 9.5h17" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <rect x="6.5" y="12" width="3" height="3" rx="0.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function ImageIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>

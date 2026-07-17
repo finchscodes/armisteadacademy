@@ -365,6 +365,15 @@ body {
   font-size: 85%;
 }
 
+/* Topic posts only (see EditablePost) — bold/italic default to the
+   author's major color unless the writer explicitly picked a different
+   color for that text, which still wins since an inline style always
+   beats a class-based rule like this one. */
+.rich-text-content.major-accent strong,
+.rich-text-content.major-accent em {
+  color: var(--major-accent-color, inherit);
+}
+
 .rich-text-content code {
   font-family: var(--font-mono);
   background: rgba(255, 255, 255, 0.08);

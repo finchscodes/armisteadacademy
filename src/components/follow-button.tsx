@@ -1,0 +1,34 @@
+"use client";
+
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toggleFollowAction } from "@/actions/social";
+
+export function FollowButton({ threadId, isFollowing }: { threadId: number; isFollowing: boolean }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  function handleClick() {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("threadId", String(threadId));
+      await toggleFollowAction(formData);
+      router.refresh();
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={pending}
+      className={`text-xs px-3 py-1 rounded-md font-medium transition-colors disabled:opacity-60 ${
+        isFollowing
+          ? "bg-ink-800 border border-ink-600 text-parchment-100 hover:border-claret-600/50 hover:text-claret-500"
+          : "bg-gunmetal-500 text-ink-950 hover:bg-gunmetal-400"
+      }`}
+    >
+      {pending ? "..." : isFollowing ? "Following" : "Follow"}
+    </button>
+  );
+}

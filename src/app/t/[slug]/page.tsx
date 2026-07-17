@@ -23,6 +23,11 @@ import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { ratingLabel, ratingColor, RATING_META } from "@/lib/thread-rating";
+import { getMajorColor } from "@/lib/majors";
+import { getFollowerCount, isFollowingThread, getFollowingCount, getPostCount, getRecentPhotoPosts } from "@/lib/social";
+import { SocialProfileHeader } from "@/components/social-profile-header";
+import { SocialPostCard } from "@/components/social-post-card";
+import { SocialReplyForm } from "@/components/social-reply-form";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -100,6 +105,20 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
     getYearNumbersForCharacters(uniqueCharacterIds),
     getPrimaryJobsForCharacters(uniqueCharacterIds),
   ]);
+
+  const isSocial = board?.kind === "social";
+  const socialData = isSocial
+    ? await (async () => {
+        const [followerCount, followingCount, following, postCount, recentPhotos] = await Promise.all([
+          getFollowerCount(thread.id),
+          getFollowingCount(thread.characterId),
+          viewerCharacterId ? isFollowingThread(viewerCharacterId, thread.id) : Promise.resolve(false),
+          getPostCount(thread.id, openingPostId ?? -1),
+          getRecentPhotoPosts(thread.id, openingPostId ?? -1),
+        ]);
+        return { followerCount, followingCount, following, postCount, recentPhotos };
+      })()
+    : null;
 
   const sceneDetails = [
     thread.location && { label: "Location", value: thread.location },
@@ -180,6 +199,50 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           const isArticle = board?.kind === "article";
           const isPhone = board?.kind === "phone";
           const isEmail = board?.kind === "email";
+
+          if (isSocial && socialData) {
+            if (post.id === openingPostId) {
+              return (
+                <SocialProfileHeader
+                  key={post.id}
+                  threadId={thread.id}
+                  threadSlug={thread.slug}
+                  handle={thread.title}
+                  avatarUrl={post.characterAvatarUrl}
+                  description={post.content}
+                  postCount={socialData.postCount}
+                  followerCount={socialData.followerCount}
+                  followingCount={socialData.followingCount}
+                  isFollowing={socialData.following}
+                  canFollow={Boolean(viewerCharacterId) && viewerCharacterId !== thread.characterId}
+                  recentPhotos={socialData.recentPhotos}
+                />
+              );
+            }
+            const canDeleteThis =
+              Boolean(session) &&
+              ((session!.userId === post.authorUserId && post.id !== openingPostId) ||
+                session!.isAdmin ||
+                canModerate);
+            return (
+              <SocialPostCard
+                key={post.id}
+                postId={post.id}
+                characterName={`${post.characterFirstName} ${post.characterLastName}`}
+                characterSlug={post.characterSlug}
+                characterAvatarUrl={post.characterAvatarUrl}
+                characterId={post.characterId}
+                characterJob={jobsByCharacter.get(post.characterId) ?? "none"}
+                imageUrl={post.imageUrl}
+                content={post.content}
+                createdAt={post.createdAt}
+                canDelete={canDeleteThis}
+                reactions={reactionsByPost.get(post.id) ?? []}
+                comments={commentsByPost.get(post.id) ?? []}
+                canInteract={Boolean(viewerCharacterId)}
+              />
+            );
+          }
 
           if (isEmail) {
             const canEditThis = Boolean(session) && (session!.userId === post.authorUserId || canModerate);
@@ -293,13 +356,19 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                       <div>
                         <Link
                           href={`/c/${post.characterSlug}`}
-                          className="text-sm text-parchment-100 leading-tight hover:underline"
-                          style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
+                          className="text-sm text-parchment-100 hover:underline"
+                          style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined, lineHeight: 1.3 }}
                         >
                           {post.characterFirstName} {post.characterLastName}
                         </Link>
-                        <p className="text-[11px] text-ink-400 leading-tight mt-0.5">
-                          {[post.characterMajor, yearLabel].filter(Boolean).join(" · ")}
+                        <p className="text-[11px] text-ink-400 leading-tight mt-1">
+                          {post.characterMajor}
+                          {yearLabel && (
+                            <>
+                              <br />
+                              {yearLabel}
+                            </>
+                          )}
                         </p>
                       </div>
                     </CharacterHoverCard>
@@ -326,6 +395,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                     ooc={isArticle ? undefined : post.ooc}
                     rollValue={isArticle ? undefined : post.rollValue}
                     rollModifier={isArticle ? undefined : post.rollModifier}
+                    majorColor={isArticle ? undefined : getMajorColor(post.characterMajor)}
                   />
                   {!isArticle && (
                     <PostInteractions
@@ -368,11 +438,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         />
       ) : board?.kind === "email" ? (
         <EmailReplyForm threadSlug={thread.slug} />
+      ) : board?.kind === "social" ? (
+        <SocialReplyForm threadSlug={thread.slug} />
       ) : (
         <ReplyForm threadSlug={thread.slug} />
       )}
 
-      {(board?.kind === "phone" || board?.kind === "email") && openingPostId && (
+      {(board?.kind === "phone" || board?.kind === "email" || board?.kind === "social") && openingPostId && (
         <TopicCommentSection
           postId={openingPostId}
           comments={commentsByPost.get(openingPostId) ?? []}

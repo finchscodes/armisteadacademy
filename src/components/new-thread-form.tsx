@@ -14,11 +14,13 @@ export function NewThreadForm({
   isArticle = false,
   isPhone = false,
   isEmail = false,
+  isSocial = false,
 }: {
   boardSlug: string;
   isArticle?: boolean;
   isPhone?: boolean;
   isEmail?: boolean;
+  isSocial?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
@@ -36,18 +38,20 @@ export function NewThreadForm({
               ? "Conversation title"
               : isEmail
                 ? "Title (for the topic list)"
-                : "Thread title"}
+                : isSocial
+                  ? "Handle"
+                  : "Thread title"}
         </label>
         <input
           id="title"
           name="title"
           required
-          placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : undefined}
+          placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : isSocial ? "e.g. @codename" : undefined}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
-      {!isArticle && !isEmail && (
+      {!isArticle && !isEmail && !isSocial && (
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="rating">
             Rating
@@ -68,7 +72,7 @@ export function NewThreadForm({
         </div>
       )}
 
-      {!isArticle && !isPhone && !isEmail && (
+      {!isArticle && !isPhone && !isEmail && !isSocial && (
         <>
           <div className="flex items-center gap-3">
             <button
@@ -174,9 +178,9 @@ export function NewThreadForm({
       ) : (
         <div>
           <label className="block text-sm font-medium mb-1">
-            {isArticle ? "Article body" : isPhone ? "First message" : "Opening post"}
+            {isArticle ? "Article body" : isPhone ? "First message" : isSocial ? "Bio / description" : "Opening post"}
           </label>
-          {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" />}
+          {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" placeholder={isSocial ? "Optional" : undefined} />}
         </div>
       )}
 

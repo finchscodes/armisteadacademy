@@ -123,8 +123,12 @@ export async function createThreadAction(
   }
 
   const isArticle = board.kind === "article";
-  if (!isArticle && !isEmail && !rating) {
+  const isSocial = board.kind === "social";
+  if (!isArticle && !isEmail && !isSocial && !rating) {
     return { error: "Pick a rating" };
+  }
+  if (!isSocial && richTextLength(parsed.data.content) === 0) {
+    return { error: "Post can't be empty" };
   }
   let scheduledFor: Date | null = null;
   if (isArticle && parsed.data.scheduledFor) {
@@ -198,16 +202,16 @@ export async function createThreadAction(
 
 const newPostSchema = z.object({
   threadSlug: z.string().min(1),
-  content: z
-    .string()
-    .min(1, "Reply can't be empty")
-    .max(60000, "That's too long")
-    .refine((v) => richTextLength(v) > 0, "Reply can't be empty"),
+  // Required for every board kind except social, where a photo with no
+  // caption is valid — enforced below once we know the board kind, since
+  // zod alone can't see that yet.
+  content: z.string().max(60000, "That's too long"),
   emailFormat: z.enum(["email", "letter"]).optional(),
   letterTo: z.string().max(200).optional().or(z.literal("")),
   letterFrom: z.string().max(200).optional().or(z.literal("")),
   ooc: z.string().max(4000).optional().or(z.literal("")),
   rollModifier: z.coerce.number().int().min(-99).max(99).optional(),
+  imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
 });
 
 export async function createPostAction(
@@ -224,13 +228,14 @@ export async function createPostAction(
     letterFrom: formData.get("letterFrom") || undefined,
     ooc: formData.get("ooc") || undefined,
     rollModifier: formData.get("rollModifier") || undefined,
+    imageUrl: formData.get("imageUrl") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { threadSlug, emailFormat, letterTo, letterFrom, ooc, rollModifier } = parsed.data;
+  const { threadSlug, emailFormat, letterTo, letterFrom, ooc, rollModifier, imageUrl } = parsed.data;
 
   const [thread] = await db.select().from(threads).where(eq(threads.slug, threadSlug));
   if (!thread) {
@@ -247,6 +252,18 @@ export async function createPostAction(
   const isEmailBoard = threadBoard?.kind === "email";
   const isPhoneBoard = threadBoard?.kind === "phone";
   const isBoardKind = threadBoard?.kind === "board";
+  const isSocialBoard = threadBoard?.kind === "social";
+
+  // Every other board kind requires real content — a social post is the
+  // one exception, where a photo with no caption is a valid post.
+  if (isSocialBoard) {
+    if (!imageUrl && richTextLength(parsed.data.content) === 0) {
+      return { error: "Add a photo or a caption" };
+    }
+  } else if (richTextLength(parsed.data.content) === 0) {
+    return { error: "Reply can't be empty" };
+  }
+
   const content =
     threadBoard?.kind === "phone" ? sanitizePlainText(parsed.data.content) : sanitizeRichText(parsed.data.content);
 
@@ -263,6 +280,7 @@ export async function createPostAction(
       emailFormat: isEmailBoard ? emailFormat ?? "email" : null,
       letterTo: isEmailBoard && emailFormat === "letter" ? letterTo || null : null,
       letterFrom: isEmailBoard && emailFormat === "letter" ? letterFrom || null : null,
+      imageUrl: isSocialBoard ? imageUrl || null : null,
     })
     .returning({ id: posts.id });
 
@@ -319,11 +337,7 @@ export async function createPostAction(
 
 const editPostSchema = z.object({
   postId: z.coerce.number().int(),
-  content: z
-    .string()
-    .min(1, "Post can't be empty")
-    .max(60000, "That's too long")
-    .refine((v) => richTextLength(v) > 0, "Post can't be empty"),
+  content: z.string().max(60000, "That's too long"),
   ooc: z.string().max(4000).optional().or(z.literal("")),
 });
 
@@ -351,6 +365,19 @@ export async function updatePostAction(
   const [postBoard] = postThread
     ? await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, postThread.boardId))
     : [undefined];
+
+  // Social posts are the one place empty content is valid — a photo with
+  // no caption. The thread's opening post (the profile bio) is also
+  // allowed to be empty regardless of board kind.
+  const [threadRow] = await db.select({ characterId: threads.characterId }).from(threads).where(eq(threads.id, post.threadId));
+  const isOpeningPostOfSocialProfile = postBoard?.kind === "social" && threadRow?.characterId === post.characterId;
+  if (
+    richTextLength(parsed.data.content) === 0 &&
+    !(postBoard?.kind === "social" && (post.imageUrl || isOpeningPostOfSocialProfile))
+  ) {
+    return { error: "Post can't be empty" };
+  }
+
   const content = postBoard?.kind === "phone" ? sanitizePlainText(rawContent) : sanitizeRichText(rawContent);
 
   const isAuthor = post.userId === session.userId;

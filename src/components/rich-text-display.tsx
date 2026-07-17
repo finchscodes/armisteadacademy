@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { getMiniProfileAction, type MiniProfile } from "@/actions/mini-profile";
 import { MiniProfileCard } from "@/components/mini-profile-card";
 
@@ -18,7 +18,15 @@ const cache = new Map<number, MiniProfile>();
  * delegates: one mouseover/mouseout listener on the container that checks
  * whether the hovered element is a mention link.
  */
-export function RichTextDisplay({ html, className = "" }: { html: string; className?: string }) {
+export function RichTextDisplay({
+  html,
+  className = "",
+  style,
+}: {
+  html: string;
+  className?: string;
+  style?: CSSProperties;
+}) {
   const [hover, setHover] = useState<{ profile: MiniProfile; slug: string; top: number; left: number } | null>(
     null
   );
@@ -63,6 +71,7 @@ export function RichTextDisplay({ html, className = "" }: { html: string; classN
       <div
         ref={containerRef}
         className={`rich-text-content ${className}`}
+        style={style}
         dangerouslySetInnerHTML={{ __html: html }}
         onMouseOver={handleMouseOver}
         onMouseOut={handleMouseOut}

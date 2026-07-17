@@ -18,7 +18,7 @@ import { JOB_VALUES } from "@/lib/roles";
 /* -------------------------------------------------------------------------- */
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
-export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank"]);
+export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank", "social"]);
 export const quarterEnum = pgEnum("quarter", ["fall", "winter", "spring", "summer"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
@@ -509,7 +509,31 @@ export const posts = pgTable("posts", {
   emailFormat: varchar("email_format", { length: 10 }),
   letterTo: varchar("letter_to", { length: 200 }),
   letterFrom: varchar("letter_from", { length: 200 }),
+  // Social boards only: the photo for this post. Null on every other
+  // board kind, and null on a social thread's opening post (that post is
+  // the profile header, not a photo post — see lib/social.ts).
+  imageUrl: text("image_url"),
 });
+
+/** One character following another's social thread — the "follow" button on a social profile. */
+export const socialFollows = pgTable(
+  "social_follows",
+  {
+    id: serial("id").primaryKey(),
+    followerCharacterId: integer("follower_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    // The thread being followed — a social thread's opening post IS the
+    // profile, so following the thread is following the "account."
+    followedThreadId: integer("followed_thread_id")
+      .notNull()
+      .references(() => threads.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueFollow: uniqueIndex("social_follows_unique_idx").on(table.followerCharacterId, table.followedThreadId),
+  })
+);
 
 /**
  * Emoji reactions on a forum post, attributed to the CHARACTER that reacted

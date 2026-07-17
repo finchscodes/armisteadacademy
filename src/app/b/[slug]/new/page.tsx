@@ -37,7 +37,9 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
             ? "New conversation"
             : data.board.kind === "email"
               ? "New email"
-              : "New thread"}
+              : data.board.kind === "social"
+                ? "New account"
+                : "New thread"}
       </h1>
       <p className="text-ink-400 text-sm mb-6">Posting in {data.board.name}</p>
       <NewThreadForm
@@ -45,6 +47,7 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
         isArticle={data.board.kind === "article"}
         isPhone={data.board.kind === "phone"}
         isEmail={data.board.kind === "email"}
+        isSocial={data.board.kind === "social"}
       />
     </div>
   );

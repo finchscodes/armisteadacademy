@@ -113,6 +113,14 @@ export function RichTextEditor({
     ],
     content: initialValue ?? "",
     immediatelyRender: false,
+    // Without this, the component only re-renders when document CONTENT
+    // changes (via onUpdate) — not when the cursor/selection moves on its
+    // own. Every toolbar button here reads editor.isActive(...) at render
+    // time, so without this, buttons that depend on cursor position (most
+    // visibly: the table row/column controls, which should appear the
+    // moment the cursor enters a table) stay stuck showing whatever was
+    // true at the last content edit, not the current position.
+    shouldRerenderOnTransaction: true,
     // This is the actual sync into the plain <input> the form submits — fires
     // on every content change. A useEffect keyed on editor.state does NOT
     // reliably fire here (that was the bug: the hidden input kept its empty

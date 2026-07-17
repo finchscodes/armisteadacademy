@@ -14,7 +14,7 @@ import { HALL_VALUES, hallLabel } from "@/lib/halls";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { sanitizeRichText } from "@/lib/sanitize";
-import { addRecordsEntry } from "@/lib/records";
+import { postAutoWallEntry } from "@/lib/auto-wall-posts";
 import type { ActionState } from "./auth";
 
 // \p{L} matches any Unicode letter (accented Latin, Cyrillic, Greek, etc.),
@@ -138,7 +138,7 @@ export async function createCharacterAction(
   });
 
   if (hallResult.hall !== null) {
-    await addRecordsEntry(character.id, `Sorted into ${hallLabel(hallResult.hall)} hall!`);
+    await postAutoWallEntry(character.id, `Sorted into ${hallLabel(hallResult.hall)} hall!`);
   }
 
   await setActiveCharacterId(character.id);
@@ -204,7 +204,7 @@ export async function submitSortingQuizAction(
     isAnnouncement: true,
   });
 
-  await addRecordsEntry(character.id, `Sorted into ${hallLabel(winner)} hall!`);
+  await postAutoWallEntry(character.id, `Sorted into ${hallLabel(winner)} hall!`);
 
   redirect(`/hall/${winner}/welcome`);
 }

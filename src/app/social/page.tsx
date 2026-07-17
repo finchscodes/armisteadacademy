@@ -50,10 +50,10 @@ export default async function SocialPage() {
           return (
             <div
               key={m.major}
-              className="px-2 py-1 text-center border rounded-md flex items-center justify-center min-h-[2.5rem]"
+              className="px-2 py-1 text-center border rounded-md flex items-center justify-center min-h-[2.5rem] min-w-0"
               style={{ backgroundColor: `${color}1f`, borderColor: `${color}4d` }}
             >
-              <p className="text-[11px] italic font-display leading-tight" style={{ color }}>
+              <p className="text-[11px] italic font-display leading-tight break-words min-w-0" style={{ color }}>
                 {m.major} ({m.count})
               </p>
             </div>
@@ -117,7 +117,7 @@ export default async function SocialPage() {
             {online.map((c) => (
               <div
                 key={c.id}
-                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-gunmetal-500/50 transition-colors"
+                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-gunmetal-500/50 transition-colors min-w-0"
               >
                 <div className="flex items-center gap-3">
                   <CharacterHoverCard
@@ -140,7 +140,7 @@ export default async function SocialPage() {
                     </div>
                   </CharacterHoverCard>
                 </div>
-                <p className="text-xs mt-2 leading-snug" style={{ color: getMajorColor(c.major) ?? undefined }}>
+                <p className="text-xs mt-2 leading-snug break-words" style={{ color: getMajorColor(c.major) ?? undefined }}>
                   {c.major}
                 </p>
               </div>

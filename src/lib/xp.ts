@@ -1,7 +1,7 @@
 import { eq, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { xpLedger, GRADING_LEVEL_REQUIREMENT } from "@/db/schema";
-import { addRecordsEntry } from "@/lib/records";
+import { postAutoWallEntry } from "@/lib/auto-wall-posts";
 
 /**
  * Increasing XP curve: the XP needed to go from level L to L+1 grows with L,
@@ -90,7 +90,7 @@ export const XP_AWARDS = {
 /**
  * The one path every XP grant should go through — inserts the ledger row
  * and, if it crossed a level threshold, posts an automatic entry to the
- * character's Records thread. Centralized specifically so level-up
+ * character's wall. Centralized specifically so level-up
  * detection doesn't need to be duplicated at every one of the several call
  * sites that award XP.
  */
@@ -109,6 +109,6 @@ export async function awardXp(params: {
 
   const levelAfter = levelForXp(before + params.amount);
   if (levelAfter > levelBefore) {
-    await addRecordsEntry(params.characterId, `Reached Level ${levelAfter}!`);
+    await postAutoWallEntry(params.characterId, `Reached Level ${levelAfter}!`);
   }
 }

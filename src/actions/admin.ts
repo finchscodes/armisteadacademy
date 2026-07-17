@@ -304,7 +304,10 @@ export async function adminRemoveCharacterJobAction(formData: FormData) {
   revalidatePath("/jobs");
 }
 
-const nameRegex = /^[a-zA-Z' -]+$/;
+// \p{L} matches any Unicode letter (accented Latin, Cyrillic, Greek, etc.),
+// not just a-z — requires the "u" flag. Still excludes digits/symbols/emoji.
+// Kept in sync with the identical regex in actions/characters.ts.
+const nameRegex = /^[\p{L}' -]+$/u;
 
 const updateCharacterNameSchema = z.object({
   characterId: z.coerce.number().int(),

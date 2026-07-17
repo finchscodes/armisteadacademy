@@ -42,7 +42,7 @@ export async function CharacterCard({
           {character.firstName} {character.lastName}
         </Link>
         <p className="text-xs text-ink-400">{character.name}</p>
-        <p className="text-sm mt-0.5" style={{ color: getMajorColor(character.major) ?? undefined }}>
+        <p className="text-sm mt-0.5 break-words" style={{ color: getMajorColor(character.major) ?? undefined }}>
           {character.major}
         </p>
         <p className="text-xs text-ink-400">{yearLabel}</p>

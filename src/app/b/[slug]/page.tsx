@@ -8,6 +8,7 @@ import { isEnrolledInClass } from "@/lib/class-enrollments";
 import { enrollInClassAction } from "@/actions/lessons";
 import { canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
+import { getYearNumbersForCharacters } from "@/lib/year";
 import { jobColor } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
 import { CharacterBadge } from "@/components/character-badge";
@@ -69,6 +70,19 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
           ? await isAssignedToClass(current.activeCharacter.id, board.id)
           : false)
       : false;
+
+  // Year-restricted classes ("3rd year and up", "1st years only") — doesn't
+  // apply to admins or the instructor(s) actually teaching it, and never
+  // applies to grading (see lib/grading.ts, which doesn't check this at all).
+  if (isClassBoard && (board.restrictedYearMin || board.restrictedYearMax) && !current?.session.isAdmin && !canPostLesson) {
+    const viewerYear = current?.activeCharacter
+      ? await getYearNumbersForCharacters([current.activeCharacter.id])
+      : null;
+    const yearNumber = viewerYear?.get(current!.activeCharacter!.id) ?? 1;
+    const belowMin = board.restrictedYearMin != null && yearNumber < board.restrictedYearMin;
+    const aboveMax = board.restrictedYearMax != null && yearNumber > board.restrictedYearMax;
+    if (!current?.activeCharacter || belowMin || aboveMax) notFound();
+  }
   const isEnrolled =
     isClassBoard && current?.activeCharacter
       ? await isEnrolledInClass(current.activeCharacter.id, board.id)
@@ -115,6 +129,22 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
           >
             {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
+          </Link>
+        )}
+        {isClassBoard && canPostLesson && (
+          <Link
+            href={`/b/${board.slug}/exam/edit`}
+            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+          >
+            Edit exam
+          </Link>
+        )}
+        {isClassBoard && !canPostLesson && isEnrolled && (
+          <Link
+            href={`/b/${board.slug}/exam`}
+            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+          >
+            Take exam
           </Link>
         )}
       </div>

@@ -9,11 +9,17 @@ export function EditBoardForm({
   name,
   description,
   imageUrl,
+  isClass = false,
+  restrictedYearMin,
+  restrictedYearMax,
 }: {
   boardId: number;
   name: string;
   description: string | null;
   imageUrl: string | null;
+  isClass?: boolean;
+  restrictedYearMin?: number | null;
+  restrictedYearMax?: number | null;
 }) {
   const [state, formAction, pending] = useActionState(adminUpdateBoardAction, undefined);
 
@@ -33,6 +39,39 @@ export function EditBoardForm({
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
         />
       </div>
+
+      {isClass && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="restrictedYearMin">
+              Minimum year (optional)
+            </label>
+            <input
+              id="restrictedYearMin"
+              name="restrictedYearMin"
+              type="number"
+              min={1}
+              defaultValue={restrictedYearMin ?? ""}
+              placeholder="e.g. 3 for 3rd year and up"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="restrictedYearMax">
+              Maximum year (optional)
+            </label>
+            <input
+              id="restrictedYearMax"
+              name="restrictedYearMax"
+              type="number"
+              min={1}
+              defaultValue={restrictedYearMax ?? ""}
+              placeholder="e.g. 1 for 1st years only"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            />
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="description">

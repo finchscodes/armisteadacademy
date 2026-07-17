@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getThreadBySlug } from "@/lib/forum";
-import { getLessonsTakenCounts, yearLabelForOverrideOrLessons } from "@/lib/year";
+import { getYearNumbersForCharacters, yearLabelForOverrideOrYearNumber } from "@/lib/year";
 import { getReactionsForPosts, getCommentsForPosts } from "@/lib/post-interactions";
 import { jobColor, MANAGEMENT_JOBS } from "@/lib/roles";
 import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
@@ -96,8 +96,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
     name: `${p.characterFirstName} ${p.characterLastName}`,
     avatarUrl: p.characterAvatarUrl,
   }));
-  const [lessonsTakenMap, jobsByCharacter] = await Promise.all([
-    getLessonsTakenCounts(uniqueCharacterIds),
+  const [yearNumberMap, jobsByCharacter] = await Promise.all([
+    getYearNumbersForCharacters(uniqueCharacterIds),
     getPrimaryJobsForCharacters(uniqueCharacterIds),
   ]);
 
@@ -173,10 +173,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
 
       <div className="space-y-4 mb-8">
         {posts.map((post) => {
-          const yearLabel = yearLabelForOverrideOrLessons(
+          const yearLabel = yearLabelForOverrideOrYearNumber(
             post.characterYearOverride,
-            post.characterMajor,
-            lessonsTakenMap.get(post.characterId) ?? 0
+            yearNumberMap.get(post.characterId) ?? 1
           );
           const isArticle = board?.kind === "article";
           const isPhone = board?.kind === "phone";

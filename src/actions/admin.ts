@@ -641,6 +641,8 @@ const updateBoardSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
   description: z.string().max(2000).optional().or(z.literal("")),
   imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  restrictedYearMin: z.coerce.number().int().min(1).optional(),
+  restrictedYearMax: z.coerce.number().int().min(1).optional(),
 });
 
 export async function adminUpdateBoardAction(
@@ -654,15 +656,23 @@ export async function adminUpdateBoardAction(
     name: formData.get("name"),
     description: formData.get("description") || undefined,
     imageUrl: formData.get("imageUrl") || undefined,
+    restrictedYearMin: formData.get("restrictedYearMin") || undefined,
+    restrictedYearMax: formData.get("restrictedYearMax") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description, imageUrl } = parsed.data;
+  const { boardId, name, description, imageUrl, restrictedYearMin, restrictedYearMax } = parsed.data;
   await db
     .update(boards)
-    .set({ name, description: description || null, imageUrl: imageUrl || null })
+    .set({
+      name,
+      description: description || null,
+      imageUrl: imageUrl || null,
+      restrictedYearMin: restrictedYearMin ?? null,
+      restrictedYearMax: restrictedYearMax ?? null,
+    })
     .where(eq(boards.id, boardId));
 
   revalidatePath("/admin/boards");
@@ -690,6 +700,8 @@ const createBoardSchema = z.object({
   parentId: z.coerce.number().int().optional(),
   description: z.string().max(2000).optional().or(z.literal("")),
   extraArticleJob: z.enum(JOB_VALUES).optional(),
+  restrictedYearMin: z.coerce.number().int().min(1).optional(),
+  restrictedYearMax: z.coerce.number().int().min(1).optional(),
 });
 
 export async function adminCreateBoardAction(
@@ -704,12 +716,14 @@ export async function adminCreateBoardAction(
     parentId: formData.get("parentId") || undefined,
     description: formData.get("description") || undefined,
     extraArticleJob: formData.get("extraArticleJob") || undefined,
+    restrictedYearMin: formData.get("restrictedYearMin") || undefined,
+    restrictedYearMax: formData.get("restrictedYearMax") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { name, kind, parentId, description, extraArticleJob } = parsed.data;
+  const { name, kind, parentId, description, extraArticleJob, restrictedYearMin, restrictedYearMax } = parsed.data;
 
   if (kind !== "category" && !parentId) {
     return { error: "Pick a parent category" };
@@ -727,6 +741,8 @@ export async function adminCreateBoardAction(
     slug,
     description: description || null,
     extraArticleJob: kind === "article" ? extraArticleJob || null : null,
+    restrictedYearMin: kind === "class" ? restrictedYearMin ?? null : null,
+    restrictedYearMax: kind === "class" ? restrictedYearMax ?? null : null,
     position: siblings.length,
   });
 

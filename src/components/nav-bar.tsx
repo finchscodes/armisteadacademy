@@ -15,12 +15,14 @@ import { AccountMenu } from "./account-menu";
 import { NotificationBell } from "./notification-bell";
 import { GradingIcon, SocialIcon, MailIcon } from "./nav-icons";
 import { getUnreadMessageCount } from "@/lib/messages";
+import { getCurrentGameDate } from "@/lib/game-time";
 
 export async function NavBar() {
-  const [current, rawBoardTree, onlineCount] = await Promise.all([
+  const [current, rawBoardTree, onlineCount, gameDate] = await Promise.all([
     getCurrentUser(),
     getBoardTree(),
     getOnlineCount(),
+    getCurrentGameDate(),
   ]);
   const [balance, levelProgress] = current?.activeCharacter
     ? await Promise.all([
@@ -136,6 +138,12 @@ export async function NavBar() {
                 )}
               </Link>
             )}
+            <span
+              className="hidden lg:inline-block text-[11px] text-ink-400 whitespace-nowrap"
+              data-tooltip={`Year ${gameDate.year} — ${gameDate.dayName}`}
+            >
+              {gameDate.quarter[0].toUpperCase() + gameDate.quarter.slice(1)} Wk {gameDate.week}
+            </span>
             {current.activeCharacter && (
               <Link
                 href="/messages"

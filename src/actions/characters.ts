@@ -212,6 +212,9 @@ const updateCharacterSchema = z.object({
   backstoryRating: z.coerce.number().int().min(1).max(5).optional(),
   personality: z.string().max(4000).optional(),
   appearance: z.string().max(4000).optional(),
+  birthdayQuarter: z.enum(["fall", "winter", "spring", "summer"]).optional().or(z.literal("")),
+  birthdayWeek: z.coerce.number().int().min(1).max(5).optional(),
+  birthdayDayOfWeek: z.coerce.number().int().min(1).max(7).optional(),
 });
 
 export async function updateCharacterAction(
@@ -230,13 +233,28 @@ export async function updateCharacterAction(
     backstoryRating: formData.get("backstoryRating") || undefined,
     personality: formData.get("personality") || undefined,
     appearance: formData.get("appearance") || undefined,
+    birthdayQuarter: formData.get("birthdayQuarter") || undefined,
+    birthdayWeek: formData.get("birthdayWeek") || undefined,
+    birthdayDayOfWeek: formData.get("birthdayDayOfWeek") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { characterId, name, major, avatarUrl, bio, backstoryRating, personality, appearance } = parsed.data;
+  const {
+    characterId,
+    name,
+    major,
+    avatarUrl,
+    bio,
+    backstoryRating,
+    personality,
+    appearance,
+    birthdayQuarter,
+    birthdayWeek,
+    birthdayDayOfWeek,
+  } = parsed.data;
   const sanitizedBio = bio ? sanitizeRichText(bio) : undefined;
   const sanitizedAppearance = appearance ? sanitizeRichText(appearance) : undefined;
 
@@ -275,6 +293,9 @@ export async function updateCharacterAction(
       backstoryRating: backstoryRating ?? null,
       personality: personality || null,
       appearance: sanitizedAppearance || null,
+      birthdayQuarter: birthdayQuarter || null,
+      birthdayWeek: birthdayQuarter ? birthdayWeek ?? null : null,
+      birthdayDayOfWeek: birthdayQuarter ? birthdayDayOfWeek ?? null : null,
       ...(bioChanged ? { backstoryApproved: false } : {}),
     })
     .where(eq(characters.id, characterId));

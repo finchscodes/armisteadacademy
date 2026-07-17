@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateCharacterAction } from "@/actions/characters";
 import { MajorSelect } from "@/components/major-select";
 import { FaceclaimUpload } from "@/components/faceclaim-upload";
 import { UNDECIDED_MAJOR } from "@/lib/majors";
 import { RATING_VALUES, RATING_META } from "@/lib/thread-rating";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { StyledSelect } from "@/components/styled-select";
+import { QUARTER_ORDER, QUARTER_WEEKS, DAY_NAMES, type Quarter } from "@/lib/game-calendar";
 
 export function EditCharacterForm({
   characterId,
@@ -21,6 +23,9 @@ export function EditCharacterForm({
   socialStatus,
   personality,
   appearance,
+  birthdayQuarter,
+  birthdayWeek,
+  birthdayDayOfWeek,
 }: {
   characterId: number;
   legalName: string;
@@ -34,9 +39,16 @@ export function EditCharacterForm({
   socialStatus: string | null;
   personality: string | null;
   appearance: string | null;
+  birthdayQuarter: Quarter | null;
+  birthdayWeek: number | null;
+  birthdayDayOfWeek: number | null;
 }) {
   const [state, formAction, pending] = useActionState(updateCharacterAction, undefined);
   const majorIsLocked = major !== UNDECIDED_MAJOR;
+  const [hasBirthday, setHasBirthday] = useState(Boolean(birthdayQuarter));
+  const [bdQuarter, setBdQuarter] = useState<Quarter>(birthdayQuarter ?? "fall");
+  const [bdWeek, setBdWeek] = useState(String(birthdayWeek ?? 1));
+  const [bdDay, setBdDay] = useState(String(birthdayDayOfWeek ?? 1));
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -129,6 +141,50 @@ export function EditCharacterForm({
       <div>
         <label className="block text-sm font-medium mb-1">Appearance</label>
         <RichTextEditor name="appearance" initialValue={appearance ?? ""} />
+      </div>
+
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium mb-2">
+          <input
+            type="checkbox"
+            checked={hasBirthday}
+            onChange={(e) => setHasBirthday(e.target.checked)}
+            className="rounded border-ink-600"
+          />
+          Set a birthday
+        </label>
+        <p className="text-[11px] text-ink-400 mb-2">
+          Your character&apos;s age goes up by one automatically when the in-game calendar reaches this
+          date.
+        </p>
+        {hasBirthday && (
+          <div className="grid grid-cols-3 gap-2">
+            <input type="hidden" name="birthdayQuarter" value={bdQuarter} />
+            <input type="hidden" name="birthdayWeek" value={bdWeek} />
+            <input type="hidden" name="birthdayDayOfWeek" value={bdDay} />
+            <StyledSelect
+              value={bdQuarter}
+              onChange={(v) => {
+                setBdQuarter(v as Quarter);
+                setBdWeek("1");
+              }}
+              options={QUARTER_ORDER.map((q) => ({ value: q, label: q[0].toUpperCase() + q.slice(1) }))}
+            />
+            <StyledSelect
+              value={bdWeek}
+              onChange={setBdWeek}
+              options={Array.from({ length: QUARTER_WEEKS[bdQuarter] }, (_, i) => ({
+                value: String(i + 1),
+                label: `Week ${i + 1}`,
+              }))}
+            />
+            <StyledSelect
+              value={bdDay}
+              onChange={setBdDay}
+              options={DAY_NAMES.map((d, i) => ({ value: String(i + 1), label: d }))}
+            />
+          </div>
+        )}
       </div>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}

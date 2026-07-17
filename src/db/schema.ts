@@ -19,6 +19,7 @@ import { JOB_VALUES } from "@/lib/roles";
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
 export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank"]);
+export const quarterEnum = pgEnum("quarter", ["fall", "winter", "spring", "summer"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
@@ -46,6 +47,7 @@ export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "bank_deposit",
   "bank_withdrawal",
   "bank_interest",
+  "weekly_payroll",
 ]);
 export const xpReasonEnum = pgEnum("xp_reason", [
   "chat_post",
@@ -149,9 +151,22 @@ export const characters = pgTable(
     // Set once at creation (18-25), then locked — same pattern as major.
     // Admin can override.
     age: integer("age").notNull().default(18),
-    // Year is normally computed from lessons taken (see src/lib/year.ts). If an
-    // admin sets this, it overrides the computed value entirely. Null = auto.
+    // Year is now earned through summer exams (see lib/exams.ts), tracked
+    // as a plain number (1 = 1st Year) so the display label can just be
+    // derived — see lib/year.ts. If an admin sets yearOverride, it wins
+    // over this entirely. Null = auto.
     yearOverride: varchar("year_override", { length: 20 }),
+    currentYearNumber: integer("current_year_number").notNull().default(1),
+    // The in-game year (gameTime.year) this character last advanced a year
+    // in — guards against a flurry of exam attempts in the same summer
+    // advancing them more than once.
+    lastYearProgressedInGameYear: integer("last_year_progressed_in_game_year"),
+    // A character's in-game birthday — when gameTime reaches this exact
+    // (quarter, week, day-of-week), their age ticks up by one. All three
+    // null = no birthday set (never ages automatically).
+    birthdayQuarter: quarterEnum("birthday_quarter"),
+    birthdayWeek: integer("birthday_week"),
+    birthdayDayOfWeek: integer("birthday_day_of_week"), // 1 (Mon) - 7 (Sun)
     bio: text("bio"),
     // 1-5, same scale as topic content ratings — set by the character's
     // owner so readers know what to expect before opening the backstory.
@@ -324,6 +339,74 @@ export const sortingAnswers = pgTable("sorting_answers", {
   position: integer("position").notNull().default(0),
 });
 
+/**
+ * The in-game calendar — a single row (id always 1). Everything else about
+ * "what time is it" is derived from dayIndex (see lib/game-time.ts): a
+ * plain incrementing day count since Year 1, Fall, Week 1, Day 1. Advancing
+ * it (and everything that happens when a week/day changes — payroll,
+ * birthdays) is lazy, computed whenever anything asks what time it is,
+ * same pattern as bank interest in lib/bank.ts. There's no cron to drive
+ * this any other way.
+ */
+export const gameTime = pgTable("game_time", {
+  id: integer("id").primaryKey(),
+  dayIndex: integer("day_index").notNull().default(0),
+  isPaused: boolean("is_paused").notNull().default(false),
+  // Real-world clock — advancement is computed off how much real time has
+  // passed since this, at 1 real day = 1 game day. Only moves forward when
+  // not paused (see lib/game-time.ts).
+  lastAdvancedAt: timestamp("last_advanced_at").notNull().defaultNow(),
+});
+
+/**
+ * A class's end-of-year exam — multiple choice, same shape as the sorting
+ * quiz. One per class per in-game year (the `year` column), so a fresh set
+ * can exist without deleting last year's if an instructor wants a record.
+ */
+export const exams = pgTable("exams", {
+  id: serial("id").primaryKey(),
+  boardId: integer("board_id")
+    .notNull()
+    .references(() => boards.id, { onDelete: "cascade" }),
+  year: integer("year").notNull(),
+  createdByUserId: integer("created_by_user_id").references(() => users.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const examQuestions = pgTable("exam_questions", {
+  id: serial("id").primaryKey(),
+  examId: integer("exam_id")
+    .notNull()
+    .references(() => exams.id, { onDelete: "cascade" }),
+  questionText: text("question_text").notNull(),
+  position: integer("position").notNull().default(0),
+});
+
+export const examAnswers = pgTable("exam_answers", {
+  id: serial("id").primaryKey(),
+  questionId: integer("question_id")
+    .notNull()
+    .references(() => examQuestions.id, { onDelete: "cascade" }),
+  answerText: text("answer_text").notNull(),
+  isCorrect: boolean("is_correct").notNull().default(false),
+  position: integer("position").notNull().default(0),
+});
+
+/** A character's attempt at a class's exam — 7/10 (rounded to 70%) passes that class. */
+export const examAttempts = pgTable("exam_attempts", {
+  id: serial("id").primaryKey(),
+  examId: integer("exam_id")
+    .notNull()
+    .references(() => exams.id, { onDelete: "cascade" }),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  score: integer("score").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  passed: boolean("passed").notNull(),
+  takenAt: timestamp("taken_at").notNull().defaultNow(),
+});
+
 /* -------------------------------------------------------------------------- */
 /*  Forum core: Boards / Threads / Posts                                      */
 /* -------------------------------------------------------------------------- */
@@ -347,6 +430,12 @@ export const boards = pgTable(
     // If set, this board (view AND post) is exclusive to that hall's own
     // members — not even general management can see it, only admin.
     restrictedToHall: hallEnum("restricted_to_hall"),
+    // Class boards only: gates which characters see/post lessons here by
+    // their current year number (1 = 1st year). Either bound can be left
+    // null — "3rd year and up" is min=3/max=null, "1st years only" is
+    // min=1/max=1. Doesn't affect who can grade — see lib/grading.ts.
+    restrictedYearMin: integer("restricted_year_min"),
+    restrictedYearMax: integer("restricted_year_max"),
     position: integer("position").notNull().default(0),
     minRoleToView: text("min_role_to_view").notNull().default("member"),
     minRoleToPost: text("min_role_to_post").notNull().default("member"),

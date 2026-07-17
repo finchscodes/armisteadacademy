@@ -45,6 +45,9 @@ export default async function EditCharacterPage({
         socialStatus={character.socialStatus}
         personality={character.personality}
         appearance={character.appearance}
+        birthdayQuarter={character.birthdayQuarter}
+        birthdayWeek={character.birthdayWeek}
+        birthdayDayOfWeek={character.birthdayDayOfWeek}
       />
     </div>
   );

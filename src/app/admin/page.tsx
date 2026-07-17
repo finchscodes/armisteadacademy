@@ -18,6 +18,7 @@ const SECTIONS = [
   { href: "/admin/grading", label: "Grading" },
   { href: "/admin/mass-message", label: "Mass Message" },
   { href: "/admin/banned-ips", label: "Banned IPs" },
+  { href: "/admin/game-time", label: "Game Time" },
 ];
 
 export default async function AdminIndexPage() {

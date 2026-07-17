@@ -32,6 +32,9 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
         name={board.name}
         description={board.description}
         imageUrl={board.imageUrl}
+        isClass={board.kind === "class"}
+        restrictedYearMin={board.restrictedYearMin}
+        restrictedYearMax={board.restrictedYearMax}
       />
 
       {shopItems && (

@@ -1,70 +1,49 @@
-import { eq, inArray, count } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { submissions } from "@/db/schema";
+import { characters } from "@/db/schema";
 
 /**
- * Year is earned, not chosen: it's based on how many lessons a character has
- * taken (submitted homework for), regardless of grade. Retune the whole
- * progression by editing this table — thresholds are cumulative lesson counts.
+ * Year is earned by passing end-of-year exams during Summer (see
+ * lib/exams.ts), tracked as a plain number on the character
+ * (currentYearNumber, 1 = 1st Year) — not computed from anything else
+ * anymore. An admin-set yearOverride still wins over this when present.
  */
-const YEAR_THRESHOLDS: { label: string; minLessons: number }[] = [
-  { label: "1st Year", minLessons: 0 },
-  { label: "2nd Year", minLessons: 3 },
-  { label: "3rd Year", minLessons: 6 },
-  { label: "4th Year", minLessons: 9 },
-  { label: "Graduate", minLessons: 12 },
-];
+const YEAR_NUMBER_LABELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+export const GRADUATE_AT_YEAR_NUMBER = YEAR_NUMBER_LABELS.length + 1; // 5
 
-/** Lessons-taken count at which a character automatically becomes a Graduate. */
-export const GRADUATE_LESSONS_THRESHOLD = YEAR_THRESHOLDS[YEAR_THRESHOLDS.length - 1].minLessons;
-
-export function yearLabelForLessonsTaken(lessonsTaken: number): string {
-  let label = YEAR_THRESHOLDS[0].label;
-  for (const tier of YEAR_THRESHOLDS) {
-    if (lessonsTaken >= tier.minLessons) label = tier.label;
-  }
-  return label;
+export function labelForYearNumber(yearNumber: number): string {
+  if (yearNumber >= GRADUATE_AT_YEAR_NUMBER) return "Graduate";
+  return YEAR_NUMBER_LABELS[yearNumber - 1] ?? YEAR_NUMBER_LABELS[0];
 }
 
-export async function getLessonsTakenCount(characterId: number): Promise<number> {
-  const [row] = await db
-    .select({ total: count() })
-    .from(submissions)
-    .where(eq(submissions.characterId, characterId));
-  return row?.total ?? 0;
-}
-
-/** Batched version for pages that display many characters at once (thread posts, feeds). */
-export async function getLessonsTakenCounts(
-  characterIds: number[]
-): Promise<Map<number, number>> {
-  if (characterIds.length === 0) return new Map();
-  const rows = await db
-    .select({ characterId: submissions.characterId, total: count() })
-    .from(submissions)
-    .where(inArray(submissions.characterId, characterIds))
-    .groupBy(submissions.characterId);
-  return new Map(rows.map((r) => [r.characterId, r.total]));
-}
-
-export function yearLabelForOverrideOrLessons(
+export function yearLabelForOverrideOrYearNumber(
   yearOverride: string | null,
-  major: string,
-  lessonsTaken: number
+  yearNumber: number
 ): string {
   if (yearOverride) return yearOverride;
-  return yearLabelForLessonsTaken(lessonsTaken);
+  return labelForYearNumber(yearNumber);
 }
 
-/**
- * Year is based on lessons taken, unless an admin has set a manual override.
- */
+/** Year is based on currentYearNumber, unless an admin has set a manual override. */
 export async function getCharacterYearLabel(
   characterId: number,
-  major: string,
+  _major: string,
   yearOverride?: string | null
 ): Promise<string> {
   if (yearOverride) return yearOverride;
-  const lessonsTaken = await getLessonsTakenCount(characterId);
-  return yearLabelForLessonsTaken(lessonsTaken);
+  const [row] = await db
+    .select({ currentYearNumber: characters.currentYearNumber })
+    .from(characters)
+    .where(eq(characters.id, characterId));
+  return labelForYearNumber(row?.currentYearNumber ?? 1);
+}
+
+/** Batched version for pages that display many characters at once (thread posts, feeds). */
+export async function getYearNumbersForCharacters(characterIds: number[]): Promise<Map<number, number>> {
+  if (characterIds.length === 0) return new Map();
+  const rows = await db
+    .select({ id: characters.id, currentYearNumber: characters.currentYearNumber })
+    .from(characters)
+    .where(inArray(characters.id, characterIds));
+  return new Map(rows.map((r) => [r.id, r.currentYearNumber]));
 }

@@ -12,12 +12,12 @@ export function NewSortingQuestionForm() {
         name="questionText"
         placeholder="e.g. When a plan falls apart, you..."
         required
-        className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+        className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-gunmetal-500"
       />
       <button
         type="submit"
         disabled={pending}
-        className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
+        className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60 shrink-0"
       >
         {pending ? "Adding..." : "Add question"}
       </button>

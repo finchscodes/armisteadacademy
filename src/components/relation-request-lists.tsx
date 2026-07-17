@@ -26,11 +26,11 @@ export function IncomingRequestsList({ requests }: { requests: PendingRelation[]
           <div className="flex items-center gap-2.5">
             <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
             <p className="text-sm">
-              <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-brass-400">
+              <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-gunmetal-400">
                 {r.other.firstName} {r.other.lastName}
               </Link>
               <span className="text-ink-400"> wants to be listed as </span>
-              <span className="text-brass-400">{r.label}</span>
+              <span className="text-gunmetal-400">{r.label}</span>
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -39,7 +39,7 @@ export function IncomingRequestsList({ requests }: { requests: PendingRelation[]
               <button
                 type="submit"
                 disabled={pending}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
               >
                 Accept
               </button>
@@ -77,8 +77,8 @@ export function OutgoingRequestsList({ requests }: { requests: PendingRelation[]
           <div className="flex items-center gap-2.5">
             <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
             <p className="text-sm">
-              <span className="text-brass-400">{r.label}</span>{" "}
-              <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-brass-400">
+              <span className="text-gunmetal-400">{r.label}</span>{" "}
+              <Link href={`/c/${r.other.slug}`} className="text-parchment-100 hover:text-gunmetal-400">
                 {r.other.firstName} {r.other.lastName}
               </Link>
             </p>

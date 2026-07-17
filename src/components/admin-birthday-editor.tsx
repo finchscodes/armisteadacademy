@@ -84,7 +84,7 @@ export function AdminBirthdayEditor({
         type="button"
         onClick={handleSet}
         disabled={pending}
-        className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Saving..." : "Set"}
       </button>

@@ -52,7 +52,7 @@ export function FeedItemCard({ item }: { item: FeedItem }) {
             </Link>
           </CharacterHoverCard>
           <span className="text-ink-400"> posted in </span>
-          <Link href={`/t/${item.threadSlug}`} className="text-brass-400 hover:underline">
+          <Link href={`/t/${item.threadSlug}`} className="text-gunmetal-400 hover:underline">
             {item.threadTitle}
           </Link>
         </p>

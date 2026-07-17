@@ -21,7 +21,7 @@ export function CharacterBadge({
       <img
         src={avatarUrl}
         alt={name}
-        className={`${s.box} ${s.radius} object-cover ${s.border} border-brass-500/60 shrink-0`}
+        className={`${s.box} ${s.radius} object-cover ${s.border} border-gunmetal-500/60 shrink-0`}
       />
     );
   }
@@ -30,7 +30,7 @@ export function CharacterBadge({
 
   return (
     <div
-      className={`${s.box} ${s.radius} ${s.border} border-brass-500/60 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center shrink-0`}
+      className={`${s.box} ${s.radius} ${s.border} border-gunmetal-500/60 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center shrink-0`}
     >
       <span className={`font-display ${s.text} text-parchment-100`}>{initial}</span>
     </div>

@@ -124,8 +124,8 @@ export function PhoneMessageComposer({
           onClick={() => setMode("message")}
           className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             mode === "message"
-              ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              ? "bg-gunmetal-500 text-ink-950 border-gunmetal-500 font-medium"
+              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-gunmetal-500/50"
           }`}
         >
           <ChatBubbleIcon className="w-3.5 h-3.5" />
@@ -136,8 +136,8 @@ export function PhoneMessageComposer({
           onClick={() => setMode("call")}
           className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             mode === "call"
-              ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              ? "bg-gunmetal-500 text-ink-950 border-gunmetal-500 font-medium"
+              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-gunmetal-500/50"
           }`}
         >
           <PhoneCallIcon className="w-3.5 h-3.5" />
@@ -153,7 +153,7 @@ export function PhoneMessageComposer({
             onChange={(e) => setValue(e.target.value)}
             rows={5}
             placeholder={placeholder}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-sans"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 font-sans"
           />
           <p className="text-[11px] text-ink-400 mt-1">
             Each line becomes its own message. Use the buttons below to add context (like
@@ -164,7 +164,7 @@ export function PhoneMessageComposer({
             <button
               type="button"
               onClick={() => setShowActionInput((v) => !v)}
-              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
             >
               + Action
             </button>
@@ -172,14 +172,14 @@ export function PhoneMessageComposer({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors disabled:opacity-60"
+              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
             >
               {uploading ? "Uploading..." : "+ Photo (upload)"}
             </button>
             <button
               type="button"
               onClick={() => setShowPhotoUrlInput((v) => !v)}
-              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
             >
               + Photo (URL)
             </button>
@@ -188,7 +188,7 @@ export function PhoneMessageComposer({
                 type="button"
                 onClick={() => setShowEmoji((v) => !v)}
                 data-tooltip="Insert emoji"
-                className="text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+                className="text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
               >
                 🙂
               </button>
@@ -232,12 +232,12 @@ export function PhoneMessageComposer({
                 }}
                 autoFocus
                 placeholder='e.g. "message delivered" or "left on read"'
-                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-brass-500"
+                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-gunmetal-500"
               />
               <button
                 type="button"
                 onClick={confirmAction}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
               >
                 Add
               </button>
@@ -257,12 +257,12 @@ export function PhoneMessageComposer({
                 }}
                 autoFocus
                 placeholder="https://..."
-                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-brass-500"
+                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-gunmetal-500"
               />
               <button
                 type="button"
                 onClick={confirmPhotoUrl}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
               >
                 Add
               </button>
@@ -290,7 +290,7 @@ export function PhoneMessageComposer({
                 value={callTargetName}
                 onChange={(e) => setCallTargetName(e.target.value)}
                 placeholder="Who's being called?"
-                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 mt-2"
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 mt-2"
               />
             )}
           </div>
@@ -301,7 +301,7 @@ export function PhoneMessageComposer({
               onChange={(e) => setCallBody(e.target.value)}
               rows={6}
               placeholder='Write the call as one continuous scene. Wrap spoken dialogue in "quotes" to highlight it.'
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
         </div>

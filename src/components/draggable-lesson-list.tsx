@@ -32,7 +32,7 @@ export function DraggableLessonList({
       renderItem={(lesson) => (
         <Link
           href={`/lesson/${lesson.id}`}
-          className="flex-1 flex items-center justify-between hover:text-brass-400 transition-colors min-w-0"
+          className="flex-1 flex items-center justify-between hover:text-gunmetal-400 transition-colors min-w-0"
         >
           <span className="text-parchment-100">{lesson.title}</span>
           <span className="text-xs text-ink-400 shrink-0 ml-3">up to {lesson.reward} dollars</span>

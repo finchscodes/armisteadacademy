@@ -41,7 +41,7 @@ export function EditablePost({
         </div>
         {rollValue != null && (
           <div
-            className="inline-flex items-center gap-1.5 bg-ink-800 border border-brass-500/40 rounded-md px-2.5 py-1 mt-2 text-xs"
+            className="inline-flex items-center gap-1.5 bg-ink-800 border border-gunmetal-500/40 rounded-md px-2.5 py-1 mt-2 text-xs"
             data-tooltip="Rolled automatically — can't be edited"
           >
             <span className="text-ink-400">Roll:</span>
@@ -50,7 +50,7 @@ export function EditablePost({
               {rollModifier ? ` ${rollModifier > 0 ? "+" : ""}${rollModifier}` : ""}
             </span>
             {rollModifier ? (
-              <span className="text-brass-400 font-semibold">= {rollValue + rollModifier}</span>
+              <span className="text-gunmetal-400 font-semibold">= {rollValue + rollModifier}</span>
             ) : null}
           </div>
         )}
@@ -66,7 +66,7 @@ export function EditablePost({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors"
+              className="text-[11px] text-ink-400 hover:text-gunmetal-400 transition-colors"
             >
               Edit
             </button>
@@ -101,7 +101,7 @@ export function EditablePost({
             <button
               type="button"
               onClick={() => setShowOoc((v) => !v)}
-              className="text-xs text-brass-400 hover:underline"
+              className="text-xs text-gunmetal-400 hover:underline"
             >
               {showOoc ? "− Hide OOC" : "+ Add OOC"}
             </button>
@@ -112,7 +112,7 @@ export function EditablePost({
               rows={2}
               defaultValue={ooc ?? ""}
               placeholder="Anything out-of-character — reactions, pacing, plotting notes, etc."
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           )}
         </>
@@ -123,7 +123,7 @@ export function EditablePost({
         <button
           type="submit"
           disabled={pending}
-          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
         >
           {pending ? "Saving..." : "Save"}
         </button>

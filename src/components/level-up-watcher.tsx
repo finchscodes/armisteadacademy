@@ -53,16 +53,16 @@ export function LevelUpWatcher() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
-      <div className="bg-ink-900 border border-brass-500 rounded-lg shadow-2xl shadow-black/60 max-w-sm w-full p-6 text-center">
+      <div className="bg-ink-900 border border-gunmetal-500 rounded-lg shadow-2xl shadow-black/60 max-w-sm w-full p-6 text-center">
         <p className="text-4xl mb-2">🎉</p>
-        <h2 className="font-display text-2xl text-brass-400 mb-1">Level Up!</h2>
+        <h2 className="font-display text-2xl text-gunmetal-400 mb-1">Level Up!</h2>
         <p className="text-parchment-100 text-sm mb-1">
-          You&apos;ve reached <span className="text-brass-400 font-medium">Level {popup.level}</span>.
+          You&apos;ve reached <span className="text-gunmetal-400 font-medium">Level {popup.level}</span>.
         </p>
         {popup.note && <p className="text-ink-400 text-xs mt-2">{popup.note}</p>}
         <button
           onClick={() => setPopup(null)}
-          className="mt-5 bg-brass-500 text-ink-950 rounded-md px-5 py-2 text-sm font-medium hover:bg-brass-400 transition-colors"
+          className="mt-5 bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2 text-sm font-medium hover:bg-gunmetal-400 transition-colors"
         >
           Nice
         </button>

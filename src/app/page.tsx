@@ -31,27 +31,27 @@ export default async function HomePage() {
       <div className="flex-1 w-full min-w-0 space-y-6">
         {!current && (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-6">
-            <h1 className="font-display text-2xl text-brass-400 mb-1">Armistead Academy</h1>
+            <h1 className="font-display text-2xl text-gunmetal-400 mb-1">Armistead Academy</h1>
             <p className="text-ink-400 text-sm mb-4">
               A spy academy roleplay: forums, lessons, and an in-world economy.
             </p>
             <div className="flex gap-3">
               <Link
                 href="/register"
-                className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
               >
                 Join
               </Link>
               <Link
                 href="/login"
-                className="text-sm text-ink-200 hover:text-brass-400 px-4 py-2"
+                className="text-sm text-ink-200 hover:text-gunmetal-400 px-4 py-2"
               >
                 Log in
               </Link>
             </div>
             <p className="text-xs text-ink-400 mt-4 pt-4 border-t border-ink-700">
               New here? Read the{" "}
-              <Link href="/guide" className="text-brass-400 hover:underline">
+              <Link href="/guide" className="text-gunmetal-400 hover:underline">
                 Rules &amp; Guidelines
               </Link>{" "}
               first — it covers what to expect before you create a character.
@@ -61,7 +61,7 @@ export default async function HomePage() {
         {current && !current.activeCharacter && (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
             <p className="text-parchment-100">You don&apos;t have a character yet.</p>
-            <Link href="/characters/new" className="text-sm text-brass-400 hover:underline">
+            <Link href="/characters/new" className="text-sm text-gunmetal-400 hover:underline">
               Create one to start posting &rarr;
             </Link>
           </div>

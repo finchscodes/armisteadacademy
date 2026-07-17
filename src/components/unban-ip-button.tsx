@@ -23,7 +23,7 @@ export function UnbanIpButton({ id }: { id: number }) {
       type="button"
       onClick={handleUnban}
       disabled={pending}
-      className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors disabled:opacity-60"
+      className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
     >
       {pending ? "..." : "Unban"}
     </button>

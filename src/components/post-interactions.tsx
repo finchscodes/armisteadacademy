@@ -54,7 +54,7 @@ export function PostInteractions({
                 onClick={() => react(emoji)}
                 className={`text-xs px-1.5 py-0.5 rounded-full border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   active
-                    ? "bg-brass-500/20 border-brass-500 text-brass-400"
+                    ? "bg-gunmetal-500/20 border-gunmetal-500 text-gunmetal-400"
                     : "border-ink-600 hover:border-ink-400 text-parchment-100/80"
                 }`}
               >
@@ -67,7 +67,7 @@ export function PostInteractions({
         <button
           type="button"
           onClick={() => setShowComments((v) => !v)}
-          className="text-xs text-ink-400 hover:text-brass-400 transition-colors"
+          className="text-xs text-ink-400 hover:text-gunmetal-400 transition-colors"
         >
           {comments.length > 0 ? `Comments (${comments.length})` : "Comment"}
         </button>
@@ -117,12 +117,12 @@ export function PostInteractions({
                 maxLength={1000}
                 placeholder="Write a comment..."
                 autoComplete="off"
-                className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+                className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
               />
               <button
                 type="submit"
                 disabled={pending}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
               >
                 Post
               </button>

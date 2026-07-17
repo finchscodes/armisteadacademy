@@ -159,7 +159,7 @@ export function ImageCropper({
             step={0.01}
             value={effectiveZoom}
             onChange={(e) => handleZoomChange(Number(e.target.value))}
-            className="w-full accent-brass-500"
+            className="w-full accent-gunmetal-500"
           />
         </div>
 
@@ -167,7 +167,7 @@ export function ImageCropper({
           <button
             type="button"
             onClick={onCancel}
-            className="text-sm px-4 py-2 rounded-md border border-ink-600 text-ink-300 hover:border-brass-500/50 transition-colors"
+            className="text-sm px-4 py-2 rounded-md border border-ink-600 text-ink-300 hover:border-gunmetal-500/50 transition-colors"
           >
             Cancel
           </button>
@@ -175,7 +175,7 @@ export function ImageCropper({
             type="button"
             onClick={handleConfirm}
             disabled={!imgSize}
-            className="text-sm px-4 py-2 rounded-md bg-brass-500 text-ink-950 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="text-sm px-4 py-2 rounded-md bg-gunmetal-500 text-ink-950 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             Use this crop
           </button>

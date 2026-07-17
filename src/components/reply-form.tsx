@@ -20,14 +20,14 @@ export function ReplyForm({ threadSlug }: { threadSlug: string }) {
         <button
           type="button"
           onClick={() => setShowOoc((v) => !v)}
-          className="text-xs text-brass-400 hover:underline"
+          className="text-xs text-gunmetal-400 hover:underline"
         >
           {showOoc ? "− Hide OOC" : "+ Add OOC"}
         </button>
         <button
           type="button"
           onClick={() => setShowRoll((v) => !v)}
-          className="text-xs text-brass-400 hover:underline"
+          className="text-xs text-gunmetal-400 hover:underline"
         >
           {showRoll ? "− Remove roll" : "+ Add a roll (1d10)"}
         </button>
@@ -42,7 +42,7 @@ export function ReplyForm({ threadSlug }: { threadSlug: string }) {
             id="ooc"
             name="ooc"
             rows={2}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
       )}
@@ -66,7 +66,7 @@ export function ReplyForm({ threadSlug }: { threadSlug: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Posting..." : "Post reply"}
       </button>

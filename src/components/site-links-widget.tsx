@@ -16,7 +16,7 @@ export async function SiteLinksWidget() {
             href={l.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`text-center bg-ink-900 border border-ink-700 rounded-md text-parchment-100 px-3 py-2 hover:border-brass-500/50 hover:text-brass-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider ${
+            className={`text-center bg-ink-900 border border-ink-700 rounded-md text-parchment-100 px-3 py-2 hover:border-gunmetal-500/50 hover:text-gunmetal-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider ${
               isLastOdd ? "col-span-2" : ""
             }`}
           >

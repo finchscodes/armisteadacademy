@@ -55,7 +55,7 @@ export function AccountMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="block rounded-md ring-2 ring-transparent hover:ring-brass-500/50 transition-all"
+        className="block rounded-md ring-2 ring-transparent hover:ring-gunmetal-500/50 transition-all"
         data-tooltip="Account menu" data-tooltip-side="bottom-left"
       >
         <CharacterBadge
@@ -97,7 +97,7 @@ export function AccountMenu({
             {balance !== null && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-ink-400">Money</span>
-                <span className="text-brass-400 flex items-center gap-1 font-mono">
+                <span className="text-gunmetal-400 flex items-center gap-1 font-mono">
                   <CoinIcon className="w-3.5 h-3.5" />
                   {balance}
                 </span>
@@ -121,7 +121,7 @@ export function AccountMenu({
             <Link
               href="/characters"
               onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-ink-200 hover:bg-ink-800/60 hover:text-brass-400 transition-colors"
+              className="block px-4 py-2 text-sm text-ink-200 hover:bg-ink-800/60 hover:text-gunmetal-400 transition-colors"
             >
               Characters
             </Link>
@@ -129,7 +129,7 @@ export function AccountMenu({
               <Link
                 href={`/c/${activeCharacter.slug}/edit`}
                 onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-ink-200 hover:bg-ink-800/60 hover:text-brass-400 transition-colors"
+                className="block px-4 py-2 text-sm text-ink-200 hover:bg-ink-800/60 hover:text-gunmetal-400 transition-colors"
               >
                 Edit Profile
               </Link>

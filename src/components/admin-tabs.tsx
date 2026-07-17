@@ -29,8 +29,8 @@ export function AdminTabs() {
             href={s.href}
             className={`text-sm px-3 py-2 border-b-2 transition-colors ${
               isActive
-                ? "border-brass-500 text-brass-400"
-                : "border-transparent text-ink-200 hover:text-brass-400 hover:border-ink-600"
+                ? "border-gunmetal-500 text-gunmetal-400"
+                : "border-transparent text-ink-200 hover:text-gunmetal-400 hover:border-ink-600"
             }`}
           >
             {s.label}

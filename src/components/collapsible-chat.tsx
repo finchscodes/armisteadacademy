@@ -44,10 +44,10 @@ export function CollapsibleChat(props: {
           onClick={() => setOpen(true)}
           data-tooltip="Show chat"
           data-tooltip-side="bottom-left"
-          className="w-10 h-full bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center hover:border-brass-500/50 transition-colors"
+          className="w-10 h-full bg-ink-900 border border-ink-700 rounded-lg flex items-center justify-center hover:border-gunmetal-500/50 transition-colors"
         >
           <span
-            className="font-display text-xs text-brass-400 uppercase tracking-widest whitespace-nowrap"
+            className="font-display text-xs text-gunmetal-400 uppercase tracking-widest whitespace-nowrap"
             style={{ writingMode: "vertical-rl" }}
           >
             Chat

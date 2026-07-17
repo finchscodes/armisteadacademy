@@ -117,7 +117,14 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             />
           )}
           <div className="min-w-0">
-            <h1 className="font-display text-3xl text-brass-400">{board.name}</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-display text-3xl text-gunmetal-400">{board.name}</h1>
+              {board.clearance && (
+                <span className="text-[10px] uppercase tracking-wider text-claret-500 border border-claret-600/40 bg-claret-600/10 rounded px-2 py-0.5">
+                  {board.clearance}
+                </span>
+              )}
+            </div>
             {board.description && (
               <p className="text-xs text-ink-400 mt-1 max-w-xl">{board.description}</p>
             )}
@@ -126,7 +133,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         {board.kind !== "category" && !isClassBoard && canPostHere && (
           <Link
             href={`/b/${board.slug}/new`}
-            className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+            className="shrink-0 text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
           >
             {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
           </Link>
@@ -134,7 +141,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         {isClassBoard && canPostLesson && (
           <Link
             href={`/b/${board.slug}/exam/edit`}
-            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
           >
             Edit exam
           </Link>
@@ -142,7 +149,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
         {isClassBoard && !canPostLesson && isEnrolled && (
           <Link
             href={`/b/${board.slug}/exam`}
-            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 transition-colors"
+            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
           >
             Take exam
           </Link>
@@ -156,7 +163,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             {canPostLesson && (
               <Link
                 href={`/lesson/new?board=${board.slug}`}
-                className="text-xs text-brass-400 hover:underline"
+                className="text-xs text-gunmetal-400 hover:underline"
               >
                 + Post a lesson
               </Link>
@@ -179,8 +186,8 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                   type="submit"
                   className={
                     canPostLesson
-                      ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
-                      : "text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                      ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
+                      : "text-sm bg-gunmetal-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
                   }
                 >
                   Enroll
@@ -230,7 +237,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
               {canPostHere && (
                 <>
                   {" "}
-                  <Link href={`/b/${board.slug}/new`} className="text-brass-400 hover:underline">
+                  <Link href={`/b/${board.slug}/new`} className="text-gunmetal-400 hover:underline">
                     {isArticleBoard ? "Post the first one" : isEmailBoard ? "Send the first one" : "Start the first one"}
                   </Link>
                   .
@@ -245,14 +252,14 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
               >
                 <div>
                   <p className="text-parchment-100">
-                    {t.isPinned && <span className="text-brass-400 mr-1.5">&#128204;</span>}
+                    {t.isPinned && <span className="text-gunmetal-400 mr-1.5">&#128204;</span>}
                     <Link href={`/t/${t.slug}`} className="static">
                       {t.title}
                       <span className="absolute inset-0" />
                     </Link>
                     {t.isLocked && <span className="text-ink-400 ml-1.5 text-xs">(locked)</span>}
                     {t.scheduledFor && t.scheduledFor.getTime() > now && (
-                      <span className="ml-1.5 text-[10px] uppercase tracking-wider text-brass-400 border border-brass-500/40 rounded px-1.5 py-0.5">
+                      <span className="ml-1.5 text-[10px] uppercase tracking-wider text-gunmetal-400 border border-gunmetal-500/40 rounded px-1.5 py-0.5">
                         Scheduled &middot; {t.scheduledFor.toLocaleDateString()}{" "}
                         {t.scheduledFor.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
                       </span>
@@ -262,7 +269,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                     by{" "}
                     <Link
                       href={`/c/${t.characterSlug}`}
-                      className="relative z-10 hover:text-brass-400"
+                      className="relative z-10 hover:text-gunmetal-400"
                     >
                       {t.characterFirstName} {t.characterLastName}
                     </Link>

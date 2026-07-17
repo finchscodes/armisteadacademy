@@ -44,7 +44,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
             onClick={() => setActiveCategoryId(c.id)}
             className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${
               active?.id === c.id
-                ? "bg-brass-500 text-ink-950 border-brass-500"
+                ? "bg-gunmetal-500 text-ink-950 border-gunmetal-500"
                 : "border-ink-600 text-ink-200"
             }`}
           >
@@ -105,7 +105,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
         <Link
           href="/guide"
           onClick={() => setOpen(false)}
-          className="block text-sm font-medium text-brass-400 py-2 border-t border-ink-700"
+          className="block text-sm font-medium text-gunmetal-400 py-2 border-t border-ink-700"
         >
           Rules &amp; Guidelines
         </Link>
@@ -117,7 +117,7 @@ export function MobileNav({ tree }: { tree: BoardNode[] }) {
     <div ref={buttonRef} className="relative md:hidden">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="text-ink-200 hover:text-brass-400 transition-colors p-1"
+        className="text-ink-200 hover:text-gunmetal-400 transition-colors p-1"
         data-tooltip="Menu"
       >
         <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">

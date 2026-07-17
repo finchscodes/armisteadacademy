@@ -20,7 +20,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
           id="name"
           name="name"
           required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -33,7 +33,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
           name="kind"
           value={kind}
           onChange={(e) => setKind(e.target.value as typeof kind)}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
         >
           <option value="category">Category (a top-level menu section)</option>
           <option value="board">Topic area (regular threads)</option>
@@ -55,7 +55,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
             id="parentId"
             name="parentId"
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           >
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -75,7 +75,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
             id="extraArticleJob"
             name="extraArticleJob"
             defaultValue=""
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           >
             <option value="">None — management only</option>
             {ACTIVE_JOB_VALUES.filter((j) => j !== "none").map((j) => (
@@ -99,7 +99,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
               type="number"
               min={1}
               placeholder="e.g. 3 for 3rd year and up"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
           <div>
@@ -112,11 +112,24 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
               type="number"
               min={1}
               placeholder="e.g. 1 for 1st years only"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
         </div>
       )}
+
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="clearance">
+          Clearance (optional, flavor text)
+        </label>
+        <input
+          id="clearance"
+          name="clearance"
+          placeholder="e.g. Level 3 Clearance Required"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+        />
+        <p className="text-[11px] text-ink-400 mt-1">Purely decorative — nothing enforces this.</p>
+      </div>
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="description">
@@ -127,7 +140,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
           name="description"
           rows={3}
           placeholder="Shown at the top of the board page. Leave blank for none."
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -136,7 +149,7 @@ export function NewBoardForm({ categories }: { categories: Category[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Creating..." : "Create"}
       </button>

@@ -20,7 +20,7 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="max-w-xl">
-      <Link href="/admin/boards" className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href="/admin/boards" className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; All boards
       </Link>
       <div className="flex items-center justify-between mt-2 mb-6">
@@ -35,11 +35,12 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
         isClass={board.kind === "class"}
         restrictedYearMin={board.restrictedYearMin}
         restrictedYearMax={board.restrictedYearMax}
+        clearance={board.clearance}
       />
 
       {shopItems && (
         <div className="mt-8">
-          <h2 className="font-display text-lg text-brass-400 mb-3">Items</h2>
+          <h2 className="font-display text-lg text-gunmetal-400 mb-3">Items</h2>
           <ShopItemsEditor boardId={board.id} items={shopItems} />
         </div>
       )}

@@ -41,13 +41,13 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <Link href="/messages" className="text-sm text-ink-400 hover:text-brass-400">
+        <Link href="/messages" className="text-sm text-ink-400 hover:text-gunmetal-400">
           &larr; Back to messages
         </Link>
         <MarkUnreadButton threadId={thread.id} />
       </div>
 
-      <h1 className="font-display text-3xl text-brass-400 mb-3">{thread.subject}</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-3">{thread.subject}</h1>
 
       <ThreadParticipants
         threadId={thread.id}
@@ -66,7 +66,7 @@ export default async function MessageThreadPage({ params }: { params: Promise<{ 
             <CharacterBadge name={m.characterName} avatarUrl={m.characterAvatarUrl} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="text-sm">
-                <Link href={`/c/${m.characterSlug}`} className="font-medium text-parchment-100 hover:text-brass-400">
+                <Link href={`/c/${m.characterSlug}`} className="font-medium text-parchment-100 hover:text-gunmetal-400">
                   {m.characterFirstName} {m.characterLastName}
                 </Link>
                 <span className="text-ink-500 text-xs ml-2">{timeAgo(m.createdAt)}</span>

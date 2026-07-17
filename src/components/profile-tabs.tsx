@@ -39,7 +39,7 @@ export function ProfileTabs({
             onClick={() => setTab(t.key)}
             className={`text-sm px-4 py-2.5 border-b-2 -mb-px transition-colors ${
               tab === t.key
-                ? "border-brass-500 text-brass-400"
+                ? "border-gunmetal-500 text-gunmetal-400"
                 : "border-transparent text-ink-400 hover:text-parchment-100"
             }`}
           >

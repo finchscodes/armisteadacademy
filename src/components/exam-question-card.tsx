@@ -112,13 +112,13 @@ export function ExamQuestionCard({ question, index }: { question: Question; inde
           value={answerText}
           onChange={(e) => setAnswerText(e.target.value)}
           placeholder="Add an answer choice..."
-          className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+          className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
         />
         <button
           type="button"
           onClick={handleAddAnswer}
           disabled={pending || !answerText.trim()}
-          className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors disabled:opacity-60"
+          className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
         >
           Add
         </button>

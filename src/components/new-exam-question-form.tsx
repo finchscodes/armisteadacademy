@@ -33,14 +33,14 @@ export function NewExamQuestionForm({ examId }: { examId: number }) {
         value={questionText}
         onChange={(e) => setQuestionText(e.target.value)}
         rows={2}
-        className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm mb-2 focus:outline-none focus:border-brass-500"
+        className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm mb-2 focus:outline-none focus:border-gunmetal-500"
       />
       {error && <p className="text-xs text-claret-500 mb-2">{error}</p>}
       <button
         type="button"
         onClick={handleAdd}
         disabled={pending || !questionText.trim()}
-        className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Adding..." : "Add question"}
       </button>

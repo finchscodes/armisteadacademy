@@ -15,7 +15,7 @@ export default async function JobsPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Job List</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Job List</h1>
       <p className="text-ink-400 text-sm mb-6">Who&apos;s who at Armistead.</p>
 
       <div className="space-y-8">
@@ -32,7 +32,7 @@ export default async function JobsPage() {
                 <h2 className="font-display text-lg" style={{ color: meta.color ?? undefined }}>
                   {jobLabel(job)}
                 </h2>
-                <div className="flex-1 brass-rule" />
+                <div className="flex-1 gunmetal-rule" />
               </div>
 
               {people.length === 0 ? (
@@ -48,7 +48,7 @@ export default async function JobsPage() {
                     >
                       <Link
                         href={`/c/${p.characterSlug}`}
-                        className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex flex-col items-center text-center hover:border-brass-500/50 transition-colors"
+                        className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex flex-col items-center text-center hover:border-gunmetal-500/50 transition-colors"
                       >
                         <CharacterBadge
                           name={`${p.characterFirstName} ${p.characterLastName}`}

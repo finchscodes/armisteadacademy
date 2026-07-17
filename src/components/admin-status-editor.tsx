@@ -73,13 +73,13 @@ export function AdminStatusEditor({
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="e.g. Site Founder"
-          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500 w-40"
+          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500 w-40"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={pending || !label.trim()}
-          className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-gunmetal-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
         >
           {pending ? "..." : "Add status"}
         </button>

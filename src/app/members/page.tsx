@@ -10,7 +10,7 @@ export default async function MembersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Members</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Members</h1>
       <p className="text-ink-400 text-sm mb-6">
         Every character at Armistead Academy — {members.length} so far.
       </p>

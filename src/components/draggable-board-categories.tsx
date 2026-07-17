@@ -79,7 +79,7 @@ export function DraggableBoardCategories({ categories }: { categories: Category[
                 &#8942;&#8942;
               </span>
             )}
-            <h2 className="font-display text-sm uppercase tracking-wider text-brass-400">{cat.name}</h2>
+            <h2 className="font-display text-sm uppercase tracking-wider text-gunmetal-400">{cat.name}</h2>
           </div>
 
           {cat.children.length === 0 ? (
@@ -94,7 +94,7 @@ export function DraggableBoardCategories({ categories }: { categories: Category[
               renderItem={(b) => (
                 <Link
                   href={`/admin/boards/${b.id}/edit`}
-                  className="flex-1 flex items-center justify-between hover:text-brass-400 transition-colors min-w-0"
+                  className="flex-1 flex items-center justify-between hover:text-gunmetal-400 transition-colors min-w-0"
                 >
                   <span className="text-sm text-parchment-100">{b.name}</span>
                   <span className="text-[10px] uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-2 py-0.5 shrink-0 ml-3">

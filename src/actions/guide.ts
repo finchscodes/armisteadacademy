@@ -29,6 +29,7 @@ const sectionSchema = z.object({
     .string()
     .max(60000, "That's too long")
     .refine((v) => richTextLength(v) > 0, "Content can't be empty"),
+  parentId: z.coerce.number().int().optional(),
 });
 
 export async function createGuideSectionAction(
@@ -40,18 +41,19 @@ export async function createGuideSectionAction(
   const parsed = sectionSchema.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
+    parentId: formData.get("parentId") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { title } = parsed.data;
+  const { title, parentId } = parsed.data;
   const content = sanitizeRichText(parsed.data.content);
   const slug = slugifyUnique(title);
 
   const existing = await db.select({ id: guideSections.id }).from(guideSections);
 
-  await db.insert(guideSections).values({ title, slug, content, position: existing.length });
+  await db.insert(guideSections).values({ title, slug, content, position: existing.length, parentId: parentId ?? null });
 
   revalidatePath("/guide");
   revalidatePath("/admin/guide");
@@ -65,6 +67,7 @@ const updateSectionSchema = z.object({
     .string()
     .max(60000, "That's too long")
     .refine((v) => richTextLength(v) > 0, "Content can't be empty"),
+  parentId: z.coerce.number().int().optional(),
 });
 
 export async function updateGuideSectionAction(
@@ -77,15 +80,24 @@ export async function updateGuideSectionAction(
     sectionId: formData.get("sectionId"),
     title: formData.get("title"),
     content: formData.get("content"),
+    parentId: formData.get("parentId") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { sectionId, title } = parsed.data;
+  const { sectionId, title, parentId } = parsed.data;
   const content = sanitizeRichText(parsed.data.content);
 
-  await db.update(guideSections).set({ title, content }).where(eq(guideSections.id, sectionId));
+  // A section can't be its own parent, and can't be nested under one of
+  // its own children (only one level of nesting is supported at all, so
+  // in practice this just guards against self-parenting).
+  const safeParentId = parentId === sectionId ? null : parentId ?? null;
+
+  await db
+    .update(guideSections)
+    .set({ title, content, parentId: safeParentId })
+    .where(eq(guideSections.id, sectionId));
 
   revalidatePath("/guide");
   revalidatePath("/admin/guide");

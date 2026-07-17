@@ -46,7 +46,7 @@ export function BanControls({
           <button
             type="button"
             onClick={handleUnban}
-            className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+            className="shrink-0 text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
           >
             Unban
           </button>
@@ -67,7 +67,7 @@ export function BanControls({
             id="reason"
             name="reason"
             rows={2}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
           {banState?.error && <p className="text-xs text-claret-500">{banState.error}</p>}
           <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export function BanControls({
                 name="ipAddress"
                 defaultValue={lastIpAddress ?? ""}
                 required
-                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brass-500"
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm font-mono focus:outline-none focus:border-gunmetal-500"
               />
             </div>
             <div>
@@ -135,7 +135,7 @@ export function BanControls({
               <input
                 id="ipReason"
                 name="reason"
-                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
               />
             </div>
             {ipBanState?.error && <p className="text-xs text-claret-500">{ipBanState.error}</p>}

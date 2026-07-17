@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { boards, threads, posts, xpLedger, characters } from "@/db/schema";
+import { boards, threads, posts, characters } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
 import { getSession, getActiveCharacterId } from "@/lib/auth";
 import { slugifyUnique } from "@/lib/slug";
-import { XP_AWARDS } from "@/lib/xp";
+import { XP_AWARDS, awardXp } from "@/lib/xp";
 import { sanitizeRichText, sanitizePlainText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
@@ -174,7 +174,7 @@ export async function createThreadAction(
     })
     .returning({ id: posts.id });
 
-  await db.insert(xpLedger).values({
+  await awardXp({
     characterId,
     amount: XP_AWARDS.chat_post,
     reason: "chat_post",
@@ -266,7 +266,7 @@ export async function createPostAction(
     })
     .returning({ id: posts.id });
 
-  await db.insert(xpLedger).values({
+  await awardXp({
     characterId,
     amount: XP_AWARDS.chat_post,
     reason: "chat_post",

@@ -43,7 +43,7 @@ export function NewThreadForm({
           name="title"
           required
           placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : undefined}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -57,7 +57,7 @@ export function NewThreadForm({
             name="rating"
             defaultValue={RATING_VALUES[0]}
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           >
             {RATING_VALUES.map((r) => (
               <option key={r} value={r}>
@@ -74,14 +74,14 @@ export function NewThreadForm({
             <button
               type="button"
               onClick={() => setShowDetails((v) => !v)}
-              className="text-xs text-brass-400 hover:underline"
+              className="text-xs text-gunmetal-400 hover:underline"
             >
               {showDetails ? "− Hide details" : "+ Add details (location, time, surroundings)"}
             </button>
             <button
               type="button"
               onClick={() => setShowRoll((v) => !v)}
-              className="text-xs text-brass-400 hover:underline"
+              className="text-xs text-gunmetal-400 hover:underline"
             >
               {showRoll ? "− Remove roll" : "+ Add a roll (1d10)"}
             </button>
@@ -111,7 +111,7 @@ export function NewThreadForm({
                 <input
                   id="location"
                   name="location"
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
                 />
               </div>
               <div>
@@ -121,7 +121,7 @@ export function NewThreadForm({
                 <input
                   id="timeSetting"
                   name="timeSetting"
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
                 />
               </div>
               <div>
@@ -132,7 +132,7 @@ export function NewThreadForm({
                   id="surroundings"
                   name="surroundings"
                   rows={3}
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
                 />
               </div>
               <div>
@@ -143,7 +143,7 @@ export function NewThreadForm({
                   id="ooc"
                   name="ooc"
                   rows={2}
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
                 />
               </div>
             </div>
@@ -160,7 +160,7 @@ export function NewThreadForm({
             id="scheduledFor"
             name="scheduledFor"
             type="datetime-local"
-            className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
           <p className="text-[11px] text-ink-400 mt-1">
             Leave blank to publish immediately, or pick a future date/time to schedule it — it
@@ -185,7 +185,7 @@ export function NewThreadForm({
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending
           ? "Posting..."

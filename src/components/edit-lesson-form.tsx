@@ -34,7 +34,7 @@ export function EditLessonForm({
           name="title"
           defaultValue={title}
           required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -60,7 +60,7 @@ export function EditLessonForm({
             min={0}
             defaultValue={reward}
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
           />
           <p className="text-[11px] text-ink-400 mt-1">
             Full payout for Perfect. Lower tiers pay a fraction — Excellent 80%, Good 50%, Needs
@@ -78,7 +78,7 @@ export function EditLessonForm({
             min={0}
             defaultValue={graderFee}
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
           />
         </div>
       </div>
@@ -88,7 +88,7 @@ export function EditLessonForm({
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Saving..." : "Save changes"}
       </button>

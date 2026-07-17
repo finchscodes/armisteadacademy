@@ -27,8 +27,8 @@ export function EmailComposerFields({
           onClick={() => setEmailFormat("email")}
           className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             emailFormat === "email"
-              ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              ? "bg-gunmetal-500 text-ink-950 border-gunmetal-500 font-medium"
+              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-gunmetal-500/50"
           }`}
         >
           <MailIcon className="w-3.5 h-3.5" />
@@ -39,8 +39,8 @@ export function EmailComposerFields({
           onClick={() => setEmailFormat("letter")}
           className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors ${
             emailFormat === "letter"
-              ? "bg-brass-500 text-ink-950 border-brass-500 font-medium"
-              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-brass-500/50"
+              ? "bg-gunmetal-500 text-ink-950 border-gunmetal-500 font-medium"
+              : "bg-ink-800 border-ink-600 text-parchment-100 hover:border-gunmetal-500/50"
           }`}
         >
           <DocumentIcon className="w-3.5 h-3.5" />
@@ -59,7 +59,7 @@ export function EmailComposerFields({
               name="letterTo"
               defaultValue={initialLetterTo}
               placeholder="e.g. recipient's name"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 font-display"
             />
           </div>
           <div>
@@ -71,7 +71,7 @@ export function EmailComposerFields({
               name="letterFrom"
               defaultValue={initialLetterFrom}
               placeholder="e.g. your name"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 font-display"
             />
           </div>
         </div>

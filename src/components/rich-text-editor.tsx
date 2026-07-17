@@ -64,7 +64,7 @@ function ToolbarButton({
       data-tooltip={label}
       className={`text-xs px-2 py-1 rounded border transition-colors ${
         active
-          ? "bg-brass-500/20 border-brass-500 text-brass-400"
+          ? "bg-gunmetal-500/20 border-gunmetal-500 text-gunmetal-400"
           : "border-ink-600 text-parchment-100/80 hover:border-ink-400"
       }`}
     >

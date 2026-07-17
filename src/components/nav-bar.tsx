@@ -75,7 +75,7 @@ export async function NavBar() {
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="flex items-baseline gap-1.5 shrink-0 leading-none">
             <span
-              className="font-hero text-base md:text-lg uppercase tracking-normal text-brass-400"
+              className="font-hero text-base md:text-lg uppercase tracking-normal text-gunmetal-400"
               style={{
                 fontWeight: 400,
                 fontVariantLigatures: "common-ligatures discretionary-ligatures",
@@ -106,7 +106,7 @@ export async function NavBar() {
               label="Outside Armistead"
               onlyCategorySlugs={["outside-armistead", "shops"]}
             />
-            <Link href="/guide" className="text-sm text-ink-200 hover:text-brass-400 transition-colors">
+            <Link href="/guide" className="text-sm text-ink-200 hover:text-gunmetal-400 transition-colors">
               Rules &amp; Guidelines
             </Link>
           </div>
@@ -118,7 +118,7 @@ export async function NavBar() {
             <Link
               href="/social"
               data-tooltip="Socials" data-tooltip-side="bottom"
-              className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+              className="relative flex items-center gap-1 text-ink-200 hover:text-gunmetal-400 transition-colors"
             >
               <SocialIcon />
               {onlineCount > 0 && (
@@ -131,7 +131,7 @@ export async function NavBar() {
               <Link
                 href="/grading"
                 data-tooltip="Grading" data-tooltip-side="bottom"
-                className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+                className="relative flex items-center gap-1 text-ink-200 hover:text-gunmetal-400 transition-colors"
               >
                 <GradingIcon />
                 {gradingCount > 0 && (
@@ -145,7 +145,7 @@ export async function NavBar() {
               <Link
                 href="/messages"
                 data-tooltip="Messages" data-tooltip-side="bottom"
-                className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+                className="relative flex items-center gap-1 text-ink-200 hover:text-gunmetal-400 transition-colors"
               >
                 <MailIcon />
                 {unreadMessageCount > 0 && (
@@ -190,12 +190,12 @@ export async function NavBar() {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-ink-200 hover:text-brass-400">
+            <Link href="/login" className="text-sm text-ink-200 hover:text-gunmetal-400">
               Log in
             </Link>
             <Link
               href="/register"
-              className="text-sm bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors"
+              className="text-sm bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
             >
               Join
             </Link>

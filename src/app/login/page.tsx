@@ -20,7 +20,7 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
-            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
+            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gunmetal-500"
           />
         </div>
         <div>
@@ -37,7 +37,7 @@ export default function LoginPage() {
             name="password"
             type="password"
             required
-            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
+            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gunmetal-500"
           />
         </div>
 

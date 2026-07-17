@@ -55,13 +55,13 @@ export function SpotlightForm({ entries }: { entries: Entry[] }) {
               name="firstName"
               placeholder="First name"
               required
-              className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+              className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-gunmetal-500"
             />
             <input
               name="lastName"
               placeholder="Last name"
               required
-              className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+              className="flex-1 text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-gunmetal-500"
             />
           </div>
           <textarea
@@ -69,14 +69,14 @@ export function SpotlightForm({ entries }: { entries: Entry[] }) {
             placeholder="Why are they being showcased?"
             rows={3}
             required
-            className="w-full text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+            className="w-full text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-gunmetal-500"
           />
           {state?.error && <p className="text-xs text-claret-500">{state.error}</p>}
-          {state?.success && <p className="text-xs text-brass-400">{state.success}</p>}
+          {state?.success && <p className="text-xs text-gunmetal-400">{state.success}</p>}
           <button
             type="submit"
             disabled={pending}
-            className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             {pending ? "Adding..." : "Add"}
           </button>

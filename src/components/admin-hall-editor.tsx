@@ -37,7 +37,7 @@ export function AdminHallEditor({
       <select
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
       >
         {HALL_VALUES.map((h) => (
           <option key={h} value={h}>
@@ -49,7 +49,7 @@ export function AdminHallEditor({
         type="button"
         onClick={handleSet}
         disabled={pending}
-        className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-xs bg-gunmetal-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : "Set"}
       </button>

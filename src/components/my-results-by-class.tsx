@@ -42,7 +42,7 @@ export function MyResultsByClass({ results }: { results: Result[] }) {
       <select
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
-        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 mb-3 focus:outline-none focus:border-brass-500"
+        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 mb-3 focus:outline-none focus:border-gunmetal-500"
       >
         <option value="all">All classes ({results.length})</option>
         {classes.map((c) => (
@@ -71,7 +71,7 @@ export function MyResultsByClass({ results }: { results: Result[] }) {
                   {tierLabel(s.finalTier as GradeTier)}
                 </p>
               )}
-              <p className="text-xs text-brass-400">
+              <p className="text-xs text-gunmetal-400">
                 {s.grade} &middot; {s.payout} dollars
               </p>
             </div>

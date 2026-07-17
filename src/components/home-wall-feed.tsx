@@ -19,8 +19,8 @@ export async function HomeWallFeed() {
   return (
     <div className="w-full">
       <div className="flex items-center gap-3 mb-3">
-        <h2 className="font-display text-sm text-brass-400 uppercase tracking-wider">Wall activity</h2>
-        <div className="flex-1 brass-rule" />
+        <h2 className="font-display text-sm text-gunmetal-400 uppercase tracking-wider">Wall activity</h2>
+        <div className="flex-1 gunmetal-rule" />
       </div>
       <div className="space-y-2">
         {activity.map((a) => {

@@ -27,7 +27,7 @@ export async function NewsWidget() {
           <div className="space-y-3">
             {news.map((n) => (
               <Link key={n.id} href={`/t/${n.slug}`} className="block group">
-                <p className="text-sm font-medium text-parchment-100 group-hover:text-brass-400 transition-colors">
+                <p className="text-sm font-medium text-parchment-100 group-hover:text-gunmetal-400 transition-colors">
                   {n.title}
                 </p>
                 <p className="text-[11px] text-ink-400">

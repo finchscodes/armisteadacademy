@@ -30,7 +30,7 @@ export function AcceptedRelationsList({
           <Link
             key={r.id}
             href={`/c/${r.other.slug}`}
-            className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-1 pr-2.5 py-1 hover:border-brass-500/50 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-1 pr-2.5 py-1 hover:border-gunmetal-500/50 transition-colors"
           >
             <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
             <span className="text-ink-400">{r.label}</span>
@@ -46,10 +46,10 @@ export function AcceptedRelationsList({
             <div className="flex items-center gap-2.5">
               <CharacterBadge name={`${r.other.firstName} ${r.other.lastName}`} avatarUrl={r.other.avatarUrl} size="sm" />
               <p className="text-sm">
-                <span className="text-brass-400">{r.label}</span>{" "}
+                <span className="text-gunmetal-400">{r.label}</span>{" "}
                 <Link
                   href={`/c/${r.other.slug}`}
-                  className={`hover:text-brass-400 ${nameColor ? "" : "text-parchment-100"}`}
+                  className={`hover:text-gunmetal-400 ${nameColor ? "" : "text-parchment-100"}`}
                   style={{ color: nameColor }}
                 >
                   {r.other.firstName} {r.other.lastName}

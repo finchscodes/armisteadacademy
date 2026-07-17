@@ -40,7 +40,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-2">
         {board ? (
-          <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-brass-400">
+          <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-gunmetal-400">
             &larr; {board.name}
           </Link>
         ) : (
@@ -48,14 +48,14 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         )}
         {canManage && (
           <div className="flex items-center gap-3">
-            <Link href={`/lesson/${lesson.id}/edit`} className="text-xs text-ink-400 hover:text-brass-400">
+            <Link href={`/lesson/${lesson.id}/edit`} className="text-xs text-ink-400 hover:text-gunmetal-400">
               Edit
             </Link>
             <DeleteLessonButton lessonId={lesson.id} lessonTitle={lesson.title} />
           </div>
         )}
       </div>
-      <h1 className="font-display text-3xl text-brass-400 mb-1">{lesson.title}</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">{lesson.title}</h1>
       <p className="text-xs text-ink-400 mb-4">
         Reward: up to {lesson.reward} dollars &middot; Grader earns {lesson.graderFee}
       </p>
@@ -65,8 +65,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       </div>
 
       {lesson.requirements && (
-        <div className="bg-ink-900 border border-brass-500/30 rounded-lg p-5 mb-8">
-          <h2 className="font-display text-sm uppercase tracking-wider text-brass-400 mb-2">
+        <div className="bg-ink-900 border border-gunmetal-500/30 rounded-lg p-5 mb-8">
+          <h2 className="font-display text-sm uppercase tracking-wider text-gunmetal-400 mb-2">
             Requirements
           </h2>
           <div className="leading-relaxed">
@@ -95,8 +95,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
                 type="submit"
                 className={
                   canManage
-                    ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
-                    : "text-sm bg-brass-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+                    ? "text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
+                    : "text-sm bg-gunmetal-500 text-ink-950 px-5 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
                 }
               >
                 Enroll
@@ -113,7 +113,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             </p>
             {mySubmission.status === "graded" ? (
               <div className="border-t border-ink-700 pt-3 text-sm space-y-3">
-                <p className="text-brass-400 font-medium">
+                <p className="text-gunmetal-400 font-medium">
                   Grade: {mySubmission.finalTier && tierLabel(mySubmission.finalTier)} &middot; +
                   {mySubmission.payout} dollars
                 </p>
@@ -145,7 +145,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         {eligibleToGrade ? (
           <Link
             href={`/lesson/${lesson.id}/grade`}
-            className="inline-block text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+            className="inline-block text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
           >
             Open the grading queue
           </Link>

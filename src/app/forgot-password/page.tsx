@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
               name="email"
               type="email"
               required
-              className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
+              className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gunmetal-500"
             />
           </div>
 

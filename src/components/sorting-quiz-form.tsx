@@ -26,7 +26,7 @@ export function SortingQuizForm({
             {q.answers.map((a) => (
               <label
                 key={a.id}
-                className="flex items-center gap-2 text-sm text-ink-200 border border-ink-600 rounded-md px-3 py-2 cursor-pointer hover:border-brass-500/50"
+                className="flex items-center gap-2 text-sm text-ink-200 border border-ink-600 rounded-md px-3 py-2 cursor-pointer hover:border-gunmetal-500/50"
               >
                 <input type="radio" name={`quiz_q${q.id}`} value={a.id} required />
                 {a.answerText}
@@ -41,7 +41,7 @@ export function SortingQuizForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-full bg-brass-500 text-ink-950 rounded-md py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="w-full bg-gunmetal-500 text-ink-950 rounded-md py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Sorting..." : "Get sorted"}
       </button>

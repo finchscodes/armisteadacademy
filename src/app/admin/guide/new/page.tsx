@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getGuideSections } from "@/actions/guide";
 import { NewGuideSectionForm } from "@/components/new-guide-section-form";
 
 // Forced dynamic — several pages in this app were getting statically
@@ -7,14 +8,17 @@ import { NewGuideSectionForm } from "@/components/new-guide-section-form";
 // Every page renders per-request now; none should ever be prerendered.
 export const dynamic = "force-dynamic";
 
-export default function NewGuideSectionPage() {
+export default async function NewGuideSectionPage() {
+  const sections = await getGuideSections();
+  const topLevel = sections.filter((s) => !s.parentId);
+
   return (
     <div className="max-w-xl">
-      <Link href="/admin/guide" className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href="/admin/guide" className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; Guidebook sections
       </Link>
       <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">Add section</h1>
-      <NewGuideSectionForm />
+      <NewGuideSectionForm parentOptions={topLevel} />
     </div>
   );
 }

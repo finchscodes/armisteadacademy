@@ -66,7 +66,7 @@ export function NotificationBell({ initial }: { initial: NotificationItem[] }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative flex items-center gap-1 text-ink-200 hover:text-brass-400 transition-colors"
+        className="relative flex items-center gap-1 text-ink-200 hover:text-gunmetal-400 transition-colors"
         data-tooltip="Notifications" data-tooltip-side="bottom"
       >
         <BellIcon />
@@ -80,14 +80,14 @@ export function NotificationBell({ initial }: { initial: NotificationItem[] }) {
       {open && (
         <div className="absolute right-0 mt-2 w-80 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 z-30 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-ink-700">
-            <h3 className="font-display text-sm text-brass-400 uppercase tracking-wider">
+            <h3 className="font-display text-sm text-gunmetal-400 uppercase tracking-wider">
               Notifications
             </h3>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
                 disabled={pending}
-                className="text-xs text-ink-400 hover:text-brass-400 transition-colors disabled:opacity-60"
+                className="text-xs text-ink-400 hover:text-gunmetal-400 transition-colors disabled:opacity-60"
               >
                 Mark all as read
               </button>

@@ -30,7 +30,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
               id="firstName"
               name="firstName"
               required
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
           <div>
@@ -41,7 +41,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
               id="middleName"
               name="middleName"
               placeholder="Optional"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
           <div>
@@ -52,7 +52,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
               id="lastName"
               name="lastName"
               required
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
         </div>
@@ -65,7 +65,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
               id="age"
               name="age"
               defaultValue={DEFAULT_AGE}
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             >
               {AGE_OPTIONS.map((a) => (
                 <option key={a} value={a}>
@@ -82,7 +82,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
               id="gender"
               name="gender"
               defaultValue={GENDER_OPTIONS[0]}
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             >
               {GENDER_OPTIONS.map((g) => (
                 <option key={g} value={g}>
@@ -100,7 +100,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
             id="socialStatus"
             name="socialStatus"
             defaultValue={SOCIAL_STATUS_OPTIONS[0]}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           >
             {SOCIAL_STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>
@@ -142,7 +142,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
             {HALL_VALUES.map((h) => (
               <label
                 key={h}
-                className="flex items-start gap-2 text-sm border border-ink-600 rounded-md px-3 py-2 cursor-pointer hover:border-brass-500/50"
+                className="flex items-start gap-2 text-sm border border-ink-600 rounded-md px-3 py-2 cursor-pointer hover:border-gunmetal-500/50"
               >
                 <input type="radio" name="hall" value={h} defaultChecked={h === HALL_VALUES[0]} className="mt-0.5" />
                 <span className="font-medium" style={{ color: HALL_META[h].color }}>
@@ -154,7 +154,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
         ) : (
           <div className="text-sm text-ink-200 bg-ink-900/60 border border-ink-700 rounded-md px-3 py-3">
             You&apos;ll take the sorting quiz right after you enroll. Your hall shows as{" "}
-            <span className="text-brass-400">Pending</span> until then — you can still chat and
+            <span className="text-gunmetal-400">Pending</span> until then — you can still chat and
             explore Armistead in the meantime.
           </div>
         )}
@@ -168,7 +168,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
           id="name"
           name="name"
           required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
         <p className="text-[11px] text-ink-400 mt-1">
           This one you can change later, along with your faceclaim.
@@ -189,7 +189,7 @@ export function NewCharacterForm({ questions }: { questions: Question[] }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full bg-brass-500 text-ink-950 rounded-md py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="w-full bg-gunmetal-500 text-ink-950 rounded-md py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Creating..." : "Create character"}
       </button>

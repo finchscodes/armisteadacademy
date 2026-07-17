@@ -137,7 +137,7 @@ export function WallPostItem({
               {wallOwner && (
                 <>
                   <span className="text-ink-500"> &rarr; </span>
-                  <Link href={`/c/${wallOwner.slug}`} className="hover:text-brass-400 transition-colors">
+                  <Link href={`/c/${wallOwner.slug}`} className="hover:text-gunmetal-400 transition-colors">
                     {wallOwner.name}&apos;s wall
                   </Link>
                 </>
@@ -146,13 +146,13 @@ export function WallPostItem({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-brass-400">Pinned</span>}
+          {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-gunmetal-400">Pinned</span>}
           {isWallOwner && (
             <button
               type="button"
               onClick={handlePin}
               disabled={pending}
-              className="text-ink-400 hover:text-brass-400 disabled:opacity-50"
+              className="text-ink-400 hover:text-gunmetal-400 disabled:opacity-50"
               data-tooltip={post.isPinned ? "Unpin" : "Pin to top"}
             >
               📌
@@ -188,7 +188,7 @@ export function WallPostItem({
         <button
           type="button"
           onClick={() => setShowComments((v) => !v)}
-          className="flex items-center gap-1.5 text-xs font-medium text-parchment-100/70 hover:text-brass-400 transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-parchment-100/70 hover:text-gunmetal-400 transition-colors"
         >
           <ChatBubbleIcon className="w-3.5 h-3.5" />
           {comments.length > 0 ? `Comments (${comments.length})` : "Comment"}
@@ -247,12 +247,12 @@ export function WallPostItem({
                 maxLength={1000}
                 placeholder="Write a comment..."
                 autoComplete="off"
-                className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+                className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
               />
               <button
                 type="submit"
                 disabled={pending || !commentValue.trim()}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
               >
                 Post
               </button>

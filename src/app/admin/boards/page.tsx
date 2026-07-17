@@ -16,7 +16,7 @@ export default async function AdminBoardsPage() {
       <div className="flex items-center justify-end mb-4">
         <Link
           href="/admin/boards/new"
-          className="shrink-0 text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+          className="shrink-0 text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
         >
           + New board
         </Link>

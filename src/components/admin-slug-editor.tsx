@@ -37,13 +37,13 @@ export function AdminSlugEditor({
       <input
         value={value}
         onChange={(e) => setValue(e.target.value.toLowerCase())}
-        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 flex-1 min-w-0 focus:outline-none focus:border-brass-500"
+        className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 flex-1 min-w-0 focus:outline-none focus:border-gunmetal-500"
       />
       <button
         type="button"
         onClick={handleSet}
         disabled={pending}
-        className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
+        className="text-xs bg-gunmetal-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60 shrink-0"
       >
         {pending ? "..." : "Set"}
       </button>

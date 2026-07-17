@@ -19,7 +19,7 @@ export function GradeForm({ submissionId }: { submissionId: number }) {
           name="tier"
           required
           defaultValue="good"
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
         >
           {GRADE_TIER_VALUES.map((t) => (
             <option key={t} value={t}>
@@ -32,13 +32,13 @@ export function GradeForm({ submissionId }: { submissionId: number }) {
         name="feedback"
         placeholder="Feedback (optional)"
         rows={3}
-        className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+        className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
       />
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="text-sm bg-brass-500 text-ink-950 px-4 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Submitting grade..." : "Submit grade"}
       </button>

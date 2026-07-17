@@ -73,7 +73,7 @@ export function BoardsDropdown({
     <div ref={ref} className="relative hidden md:block">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="text-sm text-ink-200 hover:text-brass-400 transition-colors flex items-center gap-1"
+        className="text-sm text-ink-200 hover:text-gunmetal-400 transition-colors flex items-center gap-1"
       >
         {label}
         <svg
@@ -93,7 +93,7 @@ export function BoardsDropdown({
         >
           {isSingleColumn ? (
             <div>
-              <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+              <p className="font-display text-xs text-gunmetal-400 mb-1.5 pb-1 border-b border-ink-700">
                 {categories[0].name}
               </p>
               <div className="space-y-0.5">
@@ -105,7 +105,7 @@ export function BoardsDropdown({
                       key={board.id}
                       href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                       onClick={() => setOpen(false)}
-                      className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                      className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                     >
                       {board.name}
                       {KIND_BADGE[board.kind] && (
@@ -128,7 +128,7 @@ export function BoardsDropdown({
                     : null;
                 return (
                   <div key={category.id}>
-                    <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                    <p className="font-display text-xs text-gunmetal-400 mb-1.5 pb-1 border-b border-ink-700">
                       {category.name}
                     </p>
                     <div className="space-y-0.5">
@@ -140,7 +140,7 @@ export function BoardsDropdown({
                             key={board.id}
                             href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                             onClick={() => setOpen(false)}
-                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                           >
                             {board.name}
                             {KIND_BADGE[board.kind] && (
@@ -157,7 +157,7 @@ export function BoardsDropdown({
                           <Link
                             href="/jobs"
                             onClick={() => setOpen(false)}
-                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                           >
                             Job List
                             <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
@@ -167,7 +167,7 @@ export function BoardsDropdown({
                           <Link
                             href="/reputation"
                             onClick={() => setOpen(false)}
-                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                            className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                           >
                             Reputation
                             <span className="kind-badge ml-1 text-[8px] uppercase tracking-wider text-ink-400">
@@ -182,7 +182,7 @@ export function BoardsDropdown({
                         no gap, just a label acting as a natural divider between them. */}
                     {communications && (
                       <>
-                        <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700 mt-3">
+                        <p className="font-display text-xs text-gunmetal-400 mb-1.5 pb-1 border-b border-ink-700 mt-3">
                           {communications.name}
                         </p>
                         <div className="space-y-0.5">
@@ -191,7 +191,7 @@ export function BoardsDropdown({
                               key={board.id}
                               href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                               onClick={() => setOpen(false)}
-                              className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                              className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                             >
                               {board.name}
                               {KIND_BADGE[board.kind] && (
@@ -213,7 +213,7 @@ export function BoardsDropdown({
                 columns wide. */}
             {shopsCategory && shopColumns.length > 0 && (
               <div style={{ gridColumn: `span ${shopColumns.length}` }}>
-                <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                <p className="font-display text-xs text-gunmetal-400 mb-1.5 pb-1 border-b border-ink-700">
                   {shopsCategory.name}
                 </p>
                 <div
@@ -227,7 +227,7 @@ export function BoardsDropdown({
                           key={board.id}
                           href={`/b/${board.slug}`}
                           onClick={() => setOpen(false)}
-                          className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                          className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                         >
                           {board.name}
                           {KIND_BADGE[board.kind] && (
@@ -245,7 +245,7 @@ export function BoardsDropdown({
 
             {uncategorized.length > 0 && (
               <div>
-                <p className="font-display text-xs text-brass-400 mb-1.5 pb-1 border-b border-ink-700">
+                <p className="font-display text-xs text-gunmetal-400 mb-1.5 pb-1 border-b border-ink-700">
                   Other
                 </p>
                 <div className="space-y-0.5">
@@ -254,7 +254,7 @@ export function BoardsDropdown({
                       key={board.id}
                       href={board.restrictedToHall ? `/hall/${board.restrictedToHall}` : `/b/${board.slug}`}
                       onClick={() => setOpen(false)}
-                      className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-brass-400 transition-colors"
+                      className="block text-xs leading-tight py-0.5 text-parchment-100 hover:text-gunmetal-400 transition-colors"
                     >
                       {board.name}
                     </Link>

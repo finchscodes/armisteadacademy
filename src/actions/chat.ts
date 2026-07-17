@@ -4,9 +4,9 @@ import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { chatMessages, characters, users, xpLedger, ME_COMMAND_LEVEL_REQUIREMENT } from "@/db/schema";
+import { chatMessages, characters, users, ME_COMMAND_LEVEL_REQUIREMENT } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-import { XP_AWARDS, getCharacterXp, levelForXp } from "@/lib/xp";
+import { XP_AWARDS, getCharacterXp, levelForXp, awardXp } from "@/lib/xp";
 import { getPrimaryJobsForCharacters, characterHasAnyJob } from "@/lib/character-jobs";
 import { CHAT_MODERATOR_JOBS } from "@/lib/roles";
 
@@ -54,7 +54,7 @@ export async function sendChatMessageAction(formData: FormData): Promise<SendCha
   });
 
   // Chatting counts toward the same "talking in chat" XP as posting in a thread.
-  await db.insert(xpLedger).values({
+  await awardXp({
     characterId,
     amount: XP_AWARDS.chat_post,
     reason: "chat_post",

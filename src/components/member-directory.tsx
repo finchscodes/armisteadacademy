@@ -71,7 +71,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name..."
             autoComplete="off"
-            className="w-48 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-48 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
         <div className="w-40">
@@ -121,7 +121,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
               setYearFilter(ALL);
               setAgeFilter(ALL);
             }}
-            className="text-xs text-ink-400 hover:text-brass-400 transition-colors pb-2.5"
+            className="text-xs text-ink-400 hover:text-gunmetal-400 transition-colors pb-2.5"
           >
             Clear filters
           </button>

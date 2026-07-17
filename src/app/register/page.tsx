@@ -20,7 +20,7 @@ export default function RegisterPage() {
             name="email"
             type="email"
             required
-            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
+            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gunmetal-500"
           />
           <p className="text-xs text-parchment-ink/60 mt-1">
             This is your account login — your character will have its own display name.
@@ -36,7 +36,7 @@ export default function RegisterPage() {
             type="password"
             required
             minLength={8}
-            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brass-500"
+            className="w-full rounded-md border border-parchment-ink/20 bg-white/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gunmetal-500"
           />
         </div>
 

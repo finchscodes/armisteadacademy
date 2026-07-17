@@ -99,7 +99,7 @@ export function AdminJobEditor({
               className="inline-flex items-center gap-1.5 text-xs bg-ink-800 border border-ink-600 rounded-full pl-2.5 pr-1 py-1"
             >
               {jobLabel(j.job as never)}
-              {j.scopeBoardName && <span className="text-brass-400">&middot; {j.scopeBoardName}</span>}
+              {j.scopeBoardName && <span className="text-gunmetal-400">&middot; {j.scopeBoardName}</span>}
               {j.jobTitle && <span className="text-ink-400">&middot; {j.jobTitle}</span>}
               {j.isHidden && <span className="text-claret-500">&middot; hidden</span>}
               <button
@@ -120,7 +120,7 @@ export function AdminJobEditor({
         <select
           value={job}
           onChange={(e) => handleJobChange(e.target.value)}
-          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
         >
           {ACTIVE_JOB_VALUES.filter((j) => j !== "none").map((j) => (
             <option key={j} value={j}>
@@ -132,7 +132,7 @@ export function AdminJobEditor({
           <select
             value={scopeBoardId}
             onChange={(e) => handleScopeChange(e.target.value)}
-            className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+            className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
           >
             <option value="">
               {scopeRule.hallOnly ? "Which hall?" : scopeRule.boardKind === "class" ? "Which class?" : "Which board?"}
@@ -151,13 +151,13 @@ export function AdminJobEditor({
             setTitleTouched(true);
           }}
           placeholder="Custom title (optional)"
-          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500 w-40"
+          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500 w-40"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={pending || (!!scopeRule && !scopeBoardId)}
-          className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-gunmetal-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
         >
           {pending ? "..." : "Add job"}
         </button>

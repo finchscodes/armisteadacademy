@@ -37,7 +37,7 @@ export function AdminChatTimeoutStatus({
         type="button"
         onClick={handleReset}
         disabled={pending}
-        className="text-[11px] bg-ink-800 border border-ink-600 text-parchment-100 px-2 py-0.5 rounded hover:border-brass-500/50 transition-colors disabled:opacity-60"
+        className="text-[11px] bg-ink-800 border border-ink-600 text-parchment-100 px-2 py-0.5 rounded hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : "Reset"}
       </button>

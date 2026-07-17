@@ -29,7 +29,7 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="max-w-xl mx-auto">
-      <h1 className="font-display text-3xl text-brass-400 mb-6">Edit lesson</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-6">Edit lesson</h1>
       <EditLessonForm
         lessonId={lesson.id}
         title={lesson.title}

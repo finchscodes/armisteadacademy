@@ -34,7 +34,7 @@ export function BackstoryApprovalButton({
       className={`text-xs px-3 py-1.5 rounded-md border transition-colors disabled:opacity-60 ${
         isApproved
           ? "border-ink-600 text-ink-400 hover:border-claret-500/50 hover:text-claret-500"
-          : "border-brass-500/50 text-brass-400 hover:bg-brass-500/10"
+          : "border-gunmetal-500/50 text-gunmetal-400 hover:bg-gunmetal-500/10"
       }`}
     >
       {pending ? "..." : isApproved ? "Unapprove" : "Approve transcript"}

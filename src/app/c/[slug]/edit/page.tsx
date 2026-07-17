@@ -28,7 +28,7 @@ export default async function EditCharacterPage({
 
   return (
     <div className="max-w-xl mx-auto">
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Edit character</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Edit character</h1>
       <p className="text-ink-400 text-sm mb-6">
         Code name, faceclaim, major, and bio can all be changed here.
       </p>

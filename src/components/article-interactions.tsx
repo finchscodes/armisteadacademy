@@ -125,12 +125,12 @@ export function ArticleInteractions({
               maxLength={1000}
               placeholder="Write a comment..."
               autoComplete="off"
-              className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
             <button
               type="submit"
               disabled={pending || !commentValue.trim()}
-              className="text-xs bg-brass-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
+              className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60 shrink-0"
             >
               Post
             </button>

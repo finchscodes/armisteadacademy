@@ -6,8 +6,8 @@ export async function GameTimeWidget() {
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex items-center gap-3">
-      <div className="shrink-0 w-11 h-11 rounded-full bg-brass-500/15 border border-brass-500/30 flex items-center justify-center">
-        <CalendarIcon className="w-5 h-5 text-brass-400" />
+      <div className="shrink-0 w-11 h-11 rounded-full bg-gunmetal-500/15 border border-gunmetal-500/30 flex items-center justify-center">
+        <CalendarIcon className="w-5 h-5 text-gunmetal-400" />
       </div>
       <div className="min-w-0">
         <p className="font-display text-base text-parchment-100 leading-tight truncate">

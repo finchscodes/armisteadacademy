@@ -32,11 +32,11 @@ export default async function AdminGradingPage() {
             <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-3">
               <div className="min-w-0">
                 <p className="text-sm text-parchment-100">
-                  <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                  <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
                     {s.characterFirstName} {s.characterLastName}
                   </Link>
                   <span className="text-ink-400"> &middot; </span>
-                  <Link href={`/lesson/${s.lessonId}`} className="text-brass-400 hover:underline">
+                  <Link href={`/lesson/${s.lessonId}`} className="text-gunmetal-400 hover:underline">
                     {s.lessonTitle}
                   </Link>
                 </p>

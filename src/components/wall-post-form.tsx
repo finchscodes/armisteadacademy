@@ -15,7 +15,7 @@ export function WallPostForm({ wallCharacterId }: { wallCharacterId: number }) {
       <button
         type="submit"
         disabled={pending}
-        className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Posting..." : "Post"}
       </button>

@@ -29,7 +29,7 @@ export function GameTimeControls({ date, isPaused }: { date: GameDate; isPaused:
     <div className="space-y-6">
       <div className="bg-ink-900 border border-ink-700 rounded-lg p-6 text-center">
         <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Currently</p>
-        <p className="font-display text-2xl text-brass-400">
+        <p className="font-display text-2xl text-gunmetal-400">
           Year {date.year} &middot; {date.quarter[0].toUpperCase() + date.quarter.slice(1)} &middot; Week {date.week}
         </p>
         <p className="text-sm text-ink-300 mt-1">{date.dayName}</p>
@@ -40,7 +40,7 @@ export function GameTimeControls({ date, isPaused }: { date: GameDate; isPaused:
         type="button"
         onClick={handleTogglePause}
         disabled={pending}
-        className="w-full text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2.5 rounded-md hover:border-brass-500/50 transition-colors disabled:opacity-60"
+        className="w-full text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2.5 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : isPaused ? "Resume time progression" : "Pause time progression"}
       </button>
@@ -64,7 +64,7 @@ export function GameTimeControls({ date, isPaused }: { date: GameDate; isPaused:
                 min={1}
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+                className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
               />
             </div>
             <div>
@@ -105,7 +105,7 @@ export function GameTimeControls({ date, isPaused }: { date: GameDate; isPaused:
           <button
             type="submit"
             disabled={setPending}
-            className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             {setPending ? "Saving..." : "Set time"}
           </button>

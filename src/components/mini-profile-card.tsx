@@ -32,12 +32,12 @@ export function MiniProfileCard({
         <img
           src={profile.avatarUrl ?? undefined}
           alt={`${profile.firstName} ${profile.lastName}`}
-          className="w-20 h-20 rounded-md object-cover border border-brass-500/50 bg-ink-800"
+          className="w-20 h-20 rounded-md object-cover border border-gunmetal-500/50 bg-ink-800"
           style={{ display: profile.avatarUrl ? "block" : "none" }}
         />
         {!profile.avatarUrl && (
           <div
-            className="w-20 h-20 rounded-md border border-brass-500/50 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center"
+            className="w-20 h-20 rounded-md border border-gunmetal-500/50 bg-gradient-to-br from-claret-600 to-claret-500 flex items-center justify-center"
             style={{ color: profile.nameColor ?? undefined }}
           >
             <span className="font-display text-2xl text-parchment-100">{profile.firstName.charAt(0)}</span>

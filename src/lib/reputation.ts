@@ -1,9 +1,10 @@
-import { eq, sum, inArray } from "drizzle-orm";
+import { eq, sum, inArray, and } from "drizzle-orm";
 import { db } from "@/db";
 import { reputationLedger, characters } from "@/db/schema";
 import type { Hall } from "@/lib/halls";
 import { MAJOR_VALUES } from "@/lib/majors";
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
+import { getCurrentGameDate } from "@/lib/game-time";
 
 /** Reputation awarded per action. Adjust freely — nothing else depends on the exact numbers. */
 export const REPUTATION_AWARDS = {
@@ -34,6 +35,7 @@ export async function awardReputation(
   relatedSubmissionId?: number,
   relatedPostId?: number
 ) {
+  const date = await getCurrentGameDate();
   await db.insert(reputationLedger).values({
     characterId,
     amount,
@@ -41,9 +43,11 @@ export async function awardReputation(
     note,
     relatedSubmissionId,
     relatedPostId,
+    gameYear: date.year,
   });
 }
 
+/** Lifetime total — never resets, shown on a character's profile as "reputation earned." */
 export async function getCharacterReputation(characterId: number): Promise<number> {
   const [row] = await db
     .select({ total: sum(reputationLedger.amount) })
@@ -52,7 +56,17 @@ export async function getCharacterReputation(characterId: number): Promise<numbe
   return Number(row?.total ?? 0);
 }
 
-/** Total reputation for every character in a hall, summed. */
+/** This in-game year only — shown on a character's profile as "reputation earned this year." */
+export async function getCharacterReputationThisYear(characterId: number): Promise<number> {
+  const date = await getCurrentGameDate();
+  const [row] = await db
+    .select({ total: sum(reputationLedger.amount) })
+    .from(reputationLedger)
+    .where(and(eq(reputationLedger.characterId, characterId), eq(reputationLedger.gameYear, date.year)));
+  return Number(row?.total ?? 0);
+}
+
+/** Total reputation for every character in a hall, summed — current in-game year only (this is the number that "resets"). */
 export async function getHallTotalReputation(hall: Hall): Promise<number> {
   const hallCharacters = await db
     .select({ id: characters.id })
@@ -60,15 +74,16 @@ export async function getHallTotalReputation(hall: Hall): Promise<number> {
     .where(eq(characters.hall, hall));
   if (hallCharacters.length === 0) return 0;
 
+  const date = await getCurrentGameDate();
   const ids = hallCharacters.map((c) => c.id);
   const [row] = await db
     .select({ total: sum(reputationLedger.amount) })
     .from(reputationLedger)
-    .where(inArray(reputationLedger.characterId, ids));
+    .where(and(inArray(reputationLedger.characterId, ids), eq(reputationLedger.gameYear, date.year)));
   return Number(row?.total ?? 0);
 }
 
-/** Top N reputation earners within a hall. */
+/** Top N reputation earners within a hall — current in-game year only (this is the number that "resets"). */
 export async function getHallLeaderboard(hall: Hall, limit = 25) {
   const hallCharacters = await db
     .select({
@@ -83,11 +98,12 @@ export async function getHallLeaderboard(hall: Hall, limit = 25) {
     .where(eq(characters.hall, hall));
   if (hallCharacters.length === 0) return [];
 
+  const date = await getCurrentGameDate();
   const ids = hallCharacters.map((c) => c.id);
   const totals = await db
     .select({ characterId: reputationLedger.characterId, total: sum(reputationLedger.amount) })
     .from(reputationLedger)
-    .where(inArray(reputationLedger.characterId, ids))
+    .where(and(inArray(reputationLedger.characterId, ids), eq(reputationLedger.gameYear, date.year)))
     .groupBy(reputationLedger.characterId);
   const totalByCharacter = new Map(totals.map((t) => [t.characterId, Number(t.total ?? 0)]));
   const jobsByCharacter = await getPrimaryJobsForCharacters(ids);

@@ -12,6 +12,7 @@ export function EditBoardForm({
   isClass = false,
   restrictedYearMin,
   restrictedYearMax,
+  clearance,
 }: {
   boardId: number;
   name: string;
@@ -20,6 +21,7 @@ export function EditBoardForm({
   isClass?: boolean;
   restrictedYearMin?: number | null;
   restrictedYearMax?: number | null;
+  clearance?: string | null;
 }) {
   const [state, formAction, pending] = useActionState(adminUpdateBoardAction, undefined);
 
@@ -36,7 +38,7 @@ export function EditBoardForm({
           name="name"
           defaultValue={name}
           required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -53,7 +55,7 @@ export function EditBoardForm({
               min={1}
               defaultValue={restrictedYearMin ?? ""}
               placeholder="e.g. 3 for 3rd year and up"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
           <div>
@@ -67,11 +69,25 @@ export function EditBoardForm({
               min={1}
               defaultValue={restrictedYearMax ?? ""}
               placeholder="e.g. 1 for 1st years only"
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
         </div>
       )}
+
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="clearance">
+          Clearance (optional, flavor text)
+        </label>
+        <input
+          id="clearance"
+          name="clearance"
+          defaultValue={clearance ?? ""}
+          placeholder="e.g. Level 3 Clearance Required"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+        />
+        <p className="text-[11px] text-ink-400 mt-1">Purely decorative — nothing enforces this.</p>
+      </div>
 
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="description">
@@ -83,19 +99,19 @@ export function EditBoardForm({
           defaultValue={description ?? ""}
           rows={4}
           placeholder="Shown at the top of the board page. Leave blank for none."
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
       <FaceclaimUpload name="imageUrl" initialUrl={imageUrl} label="Board image" wide />
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
-      {state?.success && <p className="text-brass-400 text-sm">{state.success}</p>}
+      {state?.success && <p className="text-gunmetal-400 text-sm">{state.success}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Saving..." : "Save changes"}
       </button>

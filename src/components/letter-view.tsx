@@ -85,7 +85,7 @@ export function LetterView({
             name="letterTo"
             defaultValue={letterTo ?? ""}
             placeholder="e.g. recipient's name"
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 font-display"
           />
         </div>
         <div>
@@ -101,7 +101,7 @@ export function LetterView({
             name="letterFrom"
             defaultValue={letterFrom ?? ""}
             placeholder="e.g. your name"
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500 font-display"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500 font-display"
           />
         </div>
         {error && <p className="text-claret-500 text-sm">{error}</p>}
@@ -109,7 +109,7 @@ export function LetterView({
           <button
             type="submit"
             disabled={pending}
-            className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             {pending ? "Saving..." : "Save"}
           </button>
@@ -164,7 +164,7 @@ export function LetterView({
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors"
+            className="text-[11px] text-ink-400 hover:text-gunmetal-400 transition-colors"
           >
             Edit
           </button>

@@ -25,7 +25,7 @@ export function RollModifierInput({ name = "rollModifier" }: { name?: string }) 
         value={value}
         step={1}
         onChange={(e) => setValue(e.target.value === "" ? 0 : Number(e.target.value))}
-        className={`w-full rounded-md border border-ink-600 bg-ink-800 py-2 text-sm focus:outline-none focus:border-brass-500 ${
+        className={`w-full rounded-md border border-ink-600 bg-ink-800 py-2 text-sm focus:outline-none focus:border-gunmetal-500 ${
           value > 0 ? "pl-6 pr-2" : "px-3"
         }`}
       />

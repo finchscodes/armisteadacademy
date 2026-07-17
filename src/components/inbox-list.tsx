@@ -72,7 +72,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <Link
           href="/messages/new"
-          className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+          className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
         >
           + New Message
         </Link>
@@ -80,7 +80,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search messages..."
-          className="text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brass-500"
+          className="text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -102,7 +102,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
           type="button"
           onClick={() => runBulk("read")}
           disabled={pending || selected.size === 0}
-          className="text-xs text-ink-400 hover:text-brass-400 disabled:opacity-40 transition-colors"
+          className="text-xs text-ink-400 hover:text-gunmetal-400 disabled:opacity-40 transition-colors"
         >
           Mark read
         </button>
@@ -110,7 +110,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
           type="button"
           onClick={() => runBulk("unread")}
           disabled={pending || selected.size === 0}
-          className="text-xs text-ink-400 hover:text-brass-400 disabled:opacity-40 transition-colors"
+          className="text-xs text-ink-400 hover:text-gunmetal-400 disabled:opacity-40 transition-colors"
         >
           Mark unread
         </button>
@@ -135,7 +135,7 @@ export function InboxList({ threads, myCharacterId }: { threads: Thread[]; myCha
                       {names}
                     </p>
                     <p className="text-xs text-ink-400 truncate">
-                      <span className={t.isRead ? "" : "text-brass-400 font-medium"}>{t.subject}</span>
+                      <span className={t.isRead ? "" : "text-gunmetal-400 font-medium"}>{t.subject}</span>
                       {t.lastMessage && <> &mdash; {stripHtml(t.lastMessage.content).slice(0, 80)}</>}
                     </p>
                   </div>

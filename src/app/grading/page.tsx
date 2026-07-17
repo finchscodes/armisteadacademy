@@ -30,7 +30,7 @@ export default async function GradingBinPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-10">
       <div>
-        <h1 className="font-display text-3xl text-brass-400 mb-1">Grading</h1>
+        <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Grading</h1>
         <p className="text-xs text-ink-400">
           Grades on your own homework, and — once you reach level{" "}
           {GRADING_LEVEL_REQUIREMENT}+ — a queue of everyone else&apos;s open submissions waiting
@@ -55,19 +55,19 @@ export default async function GradingBinPage() {
                     <p className="text-xs text-ink-400">
                       by{" "}
                       <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
-                        <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                        <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
                           {s.characterName}
                         </Link>
                       </CharacterHoverCard>
                     </p>
                     <Link
                       href={`/b/${s.boardSlug}`}
-                      className="text-[10px] uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-2 py-0.5 hover:border-brass-500/50"
+                      className="text-[10px] uppercase tracking-wider text-ink-400 border border-ink-600 rounded px-2 py-0.5 hover:border-gunmetal-500/50"
                     >
                       {s.boardName}
                     </Link>
                   </div>
-                  <p className="text-xs text-brass-400 mb-2">{s.lessonTitle}</p>
+                  <p className="text-xs text-gunmetal-400 mb-2">{s.lessonTitle}</p>
                   <p className="whitespace-pre-wrap text-sm text-parchment-100/90">{s.content}</p>
                   <GradeForm submissionId={s.id} />
                 </div>

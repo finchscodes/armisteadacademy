@@ -23,7 +23,7 @@ export function DraggableGuideSectionList({ sections }: { sections: Section[] })
       renderItem={(section) => (
         <>
           <span className="flex-1 text-parchment-100">{section.title}</span>
-          <Link href={`/admin/guide/${section.id}/edit`} className="text-xs text-brass-400 hover:underline">
+          <Link href={`/admin/guide/${section.id}/edit`} className="text-xs text-gunmetal-400 hover:underline">
             Edit
           </Link>
           <DeleteGuideSectionButton sectionId={section.id} sectionTitle={section.title} />

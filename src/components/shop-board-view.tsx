@@ -24,7 +24,7 @@ export async function ShopBoardView({
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-1">
-        <h1 className="font-display text-3xl text-brass-400">{boardName}</h1>
+        <h1 className="font-display text-3xl text-gunmetal-400">{boardName}</h1>
         {balance !== null && (
           <p className="text-sm text-ink-400">
             You have <span className="text-parchment-100 font-medium">{balance}</span> dollars

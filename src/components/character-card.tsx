@@ -48,7 +48,7 @@ export async function CharacterCard({
         <p className="text-xs text-ink-400">{yearLabel}</p>
       </div>
       <div className="text-right shrink-0 space-y-1">
-        <p className="text-sm text-brass-400">{balance} dollars</p>
+        <p className="text-sm text-gunmetal-400">{balance} dollars</p>
         <p className="text-xs text-ink-400">
           Level {levelProgress.level} &middot; {levelProgress.xpIntoLevel}/
           {levelProgress.nextLevelFloor - levelProgress.currentLevelFloor} xp

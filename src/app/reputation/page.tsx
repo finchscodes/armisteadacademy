@@ -19,7 +19,7 @@ export default async function ReputationPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Reputation</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Reputation</h1>
       <p className="text-ink-400 text-sm mb-6">
         Earned by grading, posting in topics, and submitting homework. Feeds straight into your
         hall&apos;s total below.
@@ -54,7 +54,7 @@ export default async function ReputationPage() {
                         {c.firstName} {c.lastName}
                       </Link>
                     </CharacterHoverCard>
-                    <span className="text-xs font-mono text-brass-400 shrink-0 pt-0.5">{c.reputation}</span>
+                    <span className="text-xs font-mono text-gunmetal-400 shrink-0 pt-0.5">{c.reputation}</span>
                   </div>
                 ))
               )}

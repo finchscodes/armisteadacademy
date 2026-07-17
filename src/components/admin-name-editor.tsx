@@ -33,30 +33,30 @@ export function AdminNameEditor({
         defaultValue={firstName}
         required
         placeholder="First"
-        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
       />
       <input
         name="middleName"
         defaultValue={middleName ?? ""}
         placeholder="Middle"
-        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
       />
       <input
         name="lastName"
         defaultValue={lastName}
         required
         placeholder="Last"
-        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-brass-500"
+        className="w-24 text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1 focus:outline-none focus:border-gunmetal-500"
       />
       <button
         type="submit"
         disabled={pending}
-        className="text-xs bg-brass-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="text-xs bg-gunmetal-500 text-ink-950 px-2 py-1 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : "Save name"}
       </button>
       {state?.error && <span className="text-xs text-claret-500">{state.error}</span>}
-      {state?.success && <span className="text-xs text-brass-400">{state.success}</span>}
+      {state?.success && <span className="text-xs text-gunmetal-400">{state.success}</span>}
     </form>
   );
 }

@@ -40,10 +40,10 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
     const allSubmissions = await getAllSubmissionsForLesson(lesson.id);
     return (
       <div className="max-w-2xl mx-auto">
-        <Link href={`/lesson/${lesson.id}`} className="text-sm text-ink-400 hover:text-brass-400">
+        <Link href={`/lesson/${lesson.id}`} className="text-sm text-ink-400 hover:text-gunmetal-400">
           &larr; {lesson.title}
         </Link>
-        <h1 className="font-display text-3xl text-brass-400 mt-2 mb-1">Instructor grading</h1>
+        <h1 className="font-display text-3xl text-gunmetal-400 mt-2 mb-1">Instructor grading</h1>
         <p className="text-xs text-ink-400 mb-6">
           As an instructor for this class, your grade finalizes a submission immediately — no need to
           wait on other graders. You can change it again any time.
@@ -59,13 +59,13 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
                   <p className="text-xs text-ink-400">
                     by{" "}
                     <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
-                      <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                      <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
                         {s.characterName}
                       </Link>
                     </CharacterHoverCard>
                   </p>
                   {s.status === "graded" && s.finalTier && (
-                    <span className="text-xs text-brass-400">Current: {tierLabel(s.finalTier as GradeTier)}</span>
+                    <span className="text-xs text-gunmetal-400">Current: {tierLabel(s.finalTier as GradeTier)}</span>
                   )}
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-parchment-100/90">{s.content}</p>
@@ -84,10 +84,10 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Link href={`/lesson/${lesson.id}`} className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href={`/lesson/${lesson.id}`} className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; {lesson.title}
       </Link>
-      <h1 className="font-display text-3xl text-brass-400 mt-2 mb-1">Grading queue</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mt-2 mb-1">Grading queue</h1>
       <p className="text-xs text-ink-400 mb-6">
         Reach level {GRADING_LEVEL_REQUIREMENT}+ and grade honestly — four independent graders
         review each submission, and the final grade is their consensus.
@@ -104,7 +104,7 @@ export default async function GradingQueuePage({ params }: { params: Promise<{ i
               <p className="text-xs text-ink-400 mb-2">
                 by{" "}
                 <CharacterHoverCard characterId={s.characterId} slug={s.characterSlug} className="relative inline">
-                  <Link href={`/c/${s.characterSlug}`} className="hover:text-brass-400">
+                  <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
                     {s.characterName}
                   </Link>
                 </CharacterHoverCard>

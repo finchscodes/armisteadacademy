@@ -50,7 +50,7 @@ export default async function AdminUserDetailPage({
   if (!access.isFullAdmin) {
     return (
       <div className="max-w-xl mx-auto">
-        <Link href="/admin/users" className="text-sm text-ink-400 hover:text-brass-400">
+        <Link href="/admin/users" className="text-sm text-ink-400 hover:text-gunmetal-400">
           &larr; All users
         </Link>
         <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">{user.email}</h1>
@@ -77,7 +77,7 @@ export default async function AdminUserDetailPage({
 
   return (
     <div className="max-w-xl mx-auto">
-      <Link href="/admin/users" className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href="/admin/users" className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; All users
       </Link>
       <div className="flex items-center justify-between mt-2 mb-6">
@@ -115,7 +115,7 @@ export default async function AdminUserDetailPage({
             {characters.map((c) => (
               <div key={c.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-brass-400">
+                  <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-gunmetal-400">
                     {c.firstName} {c.lastName}
                   </Link>
                   <DeleteCharacterButton characterId={c.id} userId={user.id} characterName={c.name} />

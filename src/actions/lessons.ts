@@ -11,14 +11,13 @@ import {
   submissions,
   submissionGrades,
   currencyLedger,
-  xpLedger,
   reputationLedger,
   classEnrollments,
   GRADING_LEVEL_REQUIREMENT,
   REQUIRED_GRADERS,
 } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-import { canGradeHomework, XP_AWARDS } from "@/lib/xp";
+import { canGradeHomework, XP_AWARDS, awardXp } from "@/lib/xp";
 import { awardReputation, REPUTATION_AWARDS, GRADE_TIER_REPUTATION } from "@/lib/reputation";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { isEnrolledInClass } from "@/lib/class-enrollments";
@@ -266,7 +265,7 @@ export async function submitHomeworkAction(
     content,
   });
 
-  await db.insert(xpLedger).values({
+  await awardXp({
     characterId,
     amount: XP_AWARDS.homework_submission,
     reason: "homework_submission",
@@ -351,7 +350,7 @@ export async function gradeSubmissionAction(
     relatedSubmissionId: submissionId,
     note: `Graded a submission for "${lesson.title}"`,
   });
-  await db.insert(xpLedger).values({
+  await awardXp({
     characterId,
     amount: XP_AWARDS.grading,
     reason: "grading",
@@ -471,7 +470,7 @@ export async function instructorGradeSubmissionAction(
       relatedSubmissionId: submissionId,
       note: `Graded a submission for "${lesson.title}"`,
     });
-    await db.insert(xpLedger).values({
+    await awardXp({
       characterId,
       amount: XP_AWARDS.grading,
       reason: "grading",

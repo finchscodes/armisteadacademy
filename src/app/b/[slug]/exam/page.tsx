@@ -52,7 +52,7 @@ export default async function TakeExamPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="max-w-xl mx-auto">
-      <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; {board.name}
       </Link>
       <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-1">

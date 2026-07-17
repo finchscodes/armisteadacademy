@@ -50,12 +50,12 @@ export function BankActions({
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
             placeholder="Amount"
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
           <button
             type="submit"
             disabled={depositPending || walletBalance <= 0}
-            className="shrink-0 text-xs bg-brass-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="shrink-0 text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             Deposit
           </button>
@@ -64,7 +64,7 @@ export function BankActions({
           type="button"
           onClick={depositAll}
           disabled={depositPending || walletBalance <= 0}
-          className="text-xs text-brass-400 hover:underline disabled:opacity-50 disabled:no-underline"
+          className="text-xs text-gunmetal-400 hover:underline disabled:opacity-50 disabled:no-underline"
         >
           Deposit all ({walletBalance})
         </button>
@@ -88,12 +88,12 @@ export function BankActions({
             value={withdrawAmount}
             onChange={(e) => setWithdrawAmount(e.target.value)}
             placeholder="Amount"
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           />
           <button
             type="submit"
             disabled={withdrawPending || bankBalance <= 0}
-            className="shrink-0 text-xs bg-brass-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="shrink-0 text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             Withdraw
           </button>
@@ -102,7 +102,7 @@ export function BankActions({
           type="button"
           onClick={withdrawAll}
           disabled={withdrawPending || bankBalance <= 0}
-          className="text-xs text-brass-400 hover:underline disabled:opacity-50 disabled:no-underline"
+          className="text-xs text-gunmetal-400 hover:underline disabled:opacity-50 disabled:no-underline"
         >
           Withdraw all ({bankBalance})
         </button>

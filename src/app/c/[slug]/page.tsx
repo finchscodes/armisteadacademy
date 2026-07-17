@@ -19,6 +19,7 @@ import {
 import { getWallPosts, getLikesForWallPosts, getCommentsForWallPosts } from "@/lib/wall";
 import { getArsenal } from "@/lib/shops";
 import { ArsenalTab } from "@/components/arsenal-tab";
+import { getCharacterReputation, getCharacterReputationThisYear } from "@/lib/reputation";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
 import { WallFeed } from "@/components/wall-feed";
@@ -67,19 +68,33 @@ export default async function CharacterProfilePage({
   const character = await getCharacterBySlug(slug);
   if (!character) notFound();
 
-  const [levelProgress, yearLabel, current, jobs, primaryJob, topics, acceptedRelations, statuses, wallPosts, arsenalItems] =
-    await Promise.all([
-      getCharacterLevelProgress(character.id),
-      getCharacterYearLabel(character.id, character.major, character.yearOverride),
-      getCurrentUser(),
-      getJobsForCharacter(character.id),
-      getPrimaryJob(character.id),
-      getParticipatedThreads(character.id),
-      getAcceptedRelations(character.id),
-      getStatusesForCharacter(character.id),
-      getWallPosts(character.id),
-      getArsenal(character.id),
-    ]);
+  const [
+    levelProgress,
+    yearLabel,
+    current,
+    jobs,
+    primaryJob,
+    topics,
+    acceptedRelations,
+    statuses,
+    wallPosts,
+    arsenalItems,
+    totalReputation,
+    reputationThisYear,
+  ] = await Promise.all([
+    getCharacterLevelProgress(character.id),
+    getCharacterYearLabel(character.id, character.major, character.yearOverride),
+    getCurrentUser(),
+    getJobsForCharacter(character.id),
+    getPrimaryJob(character.id),
+    getParticipatedThreads(character.id),
+    getAcceptedRelations(character.id),
+    getStatusesForCharacter(character.id),
+    getWallPosts(character.id),
+    getArsenal(character.id),
+    getCharacterReputation(character.id),
+    getCharacterReputationThisYear(character.id),
+  ]);
 
   const legalName = [character.firstName, character.middleName, character.lastName]
     .filter(Boolean)
@@ -142,7 +157,7 @@ export default async function CharacterProfilePage({
           {isOwner ? (
             <Link
               href={`/c/${character.slug}/edit`}
-              className="text-xs text-brass-400 hover:underline mt-3"
+              className="text-xs text-gunmetal-400 hover:underline mt-3"
             >
               Edit profile
             </Link>
@@ -150,7 +165,7 @@ export default async function CharacterProfilePage({
             current?.activeCharacter && (
               <Link
                 href={`/messages/new?to=${character.id}`}
-                className="text-xs text-brass-400 hover:underline mt-3"
+                className="text-xs text-gunmetal-400 hover:underline mt-3"
               >
                 Send message
               </Link>
@@ -173,12 +188,12 @@ export default async function CharacterProfilePage({
               label="Hall"
               value={
                 <>
-                  <span className="text-brass-400">Pending</span>
+                  <span className="text-gunmetal-400">Pending</span>
                   {isOwner && (
                     <>
                       {" "}
                       &middot;{" "}
-                      <Link href="/sorting-quiz" className="text-brass-400 hover:underline">
+                      <Link href="/sorting-quiz" className="text-gunmetal-400 hover:underline">
                         Take the quiz
                       </Link>
                     </>
@@ -190,6 +205,8 @@ export default async function CharacterProfilePage({
           <InfoRow label="Gender" value={character.gender} />
           <InfoRow label="Status" value={character.socialStatus} />
           <InfoRow label="Level" value={levelProgress.level} />
+          <InfoRow label="Reputation earned" value={totalReputation} />
+          <InfoRow label="Reputation this year" value={reputationThisYear} />
           <InfoRow label="Joined" value={timeAgo(character.createdAt)} />
           <InfoRow
             label="Last seen"
@@ -233,7 +250,7 @@ export default async function CharacterProfilePage({
           ) : (
             <span className="text-xs text-ink-400 italic">Unrated</span>
           )}
-          <span className={`text-xs ${character.backstoryApproved ? "text-brass-400" : "text-ink-400"}`}>
+          <span className={`text-xs ${character.backstoryApproved ? "text-gunmetal-400" : "text-ink-400"}`}>
             {character.backstoryApproved ? "Approved" : "Pending review"}
           </span>
         </div>

@@ -34,11 +34,11 @@ export default async function SocialPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Socials</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Socials</h1>
       <div className="flex items-center justify-end mb-3">
         <Link
           href="/members"
-          className="shrink-0 bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-brass-500/50 hover:text-brass-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider"
+          className="shrink-0 bg-ink-900 border border-ink-700 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 hover:text-gunmetal-400 transition-colors font-ui text-[11px] font-bold uppercase tracking-wider"
         >
           Member List
         </Link>
@@ -70,7 +70,7 @@ export default async function SocialPage() {
             {topics.map((t) => (
               <div
                 key={t.threadId}
-                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
+                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-gunmetal-500/50 transition-colors"
               >
                 <div className="flex items-center gap-2.5 mb-2">
                   <Link href={`/c/${t.characterSlug}`} className="shrink-0">
@@ -88,7 +88,7 @@ export default async function SocialPage() {
                         </Link>
                       </CharacterHoverCard>
                       <span className="text-ink-400"> posted in </span>
-                      <Link href={`/t/${t.threadSlug}`} className="text-brass-400 hover:underline">
+                      <Link href={`/t/${t.threadSlug}`} className="text-gunmetal-400 hover:underline">
                         {t.threadTitle}
                       </Link>
                     </p>
@@ -117,7 +117,7 @@ export default async function SocialPage() {
             {online.map((c) => (
               <div
                 key={c.id}
-                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-brass-500/50 transition-colors"
+                className="bg-ink-900 border border-ink-700 rounded-lg p-4 hover:border-gunmetal-500/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <CharacterHoverCard

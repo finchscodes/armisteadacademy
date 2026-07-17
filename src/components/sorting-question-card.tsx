@@ -77,7 +77,7 @@ export function SortingQuestionCard({ question, index }: { question: Question; i
               className="flex items-center justify-between text-xs bg-ink-800 border border-ink-600 rounded px-3 py-1.5"
             >
               <span className="text-parchment-100">
-                {a.answerText} <span className="text-brass-400">&rarr; {hallLabel(a.hall)}</span>
+                {a.answerText} <span className="text-gunmetal-400">&rarr; {hallLabel(a.hall)}</span>
               </span>
               <button
                 type="button"
@@ -97,12 +97,12 @@ export function SortingQuestionCard({ question, index }: { question: Question; i
           value={answerText}
           onChange={(e) => setAnswerText(e.target.value)}
           placeholder="Answer text"
-          className="flex-1 min-w-[8rem] text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+          className="flex-1 min-w-[8rem] text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-gunmetal-500"
         />
         <select
           value={hall}
           onChange={(e) => setHall(e.target.value)}
-          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-brass-500"
+          className="text-xs bg-ink-800 border border-ink-600 rounded px-2 py-1.5 focus:outline-none focus:border-gunmetal-500"
         >
           {HALL_VALUES.map((h) => (
             <option key={h} value={h}>
@@ -114,7 +114,7 @@ export function SortingQuestionCard({ question, index }: { question: Question; i
           type="button"
           onClick={handleAddAnswer}
           disabled={pending || !answerText.trim()}
-          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
         >
           Add answer
         </button>

@@ -15,7 +15,7 @@ function CallNarrative({ text }: { text: string }) {
     <>
       {parts.map((part, i): ReactNode =>
         part.startsWith('"') && part.endsWith('"') && part.length > 1 ? (
-          <span key={i} className="text-brass-400">
+          <span key={i} className="text-gunmetal-400">
             {part}
           </span>
         ) : (
@@ -72,7 +72,7 @@ export function EditablePhonePost({
           <button
             type="submit"
             disabled={pending}
-            className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+            className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
           >
             {pending ? "Saving..." : "Save"}
           </button>
@@ -97,7 +97,7 @@ export function EditablePhonePost({
     return (
       <div className="border border-ink-700 rounded-lg p-5 bg-ink-900/60 text-center max-w-md">
         <div className="inline-flex items-center gap-2 mb-4">
-          <span className="text-[10px] uppercase tracking-wider bg-brass-500/20 text-brass-400 border border-brass-500/40 rounded px-2 py-1">
+          <span className="text-[10px] uppercase tracking-wider bg-gunmetal-500/20 text-gunmetal-400 border border-gunmetal-500/40 rounded px-2 py-1">
             Calling:
           </span>
           <span className="text-sm text-ink-300 italic">{calleeName ?? "Unknown"}</span>
@@ -119,7 +119,7 @@ export function EditablePhonePost({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors"
+              className="text-[11px] text-ink-400 hover:text-gunmetal-400 transition-colors"
             >
               Edit
             </button>
@@ -130,7 +130,7 @@ export function EditablePhonePost({
   }
 
   const lines = parsePhoneContent(content);
-  const bubbleColor = side === "right" ? "bg-brass-500/80 text-parchment-100" : "bg-ink-700 text-parchment-100";
+  const bubbleColor = side === "right" ? "bg-gunmetal-500/80 text-parchment-100" : "bg-ink-700 text-parchment-100";
   const align = side === "right" ? "items-end" : "items-start";
 
   return (
@@ -168,7 +168,7 @@ export function EditablePhonePost({
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-[11px] text-ink-400 hover:text-brass-400 transition-colors"
+            className="text-[11px] text-ink-400 hover:text-gunmetal-400 transition-colors"
           >
             Edit
           </button>

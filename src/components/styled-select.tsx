@@ -65,7 +65,7 @@ export function StyledSelect<T extends string = string>({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-2 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-left text-parchment-100 focus:outline-none focus:border-brass-500 disabled:opacity-60 hover:border-brass-500/50 transition-colors"
+        className="w-full flex items-center justify-between gap-2 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-left text-parchment-100 focus:outline-none focus:border-gunmetal-500 disabled:opacity-60 hover:border-gunmetal-500/50 transition-colors"
       >
         <span className="flex items-center gap-2 min-w-0 truncate">
           {current?.accentColor && (
@@ -107,7 +107,7 @@ export function StyledSelect<T extends string = string>({
                 setOpen(false);
               }}
               className={`w-full flex items-center gap-2 text-left px-3 py-1.5 text-sm transition-colors hover:bg-ink-700 ${
-                o.value === value ? "text-brass-400" : "text-parchment-100"
+                o.value === value ? "text-gunmetal-400" : "text-parchment-100"
               }`}
             >
               {o.accentColor && (

@@ -68,7 +68,7 @@ export function RecipientPicker({
           value={query}
           onChange={(e) => handleInput(e.target.value)}
           placeholder="Type to pick a recipient..."
-          className="w-full text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full text-sm bg-ink-800 border border-ink-600 rounded-md px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
         {query && (results.length > 0 || pending) && (
           <div className="absolute z-10 mt-1 w-full bg-ink-900 border border-ink-700 rounded-md shadow-lg max-h-48 overflow-y-auto">

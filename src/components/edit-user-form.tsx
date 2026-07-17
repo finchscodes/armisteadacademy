@@ -28,7 +28,7 @@ export function EditUserForm({
           type="email"
           defaultValue={email}
           required
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -47,12 +47,12 @@ export function EditUserForm({
       </label>
 
       {state?.error && <p className="text-claret-500 text-sm">{state.error}</p>}
-      {state?.success && <p className="text-brass-400 text-sm">{state.success}</p>}
+      {state?.success && <p className="text-gunmetal-400 text-sm">{state.success}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="bg-brass-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+        className="bg-gunmetal-500 text-ink-950 rounded-md px-5 py-2.5 font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
       >
         {pending ? "Saving..." : "Save changes"}
       </button>

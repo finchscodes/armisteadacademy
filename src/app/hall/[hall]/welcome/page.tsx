@@ -59,7 +59,7 @@ export default async function HallWelcomePage({ params }: { params: Promise<{ ha
       <div className="mt-6 text-center">
         <Link
           href="/"
-          className="inline-block text-sm bg-brass-500 text-ink-950 px-5 py-2.5 rounded-md font-medium hover:bg-brass-400 transition-colors"
+          className="inline-block text-sm bg-gunmetal-500 text-ink-950 px-5 py-2.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
         >
           Continue to Armistead Academy
         </Link>

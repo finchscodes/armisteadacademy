@@ -35,9 +35,9 @@ export default async function AdminIndexPage() {
           <Link
             key={s.href}
             href={s.href}
-            className="bg-ink-900 border border-ink-700 rounded-lg p-5 hover:border-brass-500/50 transition-colors"
+            className="bg-ink-900 border border-ink-700 rounded-lg p-5 hover:border-gunmetal-500/50 transition-colors"
           >
-            <h2 className="font-display text-lg text-brass-400">{s.label}</h2>
+            <h2 className="font-display text-lg text-gunmetal-400">{s.label}</h2>
           </Link>
         ))}
       </div>
@@ -63,9 +63,9 @@ export default async function AdminIndexPage() {
         <Link
           key={`${s.href}-${i}`}
           href={s.href}
-          className="bg-ink-900 border border-ink-700 rounded-lg p-5 hover:border-brass-500/50 transition-colors"
+          className="bg-ink-900 border border-ink-700 rounded-lg p-5 hover:border-gunmetal-500/50 transition-colors"
         >
-          <h2 className="font-display text-lg text-brass-400">{s.label}</h2>
+          <h2 className="font-display text-lg text-gunmetal-400">{s.label}</h2>
         </Link>
       ))}
     </div>

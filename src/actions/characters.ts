@@ -14,9 +14,12 @@ import { HALL_VALUES, hallLabel } from "@/lib/halls";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { sanitizeRichText } from "@/lib/sanitize";
+import { addRecordsEntry } from "@/lib/records";
 import type { ActionState } from "./auth";
 
-const nameRegex = /^[a-zA-Z' -]+$/;
+// \p{L} matches any Unicode letter (accented Latin, Cyrillic, Greek, etc.),
+// not just a-z — requires the "u" flag. Still excludes digits/symbols/emoji.
+const nameRegex = /^[\p{L}' -]+$/u;
 const SELECTABLE_MAJOR_VALUES = SELECTABLE_MAJORS.map((m) => m.value) as [string, ...string[]];
 
 const createCharacterSchema = z.object({
@@ -134,6 +137,10 @@ export async function createCharacterAction(
     isAnnouncement: true,
   });
 
+  if (hallResult.hall !== null) {
+    await addRecordsEntry(character.id, `Sorted into ${hallLabel(hallResult.hall)} hall!`);
+  }
+
   await setActiveCharacterId(character.id);
   redirect(hallResult.hall === null ? "/sorting-quiz" : `/hall/${hallResult.hall}/welcome`);
 }
@@ -196,6 +203,8 @@ export async function submitSortingQuizAction(
     content: `just enrolled and moved into ${hallLabel(winner)} hall!`,
     isAnnouncement: true,
   });
+
+  await addRecordsEntry(character.id, `Sorted into ${hallLabel(winner)} hall!`);
 
   redirect(`/hall/${winner}/welcome`);
 }

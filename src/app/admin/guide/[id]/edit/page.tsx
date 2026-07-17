@@ -16,13 +16,25 @@ export default async function EditGuideSectionPage({ params }: { params: Promise
   const [section] = await db.select().from(guideSections).where(eq(guideSections.id, Number(id)));
   if (!section) notFound();
 
+  const allSections = await db.select().from(guideSections);
+  // A section can't be nested under itself or under one of its own children
+  // (only one level of nesting exists at all, so in practice this just
+  // excludes itself from its own parent options).
+  const topLevel = allSections.filter((s) => !s.parentId && s.id !== section.id);
+
   return (
     <div className="max-w-xl">
-      <Link href="/admin/guide" className="text-sm text-ink-400 hover:text-brass-400">
+      <Link href="/admin/guide" className="text-sm text-ink-400 hover:text-gunmetal-400">
         &larr; Guidebook sections
       </Link>
       <h1 className="font-display text-2xl text-parchment-100 mt-2 mb-6">Edit section</h1>
-      <EditGuideSectionForm sectionId={section.id} title={section.title} content={section.content} />
+      <EditGuideSectionForm
+        sectionId={section.id}
+        title={section.title}
+        content={section.content}
+        parentId={section.parentId}
+        parentOptions={topLevel}
+      />
     </div>
   );
 }

@@ -110,7 +110,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
     <div>
       <div className="flex items-center justify-between mb-2">
         {board ? (
-          <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-brass-400">
+          <Link href={`/b/${board.slug}`} className="text-sm text-ink-400 hover:text-gunmetal-400">
             &larr; {board.name}
           </Link>
         ) : (
@@ -125,10 +125,10 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           </div>
         )}
       </div>
-      <h1 className="font-display text-3xl text-brass-400 mb-2">{thread.title}</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-2">{thread.title}</h1>
 
       {isScheduledFuture && thread.scheduledFor && (
-        <p className="text-xs uppercase tracking-wider text-brass-400 border border-brass-500/40 rounded-lg px-3 py-2 mb-4 inline-block">
+        <p className="text-xs uppercase tracking-wider text-gunmetal-400 border border-gunmetal-500/40 rounded-lg px-3 py-2 mb-4 inline-block">
           Scheduled to publish {thread.scheduledFor.toLocaleDateString()} at{" "}
           {thread.scheduledFor.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
           &nbsp;— only visible to you right now

@@ -273,7 +273,7 @@ export function ChatSidebar({
             data-tooltip-side="bottom"
             className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded border transition-colors ${
               autoScroll
-                ? "border-brass-500/50 text-brass-400"
+                ? "border-gunmetal-500/50 text-gunmetal-400"
                 : "border-ink-600 text-ink-400 hover:text-parchment-100"
             }`}
           >
@@ -285,7 +285,7 @@ export function ChatSidebar({
               onClick={onCollapse}
               data-tooltip="Hide chat"
               data-tooltip-side="bottom-left"
-              className="w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-brass-400 hover:border-brass-500/50 transition-colors flex items-center justify-center shrink-0"
+              className="w-6 h-6 rounded-full bg-ink-800 border border-ink-600 text-ink-400 hover:text-gunmetal-400 hover:border-gunmetal-500/50 transition-colors flex items-center justify-center shrink-0"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5">
                 <path
@@ -310,9 +310,9 @@ export function ChatSidebar({
               return (
                 <div
                   key={m.id}
-                  className="text-center text-xs px-3 py-2.5 my-1.5 bg-brass-500/10 border border-brass-500/40"
+                  className="text-center text-xs px-3 py-2.5 my-1.5 bg-gunmetal-500/10 border border-gunmetal-500/40"
                 >
-                  <span className="uppercase tracking-wider text-brass-400 font-semibold">
+                  <span className="uppercase tracking-wider text-gunmetal-400 font-semibold">
                     {m.characterFirstName} {m.characterLastName}
                   </span>
                   <span className="text-parchment-100"> {m.content}</span>
@@ -325,10 +325,10 @@ export function ChatSidebar({
                 <p
                   key={m.id}
                   className={`text-sm italic text-center leading-snug rounded px-1.5 py-1 transition-colors ${
-                    pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40" : ""
+                    pingedIds.has(m.id) ? "bg-gunmetal-500/15 ring-1 ring-gunmetal-500/40" : ""
                   }`}
                 >
-                  <span className="text-brass-300">
+                  <span className="text-gunmetal-300">
                     {m.characterFirstName} {m.characterLastName} {m.content.slice(4)}
                   </span>
                 </p>
@@ -338,7 +338,7 @@ export function ChatSidebar({
               <div
                 key={m.id}
                 className={`group relative text-sm leading-snug rounded px-1.5 -mx-1.5 transition-colors break-words ${
-                  pingedIds.has(m.id) ? "bg-brass-500/15 ring-1 ring-brass-500/40 py-0.5" : ""
+                  pingedIds.has(m.id) ? "bg-gunmetal-500/15 ring-1 ring-gunmetal-500/40 py-0.5" : ""
                 }`}
               >
                 {isModerator && (
@@ -349,7 +349,7 @@ export function ChatSidebar({
                         e.stopPropagation();
                         setOpenMenuId(openMenuId === m.id ? null : m.id);
                       }}
-                      className="absolute left-0 -translate-x-[65%] top-0 h-full flex items-center opacity-0 group-hover:opacity-100 text-ink-500 hover:text-brass-400 transition-opacity px-1"
+                      className="absolute left-0 -translate-x-[65%] top-0 h-full flex items-center opacity-0 group-hover:opacity-100 text-ink-500 hover:text-gunmetal-400 transition-opacity px-1"
                     >
                       &#8942;
                     </button>
@@ -471,9 +471,9 @@ export function ChatSidebar({
                 <button
                   type="button"
                   onClick={() => selectMention("all")}
-                  className="w-full text-left px-3 py-1.5 text-sm text-brass-400 hover:bg-ink-700 transition-colors flex items-center gap-2 border-b border-ink-700"
+                  className="w-full text-left px-3 py-1.5 text-sm text-gunmetal-400 hover:bg-ink-700 transition-colors flex items-center gap-2 border-b border-ink-700"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-brass-400 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-gunmetal-400 shrink-0" />
                   @all — ping everyone online
                 </button>
               )}
@@ -518,12 +518,12 @@ export function ChatSidebar({
               maxLength={1000}
               placeholder="Say something..."
               autoComplete="off"
-              className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+              className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
             />
             <button
               type="button"
               onClick={() => setShowEmoji((v) => !v)}
-              className="text-lg px-2 rounded-md border border-ink-600 hover:border-brass-500/50 transition-colors shrink-0"
+              className="text-lg px-2 rounded-md border border-ink-600 hover:border-gunmetal-500/50 transition-colors shrink-0"
               data-tooltip="Insert emoji"
             >
               🙂
@@ -531,7 +531,7 @@ export function ChatSidebar({
             <button
               type="submit"
               disabled={pending}
-              className="text-sm bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60 shrink-0"
+              className="text-sm bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60 shrink-0"
             >
               Send
             </button>
@@ -539,7 +539,7 @@ export function ChatSidebar({
         </form>
       ) : (
         <div className="border-t border-ink-700 p-3 text-xs text-ink-400 text-center shrink-0">
-          <Link href="/login" className="text-brass-400 hover:underline">
+          <Link href="/login" className="text-gunmetal-400 hover:underline">
             Log in
           </Link>{" "}
           to join the chat.

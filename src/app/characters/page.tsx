@@ -33,10 +33,10 @@ export default async function CharactersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-3xl text-brass-400">Your characters</h1>
+        <h1 className="font-display text-3xl text-gunmetal-400">Your characters</h1>
         <Link
           href="/characters/new"
-          className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+          className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
         >
           + New character
         </Link>
@@ -45,7 +45,7 @@ export default async function CharactersPage() {
       {current.characters.length === 0 ? (
         <p className="text-ink-400">
           You haven&apos;t created a character yet.{" "}
-          <Link href="/characters/new" className="text-brass-400 hover:underline">
+          <Link href="/characters/new" className="text-gunmetal-400 hover:underline">
             Create your first one
           </Link>
           .
@@ -110,7 +110,7 @@ export default async function CharactersPage() {
                     ) : (
                       <div className="flex items-start gap-2">
                         <span className="text-ink-400">Hall</span>
-                        <span className="ml-auto text-right text-brass-400">Pending</span>
+                        <span className="ml-auto text-right text-gunmetal-400">Pending</span>
                       </div>
                     )}
                     <div className="flex items-start gap-2">
@@ -123,7 +123,7 @@ export default async function CharactersPage() {
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="text-ink-400">Money</span>
-                      <span className="text-brass-400 ml-auto">{s?.balance ?? 0}</span>
+                      <span className="text-gunmetal-400 ml-auto">{s?.balance ?? 0}</span>
                     </div>
                   </div>
                 </div>

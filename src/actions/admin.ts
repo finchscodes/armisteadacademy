@@ -4,11 +4,11 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES, MANAGEMENT_JOBS } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
-import { getCharacterXp, cumulativeXpForLevel } from "@/lib/xp";
+import { getCharacterXp, cumulativeXpForLevel, awardXp } from "@/lib/xp";
 import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
@@ -706,6 +706,7 @@ const updateBoardSchema = z.object({
   imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
   restrictedYearMin: z.coerce.number().int().min(1).optional(),
   restrictedYearMax: z.coerce.number().int().min(1).optional(),
+  clearance: z.string().max(120).optional().or(z.literal("")),
 });
 
 export async function adminUpdateBoardAction(
@@ -721,12 +722,13 @@ export async function adminUpdateBoardAction(
     imageUrl: formData.get("imageUrl") || undefined,
     restrictedYearMin: formData.get("restrictedYearMin") || undefined,
     restrictedYearMax: formData.get("restrictedYearMax") || undefined,
+    clearance: formData.get("clearance") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description, imageUrl, restrictedYearMin, restrictedYearMax } = parsed.data;
+  const { boardId, name, description, imageUrl, restrictedYearMin, restrictedYearMax, clearance } = parsed.data;
   await db
     .update(boards)
     .set({
@@ -735,6 +737,7 @@ export async function adminUpdateBoardAction(
       imageUrl: imageUrl || null,
       restrictedYearMin: restrictedYearMin ?? null,
       restrictedYearMax: restrictedYearMax ?? null,
+      clearance: clearance || null,
     })
     .where(eq(boards.id, boardId));
 
@@ -765,6 +768,7 @@ const createBoardSchema = z.object({
   extraArticleJob: z.enum(JOB_VALUES).optional(),
   restrictedYearMin: z.coerce.number().int().min(1).optional(),
   restrictedYearMax: z.coerce.number().int().min(1).optional(),
+  clearance: z.string().max(120).optional().or(z.literal("")),
 });
 
 export async function adminCreateBoardAction(
@@ -781,12 +785,14 @@ export async function adminCreateBoardAction(
     extraArticleJob: formData.get("extraArticleJob") || undefined,
     restrictedYearMin: formData.get("restrictedYearMin") || undefined,
     restrictedYearMax: formData.get("restrictedYearMax") || undefined,
+    clearance: formData.get("clearance") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { name, kind, parentId, description, extraArticleJob, restrictedYearMin, restrictedYearMax } = parsed.data;
+  const { name, kind, parentId, description, extraArticleJob, restrictedYearMin, restrictedYearMax, clearance } =
+    parsed.data;
 
   if (kind !== "category" && !parentId) {
     return { error: "Pick a parent category" };
@@ -806,6 +812,7 @@ export async function adminCreateBoardAction(
     extraArticleJob: kind === "article" ? extraArticleJob || null : null,
     restrictedYearMin: kind === "class" ? restrictedYearMin ?? null : null,
     restrictedYearMax: kind === "class" ? restrictedYearMax ?? null : null,
+    clearance: clearance || null,
     position: siblings.length,
   });
 
@@ -871,7 +878,7 @@ export async function adminAdjustCharacterLevelAction(
   const delta = targetXp - currentXp;
 
   if (delta !== 0) {
-    await db.insert(xpLedger).values({
+    await awardXp({
       characterId,
       amount: delta,
       reason: "admin_adjustment",

@@ -1,6 +1,7 @@
 import { eq, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { xpLedger, GRADING_LEVEL_REQUIREMENT } from "@/db/schema";
+import { addRecordsEntry } from "@/lib/records";
 
 /**
  * Increasing XP curve: the XP needed to go from level L to L+1 grows with L,
@@ -85,3 +86,29 @@ export const XP_AWARDS = {
   grading: 25,
   pet_cuddle: 5, // legacy — pets feature was removed, but the enum value stays for old ledger rows
 } as const;
+
+/**
+ * The one path every XP grant should go through — inserts the ledger row
+ * and, if it crossed a level threshold, posts an automatic entry to the
+ * character's Records thread. Centralized specifically so level-up
+ * detection doesn't need to be duplicated at every one of the several call
+ * sites that award XP.
+ */
+export async function awardXp(params: {
+  characterId: number;
+  amount: number;
+  reason: (typeof xpLedger.$inferInsert)["reason"];
+  note?: string;
+  relatedPostId?: number;
+  relatedSubmissionId?: number;
+}): Promise<void> {
+  const before = await getCharacterXp(params.characterId);
+  const levelBefore = levelForXp(before);
+
+  await db.insert(xpLedger).values(params);
+
+  const levelAfter = levelForXp(before + params.amount);
+  if (levelAfter > levelBefore) {
+    await addRecordsEntry(params.characterId, `Reached Level ${levelAfter}!`);
+  }
+}

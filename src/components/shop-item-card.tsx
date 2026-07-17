@@ -57,7 +57,7 @@ export function ShopItemCard({
         <p className="text-sm font-medium text-parchment-100">{item.name}</p>
         {item.description && <p className="text-xs text-ink-400 mt-1 flex-1">{item.description}</p>}
         <div className="flex items-center justify-between mt-3">
-          <span className="text-sm text-brass-400 font-medium">{item.price} dollars</span>
+          <span className="text-sm text-gunmetal-400 font-medium">{item.price} dollars</span>
           {item.stock !== null && (
             <span className="text-[11px] text-ink-500">{item.stock} left</span>
           )}
@@ -68,7 +68,7 @@ export function ShopItemCard({
             type="button"
             onClick={handleBuy}
             disabled={pending || outOfStock || !canAfford}
-            className="mt-3 text-xs bg-brass-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-3 text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {pending
               ? "Buying..."
@@ -89,7 +89,7 @@ export function ShopItemCard({
       {arsenalFull && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
           <div className="bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-6 max-w-sm text-center">
-            <p className="font-display text-xl text-brass-400 mb-2">Arsenal full</p>
+            <p className="font-display text-xl text-gunmetal-400 mb-2">Arsenal full</p>
             <p className="text-sm text-ink-300 mb-5">
               Your arsenal can only hold 100 items. Head to your profile&apos;s Arsenal tab and clear
               some space before buying more.
@@ -97,7 +97,7 @@ export function ShopItemCard({
             <button
               type="button"
               onClick={() => setArsenalFull(false)}
-              className="text-sm bg-brass-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-brass-400 transition-colors"
+              className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
             >
               Got it
             </button>

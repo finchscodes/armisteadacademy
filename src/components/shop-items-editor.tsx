@@ -52,7 +52,7 @@ function ItemForm({
             name="name"
             defaultValue={item?.name}
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
         <div>
@@ -63,7 +63,7 @@ function ItemForm({
             min={0}
             defaultValue={item?.price ?? 0}
             required
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
       </div>
@@ -74,7 +74,7 @@ function ItemForm({
           name="description"
           defaultValue={item?.description ?? ""}
           rows={2}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
         />
       </div>
 
@@ -86,7 +86,7 @@ function ItemForm({
             type="number"
             min={0}
             defaultValue={item?.stock ?? ""}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
         <div>
@@ -94,7 +94,7 @@ function ItemForm({
           <input
             name="imageUrl"
             defaultValue={item?.imageUrl ?? ""}
-            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-brass-500"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ function ItemForm({
         <button
           type="submit"
           disabled={pending}
-          className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors disabled:opacity-60"
+          className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
         >
           {pending ? "Saving..." : item ? "Save item" : "Add item"}
         </button>
@@ -169,7 +169,7 @@ export function ShopItemsEditor({ boardId, items }: { boardId: number; items: It
                 <button
                   type="button"
                   onClick={() => setEditingId(item.id)}
-                  className="text-xs text-brass-400 hover:underline"
+                  className="text-xs text-gunmetal-400 hover:underline"
                 >
                   Edit
                 </button>
@@ -192,7 +192,7 @@ export function ShopItemsEditor({ boardId, items }: { boardId: number; items: It
         <button
           type="button"
           onClick={() => setShowNew(true)}
-          className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-brass-500/50 transition-colors"
+          className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-1.5 rounded-md hover:border-gunmetal-500/50 transition-colors"
         >
           + Add item
         </button>

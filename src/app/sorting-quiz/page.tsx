@@ -23,7 +23,7 @@ export default async function SortingQuizPage() {
 
   return (
     <div className="max-w-xl mx-auto">
-      <h1 className="font-display text-3xl text-brass-400 mb-1">Sorting quiz</h1>
+      <h1 className="font-display text-3xl text-gunmetal-400 mb-1">Sorting quiz</h1>
       <p className="text-ink-400 text-sm mb-6">
         Answer honestly — {activeCharacter.firstName} will be sorted into whichever hall best
         matches their answers. You can chat and explore Armistead while your hall is pending.
@@ -42,7 +42,7 @@ export default async function SortingQuizPage() {
           The sorting quiz isn&apos;t set up yet. Check back soon, or ask an admin to sort you
           directly.
           <div className="mt-4">
-            <Link href="/" className="text-brass-400 hover:underline">
+            <Link href="/" className="text-gunmetal-400 hover:underline">
               Back to Armistead Academy
             </Link>
           </div>

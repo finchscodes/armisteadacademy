@@ -68,8 +68,8 @@ export function FaceclaimUpload({
   }
 
   const previewClass = wide
-    ? "w-full sm:w-40 h-16 rounded-lg object-cover border-2 border-brass-500/60 shrink-0"
-    : "w-16 h-16 rounded-lg object-cover border-2 border-brass-500/60 shrink-0";
+    ? "w-full sm:w-40 h-16 rounded-lg object-cover border-2 border-gunmetal-500/60 shrink-0"
+    : "w-16 h-16 rounded-lg object-cover border-2 border-gunmetal-500/60 shrink-0";
   const placeholderClass = wide
     ? "w-full sm:w-40 h-16 rounded-lg border-2 border-dashed border-ink-600 flex items-center justify-center text-ink-400 text-[10px] text-center shrink-0"
     : "w-16 h-16 rounded-lg border-2 border-dashed border-ink-600 flex items-center justify-center text-ink-400 text-[10px] text-center shrink-0";
@@ -100,7 +100,7 @@ export function FaceclaimUpload({
           <button
             type="button"
             onClick={() => setShowUrlInput((v) => !v)}
-            className="text-[11px] text-brass-400 hover:underline mt-1"
+            className="text-[11px] text-gunmetal-400 hover:underline mt-1"
           >
             {showUrlInput ? "Cancel" : "or paste an image URL instead"}
           </button>
@@ -116,12 +116,12 @@ export function FaceclaimUpload({
                   }
                 }}
                 placeholder="https://..."
-                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-brass-500"
+                className="flex-1 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-xs focus:outline-none focus:border-gunmetal-500"
               />
               <button
                 type="button"
                 onClick={confirmUrl}
-                className="text-xs bg-brass-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-brass-400 transition-colors shrink-0"
+                className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-1.5 rounded-md font-medium hover:bg-gunmetal-400 transition-colors shrink-0"
               >
                 Use URL
               </button>
@@ -136,7 +136,7 @@ export function FaceclaimUpload({
               Remove image
             </button>
           )}
-          {pending && <p className="text-xs text-brass-400 mt-1">Uploading...</p>}
+          {pending && <p className="text-xs text-gunmetal-400 mt-1">Uploading...</p>}
           {error && <p className="text-xs text-claret-500 mt-1">{error}</p>}
         </div>
       </div>

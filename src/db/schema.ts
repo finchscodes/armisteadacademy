@@ -436,6 +436,10 @@ export const boards = pgTable(
     // min=1/max=1. Doesn't affect who can grade — see lib/grading.ts.
     restrictedYearMin: integer("restricted_year_min"),
     restrictedYearMax: integer("restricted_year_max"),
+    // Pure flavor text — e.g. "Level 3 Clearance Required." Not enforced
+    // anywhere; no logic or permissions read this, it's just shown on the
+    // board page for atmosphere.
+    clearance: varchar("clearance", { length: 120 }),
     position: integer("position").notNull().default(0),
     minRoleToView: text("min_role_to_view").notNull().default("member"),
     minRoleToPost: text("min_role_to_post").notNull().default("member"),
@@ -635,6 +639,12 @@ export const guideSections = pgTable(
     slug: varchar("slug", { length: 140 }).notNull(),
     content: text("content").notNull(),
     position: integer("position").notNull().default(0),
+    // Null = top-level section (numbered "01.", "02." in the sidebar).
+    // Set = a sub-tab nested under that top-level section, shown indented
+    // beneath it — e.g. "Locations" with "Dormitories"/"First Floor"/etc.
+    // underneath. Only one level deep; a sub-section can't have its own
+    // sub-sections.
+    parentId: integer("parent_id"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => ({
@@ -859,6 +869,12 @@ export const reputationLedger = pgTable("reputation_ledger", {
   }),
   relatedPostId: integer("related_post_id").references(() => posts.id, { onDelete: "set null" }),
   note: text("note"),
+  // The in-game year this was earned in — reputation "resets" each year in
+  // the sense that leaderboards/hall totals only count the current year;
+  // lifetime totals (unfiltered sum) still show on a character's profile
+  // as "reputation earned" alongside "this year." Captured at insert time
+  // from lib/game-time.ts, never recomputed after the fact.
+  gameYear: integer("game_year").notNull().default(1),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

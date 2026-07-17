@@ -23,7 +23,7 @@ export default async function AdminUsersPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search by email..."
-          className="w-full max-w-md rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-brass-500"
+          className="w-full max-w-md rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
         />
       </form>
 

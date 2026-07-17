@@ -6,6 +6,7 @@ import { SpotlightWidget } from "@/components/spotlight-widget";
 import { NewestMemberWidget } from "@/components/newest-member-widget";
 import { SiteLinksWidget } from "@/components/site-links-widget";
 import { HomeWallFeed } from "@/components/home-wall-feed";
+import { GameTimeWidget } from "@/components/game-time-widget";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -19,6 +20,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       <div className="w-full lg:w-72 shrink-0 space-y-6">
+        <GameTimeWidget />
         <AnnouncementWidget />
         <SpotlightWidget />
         <NewsWidget />

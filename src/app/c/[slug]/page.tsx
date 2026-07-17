@@ -266,9 +266,7 @@ export default async function CharacterProfilePage({
       <div className="border-t border-ink-700 pt-6">
         <h2 className="font-display text-sm uppercase tracking-wider text-ink-400 mb-2">Personality</h2>
         {character.personality ? (
-          <p className="whitespace-pre-wrap leading-relaxed text-parchment-100/95 text-sm">
-            {character.personality}
-          </p>
+          <RichTextDisplay html={character.personality} className="leading-relaxed text-parchment-100/95 text-sm" />
         ) : (
           <p className="text-sm text-ink-400 italic">Nothing written yet.</p>
         )}

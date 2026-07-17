@@ -9,6 +9,7 @@ import { AdminChatTimeoutStatus } from "@/components/admin-chat-timeout-status";
 import { AdminStatusEditor } from "@/components/admin-status-editor";
 import { AdminNameEditor } from "@/components/admin-name-editor";
 import { AdminAgeEditor } from "@/components/admin-age-editor";
+import { AdminBirthdayEditor } from "@/components/admin-birthday-editor";
 import { AdminSlugEditor } from "@/components/admin-slug-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
 import { AdminLevelEditor } from "@/components/admin-level-editor";
@@ -140,6 +141,16 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Age</p>
                   <AdminAgeEditor characterId={c.id} userId={user.id} currentAge={c.age} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Birthday</p>
+                  <AdminBirthdayEditor
+                    characterId={c.id}
+                    userId={user.id}
+                    birthdayQuarter={c.birthdayQuarter}
+                    birthdayWeek={c.birthdayWeek}
+                    birthdayDayOfWeek={c.birthdayDayOfWeek}
+                  />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Gender</p>

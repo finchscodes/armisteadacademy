@@ -6,7 +6,7 @@ import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { users, characters, boards, characterJobs, boardPostPermissions, xpLedger, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { JOB_VALUES } from "@/lib/roles";
+import { JOB_VALUES, MANAGEMENT_JOBS } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
 import { getCharacterXp, cumulativeXpForLevel } from "@/lib/xp";
 import { getCharacterBalance } from "@/lib/economy";
@@ -40,6 +40,19 @@ async function requireAdminOrHiringAccess() {
   const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
   for (const c of myCharacters) {
     if (await characterHasAnyJob(c.id, ADMIN_PANEL_JOBS)) return session;
+  }
+  throw new Error("Not authorized");
+}
+
+/** Admin, or any of the acting user's characters holding a management job — used for overrides too sensitive for the general admin-panel-access set (e.g. a character's locked-permanent birthday). */
+async function requireAdminOrManagement() {
+  const session = await getSession();
+  if (!session) throw new Error("Not authorized");
+  if (session.isAdmin) return session;
+
+  const myCharacters = await db.select({ id: characters.id }).from(characters).where(eq(characters.userId, session.userId));
+  for (const c of myCharacters) {
+    if (await characterHasAnyJob(c.id, MANAGEMENT_JOBS)) return session;
   }
   throw new Error("Not authorized");
 }
@@ -86,6 +99,9 @@ export async function getUserDetail(userId: number) {
       firstName: characters.firstName,
       middleName: characters.middleName,
       lastName: characters.lastName,
+      birthdayQuarter: characters.birthdayQuarter,
+      birthdayWeek: characters.birthdayWeek,
+      birthdayDayOfWeek: characters.birthdayDayOfWeek,
     })
     .from(characters)
     .where(eq(characters.userId, userId))
@@ -384,6 +400,53 @@ export async function adminUpdateCharacterAgeAction(
 
   revalidatePath(`/admin/users/${parsed.data.userId}`);
   return { success: "Age updated" };
+}
+
+const updateBirthdaySchema = z.object({
+  characterId: z.coerce.number().int(),
+  userId: z.coerce.number().int(),
+  birthdayQuarter: z.enum(["fall", "winter", "spring", "summer"]).optional().or(z.literal("")),
+  birthdayWeek: z.coerce.number().int().min(1).max(5).optional(),
+  birthdayDayOfWeek: z.coerce.number().int().min(1).max(7).optional(),
+});
+
+/**
+ * The one place a character's birthday can be changed once set — the
+ * character's own edit form only allows setting it while it's still null
+ * (see updateCharacterAction in actions/characters.ts). Admin or any
+ * management-job character can override it here.
+ */
+export async function adminUpdateCharacterBirthdayAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdminOrManagement();
+
+  const parsed = updateBirthdaySchema.safeParse({
+    characterId: formData.get("characterId"),
+    userId: formData.get("userId"),
+    birthdayQuarter: formData.get("birthdayQuarter") || undefined,
+    birthdayWeek: formData.get("birthdayWeek") || undefined,
+    birthdayDayOfWeek: formData.get("birthdayDayOfWeek") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, userId, birthdayQuarter, birthdayWeek, birthdayDayOfWeek } = parsed.data;
+
+  await db
+    .update(characters)
+    .set({
+      birthdayQuarter: birthdayQuarter || null,
+      birthdayWeek: birthdayQuarter ? birthdayWeek ?? null : null,
+      birthdayDayOfWeek: birthdayQuarter ? birthdayDayOfWeek ?? null : null,
+    })
+    .where(eq(characters.id, characterId));
+
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/", "layout");
+  return { success: "Birthday updated" };
 }
 
 const YEAR_OVERRIDE_VALUES = [
@@ -1419,7 +1482,7 @@ export async function canEditHallWelcome(characterId: number, hall: string): Pro
     .from(boards)
     .where(eq(boards.slug, `${hall}-hall`));
   if (!hallBoard) return false;
-  return isScopedToBoard(characterId, ["field_agent"], hallBoard.id);
+  return isScopedToBoard(characterId, ["resident_advisor"], hallBoard.id);
 }
 
 const updateHallWelcomeSchema = z.object({

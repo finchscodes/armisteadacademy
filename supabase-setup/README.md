@@ -7,7 +7,7 @@ depends on whether you're starting fresh or already have a database.
 ## Fresh install (brand new Supabase project)
 
 Run, in order:
-1. `01-schema.sql` — full schema, includes everything through migration `66`
+1. `01-schema.sql` — full schema, includes everything through migration `69`
 2. `02-seed.sql` — an admin login + a starter shop
 3. `05-storage-bucket.sql` — storage bucket for faceclaim uploads
 4. `06-armistead-boards.sql` — the full Armistead board structure
@@ -18,22 +18,25 @@ Run, in order:
    categories (skip the DELETE statements at the top on a fresh install)
 7. `13-merge-covert-team-operations.sql` — merges two classes into one
 
-Skip everything else — `03`–`65` are incremental updates already folded into
+Skip everything else — `03`–`66` are incremental updates already folded into
 `01` for a fresh install (`03`, `04`, `07`, `10`, `12` into the original
-schema snapshot; `48`–`66` appended on top of that). Running any of them
+schema snapshot; `48`–`69` appended on top of that). Running any of them
 after `01` will error (trying to add/drop things that already don't exist
 that way).
 
 ## Already had this running before this update
 
-If you already ran everything through `65`, you only need the one new file:
-1. `66-shops-own-category.sql`
+If you already ran everything through `66`, you only need these new files, in order:
+1. `67-account-and-ip-banning.sql`
+2. `68-weekly-payroll-ledger-reason.sql`
+3. `68b-time-progression.sql`
+4. `69-resident-advisor-rename.sql`
 
 ## File reference
 
 | File | What it does |
 |---|---|
-| `01-schema.sql` | Full schema through migration `66` (fresh installs only) |
+| `01-schema.sql` | Full schema through migration `69` (fresh installs only) |
 | `02-seed.sql` | Admin account, starter shop |
 | `03`–`47` | (historical) incremental updates, all folded into `01` |
 | `48-physical-education-class.sql` | Adds Physical Education class |
@@ -56,4 +59,8 @@ If you already ran everything through `65`, you only need the one new file:
 | `64b-bank-and-items-tables.sql` | Adds bank_ledger; items now belong to a board instead of a standalone shops table |
 | `65-seed-shops-and-bank.sql` | Seeds the Bank and 16 placeholder shops under Outside Armistead |
 | `66-shops-own-category.sql` | Moves the 16 shop boards into their own new "Shops" category |
+| `67-account-and-ip-banning.sql` | Adds account banning and a banned_ips table |
+| `68-weekly-payroll-ledger-reason.sql` | Adds the weekly_payroll ledger reason |
+| `68b-time-progression.sql` | Adds game_time, exams, birthdays, and year-restricted class boards |
+| `69-resident-advisor-rename.sql` | Renames the `field_agent` job to `resident_advisor` |
 

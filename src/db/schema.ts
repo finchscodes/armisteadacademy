@@ -291,7 +291,7 @@ export const siteLinks = pgTable("site_links", {
 /**
  * The welcome message shown to a newly-sorted character, "from" that hall's
  * Resident Advisor. One row per hall. Editable by that hall's own Resident
- * Advisor (field_agent job + matching hall), or admin.
+ * Advisor (resident_advisor job + matching hall), or admin.
  */
 export const hallWelcomeMessages = pgTable("hall_welcome_messages", {
   hall: hallEnum("hall").primaryKey(),

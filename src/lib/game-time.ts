@@ -8,12 +8,17 @@ import { dateFromDayIndex, type GameDate } from "@/lib/game-calendar";
 export type { Quarter, GameDate } from "@/lib/game-calendar";
 export { QUARTER_ORDER, QUARTER_WEEKS, WEEK_DAYS, DAY_NAMES, dateFromDayIndex, dayIndexFromDate } from "@/lib/game-calendar";
 
-
+/**
+ * Job -> weekly pay, as dictated exactly. Registrar and Handler are
+ * student staff, not management — they only get elevated permissions for
+ * their two specific grants (backstory approval, Missions board posting),
+ * confirmed nowhere else in the codebase grants them anything broader.
+ */
 const PAYROLL_RATES: Partial<Record<CharacterJob, number>> = {
   spymaster: 200,
   secretary: 200,
   head_staff: 140,
-  field_agent: 140,
+  resident_advisor: 140,
   instructor: 80,
   chief_editor: 80,
   assistant_instructor: 40,

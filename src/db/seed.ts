@@ -8,7 +8,7 @@ type BoardSpec = {
   slug: string;
   description?: string;
   kind?: "board" | "article" | "class";
-  extraArticleJob?: "writer" | "field_agent" | "chief_editor";
+  extraArticleJob?: "writer" | "resident_advisor" | "chief_editor";
   restrictedToHall?: "undercroft" | "veil" | "rampart" | "eaves";
 };
 
@@ -21,28 +21,28 @@ const CATEGORIES: { name: string; slug: string; boards: BoardSpec[] }[] = [
         name: "Undercroft Hall",
         slug: "undercroft-hall",
         kind: "article",
-        extraArticleJob: "field_agent",
+        extraArticleJob: "resident_advisor",
         restrictedToHall: "undercroft",
       },
       {
         name: "Veil Hall",
         slug: "veil-hall",
         kind: "article",
-        extraArticleJob: "field_agent",
+        extraArticleJob: "resident_advisor",
         restrictedToHall: "veil",
       },
       {
         name: "Rampart Hall",
         slug: "rampart-hall",
         kind: "article",
-        extraArticleJob: "field_agent",
+        extraArticleJob: "resident_advisor",
         restrictedToHall: "rampart",
       },
       {
         name: "Eaves Hall",
         slug: "eaves-hall",
         kind: "article",
-        extraArticleJob: "field_agent",
+        extraArticleJob: "resident_advisor",
         restrictedToHall: "eaves",
       },
       { name: "Dormitories", slug: "dormitories-board" },

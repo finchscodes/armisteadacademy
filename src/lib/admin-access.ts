@@ -5,7 +5,7 @@ import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS, type CharacterJob } from "@/lib/roles";
 
 /** Jobs that can reach a limited version of the admin panel, beyond true admins. */
-export const ADMIN_PANEL_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "field_agent"];
+export const ADMIN_PANEL_JOBS: CharacterJob[] = [...MANAGEMENT_JOBS, "resident_advisor"];
 
 /**
  * Secretary/Spymaster oversee grading across every class, not just one
@@ -68,7 +68,7 @@ export async function getAdminAccessContext(
     .where(eq(characterJobs.characterId, characterId));
 
   const hallBoardIds = scopedJobs
-    .filter((j) => j.job === "field_agent" && j.scopeBoardId !== null)
+    .filter((j) => j.job === "resident_advisor" && j.scopeBoardId !== null)
     .map((j) => j.scopeBoardId as number);
   const gradingBoardIds = scopedJobs
     .filter((j) => (j.job === "instructor" || j.job === "assistant_instructor") && j.scopeBoardId !== null)

@@ -15,7 +15,7 @@ export type CharacterJob =
   | "none"
   | "spymaster"
   | "secretary"
-  | "field_agent"
+  | "resident_advisor"
   | "head_staff"
   | "instructor"
   | "chief_editor"
@@ -32,7 +32,7 @@ export const JOB_VALUES: [CharacterJob, ...CharacterJob[]] = [
   "none",
   "spymaster",
   "secretary",
-  "field_agent",
+  "resident_advisor",
   "head_staff",
   "instructor",
   "chief_editor",
@@ -64,7 +64,7 @@ export const JOB_META: Record<CharacterJob, JobMeta> = {
   // to read on the ink-600 (#574f4b) background used in some UI chrome.
   spymaster: { label: "Spymaster", color: "#7484e2" }, // Bright indigo — lightened for readability
   secretary: { label: "Secretary", color: "#6db5b5" }, // Teal-cyan
-  field_agent: { label: "Resident Advisor", color: "#b64a4a" }, // Wine-rose — one RA per hall, see lib/halls.ts
+  resident_advisor: { label: "Resident Advisor", color: "#b64a4a" }, // Wine-rose — one RA per hall, see lib/halls.ts
   head_staff: { label: "Head Staff", color: "#c19e5b" }, // Olive-gold — placeholder, department TBD
   instructor: { label: "Instructor", color: "#6ea15a" }, // Olive-green
   chief_editor: { label: "Chief Editor", color: "#398b6b" }, // Deep emerald

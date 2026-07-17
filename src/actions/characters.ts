@@ -257,6 +257,7 @@ export async function updateCharacterAction(
   } = parsed.data;
   const sanitizedBio = bio ? sanitizeRichText(bio) : undefined;
   const sanitizedAppearance = appearance ? sanitizeRichText(appearance) : undefined;
+  const sanitizedPersonality = personality ? sanitizeRichText(personality) : undefined;
 
   const [existing] = await db
     .select({
@@ -265,6 +266,7 @@ export async function updateCharacterAction(
       slug: characters.slug,
       major: characters.major,
       bio: characters.bio,
+      birthdayQuarter: characters.birthdayQuarter,
     })
     .from(characters)
     .where(eq(characters.id, characterId));
@@ -291,11 +293,18 @@ export async function updateCharacterAction(
       avatarUrl: avatarUrl || null,
       bio: sanitizedBio || null,
       backstoryRating: backstoryRating ?? null,
-      personality: personality || null,
+      personality: sanitizedPersonality || null,
       appearance: sanitizedAppearance || null,
-      birthdayQuarter: birthdayQuarter || null,
-      birthdayWeek: birthdayQuarter ? birthdayWeek ?? null : null,
-      birthdayDayOfWeek: birthdayQuarter ? birthdayDayOfWeek ?? null : null,
+      // Birthday is permanent once set — only settable while still null.
+      // After that, only the admin panel (management or true admin) can
+      // change it, see adminUpdateCharacterBirthdayAction.
+      ...(existing.birthdayQuarter
+        ? {}
+        : {
+            birthdayQuarter: birthdayQuarter || null,
+            birthdayWeek: birthdayQuarter ? birthdayWeek ?? null : null,
+            birthdayDayOfWeek: birthdayQuarter ? birthdayDayOfWeek ?? null : null,
+          }),
       ...(bioChanged ? { backstoryApproved: false } : {}),
     })
     .where(eq(characters.id, characterId));

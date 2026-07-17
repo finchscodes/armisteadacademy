@@ -14,7 +14,7 @@ const SCOPE_RULES: Record<string, { boardKind: string; hallOnly?: boolean }> = {
   chief_editor: { boardKind: "article" },
   instructor: { boardKind: "class" },
   assistant_instructor: { boardKind: "class" },
-  field_agent: { boardKind: "article", hallOnly: true },
+  resident_advisor: { boardKind: "article", hallOnly: true },
 };
 
 export function AdminJobEditor({

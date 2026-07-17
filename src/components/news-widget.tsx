@@ -28,7 +28,7 @@ export async function NewsWidget() {
             {news.map((n) => (
               <Link key={n.id} href={`/t/${n.slug}`} className="block group">
                 <p className="text-sm font-medium text-parchment-100 group-hover:text-brass-400 transition-colors">
-                  {n.boardName} | {n.title}
+                  {n.title}
                 </p>
                 <p className="text-[11px] text-ink-400">
                   {timeAgo(n.createdAt)} &middot; {n.boardName}

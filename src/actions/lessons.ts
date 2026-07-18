@@ -24,6 +24,7 @@ import { isEnrolledInClass } from "@/lib/class-enrollments";
 import { GRADE_TIER_VALUES, GRADE_TIER_META, computeConsensus, computePayout, tierLabel } from "@/lib/grading";
 import { createNotification } from "@/lib/notifications";
 import { sanitizeRichText, richTextLength } from "@/lib/sanitize";
+import { isFainted } from "@/lib/needs";
 import type { ActionState } from "./auth";
 
 /* -------------------------------------------------------------------------- */
@@ -232,6 +233,10 @@ export async function submitHomeworkAction(
 ): Promise<ActionState> {
   const { characterId } = await requireSessionAndCharacter();
 
+  if (await isFainted(characterId)) {
+    return { error: "Too faint from hunger or thirst to do this right now — eat or drink something." };
+  }
+
   const parsed = submitHomeworkSchema.safeParse({
     lessonId: formData.get("lessonId"),
     content: formData.get("content"),
@@ -298,6 +303,10 @@ export async function gradeSubmissionAction(
   formData: FormData
 ): Promise<ActionState> {
   const { characterId } = await requireSessionAndCharacter();
+
+  if (await isFainted(characterId)) {
+    return { error: "Too faint from hunger or thirst to do this right now — eat or drink something." };
+  }
 
   const parsed = gradeSchema.safeParse({
     submissionId: formData.get("submissionId"),
@@ -416,6 +425,10 @@ export async function instructorGradeSubmissionAction(
   formData: FormData
 ): Promise<ActionState> {
   const { characterId } = await requireSessionAndCharacter();
+
+  if (await isFainted(characterId)) {
+    return { error: "Too faint from hunger or thirst to do this right now — eat or drink something." };
+  }
 
   const parsed = gradeSchema.safeParse({
     submissionId: formData.get("submissionId"),

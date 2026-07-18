@@ -106,7 +106,7 @@ export function TopicCommentSection({
                       <Link
                         href={`/c/${c.characterSlug}`}
                         className="font-medium hover:underline"
-                        style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
+                        style={{ color: jobColor(c.characterJob) ?? "#eeeeee" }}
                       >
                         {c.characterFirstName} {c.characterLastName}
                       </Link>

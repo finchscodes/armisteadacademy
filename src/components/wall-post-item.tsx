@@ -127,7 +127,7 @@ export function WallPostItem({
               <Link
                 href={`/c/${post.posterSlug}`}
                 className="text-sm font-medium hover:underline"
-                style={{ color: jobColor(post.posterJob as never) ?? "#f6efdc" }}
+                style={{ color: jobColor(post.posterJob as never) ?? "#eeeeee" }}
               >
                 {post.posterFirstName} {post.posterLastName}
               </Link>
@@ -208,7 +208,7 @@ export function WallPostItem({
                     <Link
                       href={`/c/${c.characterSlug}`}
                       className="text-xs font-medium hover:underline"
-                      style={{ color: jobColor(c.characterJob) ?? "#f6efdc" }}
+                      style={{ color: jobColor(c.characterJob) ?? "#eeeeee" }}
                     >
                       {c.characterFirstName} {c.characterLastName}
                     </Link>

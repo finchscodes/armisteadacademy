@@ -16,6 +16,7 @@ import { NotificationBell } from "./notification-bell";
 import { GradingIcon, SocialIcon, MailIcon } from "./nav-icons";
 import { getUnreadMessageCount } from "@/lib/messages";
 import { getCurrentGameDate } from "@/lib/game-time";
+import { getCurrentNeeds } from "@/lib/needs";
 
 export async function NavBar() {
   const [current, rawBoardTree, onlineCount] = await Promise.all([
@@ -27,12 +28,13 @@ export async function NavBar() {
     // advancement (payroll, birthdays) that lives inside it.
     getCurrentGameDate(),
   ]);
-  const [balance, levelProgress] = current?.activeCharacter
+  const [balance, levelProgress, needs] = current?.activeCharacter
     ? await Promise.all([
         getCharacterBalance(current.activeCharacter.id),
         getCharacterLevelProgress(current.activeCharacter.id),
+        getCurrentNeeds(current.activeCharacter.id),
       ])
-    : [null, null];
+    : [null, null, null];
 
   const canGrade = current?.activeCharacter
     ? await canGradeHomework(current.activeCharacter.id)
@@ -186,6 +188,9 @@ export async function NavBar() {
               }
               isAdmin={current.session.isAdmin}
               canAccessAdminPanel={canAccessAdminPanel}
+              hunger={needs?.hunger ?? null}
+              thirst={needs?.thirst ?? null}
+              fainted={needs?.fainted ?? false}
             />
           </div>
         ) : (

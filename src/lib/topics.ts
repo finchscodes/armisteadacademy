@@ -7,7 +7,8 @@ import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
  * Every distinct thread a character has posted in (opening post or reply),
  * most recent first, plus who posted last in each (could be someone else).
  * Excludes article boards (Notice Board, Armistead Weekly, etc) — those
- * aren't "topics" in the roleplay sense.
+ * aren't "topics" in the roleplay sense. Also excludes locked threads —
+ * once a topic is locked it drops off this list.
  */
 export async function getParticipatedThreads(characterId: number) {
   const rows = await db
@@ -22,7 +23,7 @@ export async function getParticipatedThreads(characterId: number) {
     .from(posts)
     .innerJoin(threads, eq(posts.threadId, threads.id))
     .innerJoin(boards, eq(threads.boardId, boards.id))
-    .where(and(eq(posts.characterId, characterId), ne(boards.kind, "article")))
+    .where(and(eq(posts.characterId, characterId), ne(boards.kind, "article"), eq(threads.isLocked, false)))
     .orderBy(threads.id, desc(posts.createdAt));
 
   if (rows.length === 0) return [];

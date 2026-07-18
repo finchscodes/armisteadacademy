@@ -102,6 +102,8 @@ export async function getUserDetail(userId: number) {
       birthdayQuarter: characters.birthdayQuarter,
       birthdayWeek: characters.birthdayWeek,
       birthdayDayOfWeek: characters.birthdayDayOfWeek,
+      hunger: characters.hunger,
+      thirst: characters.thirst,
     })
     .from(characters)
     .where(eq(characters.userId, userId))
@@ -586,6 +588,10 @@ const itemSchema = z.object({
   price: z.coerce.number().int().min(0, "Price can't be negative"),
   stock: z.string().optional().or(z.literal("")), // blank = unlimited
   imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  hungerRestore: z.coerce.number().int().min(0).max(100).optional(),
+  thirstRestore: z.coerce.number().int().min(0).max(100).optional(),
+  isPet: z.coerce.boolean().optional(),
+  petFoodRestore: z.coerce.number().int().min(0).max(100).optional(),
 });
 
 export async function adminCreateItemAction(
@@ -601,12 +607,17 @@ export async function adminCreateItemAction(
     price: formData.get("price"),
     stock: formData.get("stock") || undefined,
     imageUrl: formData.get("imageUrl") || undefined,
+    hungerRestore: formData.get("hungerRestore") || undefined,
+    thirstRestore: formData.get("thirstRestore") || undefined,
+    isPet: formData.get("isPet") === "true",
+    petFoodRestore: formData.get("petFoodRestore") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description, price, stock, imageUrl } = parsed.data;
+  const { boardId, name, description, price, stock, imageUrl, hungerRestore, thirstRestore, isPet, petFoodRestore } =
+    parsed.data;
   const existing = await db.select({ id: items.id }).from(items).where(eq(items.boardId, boardId));
 
   await db.insert(items).values({
@@ -617,6 +628,10 @@ export async function adminCreateItemAction(
     stock: stock ? Number(stock) : null,
     imageUrl: imageUrl || null,
     position: existing.length,
+    hungerRestore: hungerRestore ?? null,
+    thirstRestore: thirstRestore ?? null,
+    isPet: isPet ?? false,
+    petFoodRestore: petFoodRestore ?? null,
   });
 
   revalidatePath(`/admin/boards/${boardId}/edit`);
@@ -640,12 +655,17 @@ export async function adminUpdateItemAction(
     price: formData.get("price"),
     stock: formData.get("stock") || undefined,
     imageUrl: formData.get("imageUrl") || undefined,
+    hungerRestore: formData.get("hungerRestore") || undefined,
+    thirstRestore: formData.get("thirstRestore") || undefined,
+    isPet: formData.get("isPet") === "true",
+    petFoodRestore: formData.get("petFoodRestore") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { itemId, boardId, name, description, price, stock, imageUrl } = parsed.data;
+  const { itemId, boardId, name, description, price, stock, imageUrl, hungerRestore, thirstRestore, isPet, petFoodRestore } =
+    parsed.data;
 
   await db
     .update(items)
@@ -655,6 +675,10 @@ export async function adminUpdateItemAction(
       price,
       stock: stock ? Number(stock) : null,
       imageUrl: imageUrl || null,
+      hungerRestore: hungerRestore ?? null,
+      thirstRestore: thirstRestore ?? null,
+      isPet: isPet ?? false,
+      petFoodRestore: petFoodRestore ?? null,
     })
     .where(eq(items.id, itemId));
 

@@ -167,6 +167,23 @@ export const characters = pgTable(
     birthdayQuarter: quarterEnum("birthday_quarter"),
     birthdayWeek: integer("birthday_week"),
     birthdayDayOfWeek: integer("birthday_day_of_week"), // 1 (Mon) - 7 (Sun)
+    // Hunger/thirst — 0-100, drain to empty over one real week (see
+    // lib/needs.ts for the exact rate). Lazily recomputed from
+    // lastNeedsUpdate whenever anything asks, same pattern as game time
+    // and bank interest — there's no cron in this stack to tick it any
+    // other way.
+    hunger: integer("hunger").notNull().default(100),
+    thirst: integer("thirst").notNull().default(100),
+    lastNeedsUpdate: timestamp("last_needs_update").notNull().defaultNow(),
+    // How much recovery time (in ms) is left on the one-hour faint clock —
+    // null means not fainted. Counts down only while the character is
+    // actively online, so closing the tab while fainted pauses it rather
+    // than burning through the hour unattended. See lib/needs.ts.
+    faintRemainingMs: integer("faint_remaining_ms"),
+    // The Dining Hall's "Have a meal" button — +15% hunger and thirst,
+    // once per real day per character. Separate from the general item
+    // consumption cooldown (there isn't one) — this is its own thing.
+    lastMealAt: timestamp("last_meal_at"),
     bio: text("bio"),
     // 1-5, same scale as topic content ratings — set by the character's
     // owner so readers know what to expect before opening the backstory.
@@ -918,6 +935,19 @@ export const items = pgTable("items", {
   stock: integer("stock"), // null = unlimited
   imageUrl: text("image_url"),
   position: integer("position").notNull().default(0),
+  // How many percentage points this item restores when consumed from the
+  // Arsenal — null means it doesn't affect that stat at all (most items
+  // are just collectibles/gear, not food or drink). See lib/needs.ts.
+  hungerRestore: integer("hunger_restore"),
+  thirstRestore: integer("thirst_restore"),
+  // If true, this item is a pet species — buying it creates a row in the
+  // pets table (an individually-tracked companion) instead of a stackable
+  // inventory entry.
+  isPet: boolean("is_pet").notNull().default(false),
+  // For regular (non-pet) items sold as pet food — how much a pet's
+  // hunger goes up when this is used to "care for" it. Unrelated to a
+  // pet-species item's own fields, which don't use this.
+  petFoodRestore: integer("pet_food_restore"),
 });
 
 export const inventory = pgTable("inventory", {
@@ -929,6 +959,27 @@ export const inventory = pgTable("inventory", {
     .notNull()
     .references(() => items.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
+  acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
+});
+
+/**
+ * An individually-owned pet — created when a character buys a shop item
+ * with items.isPet = true. Each one tracks its own hunger (no thirst,
+ * per design) and cuddle cooldown separately; unlike regular inventory,
+ * pets are never stacked/quantified.
+ */
+export const pets = pgTable("pets", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  itemId: integer("item_id")
+    .notNull()
+    .references(() => items.id, { onDelete: "restrict" }),
+  hunger: integer("hunger").notNull().default(100),
+  lastPetNeedsUpdate: timestamp("last_pet_needs_update").notNull().defaultNow(),
+  // One cuddle per real day per pet — see lib/pets.ts.
+  lastCuddledAt: timestamp("last_cuddled_at"),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
 });
 

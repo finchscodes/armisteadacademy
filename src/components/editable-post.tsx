@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type CSSProperties } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updatePostAction } from "@/actions/forum";
 import { RichTextEditor } from "@/components/rich-text-editor";
@@ -14,7 +14,6 @@ export function EditablePost({
   ooc,
   rollValue,
   rollModifier,
-  majorColor,
 }: {
   postId: number;
   content: string;
@@ -25,8 +24,6 @@ export function EditablePost({
   /** A 1d10 roll attached to this post — always server-generated, never editable. */
   rollValue?: number | null;
   rollModifier?: number | null;
-  /** Topic posts only — colors bold/italic text with the author's major color by default. Omit for articles. */
-  majorColor?: string | null;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -40,11 +37,7 @@ export function EditablePost({
     return (
       <div>
         <div className="leading-relaxed text-parchment-100/95">
-          <RichTextDisplay
-            html={content}
-            className={majorColor ? "major-accent" : ""}
-            style={majorColor ? ({ "--major-accent-color": majorColor } as CSSProperties) : undefined}
-          />
+          <RichTextDisplay html={content} />
         </div>
         {rollValue != null && (
           <div

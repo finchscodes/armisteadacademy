@@ -26,6 +26,7 @@ async function canModerateTopics(): Promise<boolean> {
   return canModeratePosts(activeCharacterId);
 }
 import { awardReputation, REPUTATION_AWARDS } from "@/lib/reputation";
+import { isFainted } from "@/lib/needs";
 import type { ActionState } from "./auth";
 
 /** A single ten-sided die roll (1-10) — always generated server-side, never from client input, so it can't be gamed. */
@@ -58,6 +59,10 @@ export async function createThreadAction(
   formData: FormData
 ): Promise<ActionState> {
   const { session, characterId } = await requireSessionAndCharacter();
+
+  if (await isFainted(characterId)) {
+    return { error: "Too faint from hunger or thirst to do this right now — eat or drink something." };
+  }
 
   const parsed = newThreadSchema.safeParse({
     boardSlug: formData.get("boardSlug"),
@@ -222,6 +227,10 @@ export async function createPostAction(
   formData: FormData
 ): Promise<ActionState> {
   const { session, characterId } = await requireSessionAndCharacter();
+
+  if (await isFainted(characterId)) {
+    return { error: "Too faint from hunger or thirst to do this right now — eat or drink something." };
+  }
 
   const parsed = newPostSchema.safeParse({
     threadSlug: formData.get("threadSlug"),
@@ -543,4 +552,64 @@ export async function toggleThreadLockAction(formData: FormData) {
 
   await db.update(threads).set({ isLocked: !thread.isLocked }).where(eq(threads.id, threadId));
   revalidatePath(`/t/${thread.slug}`);
+}
+
+const updateThreadSettingsSchema = z.object({
+  threadId: z.coerce.number().int(),
+  title: z.string().min(3, "Title must be at least 3 characters").max(200),
+  location: z.string().max(200).optional().or(z.literal("")),
+  timeSetting: z.string().max(100).optional().or(z.literal("")),
+  surroundings: z.string().max(4000).optional().or(z.literal("")),
+  ooc: z.string().max(4000).optional().or(z.literal("")),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+});
+
+export type ThreadSettingsActionState = { error?: string; success?: string } | undefined;
+
+/** Prefects and management can retitle/re-tag a topic (location, time, surroundings, OOC, rating) — not the content of any post. */
+export async function updateThreadSettingsAction(
+  _prevState: ThreadSettingsActionState,
+  formData: FormData
+): Promise<ThreadSettingsActionState> {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  if (!(await canModerateTopics())) return { error: "Not authorized" };
+
+  const parsed = updateThreadSettingsSchema.safeParse({
+    threadId: formData.get("threadId"),
+    title: formData.get("title"),
+    location: formData.get("location") || undefined,
+    timeSetting: formData.get("timeSetting") || undefined,
+    surroundings: formData.get("surroundings") || undefined,
+    ooc: formData.get("ooc") || undefined,
+    rating: formData.get("rating") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { threadId, title, location, timeSetting, surroundings, ooc, rating } = parsed.data;
+
+  const [thread] = await db.select({ slug: threads.slug, boardId: threads.boardId }).from(threads).where(eq(threads.id, threadId));
+  if (!thread) return { error: "That topic no longer exists" };
+
+  const [threadBoard] = await db.select({ kind: boards.kind }).from(boards).where(eq(boards.id, thread.boardId));
+  if (threadBoard?.kind === "article" || threadBoard?.kind === "email" || threadBoard?.kind === "social") {
+    return { error: "This board's topics don't have these settings" };
+  }
+
+  await db
+    .update(threads)
+    .set({
+      title,
+      location: location || null,
+      timeSetting: timeSetting || null,
+      surroundings: surroundings || null,
+      ooc: ooc || null,
+      rating: rating ?? null,
+    })
+    .where(eq(threads.id, threadId));
+
+  revalidatePath(`/t/${thread.slug}`);
+  return { success: "Topic updated" };
 }

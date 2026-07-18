@@ -70,6 +70,7 @@ export function sanitizeRichText(html: string): string {
     allowedStyles: {
       "*": {
         color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/, /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\s*\)$/],
+        "text-align": [/^(left|right|center|justify)$/],
       },
     },
     transformTags: {

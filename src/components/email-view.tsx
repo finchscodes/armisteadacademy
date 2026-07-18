@@ -61,7 +61,7 @@ export function EmailView({
                 <Link
                   href={`/c/${senderSlug}`}
                   className="hover:underline transition-colors"
-                  style={{ color: jobColor(senderJob) ?? "#f6efdc" }}
+                  style={{ color: jobColor(senderJob) ?? "#eeeeee" }}
                 >
                   {senderName}
                 </Link>

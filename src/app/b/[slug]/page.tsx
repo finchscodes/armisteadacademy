@@ -9,6 +9,7 @@ import { enrollInClassAction } from "@/actions/lessons";
 import { canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { getYearNumbersForCharacters } from "@/lib/year";
+import { HaveAMealButton } from "@/components/have-a-meal-button";
 import { jobColor } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
 import { CharacterBadge } from "@/components/character-badge";
@@ -155,6 +156,12 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
           </Link>
         )}
       </div>
+
+      {board.slug === "dining-hall" && current?.activeCharacter && (
+        <div className="mb-6">
+          <HaveAMealButton />
+        </div>
+      )}
 
       {isClassBoard && (
         <div className="mb-6">

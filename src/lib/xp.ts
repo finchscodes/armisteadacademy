@@ -84,7 +84,7 @@ export const XP_AWARDS = {
   chat_post: 5,
   homework_submission: 100,
   grading: 25,
-  pet_cuddle: 5, // legacy — pets feature was removed, but the enum value stays for old ledger rows
+  pet_cuddle: 5, // pets — see lib/pets.ts and actions/pets.ts
 } as const;
 
 /**

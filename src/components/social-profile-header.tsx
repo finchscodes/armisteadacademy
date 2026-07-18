@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { RichTextDisplay } from "@/components/rich-text-display";
 import { FollowButton } from "@/components/follow-button";
-import { CameraIcon } from "@/components/nav-icons";
 
 type PhotoPost = { id: number; imageUrl: string | null; createdAt: Date };
 
@@ -32,9 +31,6 @@ export function SocialProfileHeader({
 }) {
   return (
     <div className="bg-ink-900 border border-gunmetal-500/30 rounded-lg overflow-hidden mb-4 max-w-md mx-auto">
-      <div className="px-4 py-2.5 border-b border-gunmetal-500/30 text-ink-500">
-        <CameraIcon className="w-4 h-4" />
-      </div>
       <div className="p-5">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-[72px] h-[72px] rounded-full overflow-hidden border-2 border-ink-700 shrink-0 bg-ink-800">

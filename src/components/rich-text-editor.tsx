@@ -10,6 +10,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
+import TextAlign from "@tiptap/extension-text-align";
 import { useEffect, useRef, useState } from "react";
 import { CharacterMention } from "@/components/mention-extension";
 import { ACTIVE_JOB_VALUES, JOB_META } from "@/lib/roles";
@@ -107,6 +108,7 @@ export function RichTextEditor({
       TableRow,
       TableHeader,
       TableCell,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       CharacterMention,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Write something..." }),
@@ -301,6 +303,43 @@ export function RichTextEditor({
         </ToolbarButton>
         <span className="w-px bg-ink-600 mx-1" />
         <ToolbarButton
+          label="Align left"
+          active={editor.isActive({ textAlign: "left" })}
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+        >
+          <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+            <path d="M1 3h14M1 7h9M1 11h14M1 15h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </ToolbarButton>
+        <ToolbarButton
+          label="Align center"
+          active={editor.isActive({ textAlign: "center" })}
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+        >
+          <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+            <path d="M1 3h14M3.5 7h9M1 11h14M3.5 15h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </ToolbarButton>
+        <ToolbarButton
+          label="Align right"
+          active={editor.isActive({ textAlign: "right" })}
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+        >
+          <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+            <path d="M1 3h14M6 7h9M1 11h14M6 15h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </ToolbarButton>
+        <ToolbarButton
+          label="Justify"
+          active={editor.isActive({ textAlign: "justify" })}
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+        >
+          <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none">
+            <path d="M1 3h14M1 7h14M1 11h14M1 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </ToolbarButton>
+        <span className="w-px bg-ink-600 mx-1" />
+        <ToolbarButton
           label="Link"
           active={editor.isActive("link")}
           onClick={() => {
@@ -347,7 +386,7 @@ export function RichTextEditor({
             <span className="inline-flex items-center gap-1">
               <span
                 className="w-3 h-3 rounded-full border border-ink-500 inline-block"
-                style={{ backgroundColor: editor.getAttributes("textStyle").color || "#f6efdc" }}
+                style={{ backgroundColor: editor.getAttributes("textStyle").color || "#eeeeee" }}
               />
               Color
             </span>

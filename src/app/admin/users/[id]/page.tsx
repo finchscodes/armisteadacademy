@@ -14,6 +14,7 @@ import { AdminSlugEditor } from "@/components/admin-slug-editor";
 import { AdminYearEditor } from "@/components/admin-year-editor";
 import { AdminLevelEditor } from "@/components/admin-level-editor";
 import { AdminBalanceEditor } from "@/components/admin-balance-editor";
+import { AdminNeedsReset } from "@/components/admin-needs-reset";
 import { AdminGenderEditor } from "@/components/admin-gender-editor";
 import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor";
 import { AdminHallEditor } from "@/components/admin-hall-editor";
@@ -212,6 +213,12 @@ export default async function AdminUserDetailPage({
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">Money</p>
                   <AdminBalanceEditor characterId={c.id} userId={user.id} currentBalance={c.balance} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                    Hunger / Thirst
+                  </p>
+                  <AdminNeedsReset characterId={c.id} currentHunger={c.hunger} currentThirst={c.thirst} />
                 </div>
               </div>
             ))}

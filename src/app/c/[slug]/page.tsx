@@ -17,8 +17,10 @@ import {
   getOutgoingRequests,
 } from "@/lib/character-relations";
 import { getWallPosts, getLikesForWallPosts, getCommentsForWallPosts } from "@/lib/wall";
-import { getArsenal } from "@/lib/shops";
+import { getArsenal, getPetFoodItems } from "@/lib/shops";
 import { ArsenalTab } from "@/components/arsenal-tab";
+import { getPetsForCharacter } from "@/lib/pets";
+import { PetsTab } from "@/components/pets-tab";
 import { getCharacterReputation, getCharacterReputationThisYear } from "@/lib/reputation";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
@@ -81,6 +83,7 @@ export default async function CharacterProfilePage({
     arsenalItems,
     totalReputation,
     reputationThisYear,
+    petsList,
   ] = await Promise.all([
     getCharacterLevelProgress(character.id),
     getCharacterYearLabel(character.id, character.major, character.yearOverride),
@@ -94,8 +97,10 @@ export default async function CharacterProfilePage({
     getArsenal(character.id),
     getCharacterReputation(character.id),
     getCharacterReputationThisYear(character.id),
+    getPetsForCharacter(character.id),
   ]);
 
+  const viewerFoodItems = current?.activeCharacter ? await getPetFoodItems(current.activeCharacter.id) : [];
   const legalName = [character.firstName, character.middleName, character.lastName]
     .filter(Boolean)
     .join(" ");
@@ -314,7 +319,7 @@ export default async function CharacterProfilePage({
                   <p className="text-[11px] text-ink-400">Last reply &middot; {timeAgo(t.lastPoster.createdAt)}</p>
                   <p
                     className="text-xs font-medium"
-                    style={{ color: jobColor(t.lastPoster.characterJob) ?? "#f6efdc" }}
+                    style={{ color: jobColor(t.lastPoster.characterJob) ?? "#eeeeee" }}
                   >
                     {t.lastPoster.characterFirstName} {t.lastPoster.characterLastName}
                   </p>
@@ -356,6 +361,15 @@ export default async function CharacterProfilePage({
           topicsCount={topics.length}
           arsenal={<ArsenalTab items={arsenalItems} isOwner={isOwner} />}
           arsenalCount={arsenalItems.length}
+          pets={
+            <PetsTab
+              pets={petsList}
+              ownerCharacterId={character.id}
+              canInteract={Boolean(current?.activeCharacter)}
+              viewerFoodItems={viewerFoodItems}
+            />
+          }
+          petsCount={petsList.length}
         />
       </div>
     </div>

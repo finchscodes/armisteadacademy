@@ -100,7 +100,7 @@ export const CharacterMention = Mention.extend({
           btn.className = `w-full flex items-center text-left px-3 py-1 text-sm transition-colors ${
             i === selectedIndex ? "bg-ink-700" : "hover:bg-ink-700"
           }`;
-          btn.style.color = item.color ?? "#f6efdc";
+          btn.style.color = item.color ?? "#eeeeee";
           btn.addEventListener("mousedown", (e) => {
             e.preventDefault();
             command?.(item);

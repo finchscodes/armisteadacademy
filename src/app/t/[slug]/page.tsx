@@ -18,12 +18,12 @@ import { LetterView } from "@/components/letter-view";
 import { TopicCommentSection } from "@/components/topic-comment-section";
 import { DeletePostButton, DeleteThreadButton } from "@/components/delete-buttons";
 import { ToggleThreadLockButton } from "@/components/toggle-thread-lock-button";
+import { EditThreadSettingsButton } from "@/components/edit-thread-settings-button";
 import { PostInteractions } from "@/components/post-interactions";
 import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { ratingLabel, ratingColor, RATING_META } from "@/lib/thread-rating";
-import { getMajorColor } from "@/lib/majors";
 import { getFollowerCount, isFollowingThread, getFollowingCount, getPostCount, getRecentPhotoPosts } from "@/lib/social";
 import { SocialProfileHeader } from "@/components/social-profile-header";
 import { SocialPostCard } from "@/components/social-post-card";
@@ -139,6 +139,17 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         )}
         {canModerate && (
           <div className="flex items-center gap-3">
+            {board?.kind !== "article" && board?.kind !== "email" && board?.kind !== "social" && (
+              <EditThreadSettingsButton
+                threadId={thread.id}
+                title={thread.title}
+                location={thread.location}
+                timeSetting={thread.timeSetting}
+                surroundings={thread.surroundings}
+                ooc={thread.ooc}
+                rating={thread.rating}
+              />
+            )}
             {board?.kind !== "article" && (
               <ToggleThreadLockButton threadId={thread.id} isLocked={thread.isLocked} />
             )}
@@ -339,7 +350,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                       <Link
                         href={`/c/${post.characterSlug}`}
                         className="text-sm font-medium hover:underline"
-                        style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? "#f6efdc" }}
+                        style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? "#eeeeee" }}
                       >
                         {post.characterFirstName} {post.characterLastName}
                       </Link>
@@ -418,7 +429,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                     ooc={isArticle ? undefined : post.ooc}
                     rollValue={isArticle ? undefined : post.rollValue}
                     rollModifier={isArticle ? undefined : post.rollModifier}
-                    majorColor={isArticle ? undefined : getMajorColor(post.characterMajor)}
                   />
                   {!isArticle && (
                     <PostInteractions

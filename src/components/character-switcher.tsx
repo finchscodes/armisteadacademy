@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import { useRouter } from "next/navigation";
 import { setActiveCharacterAction } from "@/actions/characters";
 import { StyledSelect } from "@/components/styled-select";
@@ -17,14 +17,20 @@ export function CharacterSwitcher({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  // The server-confirmed value can lag behind what the person actually
+  // clicked if they switch more than once in quick succession — this
+  // always shows the most recent click immediately, independent of
+  // whichever router.refresh() happens to resolve last.
+  const [optimisticId, setOptimisticId] = useOptimistic(activeCharacterId ?? characters[0]?.id ?? null);
 
   if (characters.length === 0) return null;
 
-  const current = String(activeCharacterId ?? characters[0].id);
+  const current = String(optimisticId ?? characters[0].id);
 
   function handleChange(characterId: string) {
     setError(null);
     startTransition(async () => {
+      setOptimisticId(Number(characterId));
       try {
         const formData = new FormData();
         formData.set("characterId", characterId);

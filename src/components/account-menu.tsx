@@ -19,6 +19,9 @@ export function AccountMenu({
   xpForLevel,
   isAdmin,
   canAccessAdminPanel = false,
+  hunger,
+  thirst,
+  fainted,
 }: {
   characters: Character[];
   activeCharacter: {
@@ -37,6 +40,9 @@ export function AccountMenu({
   isAdmin: boolean;
   /** True admin, or a character holding a job the limited admin panel grants access to. */
   canAccessAdminPanel?: boolean;
+  hunger: number | null;
+  thirst: number | null;
+  fainted: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -113,6 +119,43 @@ export function AccountMenu({
                     ({xpIntoLevel}/{xpForLevel} xp)
                   </span>
                 </span>
+              </div>
+            )}
+            {(hunger !== null || thirst !== null) && (
+              <div className="space-y-1.5">
+                {fainted && (
+                  <p className="text-[11px] text-claret-500 uppercase tracking-wider font-medium">
+                    Fainted — can&apos;t post, grade, or do homework right now
+                  </p>
+                )}
+                {hunger !== null && (
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] text-ink-400 mb-0.5">
+                      <span>Hunger</span>
+                      <span>{hunger}%</span>
+                    </div>
+                    <div className="h-1.5 bg-ink-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${hunger <= 20 ? "bg-claret-600" : "bg-gunmetal-500"}`}
+                        style={{ width: `${hunger}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {thirst !== null && (
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] text-ink-400 mb-0.5">
+                      <span>Thirst</span>
+                      <span>{thirst}%</span>
+                    </div>
+                    <div className="h-1.5 bg-ink-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${thirst <= 20 ? "bg-claret-600" : "bg-gunmetal-500"}`}
+                        style={{ width: `${thirst}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

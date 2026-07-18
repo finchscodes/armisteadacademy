@@ -17,6 +17,10 @@ type Item = {
   price: number;
   stock: number | null;
   imageUrl: string | null;
+  hungerRestore: number | null;
+  thirstRestore: number | null;
+  isPet: boolean;
+  petFoodRestore: number | null;
 };
 
 function ItemForm({
@@ -99,6 +103,53 @@ function ItemForm({
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium mb-1">Hunger restored (optional)</label>
+          <input
+            name="hungerRestore"
+            type="number"
+            min={0}
+            max={100}
+            placeholder="e.g. 7 for +7%"
+            defaultValue={item?.hungerRestore ?? ""}
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium mb-1">Thirst restored (optional)</label>
+          <input
+            name="thirstRestore"
+            type="number"
+            min={0}
+            max={100}
+            placeholder="e.g. 7 for +7%"
+            defaultValue={item?.thirstRestore ?? ""}
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="flex items-center gap-2 text-xs font-medium">
+          <input type="checkbox" name="isPet" value="true" defaultChecked={item?.isPet ?? false} className="rounded border-ink-600" />
+          This is a pet (buying it creates an individual companion, not a stackable item)
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1">Pet food restore (optional)</label>
+        <input
+          name="petFoodRestore"
+          type="number"
+          min={0}
+          max={100}
+          placeholder="e.g. 15 for +15% — for food items, not pets themselves"
+          defaultValue={item?.petFoodRestore ?? ""}
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
+        />
+      </div>
+
       {state?.error && <p className="text-xs text-claret-500">{state.error}</p>}
 
       <div className="flex items-center gap-2">
@@ -163,6 +214,7 @@ export function ShopItemsEditor({ boardId, items }: { boardId: number; items: It
                 <p className="text-xs text-ink-400">
                   {item.price} dollars
                   {item.stock !== null && ` · ${item.stock} in stock`}
+                  {item.isPet && " · Pet"}
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">

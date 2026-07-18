@@ -138,7 +138,7 @@ export function LetterView({
             <Link
               href={`/c/${senderSlug}`}
               className="text-sm hover:underline transition-colors"
-              style={{ color: jobColor(senderJob) ?? "#f6efdc" }}
+              style={{ color: jobColor(senderJob) ?? "#eeeeee" }}
             >
               {senderName}
             </Link>

@@ -77,15 +77,9 @@ export function PostInteractions({
         <div className="mt-3 space-y-2.5">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-2 items-start">
-              <CharacterHoverCard
-                characterId={c.characterId}
-                slug={c.characterSlug}
-                className="relative shrink-0"
-              >
-                <Link href={`/c/${c.characterSlug}`} className="shrink-0 block">
-                  <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
-                </Link>
-              </CharacterHoverCard>
+              <Link href={`/c/${c.characterSlug}`} className="shrink-0 block">
+                <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
+              </Link>
               <div className="bg-ink-800/60 rounded-lg px-3 py-1.5 flex-1 min-w-0">
                 <CharacterHoverCard characterId={c.characterId} slug={c.characterSlug}>
                   <Link

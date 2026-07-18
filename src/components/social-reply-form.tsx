@@ -13,6 +13,8 @@ export function SocialReplyForm({ threadSlug }: { threadSlug: string }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploading, startUpload] = useTransition();
   const [submitting, startSubmit] = useTransition();
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlDraft, setUrlDraft] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -27,6 +29,18 @@ export function SocialReplyForm({ threadSlug }: { threadSlug: string }) {
       if (result.error) setUploadError(result.error);
       else if (result.url) setImageUrl(result.url);
     });
+  }
+
+  function confirmUrl() {
+    const trimmed = urlDraft.trim();
+    if (!/^https?:\/\/\S+$/i.test(trimmed)) {
+      setUploadError("Enter a valid image URL starting with http:// or https://");
+      return;
+    }
+    setUploadError(null);
+    setImageUrl(trimmed);
+    setUrlDraft("");
+    setShowUrlInput(false);
   }
 
   function handleSubmit(formData: FormData) {
@@ -62,15 +76,49 @@ export function SocialReplyForm({ threadSlug }: { threadSlug: string }) {
               &times;
             </button>
           </div>
+        ) : showUrlInput ? (
+          <div className="flex items-center gap-2">
+            <input
+              value={urlDraft}
+              onChange={(e) => setUrlDraft(e.target.value)}
+              placeholder="https://..."
+              autoFocus
+              className="flex-1 min-w-0 rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            />
+            <button
+              type="button"
+              onClick={confirmUrl}
+              className="text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
+            >
+              Use
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowUrlInput(false)}
+              className="text-xs text-ink-400 hover:text-parchment-100 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
-          >
-            {uploading ? "Uploading..." : "Upload a photo"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
+            >
+              {uploading ? "Uploading..." : "Upload a photo"}
+            </button>
+            <span className="text-xs text-ink-500">or</span>
+            <button
+              type="button"
+              onClick={() => setShowUrlInput(true)}
+              className="text-xs bg-ink-800 border border-ink-600 text-parchment-100 px-3 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
+            >
+              Paste a URL
+            </button>
+          </div>
         )}
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
         {uploadError && <p className="text-xs text-claret-500 mt-1">{uploadError}</p>}

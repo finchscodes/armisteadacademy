@@ -46,9 +46,11 @@ export function NewThreadForm({
           id="title"
           name="title"
           required
-          placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : isSocial ? "e.g. @codename" : undefined}
+          defaultValue={isSocial ? "@" : undefined}
+          placeholder={isPhone ? "e.g. Texts with Celeste" : isEmail ? "e.g. Check In" : isSocial ? "@codename" : undefined}
           className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
         />
+        {isSocial && <p className="text-[11px] text-ink-400 mt-1">Handles must start with @.</p>}
       </div>
 
       {!isArticle && !isEmail && !isSocial && (

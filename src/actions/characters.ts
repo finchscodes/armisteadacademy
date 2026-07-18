@@ -42,7 +42,7 @@ const createCharacterSchema = z.object({
   bio: z.string().max(4000).optional(),
 });
 
-const STARTING_BALANCE = 50;
+const STARTING_BALANCE = 200;
 
 /** Resolve a character's hall from a direct pick, or defer it ("pending") for the sorting quiz. */
 function resolveHall(formData: FormData): { hall: string | null } | { error: string } {

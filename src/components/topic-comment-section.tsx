@@ -97,15 +97,9 @@ export function TopicCommentSection({
           <div className="space-y-3">
             {comments.map((c) => (
               <div key={c.id} className="flex gap-2.5 items-start group">
-                <CharacterHoverCard
-                  characterId={c.characterId}
-                  slug={c.characterSlug}
-                  className="relative shrink-0"
-                >
-                  <Link href={`/c/${c.characterSlug}`} className="shrink-0 block">
-                    <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
-                  </Link>
-                </CharacterHoverCard>
+                <Link href={`/c/${c.characterSlug}`} className="shrink-0 block">
+                  <CharacterBadge name={c.characterName} avatarUrl={c.characterAvatarUrl} size="sm" />
+                </Link>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">
                     <CharacterHoverCard characterId={c.characterId} slug={c.characterSlug}>

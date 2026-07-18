@@ -27,7 +27,9 @@ import { getMajorColor } from "@/lib/majors";
 import { getFollowerCount, isFollowingThread, getFollowingCount, getPostCount, getRecentPhotoPosts } from "@/lib/social";
 import { SocialProfileHeader } from "@/components/social-profile-header";
 import { SocialPostCard } from "@/components/social-post-card";
+import { SocialCommentCard } from "@/components/social-comment-card";
 import { SocialReplyForm } from "@/components/social-reply-form";
+import { SocialCommentForm } from "@/components/social-comment-form";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -224,6 +226,27 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               ((session!.userId === post.authorUserId && post.id !== openingPostId) ||
                 session!.isAdmin ||
                 canModerate);
+
+            // Only the account owner's replies are "posts" — everyone
+            // else's replies are treated as in-character comments on the
+            // account, shown in a compact format instead of a full post card.
+            if (post.characterId !== thread.characterId) {
+              return (
+                <SocialCommentCard
+                  key={post.id}
+                  postId={post.id}
+                  characterName={`${post.characterFirstName} ${post.characterLastName}`}
+                  characterSlug={post.characterSlug}
+                  characterAvatarUrl={post.characterAvatarUrl}
+                  characterId={post.characterId}
+                  characterJob={jobsByCharacter.get(post.characterId) ?? "none"}
+                  content={post.content}
+                  createdAt={post.createdAt}
+                  canDelete={canDeleteThis}
+                />
+              );
+            }
+
             return (
               <SocialPostCard
                 key={post.id}
@@ -238,7 +261,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                 createdAt={post.createdAt}
                 canDelete={canDeleteThis}
                 reactions={reactionsByPost.get(post.id) ?? []}
-                comments={commentsByPost.get(post.id) ?? []}
                 canInteract={Boolean(viewerCharacterId)}
               />
             );
@@ -345,15 +367,15 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               <article className="bg-ink-900 border border-ink-700 rounded-lg p-5 flex gap-4">
                 {!isArticle && (
                   <div className="shrink-0 flex flex-col items-center gap-2 w-24 text-center">
-                    <CharacterHoverCard
-                      characterId={post.characterId}
-                      slug={post.characterSlug}
-                      className="relative flex flex-col items-center gap-2"
-                    >
-                      <Link href={`/c/${post.characterSlug}`}>
-                        <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
-                      </Link>
-                      <div>
+                    <Link href={`/c/${post.characterSlug}`}>
+                      <CharacterBadge name={post.characterName} avatarUrl={post.characterAvatarUrl} />
+                    </Link>
+                    <div>
+                      <CharacterHoverCard
+                        characterId={post.characterId}
+                        slug={post.characterSlug}
+                        className="relative inline-block"
+                      >
                         <Link
                           href={`/c/${post.characterSlug}`}
                           className="text-sm text-parchment-100 hover:underline"
@@ -361,17 +383,17 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                         >
                           {post.characterFirstName} {post.characterLastName}
                         </Link>
-                        <p className="text-[11px] text-ink-400 leading-tight mt-1">
-                          {post.characterMajor}
-                          {yearLabel && (
-                            <>
-                              <br />
-                              {yearLabel}
-                            </>
-                          )}
-                        </p>
-                      </div>
-                    </CharacterHoverCard>
+                      </CharacterHoverCard>
+                      <p className="text-[11px] text-ink-400 leading-tight mt-1">
+                        {post.characterMajor}
+                        {yearLabel && (
+                          <>
+                            <br />
+                            {yearLabel}
+                          </>
+                        )}
+                      </p>
+                    </div>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -439,7 +461,11 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
       ) : board?.kind === "email" ? (
         <EmailReplyForm threadSlug={thread.slug} />
       ) : board?.kind === "social" ? (
-        <SocialReplyForm threadSlug={thread.slug} />
+        viewerCharacterId === thread.characterId ? (
+          <SocialReplyForm threadSlug={thread.slug} />
+        ) : (
+          <SocialCommentForm threadSlug={thread.slug} />
+        )
       ) : (
         <ReplyForm threadSlug={thread.slug} />
       )}

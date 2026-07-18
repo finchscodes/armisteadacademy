@@ -3,9 +3,9 @@ import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { RichTextDisplay } from "@/components/rich-text-display";
 import { DeletePostButton } from "@/components/delete-buttons";
-import { PostInteractions } from "@/components/post-interactions";
+import { SocialLikeButton } from "@/components/social-like-button";
 import { jobColor, type CharacterJob } from "@/lib/roles";
-import type { ReactionSummary, PostCommentRow } from "@/lib/post-interactions";
+import type { ReactionSummary } from "@/lib/post-interactions";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -31,7 +31,6 @@ export function SocialPostCard({
   createdAt,
   canDelete,
   reactions,
-  comments,
   canInteract,
 }: {
   postId: number;
@@ -45,37 +44,45 @@ export function SocialPostCard({
   createdAt: Date;
   canDelete: boolean;
   reactions: ReactionSummary[];
-  comments: PostCommentRow[];
   canInteract: boolean;
 }) {
+  const likeReaction = reactions.find((r) => r.emoji === "\u2764\ufe0f");
+
   return (
     <article
       id={`post-${postId}`}
-      className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden mb-4 scroll-mt-16"
+      className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden mb-4 max-w-md mx-auto scroll-mt-16"
     >
       <div className="flex items-center justify-between px-3 py-2.5">
-        <CharacterHoverCard characterId={characterId} slug={characterSlug} className="relative flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <Link href={`/c/${characterSlug}`}>
             <CharacterBadge name={characterName} avatarUrl={characterAvatarUrl} size="sm" />
           </Link>
-          <Link
-            href={`/c/${characterSlug}`}
-            className="text-sm font-medium hover:underline"
-            style={{ color: jobColor(characterJob) ?? undefined }}
-          >
-            {characterName}
-          </Link>
-        </CharacterHoverCard>
+          <CharacterHoverCard characterId={characterId} slug={characterSlug} className="relative inline-block">
+            <Link
+              href={`/c/${characterSlug}`}
+              className="text-sm font-medium hover:underline"
+              style={{ color: jobColor(characterJob) ?? undefined }}
+            >
+              {characterName}
+            </Link>
+          </CharacterHoverCard>
+        </div>
         {canDelete && <DeletePostButton postId={postId} isOpeningPost={false} />}
       </div>
 
       {imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="w-full max-h-[600px] object-cover bg-ink-950" />
+        <img src={imageUrl} alt="" className="w-full max-h-[500px] object-cover bg-ink-950" />
       )}
 
       <div className="px-3 py-2.5">
-        <PostInteractions postId={postId} reactions={reactions} comments={comments} canInteract={canInteract} />
+        <SocialLikeButton
+          postId={postId}
+          count={likeReaction?.count ?? 0}
+          likedByViewer={likeReaction?.reactedByViewer ?? false}
+          canInteract={canInteract}
+        />
         {content && (
           <div className="text-sm mt-2">
             <span className="font-medium mr-1.5">{characterName}</span>

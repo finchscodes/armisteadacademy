@@ -124,6 +124,9 @@ export async function createThreadAction(
 
   const isArticle = board.kind === "article";
   const isSocial = board.kind === "social";
+  if (isSocial && !title.startsWith("@")) {
+    return { error: "Handles must start with @" };
+  }
   if (!isArticle && !isEmail && !isSocial && !rating) {
     return { error: "Pick a rating" };
   }

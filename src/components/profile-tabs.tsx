@@ -36,13 +36,13 @@ export function ProfileTabs({
 
   return (
     <div>
-      <div className="flex gap-0.5 border-b border-ink-700 mb-6 overflow-x-auto">
+      <div className="flex gap-0 border-b border-ink-700 mb-6 overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
-            className={`text-xs sm:text-sm px-2.5 sm:px-3.5 py-2 border-b-2 -mb-px whitespace-nowrap transition-colors ${
+            className={`text-[11px] px-2 py-1.5 border-b-2 -mb-px whitespace-nowrap transition-colors ${
               tab === t.key
                 ? "border-gunmetal-500 text-gunmetal-400"
                 : "border-transparent text-ink-400 hover:text-parchment-100"

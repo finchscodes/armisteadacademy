@@ -1,7 +1,7 @@
 import { eq, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { xpLedger, GRADING_LEVEL_REQUIREMENT } from "@/db/schema";
-import { postAutoWallEntry } from "@/lib/auto-wall-posts";
+import { postLevelUpEntry } from "@/lib/auto-wall-posts";
 
 /**
  * Increasing XP curve: the XP needed to go from level L to L+1 grows with L,
@@ -109,6 +109,6 @@ export async function awardXp(params: {
 
   const levelAfter = levelForXp(before + params.amount);
   if (levelAfter > levelBefore) {
-    await postAutoWallEntry(params.characterId, `Reached Level ${levelAfter}!`);
+    await postLevelUpEntry(params.characterId, levelAfter);
   }
 }

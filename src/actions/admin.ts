@@ -1426,7 +1426,7 @@ export async function getRecentGradedSubmissions(limit = 50, boardIds?: number[]
         ? and(eq(submissions.status, "graded"), inArray(lessons.boardId, boardIds))
         : eq(submissions.status, "graded")
     )
-    .orderBy(desc(submissions.gradedAt))
+    .orderBy(boards.name, desc(submissions.gradedAt))
     .limit(limit);
   return rows;
 }

@@ -14,6 +14,8 @@ type WallPost = {
   posterSlug: string;
   posterAvatarUrl: string | null;
   posterJob: string;
+  activityType: string | null;
+  activityValue: string | null;
 };
 
 export function WallFeed({

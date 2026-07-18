@@ -15,6 +15,7 @@ import { CharacterHoverCard } from "@/components/character-hover-card";
 import { RichTextDisplay } from "@/components/rich-text-display";
 import { HeartIcon, ChatBubbleIcon } from "@/components/nav-icons";
 import { jobColor } from "@/lib/roles";
+import { hallLabel, hallColor } from "@/lib/halls";
 import type { WallLikeSummary, WallCommentRow } from "@/lib/wall";
 
 function timeAgo(date: Date) {
@@ -51,6 +52,8 @@ export function WallPostItem({
     posterSlug: string;
     posterAvatarUrl: string | null;
     posterJob: string;
+    activityType: string | null;
+    activityValue: string | null;
   };
   like: WallLikeSummary;
   comments: WallCommentRow[];
@@ -114,64 +117,134 @@ export function WallPostItem({
   }
 
   const canDelete = isWallOwner || canModerate || isPoster;
+  const isActivity = Boolean(post.activityType);
+
+  const activityBadge =
+    post.activityType === "level_up" ? (
+      <div className="shrink-0 w-9 h-9 rounded-full bg-gunmetal-500 border-2 border-gunmetal-400 flex items-center justify-center">
+        <span className="text-[11px] font-bold text-ink-950">{post.activityValue}</span>
+      </div>
+    ) : post.activityType === "sorted" ? (
+      <div
+        className="shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center"
+        style={{
+          backgroundColor: `${hallColor(post.activityValue)}33`,
+          borderColor: hallColor(post.activityValue) ?? undefined,
+        }}
+      >
+        <span className="text-xs font-bold" style={{ color: hallColor(post.activityValue) ?? undefined }}>
+          {hallLabel(post.activityValue)?.charAt(0)}
+        </span>
+      </div>
+    ) : null;
+
+  const activitySentence =
+    post.activityType === "level_up" ? (
+      <>
+        <Link href={`/c/${post.posterSlug}`} className="font-semibold hover:underline text-parchment-100">
+          {post.posterFirstName} {post.posterLastName}
+        </Link>{" "}
+        advanced to level {post.activityValue}
+      </>
+    ) : post.activityType === "sorted" ? (
+      <>
+        <Link href={`/c/${post.posterSlug}`} className="font-semibold hover:underline text-parchment-100">
+          {post.posterFirstName} {post.posterLastName}
+        </Link>{" "}
+        was sorted into {hallLabel(post.activityValue)} hall
+      </>
+    ) : null;
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg p-4">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Link href={`/c/${post.posterSlug}`} className="shrink-0">
-            <CharacterBadge name={post.posterName} avatarUrl={post.posterAvatarUrl} size="sm" />
-          </Link>
-          <div className="min-w-0">
-            <CharacterHoverCard characterId={post.posterCharacterId} slug={post.posterSlug} className="relative block">
-              <Link
-                href={`/c/${post.posterSlug}`}
-                className="text-sm font-medium hover:underline"
-                style={{ color: jobColor(post.posterJob as never) ?? "#eeeeee" }}
-              >
-                {post.posterFirstName} {post.posterLastName}
-              </Link>
-            </CharacterHoverCard>
-            <p className="text-[11px] text-ink-400">
-              {timeAgo(post.createdAt)}
-              {wallOwner && (
-                <>
-                  <span className="text-ink-500"> &rarr; </span>
-                  <Link href={`/c/${wallOwner.slug}`} className="hover:text-gunmetal-400 transition-colors">
-                    {wallOwner.name}&apos;s wall
-                  </Link>
-                </>
-              )}
-            </p>
+      {isActivity ? (
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {activityBadge}
+            <div className="min-w-0">
+              <p className="text-sm text-parchment-100/90">{activitySentence}</p>
+              <p className="text-[11px] text-ink-400">
+                {timeAgo(post.createdAt)}
+                {wallOwner && (
+                  <>
+                    <span className="text-ink-500"> &rarr; </span>
+                    <Link href={`/c/${wallOwner.slug}`} className="hover:text-gunmetal-400 transition-colors">
+                      {wallOwner.name}&apos;s wall
+                    </Link>
+                  </>
+                )}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-gunmetal-400">Pinned</span>}
-          {isWallOwner && (
-            <button
-              type="button"
-              onClick={handlePin}
-              disabled={pending}
-              className="text-ink-400 hover:text-gunmetal-400 disabled:opacity-50"
-              data-tooltip={post.isPinned ? "Unpin" : "Pin to top"}
-            >
-              📌
-            </button>
-          )}
           {canDelete && (
             <button
               type="button"
               onClick={handleDelete}
               disabled={pending}
-              className="text-ink-400 hover:text-claret-500 disabled:opacity-50"
+              className="shrink-0 text-ink-400 hover:text-claret-500 disabled:opacity-50"
               data-tooltip="Delete"
             >
               &times;
             </button>
           )}
         </div>
-      </div>
-      <RichTextDisplay html={post.content} className="text-sm text-parchment-100/90" />
+      ) : (
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Link href={`/c/${post.posterSlug}`} className="shrink-0">
+              <CharacterBadge name={post.posterName} avatarUrl={post.posterAvatarUrl} size="sm" />
+            </Link>
+            <div className="min-w-0">
+              <CharacterHoverCard characterId={post.posterCharacterId} slug={post.posterSlug} className="relative block">
+                <Link
+                  href={`/c/${post.posterSlug}`}
+                  className="text-sm font-medium hover:underline"
+                  style={{ color: jobColor(post.posterJob as never) ?? "#eeeeee" }}
+                >
+                  {post.posterFirstName} {post.posterLastName}
+                </Link>
+              </CharacterHoverCard>
+              <p className="text-[11px] text-ink-400">
+                {timeAgo(post.createdAt)}
+                {wallOwner && (
+                  <>
+                    <span className="text-ink-500"> &rarr; </span>
+                    <Link href={`/c/${wallOwner.slug}`} className="hover:text-gunmetal-400 transition-colors">
+                      {wallOwner.name}&apos;s wall
+                    </Link>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-gunmetal-400">Pinned</span>}
+            {isWallOwner && (
+              <button
+                type="button"
+                onClick={handlePin}
+                disabled={pending}
+                className="text-ink-400 hover:text-gunmetal-400 disabled:opacity-50"
+                data-tooltip={post.isPinned ? "Unpin" : "Pin to top"}
+              >
+                📌
+              </button>
+            )}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={pending}
+                className="text-ink-400 hover:text-claret-500 disabled:opacity-50"
+                data-tooltip="Delete"
+              >
+                &times;
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      {!isActivity && <RichTextDisplay html={post.content} className="text-sm text-parchment-100/90" />}
 
       <div className="mt-3 pt-3 border-t border-ink-700/60 flex items-center gap-4">
         <button

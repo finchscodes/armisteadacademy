@@ -122,7 +122,7 @@ export default async function CharacterProfilePage({
     : false;
 
   const sidebar = (
-    <div className="w-full lg:w-72 shrink-0 space-y-4">
+    <div className="w-full lg:w-64 shrink-0 space-y-4">
       <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">
         <div className="flex flex-col items-center text-center">
           <CharacterBadge name={character.name} avatarUrl={character.avatarUrl} size="lg" />

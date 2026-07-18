@@ -262,6 +262,13 @@ export const wallPosts = pgTable("wall_posts", {
   content: text("content").notNull(),
   isPinned: boolean("is_pinned").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  // Set only for automatic entries (leveling up, getting sorted) — these
+  // render as a distinct activity-feed style badge+sentence instead of a
+  // normal wall post, so it's clear the character didn't write it
+  // themselves. Null for every real, user-written wall post.
+  activityType: varchar("activity_type", { length: 20 }),
+  // "level_up" -> the new level number as a string; "sorted" -> the hall value.
+  activityValue: varchar("activity_value", { length: 40 }),
 });
 
 /** One like per (wall post, character) — a simple heart, not the multi-emoji reaction set forum posts get. */

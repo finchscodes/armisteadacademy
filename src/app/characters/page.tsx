@@ -51,7 +51,7 @@ export default async function CharactersPage() {
           .
         </p>
       ) : (
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 lg:grid-cols-5 gap-2">
           {current.characters.map((c) => {
             const avatarColor = getMajorColor(c.major) ?? "#7f95a3";
             const nameColor = jobColor(jobsByCharacter.get(c.id) ?? "none") ?? undefined;

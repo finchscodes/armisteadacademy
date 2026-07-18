@@ -135,7 +135,7 @@ export function MemberDirectory({ members }: { members: Member[] }) {
       {filtered.length === 0 ? (
         <p className="text-sm text-ink-400">No one matches that search.</p>
       ) : (
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 lg:grid-cols-5 gap-2">
           {filtered.map((m) => {
             const avatarColor = getMajorColor(m.major) ?? "#7f95a3";
             const nameColor = jobColor(m.characterJob as never) ?? undefined;

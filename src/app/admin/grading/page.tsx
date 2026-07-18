@@ -22,40 +22,61 @@ export default async function AdminGradingPage() {
     access.isFullAdmin || access.canViewAllGrading ? undefined : access.gradingBoardIds
   );
 
+  // Already sorted by class (board name) from the query — group consecutive
+  // rows under a header per class rather than re-sorting here.
+  const groups: { boardName: string; items: typeof submissions }[] = [];
+  for (const s of submissions) {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.boardName === s.boardName) {
+      lastGroup.items.push(s);
+    } else {
+      groups.push({ boardName: s.boardName, items: [s] });
+    }
+  }
+
   return (
     <div className="max-w-2xl">
       {submissions.length === 0 ? (
         <p className="text-sm text-ink-400">Nothing graded yet.</p>
       ) : (
-        <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
-          {submissions.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-3">
-              <div className="min-w-0">
-                <p className="text-sm text-parchment-100">
-                  <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
-                    {s.characterFirstName} {s.characterLastName}
-                  </Link>
-                  <span className="text-ink-400"> &middot; </span>
-                  <Link href={`/lesson/${s.lessonId}`} className="text-gunmetal-400 hover:underline">
-                    {s.lessonTitle}
-                  </Link>
-                </p>
-                <p className="text-xs text-ink-400 mt-0.5">
-                  {s.boardName} &middot; {s.payout} dollars
-                  {s.finalTier && (
-                    <>
-                      {" "}
-                      &middot;{" "}
-                      <span style={{ color: tierColor(s.finalTier as GradeTier) }}>
-                        {tierLabel(s.finalTier as GradeTier)}
-                      </span>
-                    </>
-                  )}
-                </p>
+        <div className="space-y-6">
+          {groups.map((group) => (
+            <div key={group.boardName}>
+              <h2 className="font-display text-sm text-gunmetal-400 uppercase tracking-wider mb-2">
+                {group.boardName}
+              </h2>
+              <div className="bg-ink-900 border border-ink-700 rounded-lg divide-y divide-ink-700">
+                {group.items.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm text-parchment-100">
+                        <Link href={`/c/${s.characterSlug}`} className="hover:text-gunmetal-400">
+                          {s.characterFirstName} {s.characterLastName}
+                        </Link>
+                        <span className="text-ink-400"> &middot; </span>
+                        <Link href={`/lesson/${s.lessonId}`} className="text-gunmetal-400 hover:underline">
+                          {s.lessonTitle}
+                        </Link>
+                      </p>
+                      <p className="text-xs text-ink-400 mt-0.5">
+                        {s.payout} dollars
+                        {s.finalTier && (
+                          <>
+                            {" "}
+                            &middot;{" "}
+                            <span style={{ color: tierColor(s.finalTier as GradeTier) }}>
+                              {tierLabel(s.finalTier as GradeTier)}
+                            </span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                    {s.finalTier && (
+                      <AdminGradeEditor submissionId={s.id} currentTier={s.finalTier as GradeTier} />
+                    )}
+                  </div>
+                ))}
               </div>
-              {s.finalTier && (
-                <AdminGradeEditor submissionId={s.id} currentTier={s.finalTier as GradeTier} />
-              )}
             </div>
           ))}
         </div>

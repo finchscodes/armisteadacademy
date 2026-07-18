@@ -86,6 +86,8 @@ export async function getWallPosts(wallCharacterId: number) {
       posterLastName: characters.lastName,
       posterSlug: characters.slug,
       posterAvatarUrl: characters.avatarUrl,
+      activityType: wallPosts.activityType,
+      activityValue: wallPosts.activityValue,
     })
     .from(wallPosts)
     .innerJoin(characters, eq(wallPosts.posterCharacterId, characters.id))
@@ -105,6 +107,8 @@ export async function getRecentWallActivity(limit = 10) {
       createdAt: wallPosts.createdAt,
       posterCharacterId: wallPosts.posterCharacterId,
       wallCharacterId: wallPosts.wallCharacterId,
+      activityType: wallPosts.activityType,
+      activityValue: wallPosts.activityValue,
     })
     .from(wallPosts)
     .orderBy(desc(wallPosts.createdAt))

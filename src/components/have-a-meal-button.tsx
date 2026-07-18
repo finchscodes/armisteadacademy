@@ -23,7 +23,7 @@ export function HaveAMealButton() {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="relative shrink-0">
       <button
         type="button"
         onClick={handleClick}
@@ -32,8 +32,10 @@ export function HaveAMealButton() {
       >
         {pending ? "..." : "Have a meal"}
       </button>
-      <FadingMessage message={message} variant="success" />
-      <FadingMessage message={error} variant="error" />
+      <div className="absolute top-full right-0 mt-1 z-10 max-w-[220px] text-right">
+        <FadingMessage message={message} variant="success" />
+        <FadingMessage message={error} variant="error" />
+      </div>
     </div>
   );
 }

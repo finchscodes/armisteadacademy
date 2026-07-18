@@ -40,6 +40,8 @@ export async function HomeWallFeed() {
                 posterSlug: a.poster.slug,
                 posterAvatarUrl: a.poster.avatarUrl,
                 posterJob: a.poster.job,
+                activityType: a.activityType,
+                activityValue: a.activityValue,
               }}
               like={likes.get(a.id) ?? { count: 0, likedByViewer: false }}
               comments={comments.get(a.id) ?? []}

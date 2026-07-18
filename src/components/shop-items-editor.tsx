@@ -20,7 +20,6 @@ type Item = {
   hungerRestore: number | null;
   thirstRestore: number | null;
   isPet: boolean;
-  petFoodRestore: number | null;
 };
 
 function ItemForm({
@@ -135,19 +134,6 @@ function ItemForm({
           <input type="checkbox" name="isPet" value="true" defaultChecked={item?.isPet ?? false} className="rounded border-ink-600" />
           This is a pet (buying it creates an individual companion, not a stackable item)
         </label>
-      </div>
-
-      <div>
-        <label className="block text-xs font-medium mb-1">Pet food restore (optional)</label>
-        <input
-          name="petFoodRestore"
-          type="number"
-          min={0}
-          max={100}
-          placeholder="e.g. 15 for +15% — for food items, not pets themselves"
-          defaultValue={item?.petFoodRestore ?? ""}
-          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
-        />
       </div>
 
       {state?.error && <p className="text-xs text-claret-500">{state.error}</p>}

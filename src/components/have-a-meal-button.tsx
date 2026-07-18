@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { haveAMealAction } from "@/actions/needs";
+import { FadingMessage } from "@/components/fading-message";
 
 export function HaveAMealButton() {
   const router = useRouter();
@@ -22,17 +23,17 @@ export function HaveAMealButton() {
   }
 
   return (
-    <div>
+    <div className="flex items-center gap-3">
       <button
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-60"
+        className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors disabled:opacity-60"
       >
         {pending ? "..." : "Have a meal"}
       </button>
-      {message && <p className="text-xs text-green-500 mt-1">{message}</p>}
-      {error && <p className="text-xs text-claret-500 mt-1">{error}</p>}
+      <FadingMessage message={message} variant="success" />
+      <FadingMessage message={error} variant="error" />
     </div>
   );
 }

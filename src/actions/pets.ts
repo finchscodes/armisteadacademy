@@ -1,11 +1,11 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { pets, items, inventory } from "@/db/schema";
+import { pets } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
-import { getPetsForCharacter, CUDDLE_XP, CARE_XP } from "@/lib/pets";
+import { getPetsForCharacter, CUDDLE_XP } from "@/lib/pets";
 import { awardXp, XP_AWARDS } from "@/lib/xp";
 
 export type PetActionState = { error?: string; success?: string } | undefined;
@@ -33,7 +33,11 @@ export async function cuddlePetAction(
   return { success: `+${CUDDLE_XP} XP` };
 }
 
-/** Cuddles every eligible (not-on-cooldown) pet a character owns, in one go. */
+/**
+ * Cuddles every eligible (not-on-cooldown) pet a character owns, in one
+ * go — pays out half of what cuddling each one individually would (an
+ * intentional discount for the convenience of doing it all at once).
+ */
 export async function cuddleAllPetsAction(
   _prevState: PetActionState,
   formData: FormData
@@ -51,61 +55,14 @@ export async function cuddleAllPetsAction(
     await db.update(pets).set({ lastCuddledAt: now }).where(eq(pets.id, p.id));
   }
 
-  const totalXp = eligible.length * XP_AWARDS.pet_cuddle;
+  const totalXp = Math.round((eligible.length * XP_AWARDS.pet_cuddle) / 2);
   await awardXp({
     characterId: viewerCharacterId,
     amount: totalXp,
     reason: "pet_cuddle",
-    note: `Cuddled ${eligible.length} pet${eligible.length === 1 ? "" : "s"}`,
+    note: `Cuddled ${eligible.length} pet${eligible.length === 1 ? "" : "s"} at once`,
   });
 
   revalidatePath("/", "layout");
   return { success: `+${totalXp} XP (${eligible.length} pet${eligible.length === 1 ? "" : "s"})` };
-}
-
-/** Feeds one pet from a chosen pet-food item in the caring character's own Arsenal — 3x the cuddle XP, once. */
-export async function careForPetAction(
-  _prevState: PetActionState,
-  formData: FormData
-): Promise<PetActionState> {
-  const { characterId } = await requireSessionAndCharacter();
-  const petId = Number(formData.get("petId"));
-  const inventoryId = Number(formData.get("inventoryId"));
-  if (!petId || !inventoryId) return { error: "Pick a pet and a food item" };
-
-  const [pet] = await db.select({ id: pets.id, hunger: pets.hunger }).from(pets).where(eq(pets.id, petId));
-  if (!pet) return { error: "Pet not found" };
-
-  const [foodRow] = await db
-    .select({
-      id: inventory.id,
-      quantity: inventory.quantity,
-      petFoodRestore: items.petFoodRestore,
-      itemName: items.name,
-    })
-    .from(inventory)
-    .innerJoin(items, eq(inventory.itemId, items.id))
-    .where(and(eq(inventory.id, inventoryId), eq(inventory.characterId, characterId)));
-
-  if (!foodRow) return { error: "You don't have that food item" };
-  if (!foodRow.petFoodRestore) return { error: "That item isn't pet food" };
-
-  const newHunger = Math.min(100, pet.hunger + foodRow.petFoodRestore);
-  await db.update(pets).set({ hunger: newHunger, lastPetNeedsUpdate: new Date() }).where(eq(pets.id, petId));
-
-  if (foodRow.quantity > 1) {
-    await db.update(inventory).set({ quantity: foodRow.quantity - 1 }).where(eq(inventory.id, foodRow.id));
-  } else {
-    await db.delete(inventory).where(eq(inventory.id, foodRow.id));
-  }
-
-  await awardXp({
-    characterId,
-    amount: CARE_XP,
-    reason: "pet_cuddle",
-    note: `Cared for a pet with ${foodRow.itemName}`,
-  });
-
-  revalidatePath("/", "layout");
-  return { success: `+${foodRow.petFoodRestore}% hunger, +${CARE_XP} XP` };
 }

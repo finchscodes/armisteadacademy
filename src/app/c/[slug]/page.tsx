@@ -17,7 +17,7 @@ import {
   getOutgoingRequests,
 } from "@/lib/character-relations";
 import { getWallPosts, getLikesForWallPosts, getCommentsForWallPosts } from "@/lib/wall";
-import { getArsenal, getPetFoodItems } from "@/lib/shops";
+import { getArsenal } from "@/lib/shops";
 import { ArsenalTab } from "@/components/arsenal-tab";
 import { getPetsForCharacter } from "@/lib/pets";
 import { PetsTab } from "@/components/pets-tab";
@@ -100,7 +100,6 @@ export default async function CharacterProfilePage({
     getPetsForCharacter(character.id),
   ]);
 
-  const viewerFoodItems = current?.activeCharacter ? await getPetFoodItems(current.activeCharacter.id) : [];
   const legalName = [character.firstName, character.middleName, character.lastName]
     .filter(Boolean)
     .join(" ");
@@ -366,7 +365,6 @@ export default async function CharacterProfilePage({
               pets={petsList}
               ownerCharacterId={character.id}
               canInteract={Boolean(current?.activeCharacter)}
-              viewerFoodItems={viewerFoodItems}
             />
           }
           petsCount={petsList.length}

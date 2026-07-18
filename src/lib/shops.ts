@@ -30,21 +30,6 @@ export type ArsenalRow = {
   thirstRestore: number | null;
 };
 
-/** A character's own pet-food-capable items — used to populate the "Care for" picker on someone's Pets tab. */
-export async function getPetFoodItems(characterId: number) {
-  const rows = await db
-    .select({
-      inventoryId: inventory.id,
-      itemName: items.name,
-      petFoodRestore: items.petFoodRestore,
-    })
-    .from(inventory)
-    .innerJoin(items, eq(inventory.itemId, items.id))
-    .where(eq(inventory.characterId, characterId));
-
-  return rows.filter((r): r is typeof r & { petFoodRestore: number } => r.petFoodRestore !== null);
-}
-
 /** A character's arsenal — every item they own, with shop context, newest first. */
 export async function getArsenal(characterId: number): Promise<ArsenalRow[]> {
   const rows = await db

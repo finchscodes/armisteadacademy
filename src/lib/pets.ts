@@ -6,7 +6,6 @@ const DAYS_TO_EMPTY = 7; // same rate as character hunger/thirst, for consistenc
 const PERCENT_PER_HOUR = 100 / (DAYS_TO_EMPTY * 24);
 
 export const CUDDLE_XP = 5;
-export const CARE_XP = CUDDLE_XP * 3; // 15
 export const CUDDLE_COOLDOWN_MS = 24 * 60 * 60 * 1000; // one cuddle per pet per real day
 
 export type PetRow = {

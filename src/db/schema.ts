@@ -944,10 +944,6 @@ export const items = pgTable("items", {
   // pets table (an individually-tracked companion) instead of a stackable
   // inventory entry.
   isPet: boolean("is_pet").notNull().default(false),
-  // For regular (non-pet) items sold as pet food — how much a pet's
-  // hunger goes up when this is used to "care for" it. Unrelated to a
-  // pet-species item's own fields, which don't use this.
-  petFoodRestore: integer("pet_food_restore"),
 });
 
 export const inventory = pgTable("inventory", {

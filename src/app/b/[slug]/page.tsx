@@ -131,37 +131,34 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
             )}
           </div>
         </div>
-        {board.kind !== "category" && !isClassBoard && canPostHere && (
-          <Link
-            href={`/b/${board.slug}/new`}
-            className="shrink-0 text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
-          >
-            {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
-          </Link>
-        )}
-        {isClassBoard && canPostLesson && (
-          <Link
-            href={`/b/${board.slug}/exam/edit`}
-            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
-          >
-            Edit exam
-          </Link>
-        )}
-        {isClassBoard && !canPostLesson && isEnrolled && (
-          <Link
-            href={`/b/${board.slug}/exam`}
-            className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
-          >
-            Take exam
-          </Link>
-        )}
-      </div>
-
-      {board.slug === "dining-hall" && current?.activeCharacter && (
-        <div className="mb-6">
-          <HaveAMealButton />
+        <div className="flex items-center gap-3 shrink-0">
+          {board.slug === "dining-hall" && current?.activeCharacter && <HaveAMealButton />}
+          {board.kind !== "category" && !isClassBoard && canPostHere && (
+            <Link
+              href={`/b/${board.slug}/new`}
+              className="shrink-0 text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
+            >
+              {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
+            </Link>
+          )}
+          {isClassBoard && canPostLesson && (
+            <Link
+              href={`/b/${board.slug}/exam/edit`}
+              className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
+            >
+              Edit exam
+            </Link>
+          )}
+          {isClassBoard && !canPostLesson && isEnrolled && (
+            <Link
+              href={`/b/${board.slug}/exam`}
+              className="shrink-0 text-sm bg-ink-800 border border-ink-600 text-parchment-100 px-4 py-2 rounded-md hover:border-gunmetal-500/50 transition-colors"
+            >
+              Take exam
+            </Link>
+          )}
         </div>
-      )}
+      </div>
 
       {isClassBoard && (
         <div className="mb-6">

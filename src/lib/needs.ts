@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { characters } from "@/db/schema";
+import { characters, gameTime } from "@/db/schema";
 import { ONLINE_WINDOW_MS } from "@/lib/online-status";
 
 const DAYS_TO_EMPTY = 7;
@@ -16,6 +16,11 @@ export type NeedsState = {
   faintRemainingMs: number | null;
 };
 
+async function isGameTimePaused(): Promise<boolean> {
+  const [row] = await db.select({ isPaused: gameTime.isPaused }).from(gameTime).where(eq(gameTime.id, 1));
+  return row?.isPaused ?? false;
+}
+
 /**
  * The one entry point for "how hungry/thirsty is this character" — reads
  * the stored values and, based on how much real time has passed since the
@@ -23,6 +28,10 @@ export type NeedsState = {
  * Same lazy pattern as game time and bank interest — nothing here runs on
  * a schedule, it all resolves the moment something asks (in practice, on
  * every page load via the nav bar).
+ *
+ * While an admin has paused the in-game calendar, hunger/thirst don't
+ * drain and the faint clock doesn't count down either — a paused game
+ * means a paused story, characters shouldn't starve during a hiatus.
  *
  * The faint clock only counts down while the character is actively
  * online: since this function only ever runs when they're making a
@@ -44,6 +53,19 @@ export async function getCurrentNeeds(characterId: number): Promise<NeedsState> 
     .where(eq(characters.id, characterId));
 
   if (!character) return { hunger: 100, thirst: 100, fainted: false, faintRemainingMs: null };
+
+  if (await isGameTimePaused()) {
+    // Still advance lastNeedsUpdate to now, so the paused period never
+    // gets counted once time resumes — same reasoning as the offline cap
+    // below, just for a different kind of "not really elapsed" gap.
+    await db.update(characters).set({ lastNeedsUpdate: new Date() }).where(eq(characters.id, characterId));
+    return {
+      hunger: character.hunger,
+      thirst: character.thirst,
+      fainted: character.faintRemainingMs !== null,
+      faintRemainingMs: character.faintRemainingMs,
+    };
+  }
 
   const now = new Date();
   const elapsedMs = now.getTime() - character.lastNeedsUpdate.getTime();

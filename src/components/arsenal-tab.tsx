@@ -3,12 +3,14 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteInventoryItemAction, consumeItemAction } from "@/actions/shops";
+import { FadingMessage } from "@/components/fading-message";
 import type { ArsenalRow } from "@/lib/shops";
 
 export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [consumeError, setConsumeError] = useState<string | null>(null);
+  const [consumeMessage, setConsumeMessage] = useState<string | null>(null);
 
   function handleDelete(inventoryId: number) {
     if (!confirm("Remove this from your arsenal?")) return;
@@ -22,11 +24,13 @@ export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: b
 
   function handleConsume(inventoryId: number) {
     setConsumeError(null);
+    setConsumeMessage(null);
     startTransition(async () => {
       const formData = new FormData();
       formData.set("inventoryId", String(inventoryId));
       const result = await consumeItemAction(undefined, formData);
       if (result?.error) setConsumeError(result.error);
+      else if (result?.success) setConsumeMessage(result.success);
       router.refresh();
     });
   }
@@ -37,7 +41,10 @@ export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: b
 
   return (
     <div>
-      {consumeError && <p className="text-sm text-claret-500 mb-3">{consumeError}</p>}
+      <div className="mb-3">
+        <FadingMessage message={consumeMessage} variant="success" />
+        <FadingMessage message={consumeError} variant="error" />
+      </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((row) => {
           const isConsumable = Boolean(row.hungerRestore || row.thirstRestore);

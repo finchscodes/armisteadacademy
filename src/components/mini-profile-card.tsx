@@ -27,12 +27,6 @@ export function MiniProfileCard({
       style={{ position: "fixed", top, left }}
       className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
     >
-      <div
-        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gunmetal-500 border-2 border-ink-900 flex items-center justify-center z-10"
-        data-tooltip={`Level ${profile.level}`}
-      >
-        <span className="text-[10px] font-bold text-parchment-100">{profile.level}</span>
-      </div>
       <Link href={`/c/${slug}`} className="shrink-0 relative block w-20 h-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -49,6 +43,12 @@ export function MiniProfileCard({
             <span className="font-display text-2xl text-parchment-100">{profile.firstName.charAt(0)}</span>
           </div>
         )}
+        <div
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-gunmetal-500 border-2 border-ink-900 flex items-center justify-center"
+          data-tooltip={`Level ${profile.level}`}
+        >
+          <span className="text-[9px] font-bold text-parchment-100">{profile.level}</span>
+        </div>
         <span
           className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-ink-900 ${
             profile.presence === "online"

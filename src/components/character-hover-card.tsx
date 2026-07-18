@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { getMiniProfileAction, type MiniProfile } from "@/actions/mini-profile";
 import { MiniProfileCard } from "@/components/mini-profile-card";
 
@@ -10,11 +10,13 @@ export function CharacterHoverCard({
   characterId,
   slug,
   className = "relative inline-block",
+  style,
   children,
 }: {
   characterId: number;
   slug: string;
   className?: string;
+  style?: CSSProperties;
   children: React.ReactNode;
 }) {
   const [profile, setProfile] = useState<MiniProfile | null>(cache.get(characterId) ?? null);
@@ -52,7 +54,7 @@ export function CharacterHoverCard({
   }
 
   return (
-    <span ref={containerRef} onMouseEnter={handleEnter} onMouseLeave={handleLeave} className={className}>
+    <span ref={containerRef} onMouseEnter={handleEnter} onMouseLeave={handleLeave} className={className} style={style}>
       {children}
       {show && profile && <MiniProfileCard profile={profile} slug={slug} top={pos.top} left={pos.left} />}
     </span>

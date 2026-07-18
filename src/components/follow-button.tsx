@@ -22,10 +22,10 @@ export function FollowButton({ threadId, isFollowing }: { threadId: number; isFo
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className={`text-xs px-3 py-1 rounded-md font-medium transition-colors disabled:opacity-60 ${
+      className={`text-xs px-3 py-1 rounded-md font-medium border transition-colors disabled:opacity-60 ${
         isFollowing
-          ? "bg-ink-800 border border-ink-600 text-parchment-100 hover:border-claret-600/50 hover:text-claret-500"
-          : "bg-gunmetal-500 text-ink-950 hover:bg-gunmetal-400"
+          ? "border-ink-600 text-parchment-100 hover:border-claret-600/50 hover:text-claret-500"
+          : "border-gunmetal-500/50 text-gunmetal-400 hover:bg-gunmetal-500/10"
       }`}
     >
       {pending ? "..." : isFollowing ? "Following" : "Follow"}

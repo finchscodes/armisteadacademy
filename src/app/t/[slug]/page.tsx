@@ -375,11 +375,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
                         characterId={post.characterId}
                         slug={post.characterSlug}
                         className="relative inline-block"
+                        style={{ lineHeight: 1.3 }}
                       >
                         <Link
                           href={`/c/${post.characterSlug}`}
                           className="text-sm text-parchment-100 hover:underline"
-                          style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined, lineHeight: 1.3 }}
+                          style={{ color: jobColor(jobsByCharacter.get(post.characterId) ?? "none") ?? undefined }}
                         >
                           {post.characterFirstName} {post.characterLastName}
                         </Link>

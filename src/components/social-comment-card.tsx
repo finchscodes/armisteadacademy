@@ -39,7 +39,7 @@ export function SocialCommentCard({
   canDelete: boolean;
 }) {
   return (
-    <div id={`post-${postId}`} className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex gap-3 scroll-mt-16">
+    <div id={`post-${postId}`} className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex gap-3 scroll-mt-16 max-w-md mx-auto">
       <Link href={`/c/${characterSlug}`} className="shrink-0">
         <CharacterBadge name={characterName} avatarUrl={characterAvatarUrl} size="sm" />
       </Link>

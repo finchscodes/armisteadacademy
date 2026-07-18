@@ -5,16 +5,26 @@ import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { WallPostItem } from "@/components/wall-post-item";
 
 export async function HomeWallFeed() {
-  const [activity, current] = await Promise.all([getRecentWallActivity(15), getCurrentUser()]);
-  if (activity.length === 0) return null;
+  let activity, current, likes, comments, canModerate;
+  try {
+    [activity, current] = await Promise.all([getRecentWallActivity(15), getCurrentUser()]);
+    if (activity.length === 0) return null;
+
+    const viewerCharacterId = current?.activeCharacter?.id ?? null;
+    const wallPostIds = activity.map((a) => a.id);
+    [likes, comments, canModerate] = await Promise.all([
+      getLikesForWallPosts(wallPostIds, viewerCharacterId),
+      getCommentsForWallPosts(wallPostIds),
+      viewerCharacterId ? characterHasAnyJob(viewerCharacterId, MANAGEMENT_JOBS) : Promise.resolve(false),
+    ]);
+  } catch (err) {
+    // A problem loading recent activity shouldn't take the whole homepage
+    // down with it — log it and just omit this section.
+    console.error("HomeWallFeed failed to load:", err);
+    return null;
+  }
 
   const viewerCharacterId = current?.activeCharacter?.id ?? null;
-  const wallPostIds = activity.map((a) => a.id);
-  const [likes, comments, canModerate] = await Promise.all([
-    getLikesForWallPosts(wallPostIds, viewerCharacterId),
-    getCommentsForWallPosts(wallPostIds),
-    viewerCharacterId ? characterHasAnyJob(viewerCharacterId, MANAGEMENT_JOBS) : Promise.resolve(false),
-  ]);
 
   return (
     <div className="w-full">

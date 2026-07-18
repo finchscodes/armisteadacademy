@@ -581,6 +581,16 @@ export async function getShopItemsForAdmin(boardId: number) {
   return db.select().from(items).where(eq(items.boardId, boardId)).orderBy(items.position);
 }
 
+/** Every item across every shop, with which shop it's in — for the "required item to enroll" picker on class boards. */
+export async function getAllItemsForAdmin() {
+  await requireAdmin();
+  return db
+    .select({ id: items.id, name: items.name, shopName: boards.name })
+    .from(items)
+    .innerJoin(boards, eq(items.boardId, boards.id))
+    .orderBy(boards.name, items.position);
+}
+
 const itemSchema = z.object({
   boardId: z.coerce.number().int(),
   name: z.string().min(1, "Name is required").max(120),
@@ -728,6 +738,7 @@ const updateBoardSchema = z.object({
   restrictedYearMin: z.coerce.number().int().min(1).optional(),
   restrictedYearMax: z.coerce.number().int().min(1).optional(),
   clearance: z.string().max(120).optional().or(z.literal("")),
+  requiredItemId: z.coerce.number().int().optional(),
 });
 
 export async function adminUpdateBoardAction(
@@ -744,12 +755,14 @@ export async function adminUpdateBoardAction(
     restrictedYearMin: formData.get("restrictedYearMin") || undefined,
     restrictedYearMax: formData.get("restrictedYearMax") || undefined,
     clearance: formData.get("clearance") || undefined,
+    requiredItemId: formData.get("requiredItemId") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description, imageUrl, restrictedYearMin, restrictedYearMax, clearance } = parsed.data;
+  const { boardId, name, description, imageUrl, restrictedYearMin, restrictedYearMax, clearance, requiredItemId } =
+    parsed.data;
   await db
     .update(boards)
     .set({
@@ -759,6 +772,7 @@ export async function adminUpdateBoardAction(
       restrictedYearMin: restrictedYearMin ?? null,
       restrictedYearMax: restrictedYearMax ?? null,
       clearance: clearance || null,
+      requiredItemId: requiredItemId ?? null,
     })
     .where(eq(boards.id, boardId));
 

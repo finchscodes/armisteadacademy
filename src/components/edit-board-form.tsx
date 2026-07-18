@@ -13,6 +13,8 @@ export function EditBoardForm({
   restrictedYearMin,
   restrictedYearMax,
   clearance,
+  requiredItemId,
+  itemOptions = [],
 }: {
   boardId: number;
   name: string;
@@ -22,6 +24,8 @@ export function EditBoardForm({
   restrictedYearMin?: number | null;
   restrictedYearMax?: number | null;
   clearance?: string | null;
+  requiredItemId?: number | null;
+  itemOptions?: { id: number; name: string; shopName: string }[];
 }) {
   const [state, formAction, pending] = useActionState(adminUpdateBoardAction, undefined);
 
@@ -71,6 +75,30 @@ export function EditBoardForm({
               placeholder="e.g. 1 for 1st years only"
               className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
+          </div>
+          <p className="col-span-2 text-[11px] text-ink-400 -mt-1">
+            Gates both who can view this class and who can enroll — not who can grade its submissions.
+          </p>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium mb-1" htmlFor="requiredItemId">
+              Required item to enroll (optional)
+            </label>
+            <select
+              id="requiredItemId"
+              name="requiredItemId"
+              defaultValue={requiredItemId ?? ""}
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            >
+              <option value="">None</option>
+              {itemOptions.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} ({item.shopName})
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-ink-400 mt-1">
+              e.g. a textbook — students need this in their Arsenal to enroll.
+            </p>
           </div>
         </div>
       )}

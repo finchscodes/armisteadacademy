@@ -460,6 +460,11 @@ export const boards = pgTable(
     // min=1/max=1. Doesn't affect who can grade — see lib/grading.ts.
     restrictedYearMin: integer("restricted_year_min"),
     restrictedYearMax: integer("restricted_year_max"),
+    // Class boards only: an item a character must have in their Arsenal to
+    // enroll (e.g. a required textbook). Checked once, at enrollment time
+    // — not re-checked afterward if they later use/sell the item. Null =
+    // no item requirement. Doesn't affect grading.
+    requiredItemId: integer("required_item_id"),
     // Pure flavor text — e.g. "Level 3 Clearance Required." Not enforced
     // anywhere; no logic or permissions read this, it's just shown on the
     // board page for atmosphere.
@@ -800,6 +805,13 @@ export const lessons = pgTable("lessons", {
   reward: integer("reward").notNull().default(20),
   graderFee: integer("grader_fee").notNull().default(5), // what each grader earns per grade
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  // Gates which students see/submit this specific lesson by their current
+  // year number (1 = 1st year) — same idea as a class board's own year
+  // restriction, but per-assignment instead of for the whole class.
+  // Either bound can be null. Doesn't affect grading — anyone who can
+  // grade this class can grade any submission regardless of year.
+  restrictedYearMin: integer("restricted_year_min"),
+  restrictedYearMax: integer("restricted_year_max"),
 });
 
 /** A student must enroll in a class before its lessons open up to them. */

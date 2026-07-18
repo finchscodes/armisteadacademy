@@ -135,6 +135,19 @@ export function CameraIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
+export function PinIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M9.5 3.5h5l.5 5.5 3 3v2h-6v6l-1 1-1-1v-6H4v-2l3-3.5.5-5.5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function CalendarIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>

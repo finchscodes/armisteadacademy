@@ -29,14 +29,14 @@ export function ProfileTabs({
     { key: "wall" as const, label: "Wall" },
     { key: "appearance" as const, label: "Dossier" },
     { key: "backstory" as const, label: "Transcript" },
-    { key: "topics" as const, label: `Topics (${topicsCount})` },
     { key: "arsenal" as const, label: `Arsenal (${arsenalCount})` },
     { key: "pets" as const, label: `Pets (${petsCount})` },
+    { key: "topics" as const, label: `Topics (${topicsCount})` },
   ];
 
   return (
     <div>
-      <div className="flex gap-0 border-b border-ink-700 mb-6 overflow-x-auto">
+      <div className="flex flex-wrap gap-0 border-b border-ink-700 mb-6">
         {tabs.map((t) => (
           <button
             key={t.key}

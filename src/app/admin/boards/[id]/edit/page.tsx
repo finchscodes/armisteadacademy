@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBoardForAdmin, getShopItemsForAdmin } from "@/actions/admin";
+import { getBoardForAdmin, getShopItemsForAdmin, getAllItemsForAdmin } from "@/actions/admin";
 import { EditBoardForm } from "@/components/edit-board-form";
 import { DeleteBoardButton } from "@/components/delete-board-button";
 import { ShopItemsEditor } from "@/components/shop-items-editor";
@@ -17,6 +17,7 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
   if (!board) notFound();
 
   const shopItems = board.kind === "shop" ? await getShopItemsForAdmin(board.id) : null;
+  const allItems = board.kind === "class" ? await getAllItemsForAdmin() : [];
 
   return (
     <div className="max-w-xl">
@@ -36,6 +37,8 @@ export default async function EditBoardPage({ params }: { params: Promise<{ id: 
         restrictedYearMin={board.restrictedYearMin}
         restrictedYearMax={board.restrictedYearMax}
         clearance={board.clearance}
+        requiredItemId={board.requiredItemId}
+        itemOptions={allItems}
       />
 
       {shopItems && (

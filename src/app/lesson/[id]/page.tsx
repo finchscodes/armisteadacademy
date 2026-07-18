@@ -6,6 +6,7 @@ import { canGradeHomework } from "@/lib/xp";
 import { GRADING_LEVEL_REQUIREMENT, REQUIRED_GRADERS } from "@/db/schema";
 import { isAssignedToClass } from "@/lib/class-assignments";
 import { isEnrolledInClass } from "@/lib/class-enrollments";
+import { getYearNumbersForCharacters } from "@/lib/year";
 import { enrollInClassAction } from "@/actions/lessons";
 import { tierLabel } from "@/lib/grading";
 import { SubmitHomeworkForm } from "@/components/submit-homework-form";
@@ -35,6 +36,15 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       (activeCharacterId ? await isAssignedToClass(activeCharacterId, lesson.boardId) : false),
     activeCharacterId ? isEnrolledInClass(activeCharacterId, lesson.boardId) : false,
   ]);
+
+  let yearEligible = true;
+  if (!canManage && activeCharacterId && (lesson.restrictedYearMin != null || lesson.restrictedYearMax != null)) {
+    const yearMap = await getYearNumbersForCharacters([activeCharacterId]);
+    const yearNumber = yearMap.get(activeCharacterId) ?? 1;
+    const belowMin = lesson.restrictedYearMin != null && yearNumber < lesson.restrictedYearMin;
+    const aboveMax = lesson.restrictedYearMax != null && yearNumber > lesson.restrictedYearMax;
+    yearEligible = !belowMin && !aboveMax;
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -104,7 +114,11 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             </form>
           </div>
         )}
-        {!enrolled && !canManage ? null : !mySubmission ? (
+        {!enrolled && !canManage ? null : !yearEligible ? (
+          <p className="text-sm text-ink-400 border border-ink-700 rounded-lg p-4">
+            This assignment isn&apos;t available for your year.
+          </p>
+        ) : !mySubmission ? (
           <SubmitHomeworkForm lessonId={lesson.id} />
         ) : (
           <div className="bg-ink-900 border border-ink-700 rounded-lg p-5">

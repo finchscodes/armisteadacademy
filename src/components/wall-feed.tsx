@@ -53,6 +53,7 @@ export function WallFeed({
             isPoster={myCharacterId === p.posterCharacterId}
             canInteract={Boolean(myCharacterId)}
             canModerate={canModerate}
+            allowPinning
           />
         ))
       )}

@@ -13,6 +13,8 @@ import {
   currencyLedger,
   reputationLedger,
   classEnrollments,
+  characters,
+  inventory,
   GRADING_LEVEL_REQUIREMENT,
   REQUIRED_GRADERS,
 } from "@/db/schema";
@@ -36,10 +38,43 @@ export async function enrollInClassAction(formData: FormData) {
   const boardId = Number(formData.get("boardId"));
   if (!boardId) return;
 
+  const [board] = await db
+    .select({
+      slug: boards.slug,
+      restrictedYearMin: boards.restrictedYearMin,
+      restrictedYearMax: boards.restrictedYearMax,
+      requiredItemId: boards.requiredItemId,
+    })
+    .from(boards)
+    .where(eq(boards.id, boardId));
+  if (!board) return;
+
+  if (board.restrictedYearMin || board.restrictedYearMax) {
+    const [character] = await db
+      .select({ currentYearNumber: characters.currentYearNumber })
+      .from(characters)
+      .where(eq(characters.id, characterId));
+    const yearNumber = character?.currentYearNumber ?? 1;
+    const belowMin = board.restrictedYearMin != null && yearNumber < board.restrictedYearMin;
+    const aboveMax = board.restrictedYearMax != null && yearNumber > board.restrictedYearMax;
+    if (belowMin || aboveMax) {
+      redirect(`/b/${board.slug}?enrollError=${encodeURIComponent("Not the right year to enroll in this class")}`);
+    }
+  }
+
+  if (board.requiredItemId) {
+    const [owned] = await db
+      .select({ id: inventory.id })
+      .from(inventory)
+      .where(and(eq(inventory.characterId, characterId), eq(inventory.itemId, board.requiredItemId)));
+    if (!owned) {
+      redirect(`/b/${board.slug}?enrollError=${encodeURIComponent("You need a specific item in your Arsenal to enroll")}`);
+    }
+  }
+
   await db.insert(classEnrollments).values({ characterId, boardId }).onConflictDoNothing();
 
-  const [board] = await db.select({ slug: boards.slug }).from(boards).where(eq(boards.id, boardId));
-  if (board) revalidatePath(`/b/${board.slug}`);
+  revalidatePath(`/b/${board.slug}`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -53,6 +88,8 @@ const newLessonSchema = z.object({
   requirements: z.string().max(20000).optional().or(z.literal("")),
   reward: z.coerce.number().int().min(0).max(10000),
   graderFee: z.coerce.number().int().min(0).max(10000),
+  restrictedYearMin: z.coerce.number().int().min(1).optional(),
+  restrictedYearMax: z.coerce.number().int().min(1).optional(),
 });
 
 async function requireLessonPermission(session: { isAdmin: boolean }, characterId: number, boardId: number) {
@@ -72,13 +109,15 @@ export async function createLessonAction(
     requirements: formData.get("requirements") || undefined,
     reward: formData.get("reward"),
     graderFee: formData.get("graderFee"),
+    restrictedYearMin: formData.get("restrictedYearMin") || undefined,
+    restrictedYearMax: formData.get("restrictedYearMax") || undefined,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardSlug, title, reward, graderFee } = parsed.data;
+  const { boardSlug, title, reward, graderFee, restrictedYearMin, restrictedYearMax } = parsed.data;
   const prompt = sanitizeRichText(parsed.data.prompt);
   const requirements = parsed.data.requirements ? sanitizeRichText(parsed.data.requirements) : null;
 
@@ -106,6 +145,8 @@ export async function createLessonAction(
       position: existingLessons.length,
       reward,
       graderFee,
+      restrictedYearMin: restrictedYearMin ?? null,
+      restrictedYearMax: restrictedYearMax ?? null,
     })
     .returning({ id: lessons.id });
 
@@ -124,6 +165,8 @@ const editLessonSchema = z.object({
   requirements: z.string().max(20000).optional().or(z.literal("")),
   reward: z.coerce.number().int().min(0).max(10000),
   graderFee: z.coerce.number().int().min(0).max(10000),
+  restrictedYearMin: z.coerce.number().int().min(1).optional(),
+  restrictedYearMax: z.coerce.number().int().min(1).optional(),
 });
 
 export async function updateLessonAction(
@@ -139,12 +182,14 @@ export async function updateLessonAction(
     requirements: formData.get("requirements") || undefined,
     reward: formData.get("reward"),
     graderFee: formData.get("graderFee"),
+    restrictedYearMin: formData.get("restrictedYearMin") || undefined,
+    restrictedYearMax: formData.get("restrictedYearMax") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { lessonId, title, reward, graderFee } = parsed.data;
+  const { lessonId, title, reward, graderFee, restrictedYearMin, restrictedYearMax } = parsed.data;
   const prompt = sanitizeRichText(parsed.data.prompt);
   const requirements = parsed.data.requirements ? sanitizeRichText(parsed.data.requirements) : null;
 
@@ -156,7 +201,15 @@ export async function updateLessonAction(
 
   await db
     .update(lessons)
-    .set({ title, prompt, requirements, reward, graderFee })
+    .set({
+      title,
+      prompt,
+      requirements,
+      reward,
+      graderFee,
+      restrictedYearMin: restrictedYearMin ?? null,
+      restrictedYearMax: restrictedYearMax ?? null,
+    })
     .where(eq(lessons.id, lessonId));
 
   revalidatePath(`/lesson/${lessonId}`);
@@ -254,6 +307,19 @@ export async function submitHomeworkAction(
   const enrolled = await isEnrolledInClass(characterId, lesson.boardId);
   if (!enrolled) {
     return { error: "You need to enroll in this class before submitting homework" };
+  }
+
+  if (lesson.restrictedYearMin != null || lesson.restrictedYearMax != null) {
+    const [character] = await db
+      .select({ currentYearNumber: characters.currentYearNumber })
+      .from(characters)
+      .where(eq(characters.id, characterId));
+    const yearNumber = character?.currentYearNumber ?? 1;
+    const belowMin = lesson.restrictedYearMin != null && yearNumber < lesson.restrictedYearMin;
+    const aboveMax = lesson.restrictedYearMax != null && yearNumber > lesson.restrictedYearMax;
+    if (belowMin || aboveMax) {
+      return { error: "This assignment isn't available for your year" };
+    }
   }
 
   const [existing] = await db

@@ -35,6 +35,38 @@ export function NewLessonForm({ boardSlug }: { boardSlug: string }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="restrictedYearMin">
+            Minimum year (optional)
+          </label>
+          <input
+            id="restrictedYearMin"
+            name="restrictedYearMin"
+            type="number"
+            min={1}
+            placeholder="e.g. 3 for 3rd year and up"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="restrictedYearMax">
+            Maximum year (optional)
+          </label>
+          <input
+            id="restrictedYearMax"
+            name="restrictedYearMax"
+            type="number"
+            min={1}
+            placeholder="e.g. 1 for 1st years only"
+            className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 focus:outline-none focus:border-gunmetal-500"
+          />
+        </div>
+        <p className="col-span-2 text-[11px] text-ink-400 -mt-2">
+          Only gates who sees/submits this specific assignment — doesn&apos;t affect who can grade it.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
           <label className="block text-sm font-medium mb-1" htmlFor="reward">
             Reward
           </label>

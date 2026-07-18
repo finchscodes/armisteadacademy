@@ -13,7 +13,7 @@ import {
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { RichTextDisplay } from "@/components/rich-text-display";
-import { HeartIcon, ChatBubbleIcon } from "@/components/nav-icons";
+import { HeartIcon, ChatBubbleIcon, PinIcon } from "@/components/nav-icons";
 import { jobColor } from "@/lib/roles";
 import { hallLabel, hallColor } from "@/lib/halls";
 import type { WallLikeSummary, WallCommentRow } from "@/lib/wall";
@@ -39,6 +39,7 @@ export function WallPostItem({
   canInteract,
   canModerate,
   wallOwner,
+  allowPinning = false,
 }: {
   post: {
     id: number;
@@ -63,6 +64,8 @@ export function WallPostItem({
   canModerate: boolean;
   /** Only set on the homepage's sitewide feed — shows "→ [name]'s wall" since it isn't otherwise obvious whose wall this is. */
   wallOwner?: { name: string; slug: string };
+  /** Pinning only makes sense in the context of an actual wall (the profile page) — the homepage feed doesn't have a "top" to pin to. */
+  allowPinning?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -218,16 +221,18 @@ export function WallPostItem({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {post.isPinned && <span className="text-[10px] uppercase tracking-wider text-gunmetal-400">Pinned</span>}
-            {isWallOwner && (
+            {allowPinning && post.isPinned && (
+              <span className="text-[10px] uppercase tracking-wider text-gunmetal-400">Pinned</span>
+            )}
+            {allowPinning && isWallOwner && (
               <button
                 type="button"
                 onClick={handlePin}
                 disabled={pending}
-                className="text-ink-400 hover:text-gunmetal-400 disabled:opacity-50"
+                className={`hover:text-gunmetal-400 disabled:opacity-50 ${post.isPinned ? "text-gunmetal-400" : "text-ink-400"}`}
                 data-tooltip={post.isPinned ? "Unpin" : "Pin to top"}
               >
-                📌
+                <PinIcon className="w-4 h-4" />
               </button>
             )}
             {canDelete && (

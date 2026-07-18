@@ -37,6 +37,8 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
         reward={lesson.reward}
         requirements={lesson.requirements}
         graderFee={lesson.graderFee}
+        restrictedYearMin={lesson.restrictedYearMin}
+        restrictedYearMax={lesson.restrictedYearMax}
       />
     </div>
   );

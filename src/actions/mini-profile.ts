@@ -9,6 +9,7 @@ import { getStatusesForCharacter } from "@/lib/character-statuses";
 import { jobColor } from "@/lib/roles";
 import { hallLabel, hallColor } from "@/lib/halls";
 import { getPresenceStatus, type PresenceStatus } from "@/lib/online-status";
+import { getCharacterXp, levelForXp } from "@/lib/xp";
 
 export type MiniProfile = {
   firstName: string;
@@ -17,6 +18,7 @@ export type MiniProfile = {
   major: string;
   year: string;
   age: number;
+  level: number;
   nameColor: string | null;
   presence: PresenceStatus;
   statuses: string[];
@@ -28,10 +30,11 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
   const [character] = await db.select().from(characters).where(eq(characters.id, characterId));
   if (!character) return null;
 
-  const [year, primaryJob, statuses] = await Promise.all([
+  const [year, primaryJob, statuses, xp] = await Promise.all([
     getCharacterYearLabel(character.id, character.major, character.yearOverride),
     getPrimaryJob(character.id),
     getStatusesForCharacter(character.id),
+    getCharacterXp(character.id),
   ]);
 
   return {
@@ -41,6 +44,7 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     major: character.major,
     year,
     age: character.age,
+    level: levelForXp(xp),
     nameColor: jobColor(primaryJob),
     presence: getPresenceStatus(character.lastActiveAt),
     statuses: statuses.map((s) => s.label),

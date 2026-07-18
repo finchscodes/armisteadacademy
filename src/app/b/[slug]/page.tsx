@@ -35,8 +35,15 @@ function timeAgo(date: Date) {
   return date.toLocaleDateString();
 }
 
-export default async function BoardPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BoardPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ enrollError?: string }>;
+}) {
   const { slug } = await params;
+  const { enrollError } = await searchParams;
   const data = await getBoardBySlug(slug);
   if (!data) notFound();
 
@@ -184,6 +191,7 @@ export default async function BoardPage({ params }: { params: Promise<{ slug: st
                   ? "You're not enrolled in this class — enroll to have its homework count toward your grading bin."
                   : "Enroll in this class to see its lessons and submit homework."}
               </p>
+              {enrollError && <p className="text-sm text-claret-500 mb-2">{enrollError}</p>}
               <form action={enrollInClassAction}>
                 <input type="hidden" name="boardId" value={board.id} />
                 <button

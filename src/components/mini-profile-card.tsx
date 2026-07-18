@@ -27,6 +27,12 @@ export function MiniProfileCard({
       style={{ position: "fixed", top, left }}
       className="z-50 w-64 bg-ink-900 border border-ink-700 rounded-lg shadow-2xl shadow-black/50 p-2 flex items-start gap-2.5 text-left"
     >
+      <div
+        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gunmetal-500 border-2 border-ink-900 flex items-center justify-center"
+        data-tooltip={`Level ${profile.level}`}
+      >
+        <span className="text-[10px] font-bold text-ink-950">{profile.level}</span>
+      </div>
       <Link href={`/c/${slug}`} className="shrink-0 relative block w-20 h-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

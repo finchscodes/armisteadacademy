@@ -43,8 +43,8 @@ export default async function ReputationPage() {
                 <p className="px-4 py-4 text-xs text-ink-400 text-center">No one sorted here yet.</p>
               ) : (
                 leaderboard.map((c, i) => (
-                  <div key={c.id} className="flex items-center gap-2 px-3 py-2">
-                    <span className="text-xs text-ink-500 w-4 shrink-0">{i + 1}</span>
+                  <div key={c.id} className="flex items-center gap-1.5 px-3 py-2">
+                    <span className="text-xs text-ink-500 w-3 shrink-0">{i + 1}</span>
                     <CharacterHoverCard characterId={c.id} slug={c.slug} className="relative flex-1 min-w-0">
                       <Link
                         href={`/c/${c.slug}`}

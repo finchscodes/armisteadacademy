@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cuddlePetAction, cuddleAllPetsAction } from "@/actions/pets";
-import { FadingMessage } from "@/components/fading-message";
+import { useToast } from "@/components/toast-provider";
 import type { PetRow } from "@/lib/pets";
 
 export function PetsTab({
@@ -16,32 +16,27 @@ export function PetsTab({
   canInteract: boolean;
 }) {
   const router = useRouter();
+  const showToast = useToast();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   function handleCuddle(petId: number) {
-    setMessage(null);
-    setError(null);
     startTransition(async () => {
       const formData = new FormData();
       formData.set("petId", String(petId));
       const result = await cuddlePetAction(undefined, formData);
-      if (result?.error) setError(result.error);
-      else if (result?.success) setMessage(result.success);
+      if (result?.error) showToast(result.error, "error");
+      else if (result?.success) showToast(result.success, "success");
       router.refresh();
     });
   }
 
   function handleCuddleAll() {
-    setMessage(null);
-    setError(null);
     startTransition(async () => {
       const formData = new FormData();
       formData.set("ownerCharacterId", String(ownerCharacterId));
       const result = await cuddleAllPetsAction(undefined, formData);
-      if (result?.error) setError(result.error);
-      else if (result?.success) setMessage(result.success);
+      if (result?.error) showToast(result.error, "error");
+      else if (result?.success) showToast(result.success, "success");
       router.refresh();
     });
   }
@@ -64,10 +59,6 @@ export function PetsTab({
           </button>
         </div>
       )}
-      <div className="mb-3">
-        <FadingMessage message={message} variant="success" />
-        <FadingMessage message={error} variant="error" />
-      </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {pets.map((pet) => (

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Work_Sans, IBM_Plex_Mono, Old_Standard_TT, EB_Garamond, Istok_Web } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
+import { ToastProvider } from "@/components/toast-provider";
 import { HeartbeatPing } from "@/components/heartbeat-ping";
 import { LevelUpWatcher } from "@/components/level-up-watcher";
 import { GlobalShell } from "@/components/global-shell";
@@ -96,26 +97,28 @@ export default async function RootLayout({
       className={`h-full antialiased ${alloverModern.variable} ${oldStandard.variable} ${ebGaramond.variable} ${workSans.variable} ${istokWeb.variable} ${plexMono.variable}`}
     >
       <body className="min-h-full flex flex-col">
-        <HeartbeatPing />
-        <LevelUpWatcher />
-        <NavBar />
-        <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 py-6">
-          <GlobalShell
-            chatProps={{
-              initialMessages: initialChatMessages,
-              initialOnline: online,
-              canChat,
-              canPingAll,
-              myCharacterId: current?.activeCharacter?.id ?? null,
-              myFirstName: current?.activeCharacter?.firstName ?? null,
-              myLastName: current?.activeCharacter?.lastName ?? null,
-              isModerator: isChatModerator,
-              myTimeoutUntil: chatModeration.timeoutUntil,
-            }}
-          >
-            {children}
-          </GlobalShell>
-        </main>
+        <ToastProvider>
+          <HeartbeatPing />
+          <LevelUpWatcher />
+          <NavBar />
+          <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 py-6">
+            <GlobalShell
+              chatProps={{
+                initialMessages: initialChatMessages,
+                initialOnline: online,
+                canChat,
+                canPingAll,
+                myCharacterId: current?.activeCharacter?.id ?? null,
+                myFirstName: current?.activeCharacter?.firstName ?? null,
+                myLastName: current?.activeCharacter?.lastName ?? null,
+                isModerator: isChatModerator,
+                myTimeoutUntil: chatModeration.timeoutUntil,
+              }}
+            >
+              {children}
+            </GlobalShell>
+          </main>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -18,7 +18,13 @@ export function LevelUpWatcher() {
 
   useEffect(() => {
     async function check() {
-      const result = await getMyLevelAction();
+      let result;
+      try {
+        result = await getMyLevelAction();
+      } catch (err) {
+        console.error("LevelUpWatcher check failed:", err);
+        return;
+      }
       if (!result) return;
 
       const key = STORAGE_PREFIX + result.characterId;

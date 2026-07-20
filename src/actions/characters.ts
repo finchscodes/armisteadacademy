@@ -126,18 +126,17 @@ export async function createCharacterAction(
 
   // Renders as "Firstname Lastname just enrolled..." — chat displays a
   // character's name directly before their message with no colon, so this
-  // reads as an announcement rather than something they typed.
-  await db.insert(chatMessages).values({
-    characterId: character.id,
-    userId: session.userId,
-    content:
-      hallResult.hall === null
-        ? "just enrolled and is awaiting the sorting quiz!"
-        : `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
-    isAnnouncement: true,
-  });
-
+  // reads as an announcement rather than something they typed. Skipped
+  // entirely while pending the sorting quiz — nothing worth announcing
+  // until they're actually sorted somewhere.
   if (hallResult.hall !== null) {
+    await db.insert(chatMessages).values({
+      characterId: character.id,
+      userId: session.userId,
+      content: `just enrolled and moved into ${hallLabel(hallResult.hall)} hall!`,
+      isAnnouncement: true,
+    });
+
     await postSortedEntry(character.id, hallLabel(hallResult.hall), hallResult.hall);
   }
 

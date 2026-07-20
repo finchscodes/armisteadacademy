@@ -13,7 +13,13 @@ function timeAgo(date: Date) {
 }
 
 export async function NewsWidget() {
-  const news = await getRecentNews(6);
+  let news;
+  try {
+    news = await getRecentNews(6);
+  } catch (err) {
+    console.error("NewsWidget failed to load:", err);
+    return null;
+  }
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">

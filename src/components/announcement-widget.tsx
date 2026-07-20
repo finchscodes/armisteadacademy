@@ -3,7 +3,13 @@ import { getCurrentWeather } from "@/lib/weather";
 import { RichTextDisplay } from "@/components/rich-text-display";
 
 export async function AnnouncementWidget() {
-  const [announcement, weather] = await Promise.all([getHomeAnnouncement(), getCurrentWeather()]);
+  let announcement, weather;
+  try {
+    [announcement, weather] = await Promise.all([getHomeAnnouncement(), getCurrentWeather()]);
+  } catch (err) {
+    console.error("AnnouncementWidget failed to load:", err);
+    return null;
+  }
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg overflow-hidden">

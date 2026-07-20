@@ -6,7 +6,13 @@ import { jobColor } from "@/lib/roles";
 import { getMajorColor } from "@/lib/majors";
 
 export async function SpotlightWidget() {
-  const entries = await getSpotlightEntries();
+  let entries;
+  try {
+    entries = await getSpotlightEntries();
+  } catch (err) {
+    console.error("SpotlightWidget failed to load:", err);
+    return null;
+  }
   if (entries.length === 0) return null;
 
   return (

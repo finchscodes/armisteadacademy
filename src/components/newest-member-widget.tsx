@@ -8,13 +8,19 @@ import { CharacterHoverCard } from "@/components/character-hover-card";
 import { CharacterBadge } from "@/components/character-badge";
 
 export async function NewestMemberWidget() {
-  const character = await getNewestCharacter();
-  if (!character) return null;
+  let character, year, primaryJob;
+  try {
+    character = await getNewestCharacter();
+    if (!character) return null;
 
-  const [year, primaryJob] = await Promise.all([
-    getCharacterYearLabel(character.id, character.major, character.yearOverride),
-    getPrimaryJob(character.id),
-  ]);
+    [year, primaryJob] = await Promise.all([
+      getCharacterYearLabel(character.id, character.major, character.yearOverride),
+      getPrimaryJob(character.id),
+    ]);
+  } catch (err) {
+    console.error("NewestMemberWidget failed to load:", err);
+    return null;
+  }
   const avatarColor = getMajorColor(character.major) ?? "#7f95a3";
   const nameColor = jobColor(primaryJob) ?? undefined;
 

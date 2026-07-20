@@ -1,7 +1,13 @@
 import { getSiteLinks } from "@/actions/admin";
 
 export async function SiteLinksWidget() {
-  const links = await getSiteLinks();
+  let links;
+  try {
+    links = await getSiteLinks();
+  } catch (err) {
+    console.error("SiteLinksWidget failed to load:", err);
+    return null;
+  }
   if (links.length === 0) return null;
 
   const isOdd = links.length % 2 !== 0;

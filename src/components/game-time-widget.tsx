@@ -2,7 +2,13 @@ import { getCurrentGameDate } from "@/lib/game-time";
 import { CalendarIcon } from "@/components/nav-icons";
 
 export async function GameTimeWidget() {
-  const date = await getCurrentGameDate();
+  let date;
+  try {
+    date = await getCurrentGameDate();
+  } catch (err) {
+    console.error("GameTimeWidget failed to load:", err);
+    return null;
+  }
 
   return (
     <div className="bg-ink-900 border border-ink-700 rounded-lg p-3 flex items-center gap-3">

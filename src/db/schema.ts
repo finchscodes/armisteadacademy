@@ -1097,7 +1097,9 @@ export const pets = pgTable(
  * outright (no "rejected" status to keep around); approved ones expire
  * and get deleted 2 weeks after approval — see lib/confessions.ts.
  */
-export const confessions = pgTable("confessions", {
+export const confessions = pgTable(
+  "confessions",
+  {
   id: serial("id").primaryKey(),
   characterId: integer("character_id")
     .notNull()
@@ -1106,7 +1108,11 @@ export const confessions = pgTable("confessions", {
   status: confessionStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   approvedAt: timestamp("approved_at"),
-});
+  },
+  (table) => ({
+    statusIdx: index("confessions_status_idx").on(table.status),
+  })
+);
 
 /**
  * A character's bank balance, tracked completely separately from their

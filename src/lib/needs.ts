@@ -7,6 +7,15 @@ const DAYS_TO_EMPTY = 7;
 const PERCENT_PER_HOUR = 100 / (DAYS_TO_EMPTY * 24); // ~0.595/hour
 const FAINT_DURATION_MS = 60 * 60 * 1000; // 1 hour
 const RECOVERY_LEVEL = 75;
+// This function runs on every page load for every logged-in user (the nav
+// bar calls it for the account menu's hunger/thirst display), so writing
+// to the database on every single call — even when the drain since the
+// last check is negligible — meant every page view by every user fired
+// an UPDATE against the characters table. Below this threshold, the
+// computed value is still returned and displayed correctly; it's just
+// not persisted yet, since a few seconds/minutes of drain wouldn't move
+// the displayed (rounded) percentage anyway.
+const MIN_PERSIST_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export type NeedsState = {
   hunger: number;
@@ -58,7 +67,11 @@ export async function getCurrentNeeds(characterId: number): Promise<NeedsState> 
     // Still advance lastNeedsUpdate to now, so the paused period never
     // gets counted once time resumes — same reasoning as the offline cap
     // below, just for a different kind of "not really elapsed" gap.
-    await db.update(characters).set({ lastNeedsUpdate: new Date() }).where(eq(characters.id, characterId));
+    // Throttled like the main drain path below, for the same reason.
+    const elapsedWhilePaused = Date.now() - character.lastNeedsUpdate.getTime();
+    if (elapsedWhilePaused >= MIN_PERSIST_INTERVAL_MS) {
+      await db.update(characters).set({ lastNeedsUpdate: new Date() }).where(eq(characters.id, characterId));
+    }
     return {
       hunger: character.hunger,
       thirst: character.thirst,
@@ -102,15 +115,22 @@ export async function getCurrentNeeds(characterId: number): Promise<NeedsState> 
   const justFainted = newHunger <= 0 || newThirst <= 0;
   const newFaintRemainingMs = justFainted ? FAINT_DURATION_MS : null;
 
-  await db
-    .update(characters)
-    .set({
-      hunger: Math.round(newHunger),
-      thirst: Math.round(newThirst),
-      lastNeedsUpdate: now,
-      faintRemainingMs: newFaintRemainingMs,
-    })
-    .where(eq(characters.id, characterId));
+  // Always persist immediately if this call is the one crossing into
+  // fainting — that's a real state change that blocks gameplay actions
+  // elsewhere and has to take effect right away. Otherwise, only persist
+  // once enough time has passed to be worth a write; the computed value
+  // below is still what gets displayed regardless.
+  if (justFainted || elapsedMs >= MIN_PERSIST_INTERVAL_MS) {
+    await db
+      .update(characters)
+      .set({
+        hunger: Math.round(newHunger),
+        thirst: Math.round(newThirst),
+        lastNeedsUpdate: now,
+        faintRemainingMs: newFaintRemainingMs,
+      })
+      .where(eq(characters.id, characterId));
+  }
 
   return {
     hunger: Math.round(newHunger),

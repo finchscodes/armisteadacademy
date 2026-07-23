@@ -24,6 +24,7 @@ export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
 ]);
+export const confessionStatusEnum = pgEnum("confession_status", ["pending", "approved"]);
 export const gradeTierEnum = pgEnum("grade_tier", [
   "perfect",
   "excellent",
@@ -184,6 +185,12 @@ export const characters = pgTable(
     // once per real day per character. Separate from the general item
     // consumption cooldown (there isn't one) — this is its own thing.
     lastMealAt: timestamp("last_meal_at"),
+    // Admin/management-set title shown in place of major once a character
+    // graduates (currentYearNumber >= GRADUATE_AT_YEAR_NUMBER) — their
+    // in-game job. Null means nothing to show yet, so the major keeps
+    // displaying normally until someone sets one. See lib/year.ts for the
+    // display logic and admin-ig-job-editor.tsx for where it's set.
+    igJobTitle: varchar("ig_job_title", { length: 100 }),
     bio: text("bio"),
     // 1-5, same scale as topic content ratings — set by the character's
     // owner so readers know what to expect before opening the backstory.
@@ -716,6 +723,13 @@ export const homeAnnouncement = pgTable("home_announcement", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+/** Single-row, admin-editable Privacy Policy content — see /privacy. */
+export const privacyPolicy = pgTable("privacy_policy", {
+  id: integer("id").primaryKey().default(1),
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 /**
  * Intro blurb shown at the top of the sorting quiz, before the questions.
  * Always a single row (id fixed at 1), same pattern as homeAnnouncement.
@@ -996,6 +1010,25 @@ export const pets = pgTable("pets", {
   // One cuddle per real day per pet — see lib/pets.ts.
   lastCuddledAt: timestamp("last_cuddled_at"),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
+});
+
+/**
+ * Anonymous rumors/tips/intel submitted by characters for the homepage
+ * confession widget. The submitter is tracked here for moderation
+ * accountability but is never shown publicly — the widget only ever
+ * displays the content. Pending confessions that get rejected are deleted
+ * outright (no "rejected" status to keep around); approved ones expire
+ * and get deleted 2 weeks after approval — see lib/confessions.ts.
+ */
+export const confessions = pgTable("confessions", {
+  id: serial("id").primaryKey(),
+  characterId: integer("character_id")
+    .notNull()
+    .references(() => characters.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  status: confessionStatusEnum("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  approvedAt: timestamp("approved_at"),
 });
 
 /**

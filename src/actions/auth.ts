@@ -13,6 +13,8 @@ import { getRequestIp } from "@/lib/request-ip";
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  ageConfirmed: z.literal("true", { error: "You must confirm you are 18 or older to register" }),
+  privacyAccepted: z.literal("true", { error: "You must agree to the Privacy Policy to register" }),
 });
 
 export type ActionState = { error?: string } | undefined;
@@ -24,6 +26,8 @@ export async function registerAction(
   const parsed = registerSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    ageConfirmed: formData.get("ageConfirmed"),
+    privacyAccepted: formData.get("privacyAccepted"),
   });
 
   if (!parsed.success) {

@@ -3,7 +3,7 @@
 import { eq, or, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
-import { getCharacterYearLabel } from "@/lib/year";
+import { getCharacterYearLabel, getDisplayMajor } from "@/lib/year";
 import { getPrimaryJob, getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 import { getStatusesForCharacter } from "@/lib/character-statuses";
 import { jobColor } from "@/lib/roles";
@@ -41,7 +41,7 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     firstName: character.firstName,
     lastName: character.lastName,
     avatarUrl: character.avatarUrl,
-    major: character.major,
+    major: getDisplayMajor(character.major, character.currentYearNumber, character.igJobTitle),
     year,
     age: character.age,
     level: levelForXp(xp),

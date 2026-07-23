@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/current-user";
 import { getCharacterBalance } from "@/lib/economy";
 import { getCharacterLevelProgress, canGradeHomework } from "@/lib/xp";
-import { getBoardTree, filterBoardTreeForViewer } from "@/lib/forum";
+import { getBoardTree, filterBoardTreeForViewer, type BoardNode } from "@/lib/forum";
 import { getGradingQueueCount } from "@/lib/lessons";
 import { getOnlineCount } from "@/lib/online-status";
 import { getNotifications } from "@/lib/notifications";
@@ -17,6 +17,12 @@ import { GradingIcon, SocialIcon, MailIcon } from "./nav-icons";
 import { getUnreadMessageCount } from "@/lib/messages";
 import { getCurrentGameDate } from "@/lib/game-time";
 import { getCurrentNeeds } from "@/lib/needs";
+
+/** Every imageUrl in a board (sub)tree, recursively — categories, topic boards, and shops alike. */
+function flattenBoardImageUrls(node: BoardNode): string[] {
+  const own = node.imageUrl ? [node.imageUrl] : [];
+  return [...own, ...node.children.flatMap(flattenBoardImageUrls)];
+}
 
 export async function NavBar() {
   const [current, rawBoardTree, onlineCount] = await Promise.all([
@@ -71,8 +77,17 @@ export async function NavBar() {
     : null;
   const canAccessAdminPanel = adminAccess ? hasAnyAdminAccess(adminAccess) : false;
 
+  // Preload every topic-area/shop board image so it's already in the
+  // browser's cache by the time someone clicks into that board, instead of
+  // only starting to load once they're on the page waiting for it.
+  const imageUrls = [...new Set(rawBoardTree.flatMap(flattenBoardImageUrls))];
+
   return (
-    <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
+    <>
+      {imageUrls.map((url) => (
+        <link key={url} rel="preload" as="image" href={url} />
+      ))}
+      <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
       <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 min-w-0">
           <Link href="/" className="flex items-baseline gap-1.5 shrink-0 leading-none">
@@ -208,5 +223,6 @@ export async function NavBar() {
         )}
       </div>
     </header>
+    </>
   );
 }

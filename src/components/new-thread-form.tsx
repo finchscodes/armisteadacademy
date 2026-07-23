@@ -25,6 +25,7 @@ export function NewThreadForm({
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
   const [showRoll, setShowRoll] = useState(false);
+  const [surroundingsOoc, setSurroundingsOoc] = useState("");
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -131,26 +132,20 @@ export function NewThreadForm({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" htmlFor="surroundings">
-                  Surroundings
+                <label className="block text-xs font-medium mb-1" htmlFor="surroundingsOoc">
+                  Surroundings / OOC notes
                 </label>
                 <textarea
-                  id="surroundings"
-                  name="surroundings"
+                  id="surroundingsOoc"
+                  value={surroundingsOoc}
+                  onChange={(e) => setSurroundingsOoc(e.target.value)}
                   rows={3}
+                  placeholder="Scene-setting details, and/or anything OOC for other writers"
                   className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1" htmlFor="ooc">
-                  OOC notes
-                </label>
-                <textarea
-                  id="ooc"
-                  name="ooc"
-                  rows={2}
-                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
-                />
+                {/* Same text feeds both fields on the opening post specifically — replies keep OOC as its own separate field. */}
+                <input type="hidden" name="surroundings" value={surroundingsOoc} />
+                <input type="hidden" name="ooc" value={surroundingsOoc} />
               </div>
             </div>
           )}

@@ -15,6 +15,8 @@ import { AdminYearEditor } from "@/components/admin-year-editor";
 import { AdminLevelEditor } from "@/components/admin-level-editor";
 import { AdminBalanceEditor } from "@/components/admin-balance-editor";
 import { AdminNeedsReset } from "@/components/admin-needs-reset";
+import { AdminIgJobEditor } from "@/components/admin-ig-job-editor";
+import { GRADUATE_AT_YEAR_NUMBER } from "@/lib/year";
 import { AdminGenderEditor } from "@/components/admin-gender-editor";
 import { AdminSocialStatusEditor } from "@/components/admin-social-status-editor";
 import { AdminHallEditor } from "@/components/admin-hall-editor";
@@ -220,6 +222,14 @@ export default async function AdminUserDetailPage({
                   </p>
                   <AdminNeedsReset characterId={c.id} currentHunger={c.hunger} currentThirst={c.thirst} />
                 </div>
+                {c.currentYearNumber >= GRADUATE_AT_YEAR_NUMBER && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">
+                      In-game job (shown in place of major)
+                    </p>
+                    <AdminIgJobEditor characterId={c.id} igJobTitle={c.igJobTitle} />
+                  </div>
+                )}
               </div>
             ))}
           </div>

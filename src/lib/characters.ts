@@ -23,6 +23,8 @@ export async function getAllCharactersDirectory() {
       major: characters.major,
       hall: characters.hall,
       yearOverride: characters.yearOverride,
+      currentYearNumber: characters.currentYearNumber,
+      igJobTitle: characters.igJobTitle,
     })
     .from(characters)
     .orderBy(characters.firstName, characters.lastName);

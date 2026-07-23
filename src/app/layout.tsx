@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import localFont from "next/font/local";
 import { Work_Sans, IBM_Plex_Mono, Old_Standard_TT, EB_Garamond, Istok_Web } from "next/font/google";
 import "./globals.css";
@@ -12,6 +13,8 @@ import { getRecentChatMessages, getChatModerationContext } from "@/actions/chat"
 import { getOnlineCharacters } from "@/lib/online-status";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
+import { MajorChoiceGate } from "@/components/major-choice-gate";
+import { UNDECIDED_MAJOR } from "@/lib/majors";
 
 const alloverModern = localFont({
   src: [
@@ -91,6 +94,11 @@ export default async function RootLayout({
     createdAt: m.createdAt.toISOString(),
   }));
 
+  const needsMajorChoice =
+    Boolean(current?.activeCharacter) &&
+    current!.activeCharacter!.currentYearNumber >= 2 &&
+    current!.activeCharacter!.major === UNDECIDED_MAJOR;
+
   return (
     <html
       lang="en"
@@ -115,9 +123,21 @@ export default async function RootLayout({
                 myTimeoutUntil: chatModeration.timeoutUntil,
               }}
             >
-              {children}
+              {needsMajorChoice ? (
+                <MajorChoiceGate
+                  characterId={current!.activeCharacter!.id}
+                  characterName={current!.activeCharacter!.name}
+                />
+              ) : (
+                children
+              )}
             </GlobalShell>
           </main>
+          <footer className="w-full border-t border-ink-800 py-4 text-center">
+            <Link href="/privacy" className="text-xs text-ink-500 hover:text-gunmetal-400 transition-colors">
+              Privacy Policy
+            </Link>
+          </footer>
         </ToastProvider>
       </body>
     </html>

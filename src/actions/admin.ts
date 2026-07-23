@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, currencyLedger, characterStatuses, homeAnnouncement, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, currencyLedger, characterStatuses, homeAnnouncement, privacyPolicy, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES, MANAGEMENT_JOBS } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -13,6 +13,7 @@ import { getCharacterBalance } from "@/lib/economy";
 import { slugifyUnique } from "@/lib/slug";
 import { GENDER_OPTIONS, SOCIAL_STATUS_OPTIONS } from "@/lib/character-options";
 import { HALL_VALUES } from "@/lib/halls";
+import { sanitizeRichText } from "@/lib/sanitize";
 import { getPrimaryJobsForCharacters, isScopedToBoard, characterHasAnyJob } from "@/lib/character-jobs";
 import { GRADE_TIER_VALUES, GRADE_TIER_META, computePayout } from "@/lib/grading";
 import { GRADING_ACCESS_JOBS } from "@/lib/admin-access";
@@ -104,6 +105,8 @@ export async function getUserDetail(userId: number) {
       birthdayDayOfWeek: characters.birthdayDayOfWeek,
       hunger: characters.hunger,
       thirst: characters.thirst,
+      currentYearNumber: characters.currentYearNumber,
+      igJobTitle: characters.igJobTitle,
     })
     .from(characters)
     .where(eq(characters.userId, userId))
@@ -421,6 +424,35 @@ const updateBirthdaySchema = z.object({
  * (see updateCharacterAction in actions/characters.ts). Admin or any
  * management-job character can override it here.
  */
+const updateIgJobTitleSchema = z.object({
+  characterId: z.coerce.number().int(),
+  igJobTitle: z.string().max(100).optional().or(z.literal("")),
+});
+
+/** Admin/management-only — sets the in-game job title shown in place of a graduate's major. */
+export async function adminUpdateIgJobTitleAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdminOrManagement();
+
+  const parsed = updateIgJobTitleSchema.safeParse({
+    characterId: formData.get("characterId"),
+    igJobTitle: formData.get("igJobTitle") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { characterId, igJobTitle } = parsed.data;
+
+  await db.update(characters).set({ igJobTitle: igJobTitle || null }).where(eq(characters.id, characterId));
+
+  revalidatePath("/admin/users");
+  revalidatePath("/", "layout");
+  return { success: "In-game job updated" };
+}
+
 export async function adminUpdateCharacterBirthdayAction(
   _prevState: AdminActionState,
   formData: FormData
@@ -1116,6 +1148,43 @@ export async function adminRemoveCharacterStatusAction(formData: FormData) {
 export async function getHomeAnnouncement() {
   const [row] = await db.select().from(homeAnnouncement).where(eq(homeAnnouncement.id, 1));
   return row ?? null;
+}
+
+export async function getPrivacyPolicy() {
+  const [row] = await db.select().from(privacyPolicy).where(eq(privacyPolicy.id, 1));
+  return row ?? null;
+}
+
+const updatePrivacyPolicySchema = z.object({
+  content: z.string().max(60000),
+});
+
+export async function adminUpdatePrivacyPolicyAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = updatePrivacyPolicySchema.safeParse({
+    content: formData.get("content") || "",
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const content = sanitizeRichText(parsed.data.content);
+
+  await db
+    .insert(privacyPolicy)
+    .values({ id: 1, content })
+    .onConflictDoUpdate({
+      target: privacyPolicy.id,
+      set: { content, updatedAt: new Date() },
+    });
+
+  revalidatePath("/privacy");
+  revalidatePath("/admin/privacy");
+  return { success: "Privacy Policy updated" };
 }
 
 const updateAnnouncementSchema = z.object({

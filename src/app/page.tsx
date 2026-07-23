@@ -7,6 +7,8 @@ import { NewestMemberWidget } from "@/components/newest-member-widget";
 import { SiteLinksWidget } from "@/components/site-links-widget";
 import { HomeWallFeed } from "@/components/home-wall-feed";
 import { GameTimeWidget } from "@/components/game-time-widget";
+import { ConfessionWidget } from "@/components/confession-widget";
+import { getApprovedConfessions } from "@/lib/confessions";
 
 // Forced dynamic — several pages in this app were getting statically
 // prerendered at build time despite reading the database, which hit the
@@ -17,9 +19,17 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const current = await getCurrentUser();
 
+  let confessions: { id: number; content: string }[] = [];
+  try {
+    confessions = await getApprovedConfessions();
+  } catch (err) {
+    console.error("ConfessionWidget failed to load:", err);
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       <div className="w-full lg:w-72 shrink-0 space-y-6">
+        <ConfessionWidget confessions={confessions} canSubmit={Boolean(current?.activeCharacter)} />
         <GameTimeWidget />
         <AnnouncementWidget />
         <SpotlightWidget />

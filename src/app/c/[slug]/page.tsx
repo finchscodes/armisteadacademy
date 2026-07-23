@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCharacterBySlug } from "@/lib/characters";
 import { getCharacterLevelProgress } from "@/lib/xp";
-import { getCharacterYearLabel } from "@/lib/year";
+import { getCharacterYearLabel, GRADUATE_AT_YEAR_NUMBER } from "@/lib/year";
 import { jobColor, jobLabel, MANAGEMENT_JOBS } from "@/lib/roles";
 import { getJobsForCharacter, getPrimaryJob, characterHasAnyJob } from "@/lib/character-jobs";
 import { getCurrentUser } from "@/lib/current-user";
@@ -179,11 +179,10 @@ export default async function CharacterProfilePage({
 
         <div className="border-t border-ink-700 mt-4 pt-4 space-y-2">
           <InfoRow label="Age" value={character.age} />
-          <InfoRow
-            label="Major"
-            value={character.major}
-            color={getMajorColor(character.major) ?? undefined}
-          />
+          <InfoRow label="Major" value={character.major} color={getMajorColor(character.major) ?? undefined} />
+          {character.igJobTitle && character.currentYearNumber >= GRADUATE_AT_YEAR_NUMBER && (
+            <InfoRow label="In-Game Job" value={character.igJobTitle} />
+          )}
           <InfoRow label="Year" value={yearLabel} />
           {character.hall ? (
             <InfoRow label="Hall" value={hallLabel(character.hall)} color={hallColor(character.hall) ?? undefined} />

@@ -40,6 +40,21 @@ export default function RegisterPage() {
           />
         </div>
 
+        <div className="space-y-2 pt-1">
+          <label className="flex items-start gap-2 text-sm text-parchment-ink/80">
+            <input type="checkbox" name="ageConfirmed" value="true" required className="mt-0.5 rounded border-parchment-ink/30" />
+            I confirm I am 18 years of age or older.
+          </label>
+          <label className="flex items-start gap-2 text-sm text-parchment-ink/80">
+            <input type="checkbox" name="privacyAccepted" value="true" required className="mt-0.5 rounded border-parchment-ink/30" />
+            I have read and agree to the{" "}
+            <Link href="/privacy" target="_blank" className="text-claret-600 font-medium hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </label>
+        </div>
+
         {state?.error && <p className="text-claret-600 text-sm">{state.error}</p>}
 
         <button

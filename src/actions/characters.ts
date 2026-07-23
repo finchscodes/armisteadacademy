@@ -344,6 +344,54 @@ export async function setActiveCharacterAction(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
+const chooseMajorSchema = z.object({
+  characterId: z.coerce.number().int(),
+  major: z.enum(SELECTABLE_MAJORS.map((m) => m.value) as [string, ...string[]]),
+});
+
+export type ChooseMajorState = { error?: string } | undefined;
+
+/**
+ * The mandatory major-picker a 2nd-year-or-later character sees if they're
+ * still Undecided — see the gate in the root layout. Once a real major is
+ * chosen, this can never be called again for that character (the gate
+ * itself won't trigger, since they're no longer Undecided).
+ */
+export async function chooseMajorAction(
+  _prevState: ChooseMajorState,
+  formData: FormData
+): Promise<ChooseMajorState> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const parsed = chooseMajorSchema.safeParse({
+    characterId: formData.get("characterId"),
+    major: formData.get("major"),
+  });
+  if (!parsed.success) {
+    return { error: "Pick a major from the list" };
+  }
+
+  const { characterId, major } = parsed.data;
+
+  const [character] = await db
+    .select({ userId: characters.userId, major: characters.major })
+    .from(characters)
+    .where(eq(characters.id, characterId));
+  if (!character || character.userId !== session.userId) {
+    return { error: "Character not found" };
+  }
+  if (character.major !== UNDECIDED_MAJOR) {
+    // Already decided somehow (e.g. two tabs open) — nothing to do.
+    revalidatePath("/", "layout");
+    return undefined;
+  }
+
+  await db.update(characters).set({ major }).where(eq(characters.id, characterId));
+
+  revalidatePath("/", "layout");
+}
+
 /**
  * Approve (or un-approve) a character's backstory. Registrars and
  * admin/management can do this for any character — nothing is blocked

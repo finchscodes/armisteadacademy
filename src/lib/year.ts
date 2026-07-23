@@ -47,3 +47,14 @@ export async function getYearNumbersForCharacters(characterIds: number[]): Promi
     .where(inArray(characters.id, characterIds));
   return new Map(rows.map((r) => [r.id, r.currentYearNumber]));
 }
+
+/**
+ * What to show in the "major" slot — a graduate's admin-set in-game job
+ * title if they have one, otherwise their major as normal. Not graduated,
+ * or graduated with no title set yet, both just show the major — nothing
+ * changes on a character's display until an admin actually sets a title.
+ */
+export function getDisplayMajor(major: string, currentYearNumber: number, igJobTitle: string | null): string {
+  if (currentYearNumber >= GRADUATE_AT_YEAR_NUMBER && igJobTitle) return igJobTitle;
+  return major;
+}

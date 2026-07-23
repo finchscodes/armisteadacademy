@@ -25,12 +25,36 @@ const client =
     // need more than one or two connections open at once — the actual
     // pooling belongs to Supabase's own PgBouncer layer in front of
     // Postgres, not the app's client-side pool.
-    max: 3,
+    // Confirmed on Supabase's pooled (Supavisor/PgBouncer) connection, not
+    // the direct one — that pooler is built to handle many client
+    // connections efficiently, so the earlier concern (many serverless
+    // instances each exhausting a low direct-connection limit) doesn't
+    // apply the same way here. A single page load in this app runs many
+    // queries, several in parallel (a homepage load alone is 10+ across
+    // all its widgets) — too low a number here just makes those queue up
+    // and wait instead of running concurrently, which can itself look
+    // exactly like the slowness this was meant to fix.
+    max: 10,
     // Fail fast and with a clear error if a connection can't be acquired,
     // rather than hanging silently until Vercel's function timeout kills
     // the request with no useful message.
     connect_timeout: 10,
     idle_timeout: 20,
+    // A hard backstop against orphaned connections: if a serverless
+    // function gets killed mid-request (by Vercel's own timeout) after a
+    // query has already finished but before the app reads the result,
+    // Postgres is left holding a connection open forever waiting for a
+    // client that's never coming back. That connection permanently
+    // occupies a pool slot, and enough of them accumulating over time is
+    // what was actually causing the unrelated, fast queries to start
+    // timing out. These two settings tell Postgres to forcibly close a
+    // connection itself if it's been idle mid-transaction or otherwise
+    // stuck past a bound, rather than waiting indefinitely for a client
+    // that abandoned it.
+    connection: {
+      statement_timeout: 15000,
+      idle_in_transaction_session_timeout: 15000,
+    },
     // Supabase's pooled connection string (PgBouncer, transaction mode)
     // doesn't support prepared statements — this needs to be off for that
     // connection to work at all. Harmless either way if using the direct

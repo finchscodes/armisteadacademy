@@ -24,6 +24,8 @@ import { ArticleInteractions } from "@/components/article-interactions";
 import { EditablePost } from "@/components/editable-post";
 import { CharacterHoverCard } from "@/components/character-hover-card";
 import { getFollowerCount, isFollowingThread, getFollowingCount, getPostCount, getRecentPhotoPosts } from "@/lib/social";
+import { getReservationsForMission } from "@/lib/missions";
+import { MissionInfoPanel } from "@/components/mission-info-panel";
 import { SocialProfileHeader } from "@/components/social-profile-header";
 import { SocialPostCard } from "@/components/social-post-card";
 import { SocialCommentCard } from "@/components/social-comment-card";
@@ -121,6 +123,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
       })()
     : null;
 
+  const isMission = board?.kind === "mission";
+  const missionReservationsList = isMission ? await getReservationsForMission(thread.id) : [];
+
   const sceneDetails = [
     thread.location && { label: "Location", value: thread.location },
     thread.timeSetting && { label: "Time", value: thread.timeSetting },
@@ -190,6 +195,17 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
           <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">OOC</p>
           <p className="text-ink-300 whitespace-pre-wrap">{thread.ooc}</p>
         </div>
+      )}
+
+      {isMission && (
+        <MissionInfoPanel
+          threadId={thread.id}
+          deadline={thread.missionDeadline}
+          maxSpots={thread.missionMaxSpots}
+          reservations={missionReservationsList}
+          viewerCharacterId={viewerCharacterId}
+          canInteract={Boolean(viewerCharacterId) && viewerCharacterId !== thread.characterId}
+        />
       )}
 
       <div className="space-y-4 mb-8">

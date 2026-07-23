@@ -13,6 +13,7 @@ import { XP_AWARDS, awardXp } from "@/lib/xp";
 import { sanitizeRichText, sanitizePlainText, richTextLength } from "@/lib/sanitize";
 import { canPostArticle, canModeratePosts } from "@/lib/article-boards";
 import { createNotifications } from "@/lib/notifications";
+import { getAllCharacterIds } from "@/lib/missions";
 import { characterHasAnyJob } from "@/lib/character-jobs";
 import { MANAGEMENT_JOBS } from "@/lib/roles";
 
@@ -52,6 +53,8 @@ const newThreadSchema = z.object({
   letterTo: z.string().max(200).optional().or(z.literal("")),
   letterFrom: z.string().max(200).optional().or(z.literal("")),
   rollModifier: z.coerce.number().int().min(-99).max(99).optional(),
+  missionDeadline: z.string().optional().or(z.literal("")),
+  missionMaxSpots: z.coerce.number().int().min(1).max(50).optional(),
 });
 
 export async function createThreadAction(
@@ -78,6 +81,8 @@ export async function createThreadAction(
     letterTo: formData.get("letterTo") || undefined,
     letterFrom: formData.get("letterFrom") || undefined,
     rollModifier: formData.get("rollModifier") || undefined,
+    missionDeadline: formData.get("missionDeadline") || undefined,
+    missionMaxSpots: formData.get("missionMaxSpots") || undefined,
   });
 
   if (!parsed.success) {
@@ -96,6 +101,7 @@ export async function createThreadAction(
     letterTo,
     letterFrom,
     rollModifier,
+    missionMaxSpots,
   } = parsed.data;
 
   const [board] = await db.select().from(boards).where(eq(boards.slug, boardSlug));
@@ -112,12 +118,12 @@ export async function createThreadAction(
   if (board.kind === "shop" || board.kind === "bank") {
     return { error: "This board doesn't take topics" };
   }
-  if (board.slug === "missions") {
+  if (board.kind === "mission") {
     const allowed =
       session.isAdmin ||
       (await characterHasAnyJob(characterId, [...MANAGEMENT_JOBS, "handler"]));
     if (!allowed) {
-      return { error: "Only Handlers and management can start a topic in Missions" };
+      return { error: "Only Handlers and management can post a mission" };
     }
   }
   if (board.kind === "article") {
@@ -129,14 +135,27 @@ export async function createThreadAction(
 
   const isArticle = board.kind === "article";
   const isSocial = board.kind === "social";
+  const isMission = board.kind === "mission";
   if (isSocial && !title.startsWith("@")) {
     return { error: "Handles must start with @" };
   }
-  if (!isArticle && !isEmail && !isSocial && !rating) {
+  if (!isArticle && !isEmail && !isSocial && !isMission && !rating) {
     return { error: "Pick a rating" };
   }
   if (!isSocial && richTextLength(parsed.data.content) === 0) {
     return { error: "Post can't be empty" };
+  }
+
+  let missionDeadline: Date | null = null;
+  if (isMission && parsed.data.missionDeadline) {
+    const parsedDeadline = new Date(parsed.data.missionDeadline);
+    if (Number.isNaN(parsedDeadline.getTime())) {
+      return { error: "That deadline isn't valid" };
+    }
+    if (parsedDeadline.getTime() <= Date.now()) {
+      return { error: "The deadline needs to be in the future" };
+    }
+    missionDeadline = parsedDeadline;
   }
   let scheduledFor: Date | null = null;
   if (isArticle && parsed.data.scheduledFor) {
@@ -168,6 +187,8 @@ export async function createThreadAction(
       rating: isArticle || isEmail ? null : rating ?? null,
       scheduledFor,
       lastPostAt: now,
+      missionDeadline,
+      missionMaxSpots: isMission ? missionMaxSpots ?? null : null,
     })
     .returning({ id: threads.id, slug: threads.slug });
 
@@ -201,6 +222,16 @@ export async function createThreadAction(
       `Started "${title}"`,
       undefined,
       openingPost.id
+    );
+  }
+
+  if (isMission) {
+    const allCharacterIds = await getAllCharacterIds();
+    await createNotifications(
+      allCharacterIds.filter((id) => id !== characterId),
+      "mission_posted",
+      `A new mission was posted: "${title}"`,
+      `/t/${thread.slug}`
     );
   }
 

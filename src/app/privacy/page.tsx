@@ -7,7 +7,13 @@ export const metadata = { title: "Privacy Policy — Armistead Academy" };
 export const dynamic = "force-dynamic";
 
 export default async function PrivacyPage() {
-  const policy = await getPrivacyPolicy();
+  let policy;
+  try {
+    policy = await getPrivacyPolicy();
+  } catch (err) {
+    console.error("PrivacyPage failed to load policy content:", err);
+    policy = null;
+  }
 
   return (
     <div className="max-w-2xl mx-auto">

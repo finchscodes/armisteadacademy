@@ -15,12 +15,14 @@ export function NewThreadForm({
   isPhone = false,
   isEmail = false,
   isSocial = false,
+  isMission = false,
 }: {
   boardSlug: string;
   isArticle?: boolean;
   isPhone?: boolean;
   isEmail?: boolean;
   isSocial?: boolean;
+  isMission?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(createThreadAction, undefined);
   const [showDetails, setShowDetails] = useState(false);
@@ -41,7 +43,9 @@ export function NewThreadForm({
                 ? "Title (for the topic list)"
                 : isSocial
                   ? "Handle"
-                  : "Thread title"}
+                  : isMission
+                    ? "Mission title"
+                    : "Thread title"}
         </label>
         <input
           id="title"
@@ -54,7 +58,7 @@ export function NewThreadForm({
         {isSocial && <p className="text-[11px] text-ink-400 mt-1">Handles must start with @.</p>}
       </div>
 
-      {!isArticle && !isEmail && !isSocial && (
+      {!isArticle && !isEmail && !isSocial && !isMission && (
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="rating">
             Rating
@@ -75,7 +79,38 @@ export function NewThreadForm({
         </div>
       )}
 
-      {!isArticle && !isPhone && !isEmail && !isSocial && (
+      {isMission && (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="missionMaxSpots">
+              Number of spots
+            </label>
+            <input
+              id="missionMaxSpots"
+              name="missionMaxSpots"
+              type="number"
+              min={1}
+              max={50}
+              required
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="missionDeadline">
+              Reservation deadline
+            </label>
+            <input
+              id="missionDeadline"
+              name="missionDeadline"
+              type="datetime-local"
+              required
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            />
+          </div>
+        </div>
+      )}
+
+      {!isArticle && !isPhone && !isEmail && !isSocial && !isMission && (
         <>
           <div className="flex items-center gap-3">
             <button
@@ -175,7 +210,15 @@ export function NewThreadForm({
       ) : (
         <div>
           <label className="block text-sm font-medium mb-1">
-            {isArticle ? "Article body" : isPhone ? "First message" : isSocial ? "Bio / description" : "Opening post"}
+            {isArticle
+              ? "Article body"
+              : isPhone
+                ? "First message"
+                : isSocial
+                  ? "Bio / description"
+                  : isMission
+                    ? "Mission blurb"
+                    : "Opening post"}
           </label>
           {isPhone ? <PhoneMessageComposer /> : <RichTextEditor name="content" placeholder={isSocial ? "Optional" : undefined} />}
         </div>

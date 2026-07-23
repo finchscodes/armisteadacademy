@@ -133,8 +133,8 @@ export default async function RootLayout({
               )}
             </GlobalShell>
           </main>
-          <footer className="w-full border-t border-ink-800 py-4 text-center">
-            <Link href="/privacy" className="text-xs text-ink-500 hover:text-gunmetal-400 transition-colors">
+          <footer className="w-full border-t border-ink-800 py-2 text-center">
+            <Link href="/privacy" className="text-[11px] text-ink-500 hover:text-gunmetal-400 transition-colors">
               Privacy Policy
             </Link>
           </footer>

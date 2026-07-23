@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBoardBySlug } from "@/lib/forum";
+import { getReservationCountsForThreads } from "@/lib/missions";
+import { characterHasAnyJob } from "@/lib/character-jobs";
 import { getLessonsForBoard } from "@/lib/lessons";
 import { getCurrentUser } from "@/lib/current-user";
 import { isAssignedToClass } from "@/lib/class-assignments";
@@ -10,7 +12,7 @@ import { canPostArticle, canViewBoard } from "@/lib/article-boards";
 import { nowMs } from "@/lib/time";
 import { getYearNumbersForCharacters } from "@/lib/year";
 import { HaveAMealButton } from "@/components/have-a-meal-button";
-import { jobColor } from "@/lib/roles";
+import { jobColor, MANAGEMENT_JOBS } from "@/lib/roles";
 import { DraggableLessonList } from "@/components/draggable-lesson-list";
 import { CharacterBadge } from "@/components/character-badge";
 import { CharacterHoverCard } from "@/components/character-hover-card";
@@ -95,22 +97,42 @@ export default async function BoardPage({
     isClassBoard && current?.activeCharacter
       ? await isEnrolledInClass(current.activeCharacter.id, board.id)
       : false;
-  const canPostHere =
-    isArticleBoard && current
+  const isMissionBoardKind = board.kind === "mission";
+  const canPostHere = isArticleBoard
+    ? current
       ? current.session.isAdmin ||
         (current.activeCharacter ? await canPostArticle(current.activeCharacter.id, board.id) : false)
+      : false
+    : isMissionBoardKind
+      ? current
+        ? current.session.isAdmin ||
+          (current.activeCharacter
+            ? await characterHasAnyJob(current.activeCharacter.id, [...MANAGEMENT_JOBS, "handler"])
+            : false)
+        : false
       : !isClassBoard && !isArticleBoard;
 
   // Scheduled-future articles are hidden from everyone except management
   // (who can already post here) and the article's own author.
   const now = nowMs();
+  const isMissionBoard = board.kind === "mission";
+  const missionReservationCounts = isMissionBoard
+    ? await getReservationCountsForThreads(allThreads.map((t) => t.id))
+    : new Map<number, number>();
   const threads = isArticleBoard
     ? allThreads.filter((t) => {
         if (!t.scheduledFor || t.scheduledFor.getTime() <= now) return true;
         if (canPostHere) return true;
         return t.characterId === current?.activeCharacter?.id;
       })
-    : allThreads;
+    : isMissionBoard
+      ? allThreads.filter((t) => {
+          if (t.missionDeadline && t.missionDeadline.getTime() <= now) return false;
+          const reserved = missionReservationCounts.get(t.id) ?? 0;
+          if (t.missionMaxSpots != null && reserved >= t.missionMaxSpots) return false;
+          return true;
+        })
+      : allThreads;
 
   return (
     <div>
@@ -145,7 +167,7 @@ export default async function BoardPage({
               href={`/b/${board.slug}/new`}
               className="shrink-0 text-sm bg-gunmetal-500 text-ink-950 px-4 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors"
             >
-              {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : "+ New thread"}
+              {isArticleBoard ? "+ New article" : isEmailBoard ? "+ New email" : isMissionBoardKind ? "+ New mission" : "+ New thread"}
             </Link>
           )}
           {isClassBoard && canPostLesson && (

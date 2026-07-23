@@ -18,7 +18,7 @@ import { JOB_VALUES } from "@/lib/roles";
 /* -------------------------------------------------------------------------- */
 
 export const characterJobEnum = pgEnum("character_job", JOB_VALUES);
-export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank", "social"]);
+export const boardKindEnum = pgEnum("board_kind", ["category", "board", "class", "article", "phone", "email", "shop", "bank", "social", "mission"]);
 export const quarterEnum = pgEnum("quarter", ["fall", "winter", "spring", "summer"]);
 export const submissionStatusEnum = pgEnum("submission_status", [
   "open", // posted, still needs more graders (fewer than REQUIRED_GRADERS have graded)
@@ -38,6 +38,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "relation_request",
   "homework_graded",
   "wall_post",
+  "mission_posted",
 ]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",
@@ -514,7 +515,31 @@ export const threads = pgTable("threads", {
   scheduledFor: timestamp("scheduled_for"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastPostAt: timestamp("last_post_at").notNull().defaultNow(),
+  // Mission boards only — the reservation deadline and how many spots are
+  // available. A mission drops off the board's listing (not deleted, just
+  // no longer shown) once the deadline passes or every spot is taken —
+  // see lib/missions.ts.
+  missionDeadline: timestamp("mission_deadline"),
+  missionMaxSpots: integer("mission_max_spots"),
 });
+
+/** One reservation on a mission — a character claiming one of its spots. */
+export const missionReservations = pgTable(
+  "mission_reservations",
+  {
+    id: serial("id").primaryKey(),
+    threadId: integer("thread_id")
+      .notNull()
+      .references(() => threads.id, { onDelete: "cascade" }),
+    characterId: integer("character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    uniqueReservation: uniqueIndex("mission_reservations_unique_idx").on(table.threadId, table.characterId),
+  })
+);
 
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),

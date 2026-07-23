@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { getBoardBySlug } from "@/lib/forum";
 import { getCurrentUser } from "@/lib/current-user";
 import { canPostArticle } from "@/lib/article-boards";
+import { characterHasAnyJob } from "@/lib/character-jobs";
+import { MANAGEMENT_JOBS } from "@/lib/roles";
 import { NewThreadForm } from "@/components/new-thread-form";
 
 // Forced dynamic — several pages in this app were getting statically
@@ -28,6 +30,17 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
     if (!allowed) redirect(`/b/${slug}`);
   }
 
+  if (data.board.kind === "mission") {
+    const current = await getCurrentUser();
+    if (!current) redirect("/login");
+    const allowed =
+      current.session.isAdmin ||
+      (current.activeCharacter
+        ? await characterHasAnyJob(current.activeCharacter.id, [...MANAGEMENT_JOBS, "handler"])
+        : false);
+    if (!allowed) redirect(`/b/${slug}`);
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="font-display text-3xl text-gunmetal-400 mb-1">
@@ -39,7 +52,9 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
               ? "New email"
               : data.board.kind === "social"
                 ? "New account"
-                : "New thread"}
+                : data.board.kind === "mission"
+                  ? "New mission"
+                  : "New thread"}
       </h1>
       <p className="text-ink-400 text-sm mb-6">Posting in {data.board.name}</p>
       <NewThreadForm
@@ -48,6 +63,7 @@ export default async function NewThreadPage({ params }: { params: Promise<{ slug
         isPhone={data.board.kind === "phone"}
         isEmail={data.board.kind === "email"}
         isSocial={data.board.kind === "social"}
+        isMission={data.board.kind === "mission"}
       />
     </div>
   );

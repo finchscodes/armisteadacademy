@@ -29,13 +29,13 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       <div className="w-full lg:w-72 shrink-0 space-y-6">
-        <ConfessionWidget confessions={confessions} canSubmit={Boolean(current?.activeCharacter)} />
         <GameTimeWidget />
         <AnnouncementWidget />
         <SpotlightWidget />
         <NewsWidget />
-        <NewestMemberWidget />
         <SiteLinksWidget />
+        <ConfessionWidget confessions={confessions} canSubmit={Boolean(current?.activeCharacter)} />
+        <NewestMemberWidget />
       </div>
 
       <div className="flex-1 w-full min-w-0 space-y-6">

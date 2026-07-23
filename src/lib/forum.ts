@@ -80,6 +80,8 @@ export async function getBoardBySlug(slug: string) {
       characterLastName: characters.lastName,
       characterSlug: characters.slug,
       characterAvatarUrl: characters.avatarUrl,
+      missionDeadline: threads.missionDeadline,
+      missionMaxSpots: threads.missionMaxSpots,
     })
     .from(threads)
     .innerJoin(characters, eq(threads.characterId, characters.id))

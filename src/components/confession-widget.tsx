@@ -62,6 +62,11 @@ export function ConfessionWidget({
         )}
       </div>
       <div className="p-4">
+        <p className="text-[11px] text-ink-500 leading-snug mb-3">
+          These messages should be in good faith (at most teasing if not coming from yourself),
+          and not seeking to send hateful messages to one another. Messages regarding OOC matters
+          or writers will be deleted.
+        </p>
         {showForm ? (
           <div className="space-y-2">
             <textarea
@@ -70,7 +75,7 @@ export function ConfessionWidget({
               rows={4}
               maxLength={1000}
               placeholder="A rumor, a tip, something you overheard..."
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-xs focus:outline-none focus:border-gunmetal-500"
             />
             <p className="text-[11px] text-ink-500">
               Submitted anonymously. Reviewed by admins before it appears here.
@@ -85,9 +90,9 @@ export function ConfessionWidget({
             </button>
           </div>
         ) : confessions.length === 0 ? (
-          <p className="text-sm text-ink-400 italic">Nothing to see here... yet.</p>
+          <p className="text-xs text-ink-400 italic">Nothing to see here... yet.</p>
         ) : (
-          <p key={confessions[index].id} className="text-sm text-parchment-100/90 italic leading-relaxed">
+          <p key={confessions[index].id} className="text-xs text-parchment-100/90 italic leading-relaxed">
             &ldquo;{confessions[index].content}&rdquo;
           </p>
         )}

@@ -28,6 +28,10 @@ export function NewThreadForm({
   const [showDetails, setShowDetails] = useState(false);
   const [showRoll, setShowRoll] = useState(false);
   const [surroundingsOoc, setSurroundingsOoc] = useState("");
+  const [missionDeadlineDate, setMissionDeadlineDate] = useState("");
+  const [missionDeadlineTime, setMissionDeadlineTime] = useState("");
+  const [scheduledForDate, setScheduledForDate] = useState("");
+  const [scheduledForTime, setScheduledForTime] = useState("");
 
   return (
     <form action={formAction} className="space-y-4 bg-ink-900 border border-ink-700 rounded-lg p-6">
@@ -96,15 +100,27 @@ export function NewThreadForm({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="missionDeadline">
-              Reservation deadline (date and time)
-            </label>
+            <label className="block text-sm font-medium mb-1">Reservation deadline</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                required
+                value={missionDeadlineDate}
+                onChange={(e) => setMissionDeadlineDate(e.target.value)}
+                className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+              />
+              <input
+                type="time"
+                required
+                value={missionDeadlineTime}
+                onChange={(e) => setMissionDeadlineTime(e.target.value)}
+                className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+              />
+            </div>
             <input
-              id="missionDeadline"
+              type="hidden"
               name="missionDeadline"
-              type="datetime-local"
-              required
-              className="w-full sm:w-auto rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+              value={missionDeadlineDate && missionDeadlineTime ? `${missionDeadlineDate}T${missionDeadlineTime}` : ""}
             />
           </div>
         </div>
@@ -189,14 +205,25 @@ export function NewThreadForm({
 
       {isArticle && (
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="scheduledFor">
-            Publish
-          </label>
+          <label className="block text-sm font-medium mb-1">Publish</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={scheduledForDate}
+              onChange={(e) => setScheduledForDate(e.target.value)}
+              className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            />
+            <input
+              type="time"
+              value={scheduledForTime}
+              onChange={(e) => setScheduledForTime(e.target.value)}
+              className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            />
+          </div>
           <input
-            id="scheduledFor"
+            type="hidden"
             name="scheduledFor"
-            type="datetime-local"
-            className="rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+            value={scheduledForDate && scheduledForTime ? `${scheduledForDate}T${scheduledForTime}` : ""}
           />
           <p className="text-[11px] text-ink-400 mt-1">
             Leave blank to publish immediately, or pick a future date/time to schedule it — it

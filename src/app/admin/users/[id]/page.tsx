@@ -121,7 +121,7 @@ export default async function AdminUserDetailPage({
                   <Link href={`/c/${c.slug}`} className="text-parchment-100 hover:text-gunmetal-400">
                     {c.firstName} {c.lastName}
                   </Link>
-                  <DeleteCharacterButton characterId={c.id} userId={user.id} characterName={c.name} />
+                  <DeleteCharacterButton characterId={c.id} userId={user.id} characterName={`${c.firstName} ${c.lastName}`} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-ink-400 mb-1">

@@ -10,7 +10,8 @@ type PendingConfession = {
   content: string;
   createdAt: Date;
   characterId: number;
-  characterName: string;
+  characterFirstName: string;
+  characterLastName: string;
   characterSlug: string;
 };
 
@@ -48,7 +49,7 @@ export function ConfessionQueue({ confessions }: { confessions: PendingConfessio
           <p className="text-[11px] text-ink-500 mb-3">
             Submitted by{" "}
             <Link href={`/c/${c.characterSlug}`} className="hover:text-gunmetal-400">
-              {c.characterName}
+              {c.characterFirstName} {c.characterLastName}
             </Link>{" "}
             — never shown publicly
           </p>

@@ -24,7 +24,7 @@ export async function getApprovedConfessions(): Promise<{ id: number; content: s
   return rows.filter((r): r is { id: number; content: string; approvedAt: Date } => r.approvedAt !== null);
 }
 
-/** The admin vetting queue — oldest submission first, so nothing waits forever unseen. Includes the submitter's name for moderation accountability (never shown publicly). */
+/** The admin vetting queue — oldest submission first, so nothing waits forever unseen. Includes the submitter's legal name (never the codename) for moderation accountability, never shown publicly. */
 export async function getPendingConfessions() {
   return db
     .select({
@@ -32,7 +32,8 @@ export async function getPendingConfessions() {
       content: confessions.content,
       createdAt: confessions.createdAt,
       characterId: confessions.characterId,
-      characterName: characters.name,
+      characterFirstName: characters.firstName,
+      characterLastName: characters.lastName,
       characterSlug: characters.slug,
     })
     .from(confessions)

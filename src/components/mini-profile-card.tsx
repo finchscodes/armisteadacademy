@@ -93,7 +93,7 @@ export function MiniProfileCard({
           </p>
         )}
         <p className="leading-snug break-words">
-          <span className="text-ink-400">Major: </span>
+          <span className="text-ink-400">{profile.isIgJob ? "IG Job: " : "Major: "}</span>
           <span style={{ color: getMajorColor(profile.major) ?? undefined }}>{profile.major}</span>
         </p>
       </div>

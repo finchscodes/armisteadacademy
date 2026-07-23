@@ -16,6 +16,7 @@ export type MiniProfile = {
   lastName: string;
   avatarUrl: string | null;
   major: string;
+  isIgJob: boolean;
   year: string;
   age: number;
   level: number;
@@ -37,11 +38,19 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     getCharacterXp(character.id),
   ]);
 
+  const displayMajor = getDisplayMajor(
+    character.major,
+    character.currentYearNumber,
+    character.igJobTitle,
+    character.yearOverride
+  );
+
   return {
     firstName: character.firstName,
     lastName: character.lastName,
     avatarUrl: character.avatarUrl,
-    major: getDisplayMajor(character.major, character.currentYearNumber, character.igJobTitle, character.yearOverride),
+    major: displayMajor,
+    isIgJob: displayMajor !== character.major,
     year,
     age: character.age,
     level: levelForXp(xp),

@@ -218,6 +218,7 @@ export const characters = pgTable(
   (table) => ({
     slugIdx: uniqueIndex("characters_slug_idx").on(table.slug),
     userIdx: index("characters_user_id_idx").on(table.userId),
+    lastActiveIdx: index("characters_last_active_at_idx").on(table.lastActiveAt),
   })
 );
 
@@ -668,7 +669,9 @@ export const postComments = pgTable("post_comments", {
 });
 
 /** Site-wide sidebar chat — separate from in-character forum threads. */
-export const chatMessages = pgTable("chat_messages", {
+export const chatMessages = pgTable(
+  "chat_messages",
+  {
   id: serial("id").primaryKey(),
   characterId: integer("character_id")
     .notNull()
@@ -681,7 +684,11 @@ export const chatMessages = pgTable("chat_messages", {
   // distinct styling so they stand out from regular chat.
   isAnnouncement: boolean("is_announcement").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+  },
+  (table) => ({
+    createdAtIdx: index("chat_messages_created_at_idx").on(table.createdAt),
+  })
+);
 
 /* -------------------------------------------------------------------------- */
 /*  Lessons & Grading (schema now, UI/API in the next phase)                  */
@@ -1037,7 +1044,9 @@ export const items = pgTable("items", {
   isPet: boolean("is_pet").notNull().default(false),
 });
 
-export const inventory = pgTable("inventory", {
+export const inventory = pgTable(
+  "inventory",
+  {
   id: serial("id").primaryKey(),
   characterId: integer("character_id")
     .notNull()
@@ -1047,7 +1056,11 @@ export const inventory = pgTable("inventory", {
     .references(() => items.id, { onDelete: "cascade" }),
   quantity: integer("quantity").notNull().default(1),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
-});
+  },
+  (table) => ({
+    characterIdx: index("inventory_character_id_idx").on(table.characterId),
+  })
+);
 
 /**
  * An individually-owned pet — created when a character buys a shop item
@@ -1055,7 +1068,9 @@ export const inventory = pgTable("inventory", {
  * per design) and cuddle cooldown separately; unlike regular inventory,
  * pets are never stacked/quantified.
  */
-export const pets = pgTable("pets", {
+export const pets = pgTable(
+  "pets",
+  {
   id: serial("id").primaryKey(),
   characterId: integer("character_id")
     .notNull()
@@ -1068,7 +1083,11 @@ export const pets = pgTable("pets", {
   // One cuddle per real day per pet — see lib/pets.ts.
   lastCuddledAt: timestamp("last_cuddled_at"),
   acquiredAt: timestamp("acquired_at").notNull().defaultNow(),
-});
+  },
+  (table) => ({
+    characterIdx: index("pets_character_id_idx").on(table.characterId),
+  })
+);
 
 /**
  * Anonymous rumors/tips/intel submitted by characters for the homepage

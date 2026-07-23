@@ -62,11 +62,6 @@ export function ConfessionWidget({
         )}
       </div>
       <div className="p-4">
-        <p className="text-[11px] text-ink-500 leading-snug mb-3">
-          These messages should be in good faith (at most teasing if not coming from yourself),
-          and not seeking to send hateful messages to one another. Messages regarding OOC matters
-          or writers will be deleted.
-        </p>
         {showForm ? (
           <div className="space-y-2">
             <textarea
@@ -78,7 +73,8 @@ export function ConfessionWidget({
               className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-xs focus:outline-none focus:border-gunmetal-500"
             />
             <p className="text-[11px] text-ink-500">
-              Submitted anonymously. Reviewed by admins before it appears here.
+              Keep it in good faith, nothing hateful, and no OOC or writer callouts. Submitted
+              anonymously — admins review before it appears here.
             </p>
             <button
               type="button"

@@ -80,7 +80,7 @@ export function NewThreadForm({
       )}
 
       {isMission && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="missionMaxSpots">
               Number of spots
@@ -97,14 +97,14 @@ export function NewThreadForm({
           </div>
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="missionDeadline">
-              Reservation deadline
+              Reservation deadline (date and time)
             </label>
             <input
               id="missionDeadline"
               name="missionDeadline"
               type="datetime-local"
               required
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+              className="w-full sm:w-auto rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
             />
           </div>
         </div>

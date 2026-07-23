@@ -8,6 +8,7 @@ import {
   timestamp,
   pgEnum,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -216,6 +217,7 @@ export const characters = pgTable(
   },
   (table) => ({
     slugIdx: uniqueIndex("characters_slug_idx").on(table.slug),
+    userIdx: index("characters_user_id_idx").on(table.userId),
   })
 );
 
@@ -259,7 +261,9 @@ export const characterJobs = pgTable(
  * The wall owner can delete any post on it and pin exactly one; admin and
  * management can delete any post anywhere. Posts are never editable.
  */
-export const wallPosts = pgTable("wall_posts", {
+export const wallPosts = pgTable(
+  "wall_posts",
+  {
   id: serial("id").primaryKey(),
   wallCharacterId: integer("wall_character_id")
     .notNull()
@@ -277,7 +281,12 @@ export const wallPosts = pgTable("wall_posts", {
   activityType: varchar("activity_type", { length: 20 }),
   // "level_up" -> the new level number as a string; "sorted" -> the hall value.
   activityValue: varchar("activity_value", { length: 40 }),
-});
+  },
+  (table) => ({
+    wallCharacterIdx: index("wall_posts_wall_character_id_idx").on(table.wallCharacterId),
+    createdAtIdx: index("wall_posts_created_at_idx").on(table.createdAt),
+  })
+);
 
 /** One like per (wall post, character) — a simple heart, not the multi-emoji reaction set forum posts get. */
 export const wallPostLikes = pgTable(
@@ -484,10 +493,14 @@ export const boards = pgTable(
   },
   (table) => ({
     slugIdx: uniqueIndex("boards_slug_idx").on(table.slug),
+    parentIdx: index("boards_parent_id_idx").on(table.parentId),
+    kindIdx: index("boards_kind_idx").on(table.kind),
   })
 );
 
-export const threads = pgTable("threads", {
+export const threads = pgTable(
+  "threads",
+  {
   id: serial("id").primaryKey(),
   boardId: integer("board_id")
     .notNull()
@@ -521,7 +534,14 @@ export const threads = pgTable("threads", {
   // see lib/missions.ts.
   missionDeadline: timestamp("mission_deadline"),
   missionMaxSpots: integer("mission_max_spots"),
-});
+  },
+  (table) => ({
+    slugIdx: uniqueIndex("threads_slug_idx").on(table.slug),
+    boardIdx: index("threads_board_id_idx").on(table.boardId),
+    createdAtIdx: index("threads_created_at_idx").on(table.createdAt),
+    characterIdx: index("threads_character_id_idx").on(table.characterId),
+  })
+);
 
 /** One reservation on a mission — a character claiming one of its spots. */
 export const missionReservations = pgTable(
@@ -541,7 +561,9 @@ export const missionReservations = pgTable(
   })
 );
 
-export const posts = pgTable("posts", {
+export const posts = pgTable(
+  "posts",
+  {
   id: serial("id").primaryKey(),
   threadId: integer("thread_id")
     .notNull()
@@ -574,7 +596,12 @@ export const posts = pgTable("posts", {
   // board kind, and null on a social thread's opening post (that post is
   // the profile header, not a photo post — see lib/social.ts).
   imageUrl: text("image_url"),
-});
+  },
+  (table) => ({
+    threadIdx: index("posts_thread_id_idx").on(table.threadId),
+    characterIdx: index("posts_character_id_idx").on(table.characterId),
+  })
+);
 
 /** One character following another's social thread — the "follow" button on a social profile. */
 export const socialFollows = pgTable(
@@ -813,7 +840,9 @@ export const characterRelations = pgTable(
  * sent them a relation request, or their homework was graded. Shown via the
  * bell icon in the nav, next to the account menu.
  */
-export const notifications = pgTable("notifications", {
+export const notifications = pgTable(
+  "notifications",
+  {
   id: serial("id").primaryKey(),
   characterId: integer("character_id")
     .notNull()
@@ -823,7 +852,11 @@ export const notifications = pgTable("notifications", {
   link: text("link").notNull(),
   isRead: boolean("is_read").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+  },
+  (table) => ({
+    characterIdx: index("notifications_character_id_idx").on(table.characterId),
+  })
+);
 
 export const lessons = pgTable("lessons", {
   id: serial("id").primaryKey(),

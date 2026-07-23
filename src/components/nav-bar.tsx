@@ -77,15 +77,21 @@ export async function NavBar() {
     : null;
   const canAccessAdminPanel = adminAccess ? hasAnyAdminAccess(adminAccess) : false;
 
-  // Preload every topic-area/shop board image so it's already in the
-  // browser's cache by the time someone clicks into that board, instead of
-  // only starting to load once they're on the page waiting for it.
-  const imageUrls = [...new Set(rawBoardTree.flatMap(flattenBoardImageUrls))];
+  // Prefetch (not preload!) every topic-area/shop board image, so it's
+  // likely already cached by the time someone clicks into that board.
+  // preload tells the browser "fetch this now, high priority, for THIS
+  // page" — these images aren't used on this page, so that was directly
+  // competing with the page's own JS/CSS on every single load. prefetch
+  // is the correct hint for "might need this later": low priority, only
+  // fetched once the browser is idle, never blocks anything real. Capped
+  // at 24 so a large board list can't still queue up an excessive number
+  // of requests even at low priority.
+  const imageUrls = [...new Set(rawBoardTree.flatMap(flattenBoardImageUrls))].slice(0, 24);
 
   return (
     <>
       {imageUrls.map((url) => (
-        <link key={url} rel="preload" as="image" href={url} />
+        <link key={url} rel="prefetch" as="image" href={url} />
       ))}
       <header className="border-b border-ink-700 bg-ink-900/80 backdrop-blur sticky top-0 z-20">
       <div className="max-w-[1400px] mx-auto px-4 h-11 flex items-center justify-between gap-4">

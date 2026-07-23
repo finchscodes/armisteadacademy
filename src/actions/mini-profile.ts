@@ -41,7 +41,7 @@ export async function getMiniProfileAction(characterId: number): Promise<MiniPro
     firstName: character.firstName,
     lastName: character.lastName,
     avatarUrl: character.avatarUrl,
-    major: getDisplayMajor(character.major, character.currentYearNumber, character.igJobTitle),
+    major: getDisplayMajor(character.major, character.currentYearNumber, character.igJobTitle, character.yearOverride),
     year,
     age: character.age,
     level: levelForXp(xp),

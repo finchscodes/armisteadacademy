@@ -53,8 +53,20 @@ export async function getYearNumbersForCharacters(characterIds: number[]): Promi
  * title if they have one, otherwise their major as normal. Not graduated,
  * or graduated with no title set yet, both just show the major — nothing
  * changes on a character's display until an admin actually sets a title.
+ *
+ * "Graduated" here means the same thing it means everywhere else on the
+ * site: currentYearNumber >= GRADUATE_AT_YEAR_NUMBER, OR an admin has set
+ * yearOverride to "Graduate" directly. A character shown as a graduate
+ * via the override (without necessarily having their underlying year
+ * number bumped too) should still get their job title shown.
  */
-export function getDisplayMajor(major: string, currentYearNumber: number, igJobTitle: string | null): string {
-  if (currentYearNumber >= GRADUATE_AT_YEAR_NUMBER && igJobTitle) return igJobTitle;
+export function getDisplayMajor(
+  major: string,
+  currentYearNumber: number,
+  igJobTitle: string | null,
+  yearOverride?: string | null
+): string {
+  const isGraduate = currentYearNumber >= GRADUATE_AT_YEAR_NUMBER || yearOverride === "Graduate";
+  if (isGraduate && igJobTitle) return igJobTitle;
   return major;
 }

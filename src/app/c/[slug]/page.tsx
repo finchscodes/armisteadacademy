@@ -180,9 +180,10 @@ export default async function CharacterProfilePage({
         <div className="border-t border-ink-700 mt-4 pt-4 space-y-2">
           <InfoRow label="Age" value={character.age} />
           <InfoRow label="Major" value={character.major} color={getMajorColor(character.major) ?? undefined} />
-          {character.igJobTitle && character.currentYearNumber >= GRADUATE_AT_YEAR_NUMBER && (
-            <InfoRow label="In-Game Job" value={character.igJobTitle} />
-          )}
+          {character.igJobTitle &&
+            (character.currentYearNumber >= GRADUATE_AT_YEAR_NUMBER || character.yearOverride === "Graduate") && (
+              <InfoRow label="In-Game Job" value={character.igJobTitle} />
+            )}
           <InfoRow label="Year" value={yearLabel} />
           {character.hall ? (
             <InfoRow label="Hall" value={hallLabel(character.hall)} color={hallColor(character.hall) ?? undefined} />

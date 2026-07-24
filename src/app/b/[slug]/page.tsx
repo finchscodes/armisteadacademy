@@ -52,10 +52,17 @@ export default async function BoardPage({
   const { board, childBoards, threads: allThreads } = data;
 
   if (board.kind === "shop") {
-    return <ShopBoardView boardId={board.id} boardName={board.name} boardDescription={board.description} />;
+    return (
+      <ShopBoardView
+        boardId={board.id}
+        boardName={board.name}
+        boardDescription={board.description}
+        boardImageUrl={board.imageUrl}
+      />
+    );
   }
   if (board.kind === "bank") {
-    return <BankBoardView boardName={board.name} />;
+    return <BankBoardView boardName={board.name} boardImageUrl={board.imageUrl} />;
   }
 
   const isClassBoard = board.kind === "class";

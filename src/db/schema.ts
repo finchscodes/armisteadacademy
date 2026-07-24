@@ -26,6 +26,12 @@ export const submissionStatusEnum = pgEnum("submission_status", [
   "graded", // REQUIRED_GRADERS have graded; consensus computed, payout issued
 ]);
 export const confessionStatusEnum = pgEnum("confession_status", ["pending", "approved"]);
+export const tradeStatusEnum = pgEnum("trade_status", [
+  "awaiting_offer", // initiator proposed, waiting on recipient to counter-offer an item
+  "awaiting_approval", // recipient countered, waiting on initiator to approve or reject
+  "accepted",
+  "rejected", // either side backed out at any pending stage — items refunded
+]);
 export const gradeTierEnum = pgEnum("grade_tier", [
   "perfect",
   "excellent",
@@ -40,6 +46,8 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "homework_graded",
   "wall_post",
   "mission_posted",
+  "trade_proposed",
+  "item_gifted",
 ]);
 export const ledgerReasonEnum = pgEnum("ledger_reason", [
   "grading_reward",
@@ -1111,6 +1119,40 @@ export const confessions = pgTable(
   },
   (table) => ({
     statusIdx: index("confessions_status_idx").on(table.status),
+  })
+);
+
+/**
+ * An arsenal item trade between two characters. Items are held in escrow
+ * the moment they're offered — removed from the offering character's
+ * inventory immediately, not just reserved — and only actually move to
+ * the other side once the trade is accepted. Rejecting at any pending
+ * stage refunds whatever's currently in escrow back to its original
+ * owner. See lib/trades.ts and actions/trades.ts.
+ */
+export const trades = pgTable(
+  "trades",
+  {
+    id: serial("id").primaryKey(),
+    initiatorCharacterId: integer("initiator_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    initiatorItemId: integer("initiator_item_id")
+      .notNull()
+      .references(() => items.id, { onDelete: "restrict" }),
+    recipientCharacterId: integer("recipient_character_id")
+      .notNull()
+      .references(() => characters.id, { onDelete: "cascade" }),
+    // Null until the recipient counter-offers — that's what moves the
+    // trade from awaiting_offer to awaiting_approval.
+    recipientItemId: integer("recipient_item_id").references(() => items.id, { onDelete: "restrict" }),
+    status: tradeStatusEnum("status").notNull().default("awaiting_offer"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    initiatorIdx: index("trades_initiator_character_id_idx").on(table.initiatorCharacterId),
+    recipientIdx: index("trades_recipient_character_id_idx").on(table.recipientCharacterId),
   })
 );
 

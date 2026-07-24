@@ -22,17 +22,17 @@ export function AdminTabs() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap gap-1 border-b border-ink-700 pb-px">
+    <nav className="flex flex-col gap-2 w-full lg:w-56 shrink-0">
       {SECTIONS.map((s) => {
         const isActive = pathname === s.href || pathname?.startsWith(s.href + "/");
         return (
           <Link
             key={s.href}
             href={s.href}
-            className={`text-sm px-3 py-2 border-b-2 transition-colors ${
+            className={`text-sm px-4 py-3 rounded-lg border transition-colors ${
               isActive
-                ? "border-gunmetal-500 text-gunmetal-400"
-                : "border-transparent text-ink-200 hover:text-gunmetal-400 hover:border-ink-600"
+                ? "border-gunmetal-500 bg-gunmetal-500/10 text-gunmetal-400"
+                : "border-ink-700 bg-ink-900 text-ink-200 hover:border-ink-600 hover:text-gunmetal-400"
             }`}
           >
             {s.label}

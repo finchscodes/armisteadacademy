@@ -5,7 +5,7 @@ import { getBankBalance, applyPendingInterest } from "@/lib/bank";
 import { CoinIcon } from "@/components/nav-icons";
 import { BankActions } from "@/components/bank-actions";
 
-export async function BankBoardView({ boardName }: { boardName: string }) {
+export async function BankBoardView({ boardName, boardImageUrl }: { boardName: string; boardImageUrl: string | null }) {
   const current = await getCurrentUser();
   if (!current) redirect("/login");
   if (!current.activeCharacter) redirect("/characters");
@@ -19,6 +19,14 @@ export async function BankBoardView({ boardName }: { boardName: string }) {
 
   return (
     <div className="max-w-lg mx-auto">
+      {boardImageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={boardImageUrl}
+          alt={boardName}
+          className="w-full h-32 rounded-lg object-cover border border-ink-700 mb-3"
+        />
+      )}
       <div className="flex items-center gap-2 mb-1">
         <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider bg-gunmetal-500/20 text-gunmetal-400 border border-gunmetal-500/40 rounded px-2 py-0.5">
           <CoinIcon className="w-3 h-3" />

@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!hasAnyAdminAccess(access)) redirect("/");
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-4">
         <Link href="/admin" className="font-display text-2xl text-claret-500 hover:text-claret-400">
           Admin
@@ -24,8 +24,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <span className="text-xs text-ink-400 uppercase tracking-wider">Limited access</span>
         )}
       </div>
-      {access.isFullAdmin && <AdminTabs />}
-      <div className="mt-6">{children}</div>
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {access.isFullAdmin && <AdminTabs />}
+        <div className="flex-1 min-w-0 w-full">{children}</div>
+      </div>
     </div>
   );
 }

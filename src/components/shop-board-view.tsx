@@ -7,10 +7,12 @@ export async function ShopBoardView({
   boardId,
   boardName,
   boardDescription,
+  boardImageUrl,
 }: {
   boardId: number;
   boardName: string;
   boardDescription: string | null;
+  boardImageUrl: string | null;
 }) {
   const [current, shopItems] = await Promise.all([getCurrentUser(), getShopItems(boardId)]);
 
@@ -23,10 +25,20 @@ export async function ShopBoardView({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-1">
-        <h1 className="font-display text-3xl text-gunmetal-400">{boardName}</h1>
+      <div className="flex items-start justify-between gap-4 mb-1">
+        <div className="flex items-start gap-4 min-w-0">
+          {boardImageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={boardImageUrl}
+              alt={boardName}
+              className="w-20 h-20 sm:w-28 sm:h-20 rounded-lg object-cover border border-ink-700 shrink-0"
+            />
+          )}
+          <h1 className="font-display text-3xl text-gunmetal-400">{boardName}</h1>
+        </div>
         {balance !== null && (
-          <p className="text-sm text-ink-400">
+          <p className="text-sm text-ink-400 shrink-0">
             You have <span className="text-parchment-100 font-medium">{balance}</span> dollars
           </p>
         )}

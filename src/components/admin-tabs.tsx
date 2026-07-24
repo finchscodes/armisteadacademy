@@ -10,6 +10,7 @@ const SECTIONS = [
   { href: "/admin/home-board", label: "Home Board" },
   { href: "/admin/privacy", label: "Privacy Policy" },
   { href: "/admin/confessions", label: "Confessions" },
+  { href: "/admin/gifts", label: "Automatic Gifts" },
   { href: "/admin/hall-welcome", label: "Hall Welcome" },
   { href: "/admin/sorting-quiz", label: "Sorting Quiz" },
   { href: "/admin/grading", label: "Grading" },

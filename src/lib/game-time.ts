@@ -4,6 +4,7 @@ import { gameTime, characters, currencyLedger, characterJobs } from "@/db/schema
 import { getPrimaryJobsForCharacters } from "@/lib/character-jobs";
 import type { CharacterJob } from "@/lib/roles";
 import { dateFromDayIndex, type GameDate } from "@/lib/game-calendar";
+import { fireGiftTrigger } from "@/lib/automatic-gifts";
 
 export type { Quarter, GameDate } from "@/lib/game-calendar";
 export { QUARTER_ORDER, QUARTER_WEEKS, WEEK_DAYS, DAY_NAMES, dateFromDayIndex, dayIndexFromDate } from "@/lib/game-calendar";
@@ -67,6 +68,7 @@ async function runBirthdayChecks(date: GameDate) {
       .update(characters)
       .set({ age: m.age + 1 })
       .where(eq(characters.id, m.id));
+    await fireGiftTrigger("birthday", m.id);
   }
 }
 

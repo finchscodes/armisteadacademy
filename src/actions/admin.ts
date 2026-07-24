@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { eq, ilike, count, and, inArray, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { users, characters, boards, characterJobs, boardPostPermissions, currencyLedger, characterStatuses, homeAnnouncement, privacyPolicy, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps } from "@/db/schema";
+import { users, characters, boards, characterJobs, boardPostPermissions, currencyLedger, characterStatuses, homeAnnouncement, privacyPolicy, sortingQuizBlurb, spotlightEntries, sortingQuestions, sortingAnswers, submissions, lessons, hallWelcomeMessages, siteLinks, items, bannedIps, automaticGiftRules } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { JOB_VALUES, MANAGEMENT_JOBS } from "@/lib/roles";
 import { MAJOR_VALUES } from "@/lib/majors";
@@ -621,6 +621,89 @@ export async function getAllItemsForAdmin() {
     .from(items)
     .innerJoin(boards, eq(items.boardId, boards.id))
     .orderBy(boards.name, items.position);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Automatic gift rules — see lib/automatic-gifts.ts                         */
+/* -------------------------------------------------------------------------- */
+
+export async function getAutomaticGiftRules() {
+  await requireAdmin();
+  return db
+    .select({
+      id: automaticGiftRules.id,
+      trigger: automaticGiftRules.trigger,
+      itemId: automaticGiftRules.itemId,
+      itemName: items.name,
+      quantity: automaticGiftRules.quantity,
+      senderLabel: automaticGiftRules.senderLabel,
+      message: automaticGiftRules.message,
+      isActive: automaticGiftRules.isActive,
+    })
+    .from(automaticGiftRules)
+    .innerJoin(items, eq(automaticGiftRules.itemId, items.id))
+    .orderBy(automaticGiftRules.trigger, automaticGiftRules.id);
+}
+
+const createGiftRuleSchema = z.object({
+  trigger: z.enum(["birthday"]),
+  itemId: z.coerce.number().int(),
+  quantity: z.coerce.number().int().min(1).max(999),
+  senderLabel: z.string().trim().min(1).max(100),
+  message: z.string().max(500).optional().or(z.literal("")),
+});
+
+export async function adminCreateGiftRuleAction(
+  _prevState: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin();
+
+  const parsed = createGiftRuleSchema.safeParse({
+    trigger: formData.get("trigger"),
+    itemId: formData.get("itemId"),
+    quantity: formData.get("quantity"),
+    senderLabel: formData.get("senderLabel"),
+    message: formData.get("message") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  await db.insert(automaticGiftRules).values({
+    trigger: parsed.data.trigger,
+    itemId: parsed.data.itemId,
+    quantity: parsed.data.quantity,
+    senderLabel: parsed.data.senderLabel,
+    message: parsed.data.message || null,
+  });
+
+  revalidatePath("/admin/gifts");
+  return { success: "Rule added" };
+}
+
+export async function adminToggleGiftRuleAction(formData: FormData) {
+  await requireAdmin();
+  const ruleId = Number(formData.get("ruleId"));
+  if (!ruleId) return;
+
+  const [rule] = await db
+    .select({ isActive: automaticGiftRules.isActive })
+    .from(automaticGiftRules)
+    .where(eq(automaticGiftRules.id, ruleId));
+  if (!rule) return;
+
+  await db.update(automaticGiftRules).set({ isActive: !rule.isActive }).where(eq(automaticGiftRules.id, ruleId));
+  revalidatePath("/admin/gifts");
+}
+
+export async function adminDeleteGiftRuleAction(formData: FormData) {
+  await requireAdmin();
+  const ruleId = Number(formData.get("ruleId"));
+  if (!ruleId) return;
+
+  await db.delete(automaticGiftRules).where(eq(automaticGiftRules.id, ruleId));
+  revalidatePath("/admin/gifts");
 }
 
 const itemSchema = z.object({

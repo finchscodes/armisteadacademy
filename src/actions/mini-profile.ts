@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, or, ilike } from "drizzle-orm";
+import { eq, or, ilike, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { characters } from "@/db/schema";
 import { getCharacterYearLabel, getDisplayMajor } from "@/lib/year";
@@ -72,27 +72,37 @@ export type MentionCandidate = {
 
 export type CharacterNameMatch = {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   slug: string;
   avatarUrl: string | null;
 };
 
 /**
- * Character search for gift/trade "type a name" inputs (and anywhere else
- * that needs to resolve a character by their display name specifically,
- * as opposed to the @mention search below which matches legal
- * first/last name). Searches characters.name — the same field the
- * underlying gift/trade actions match against, so whatever gets picked
- * here is guaranteed to resolve correctly.
+ * Character search for gift/trade "type a name" inputs — matches legal
+ * first/last name (never the codename/display name), including when
+ * someone types the full "First Last" as one string.
  */
 export async function searchCharactersByNameAction(query: string): Promise<CharacterNameMatch[]> {
   const trimmed = query.trim();
   if (trimmed.length < 3) return [];
 
   return db
-    .select({ id: characters.id, name: characters.name, slug: characters.slug, avatarUrl: characters.avatarUrl })
+    .select({
+      id: characters.id,
+      firstName: characters.firstName,
+      lastName: characters.lastName,
+      slug: characters.slug,
+      avatarUrl: characters.avatarUrl,
+    })
     .from(characters)
-    .where(ilike(characters.name, `%${trimmed}%`))
+    .where(
+      or(
+        ilike(characters.firstName, `%${trimmed}%`),
+        ilike(characters.lastName, `%${trimmed}%`),
+        ilike(sql`${characters.firstName} || ' ' || ${characters.lastName}`, `%${trimmed}%`)
+      )
+    )
     .limit(8);
 }
 

@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { eq, ilike } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { trades, characters, items } from "@/db/schema";
@@ -12,15 +12,6 @@ import { getTradeById } from "@/lib/trades";
 
 export type TradeActionState = { error?: string; success?: string } | undefined;
 
-async function findCharacterByName(name: string) {
-  const trimmed = name.trim();
-  const [character] = await db
-    .select({ id: characters.id, name: characters.name })
-    .from(characters)
-    .where(ilike(characters.name, trimmed));
-  return character ?? null;
-}
-
 async function getCharacterSlug(characterId: number): Promise<string | null> {
   const [row] = await db.select({ slug: characters.slug }).from(characters).where(eq(characters.id, characterId));
   return row?.slug ?? null;
@@ -29,7 +20,7 @@ async function getCharacterSlug(characterId: number): Promise<string | null> {
 const proposeTradeSchema = z.object({
   itemId: z.coerce.number().int(),
   quantity: z.coerce.number().int().min(1).max(999),
-  targetCharacterName: z.string().trim().min(1, "Enter a character's name"),
+  targetCharacterId: z.coerce.number().int().min(1, "Pick a character from the list"),
 });
 
 /** Proposes a trade — the offered item(s) are put in escrow (removed from the initiator's arsenal) immediately. */
@@ -42,16 +33,16 @@ export async function proposeTradeAction(
   const parsed = proposeTradeSchema.safeParse({
     itemId: formData.get("itemId"),
     quantity: formData.get("quantity"),
-    targetCharacterName: formData.get("targetCharacterName"),
+    targetCharacterId: formData.get("targetCharacterId"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Pick a character from the list" };
   }
 
-  const { itemId, quantity, targetCharacterName } = parsed.data;
+  const { itemId, quantity, targetCharacterId } = parsed.data;
 
-  const target = await findCharacterByName(targetCharacterName);
-  if (!target) return { error: "No character found with that name" };
+  const [target] = await db.select({ id: characters.id }).from(characters).where(eq(characters.id, targetCharacterId));
+  if (!target) return { error: "That character no longer exists" };
   if (target.id === characterId) return { error: "You can't trade with yourself" };
 
   const owned = await getInventoryRow(characterId, itemId);

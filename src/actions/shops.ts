@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { eq, and, inArray, ilike } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { items, inventory, boards, currencyLedger, characters, pets } from "@/db/schema";
 import { requireSessionAndCharacter } from "@/lib/session-character";
@@ -124,7 +124,7 @@ export type GiftItemState = { error?: string; success?: string } | undefined;
 const giftItemSchema = z.object({
   inventoryId: z.coerce.number().int(),
   quantity: z.coerce.number().int().min(1).max(999),
-  targetCharacterName: z.string().trim().min(1, "Enter a character's name"),
+  targetCharacterId: z.coerce.number().int().min(1, "Pick a character from the list"),
   message: z.string().max(500).optional().or(z.literal("")),
 });
 
@@ -135,13 +135,13 @@ export async function giftItemAction(_prevState: GiftItemState, formData: FormDa
   const parsed = giftItemSchema.safeParse({
     inventoryId: formData.get("inventoryId"),
     quantity: formData.get("quantity"),
-    targetCharacterName: formData.get("targetCharacterName"),
+    targetCharacterId: formData.get("targetCharacterId"),
     message: formData.get("message") || undefined,
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "Pick a character from the list" };
   }
-  const { inventoryId, quantity, targetCharacterName, message } = parsed.data;
+  const { inventoryId, quantity, targetCharacterId, message } = parsed.data;
 
   const [row] = await db
     .select()
@@ -150,9 +150,8 @@ export async function giftItemAction(_prevState: GiftItemState, formData: FormDa
   if (!row) return { error: "You don't have that item" };
   if (row.quantity < quantity) return { error: `You only have ${row.quantity}` };
 
-  const trimmedName = targetCharacterName.trim();
-  const [target] = await db.select({ id: characters.id }).from(characters).where(ilike(characters.name, trimmedName));
-  if (!target) return { error: "No character found with that name" };
+  const [target] = await db.select({ id: characters.id }).from(characters).where(eq(characters.id, targetCharacterId));
+  if (!target) return { error: "That character no longer exists" };
   if (target.id === characterId) return { error: "You can't gift to yourself" };
 
   const [item] = await db.select({ name: items.name, isPet: items.isPet }).from(items).where(eq(items.id, row.itemId));

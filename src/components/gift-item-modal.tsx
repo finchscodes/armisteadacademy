@@ -37,7 +37,7 @@ export function GiftItemModal({
             <label className="block text-xs font-medium mb-1" htmlFor="targetCharacterName">
               Character&apos;s name
             </label>
-            <CharacterNameAutocomplete id="targetCharacterName" name="targetCharacterName" required />
+            <CharacterNameAutocomplete id="targetCharacterName" name="targetCharacterId" required />
           </div>
           {maxQuantity > 1 && (
             <div>

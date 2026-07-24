@@ -24,6 +24,7 @@ import { PetsTab } from "@/components/pets-tab";
 import { getCharacterReputation, getCharacterReputationThisYear } from "@/lib/reputation";
 import { CharacterBadge } from "@/components/character-badge";
 import { ProfileTabs } from "@/components/profile-tabs";
+import { TradesTabContent } from "@/components/trades-tab-content";
 import { WallFeed } from "@/components/wall-feed";
 import { BackstoryApprovalButton } from "@/components/backstory-approval-button";
 import { AcceptedRelationsList } from "@/components/accepted-relations-list";
@@ -368,6 +369,7 @@ export default async function CharacterProfilePage({
             />
           }
           petsCount={petsList.length}
+          trades={isOwner ? <TradesTabContent characterId={character.id} /> : undefined}
         />
       </div>
     </div>

@@ -12,6 +12,8 @@ export function ProfileTabs({
   arsenalCount,
   pets,
   petsCount,
+  trades,
+  tradesCount,
 }: {
   backstory: React.ReactNode;
   appearance: React.ReactNode;
@@ -22,8 +24,12 @@ export function ProfileTabs({
   arsenalCount: number;
   pets: React.ReactNode;
   petsCount: number;
+  trades?: React.ReactNode;
+  tradesCount?: number;
 }) {
-  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics" | "arsenal" | "pets">("wall");
+  const [tab, setTab] = useState<"backstory" | "appearance" | "wall" | "topics" | "arsenal" | "pets" | "trades">(
+    "wall"
+  );
 
   const tabs = [
     { key: "wall" as const, label: "Wall" },
@@ -31,6 +37,7 @@ export function ProfileTabs({
     { key: "backstory" as const, label: "Transcript" },
     { key: "arsenal" as const, label: `Arsenal (${arsenalCount})` },
     { key: "pets" as const, label: `Pets (${petsCount})` },
+    ...(trades ? [{ key: "trades" as const, label: `Trades${tradesCount ? ` (${tradesCount})` : ""}` }] : []),
     { key: "topics" as const, label: `Topics (${topicsCount})` },
   ];
 
@@ -59,6 +66,7 @@ export function ProfileTabs({
       {tab === "topics" && topics}
       {tab === "arsenal" && arsenal}
       {tab === "pets" && pets}
+      {tab === "trades" && trades}
     </div>
   );
 }

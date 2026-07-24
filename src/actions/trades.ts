@@ -21,12 +21,18 @@ async function findCharacterByName(name: string) {
   return character ?? null;
 }
 
+async function getCharacterSlug(characterId: number): Promise<string | null> {
+  const [row] = await db.select({ slug: characters.slug }).from(characters).where(eq(characters.id, characterId));
+  return row?.slug ?? null;
+}
+
 const proposeTradeSchema = z.object({
   itemId: z.coerce.number().int(),
+  quantity: z.coerce.number().int().min(1).max(999),
   targetCharacterName: z.string().trim().min(1, "Enter a character's name"),
 });
 
-/** Proposes a trade — the offered item is put in escrow (removed from the initiator's arsenal) immediately. */
+/** Proposes a trade — the offered item(s) are put in escrow (removed from the initiator's arsenal) immediately. */
 export async function proposeTradeAction(
   _prevState: TradeActionState,
   formData: FormData
@@ -35,47 +41,54 @@ export async function proposeTradeAction(
 
   const parsed = proposeTradeSchema.safeParse({
     itemId: formData.get("itemId"),
+    quantity: formData.get("quantity"),
     targetCharacterName: formData.get("targetCharacterName"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { itemId, targetCharacterName } = parsed.data;
+  const { itemId, quantity, targetCharacterName } = parsed.data;
 
   const target = await findCharacterByName(targetCharacterName);
   if (!target) return { error: "No character found with that name" };
   if (target.id === characterId) return { error: "You can't trade with yourself" };
 
   const owned = await getInventoryRow(characterId, itemId);
-  if (!owned || owned.quantity < 1) return { error: "You don't have that item" };
+  if (!owned || owned.quantity < quantity) return { error: `You only have ${owned?.quantity ?? 0}` };
 
-  const removed = await removeItemFromInventory(characterId, itemId, 1);
-  if (!removed) return { error: "You don't have that item" };
+  const removed = await removeItemFromInventory(characterId, itemId, quantity);
+  if (!removed) return { error: "You don't have that many" };
 
-  await db
-    .insert(trades)
-    .values({ initiatorCharacterId: characterId, initiatorItemId: itemId, recipientCharacterId: target.id });
+  await db.insert(trades).values({
+    initiatorCharacterId: characterId,
+    initiatorItemId: itemId,
+    initiatorQuantity: quantity,
+    recipientCharacterId: target.id,
+  });
 
   const [item] = await db.select({ name: items.name }).from(items).where(eq(items.id, itemId));
+  const itemLabel = quantity > 1 ? `${quantity}x ${item?.name ?? "item"}` : (item?.name ?? "an item");
 
+  const targetSlug = await getCharacterSlug(target.id);
   await createNotification(
     target.id,
     "trade_proposed",
-    `You've been offered a trade for a ${item?.name ?? "item"}`,
-    "/trades"
+    `You've been offered a trade for ${itemLabel}`,
+    targetSlug ? `/c/${targetSlug}` : "/characters"
   );
 
-  revalidatePath("/trades");
+  revalidatePath("/", "layout");
   return { success: "Trade proposed — waiting on them to counter-offer" };
 }
 
 const respondSchema = z.object({
   tradeId: z.coerce.number().int(),
   itemId: z.coerce.number().int(),
+  quantity: z.coerce.number().int().min(1).max(999),
 });
 
-/** The recipient counter-offers an item — also escrowed immediately, moving the trade to awaiting_approval. */
+/** The recipient counter-offers item(s) — also escrowed immediately, moving the trade to awaiting_approval. */
 export async function respondToTradeAction(
   _prevState: TradeActionState,
   formData: FormData
@@ -85,6 +98,7 @@ export async function respondToTradeAction(
   const parsed = respondSchema.safeParse({
     tradeId: formData.get("tradeId"),
     itemId: formData.get("itemId"),
+    quantity: formData.get("quantity"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -96,26 +110,36 @@ export async function respondToTradeAction(
   if (trade.status !== "awaiting_offer") return { error: "This trade already moved past that stage" };
 
   const owned = await getInventoryRow(characterId, parsed.data.itemId);
-  if (!owned || owned.quantity < 1) return { error: "You don't have that item" };
+  if (!owned || owned.quantity < parsed.data.quantity) {
+    return { error: `You only have ${owned?.quantity ?? 0}` };
+  }
 
-  const removed = await removeItemFromInventory(characterId, parsed.data.itemId, 1);
-  if (!removed) return { error: "You don't have that item" };
+  const removed = await removeItemFromInventory(characterId, parsed.data.itemId, parsed.data.quantity);
+  if (!removed) return { error: "You don't have that many" };
 
   await db
     .update(trades)
-    .set({ recipientItemId: parsed.data.itemId, status: "awaiting_approval", updatedAt: new Date() })
+    .set({
+      recipientItemId: parsed.data.itemId,
+      recipientQuantity: parsed.data.quantity,
+      status: "awaiting_approval",
+      updatedAt: new Date(),
+    })
     .where(eq(trades.id, trade.id));
 
   const [item] = await db.select({ name: items.name }).from(items).where(eq(items.id, parsed.data.itemId));
+  const itemLabel =
+    parsed.data.quantity > 1 ? `${parsed.data.quantity}x ${item?.name ?? "item"}` : (item?.name ?? "an item");
 
+  const initiatorSlug = await getCharacterSlug(trade.initiatorCharacterId);
   await createNotification(
     trade.initiatorCharacterId,
     "trade_proposed",
-    `They countered your trade with a ${item?.name ?? "item"} — approve or reject it`,
-    "/trades"
+    `They countered your trade with ${itemLabel} — approve or reject it`,
+    initiatorSlug ? `/c/${initiatorSlug}` : "/characters"
   );
 
-  revalidatePath("/trades");
+  revalidatePath("/", "layout");
   return { success: "Counter-offer sent — waiting on their approval" };
 }
 
@@ -141,14 +165,20 @@ export async function approveTradeAction(formData: FormData): Promise<TradeActio
     return { error: "One of your arsenals is full — free up space before approving" };
   }
 
-  await addItemToInventory(trade.recipientCharacterId, trade.initiatorItemId, 1);
-  await addItemToInventory(trade.initiatorCharacterId, trade.recipientItemId, 1);
+  await addItemToInventory(trade.recipientCharacterId, trade.initiatorItemId, trade.initiatorQuantity);
+  await addItemToInventory(trade.initiatorCharacterId, trade.recipientItemId, trade.recipientQuantity);
 
   await db.update(trades).set({ status: "accepted", updatedAt: new Date() }).where(eq(trades.id, trade.id));
 
-  await createNotification(trade.recipientCharacterId, "trade_proposed", "Your trade was accepted!", "/trades");
+  const recipientSlug = await getCharacterSlug(trade.recipientCharacterId);
+  await createNotification(
+    trade.recipientCharacterId,
+    "trade_proposed",
+    "Your trade was accepted!",
+    recipientSlug ? `/c/${recipientSlug}` : "/characters"
+  );
 
-  revalidatePath("/trades");
+  revalidatePath("/", "layout");
   return { success: "Trade completed" };
 }
 
@@ -168,17 +198,23 @@ export async function rejectTradeAction(formData: FormData): Promise<TradeAction
     return { error: "This trade is already finished" };
   }
 
-  await addItemToInventory(trade.initiatorCharacterId, trade.initiatorItemId, 1);
+  await addItemToInventory(trade.initiatorCharacterId, trade.initiatorItemId, trade.initiatorQuantity);
   if (trade.recipientItemId) {
-    await addItemToInventory(trade.recipientCharacterId, trade.recipientItemId, 1);
+    await addItemToInventory(trade.recipientCharacterId, trade.recipientItemId, trade.recipientQuantity);
   }
 
   await db.update(trades).set({ status: "rejected", updatedAt: new Date() }).where(eq(trades.id, trade.id));
 
   const otherPartyId =
     characterId === trade.initiatorCharacterId ? trade.recipientCharacterId : trade.initiatorCharacterId;
-  await createNotification(otherPartyId, "trade_proposed", "A trade was rejected — items returned", "/trades");
+  const otherPartySlug = await getCharacterSlug(otherPartyId);
+  await createNotification(
+    otherPartyId,
+    "trade_proposed",
+    "A trade was rejected — items returned",
+    otherPartySlug ? `/c/${otherPartySlug}` : "/characters"
+  );
 
-  revalidatePath("/trades");
+  revalidatePath("/", "layout");
   return { success: "Trade rejected — items returned" };
 }

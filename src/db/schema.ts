@@ -1140,12 +1140,14 @@ export const trades = pgTable(
     initiatorItemId: integer("initiator_item_id")
       .notNull()
       .references(() => items.id, { onDelete: "restrict" }),
+    initiatorQuantity: integer("initiator_quantity").notNull().default(1),
     recipientCharacterId: integer("recipient_character_id")
       .notNull()
       .references(() => characters.id, { onDelete: "cascade" }),
     // Null until the recipient counter-offers — that's what moves the
     // trade from awaiting_offer to awaiting_approval.
     recipientItemId: integer("recipient_item_id").references(() => items.id, { onDelete: "restrict" }),
+    recipientQuantity: integer("recipient_quantity").notNull().default(1),
     status: tradeStatusEnum("status").notNull().default("awaiting_offer"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

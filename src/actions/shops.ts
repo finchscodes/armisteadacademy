@@ -10,7 +10,6 @@ import { getCharacterBalance } from "@/lib/economy";
 import {
   ARSENAL_CAPACITY,
   getArsenalCount,
-  getInventoryRow,
   addItemToInventory,
   removeItemFromInventory,
 } from "@/lib/shops";
@@ -19,14 +18,18 @@ import { createNotification } from "@/lib/notifications";
 
 export type PurchaseResult = { error?: string; arsenalFull?: boolean; success?: boolean };
 
-export async function purchaseItemAction(itemId: number): Promise<PurchaseResult> {
+export async function purchaseItemAction(itemId: number, quantity = 1): Promise<PurchaseResult> {
   const { characterId } = await requireSessionAndCharacter();
+  const qty = Math.max(1, Math.min(999, Math.floor(quantity)));
 
   const [item] = await db.select().from(items).where(eq(items.id, itemId));
   if (!item) return { error: "That item no longer exists" };
 
-  if (item.stock !== null && item.stock <= 0) {
-    return { error: "That item is out of stock" };
+  // Pets are individual creatures, not stackable stock — always one at a time.
+  const purchaseQty = item.isPet ? 1 : qty;
+
+  if (item.stock !== null && item.stock < purchaseQty) {
+    return { error: item.stock <= 0 ? "That item is out of stock" : `Only ${item.stock} left` };
   }
 
   // Pets live in their own tab, separate from the regular Arsenal, so they
@@ -38,31 +41,27 @@ export async function purchaseItemAction(itemId: number): Promise<PurchaseResult
     }
   }
 
+  const totalCost = item.price * purchaseQty;
   const balance = await getCharacterBalance(characterId);
-  if (balance < item.price) {
+  if (balance < totalCost) {
     return { error: "You can't afford that" };
   }
 
   await db.insert(currencyLedger).values({
     characterId,
-    amount: -item.price,
+    amount: -totalCost,
     reason: "shop_purchase",
-    note: `Bought ${item.name}`,
+    note: purchaseQty > 1 ? `Bought ${purchaseQty}x ${item.name}` : `Bought ${item.name}`,
   });
 
   if (item.isPet) {
     await db.insert(pets).values({ characterId, itemId });
   } else {
-    const existing = await getInventoryRow(characterId, itemId);
-    if (existing) {
-      await db.update(inventory).set({ quantity: existing.quantity + 1 }).where(eq(inventory.id, existing.id));
-    } else {
-      await db.insert(inventory).values({ characterId, itemId, quantity: 1 });
-    }
+    await addItemToInventory(characterId, itemId, purchaseQty);
   }
 
   if (item.stock !== null) {
-    await db.update(items).set({ stock: item.stock - 1 }).where(eq(items.id, itemId));
+    await db.update(items).set({ stock: item.stock - purchaseQty }).where(eq(items.id, itemId));
   }
 
   const [board] = await db.select({ slug: boards.slug }).from(boards).where(eq(boards.id, item.boardId));

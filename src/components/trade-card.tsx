@@ -11,7 +11,9 @@ type Trade = {
   id: number;
   status: "awaiting_offer" | "awaiting_approval" | "accepted" | "rejected";
   initiatorCharacterId: number;
+  initiatorQuantity: number;
   recipientCharacterId: number;
+  recipientQuantity: number;
   initiatorCharacter: { id: number; name: string; slug: string } | null;
   recipientCharacter: { id: number; name: string; slug: string } | null;
   initiatorItem: { id: number; name: string; imageUrl: string | null } | null;
@@ -32,6 +34,7 @@ export function TradeCard({
   const [pending, startTransition] = useTransition();
   const [pickingOffer, setPickingOffer] = useState(false);
   const [chosenItemId, setChosenItemId] = useState<number | null>(null);
+  const [chosenQuantity, setChosenQuantity] = useState(1);
 
   const isInitiator = trade.initiatorCharacterId === myCharacterId;
   const otherCharacter = isInitiator ? trade.recipientCharacter : trade.initiatorCharacter;
@@ -42,6 +45,7 @@ export function TradeCard({
       const formData = new FormData();
       formData.set("tradeId", String(trade.id));
       formData.set("itemId", String(chosenItemId));
+      formData.set("quantity", String(chosenQuantity));
       const result = await respondToTradeAction(undefined, formData);
       if (result?.error) showToast(result.error, "error");
       else if (result?.success) showToast(result.success, "success");
@@ -78,7 +82,10 @@ export function TradeCard({
       <div className="flex items-center justify-between gap-4 flex-wrap mb-2">
         <p className="text-sm">
           {isInitiator ? "You" : otherCharacter?.name} offered{" "}
-          <span className="text-parchment-100">{trade.initiatorItem?.name ?? "an item"}</span>
+          <span className="text-parchment-100">
+            {trade.initiatorQuantity > 1 ? `${trade.initiatorQuantity}x ` : ""}
+            {trade.initiatorItem?.name ?? "an item"}
+          </span>
           {" to "}
           {isInitiator ? (
             otherCharacter ? (
@@ -96,7 +103,11 @@ export function TradeCard({
 
       {trade.recipientItem && (
         <p className="text-sm text-ink-300 mb-2">
-          Countered with <span className="text-parchment-100">{trade.recipientItem.name}</span>
+          Countered with{" "}
+          <span className="text-parchment-100">
+            {trade.recipientQuantity > 1 ? `${trade.recipientQuantity}x ` : ""}
+            {trade.recipientItem.name}
+          </span>
         </p>
       )}
 
@@ -114,7 +125,10 @@ export function TradeCard({
         <div className="space-y-2 mt-2">
           <select
             value={chosenItemId ?? ""}
-            onChange={(e) => setChosenItemId(Number(e.target.value) || null)}
+            onChange={(e) => {
+              setChosenItemId(Number(e.target.value) || null);
+              setChosenQuantity(1);
+            }}
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
           >
             <option value="">Pick an item...</option>
@@ -125,6 +139,21 @@ export function TradeCard({
               </option>
             ))}
           </select>
+          {chosenItemId != null &&
+            (() => {
+              const chosenRow = myArsenal.find((r) => r.itemId === chosenItemId);
+              if (!chosenRow || chosenRow.quantity <= 1) return null;
+              return (
+                <input
+                  type="number"
+                  min={1}
+                  max={chosenRow.quantity}
+                  value={chosenQuantity}
+                  onChange={(e) => setChosenQuantity(Number(e.target.value))}
+                  className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
+                />
+              );
+            })()}
           <div className="flex items-center gap-2">
             <button
               type="button"

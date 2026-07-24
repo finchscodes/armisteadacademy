@@ -11,6 +11,7 @@ type Item = {
   price: number;
   stock: number | null;
   imageUrl: string | null;
+  isPet: boolean;
 };
 
 export function ShopItemCard({
@@ -27,21 +28,24 @@ export function ShopItemCard({
   const [error, setError] = useState<string | null>(null);
   const [arsenalFull, setArsenalFull] = useState(false);
   const [bought, setBought] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const outOfStock = item.stock !== null && item.stock <= 0;
-  const canAfford = balance !== null && balance >= item.price;
+  const totalCost = item.price * (item.isPet ? 1 : quantity);
+  const canAfford = balance !== null && balance >= totalCost;
 
   function handleBuy() {
     setError(null);
     setBought(false);
     startTransition(async () => {
-      const result = await purchaseItemAction(item.id);
+      const result = await purchaseItemAction(item.id, item.isPet ? 1 : quantity);
       if (result.arsenalFull) {
         setArsenalFull(true);
       } else if (result.error) {
         setError(result.error);
       } else {
         setBought(true);
+        setQuantity(1);
         router.refresh();
       }
     });
@@ -57,29 +61,47 @@ export function ShopItemCard({
         <p className="text-sm font-medium text-parchment-100">{item.name}</p>
         {item.description && <p className="text-xs text-ink-400 mt-1 flex-1">{item.description}</p>}
         <div className="flex items-center justify-between mt-3">
-          <span className="text-sm text-gunmetal-400 font-medium">{item.price} dollars</span>
-          {item.stock !== null && (
-            <span className="text-[11px] text-ink-500">{item.stock} left</span>
-          )}
+          <span className="text-sm text-gunmetal-400 font-medium">
+            {item.price} dollars{!item.isPet && quantity > 1 ? ` × ${quantity} = ${totalCost}` : ""}
+          </span>
+          {item.stock !== null && <span className="text-[11px] text-ink-500">{item.stock} left</span>}
         </div>
 
         {canBuy ? (
-          <button
-            type="button"
-            onClick={handleBuy}
-            disabled={pending || outOfStock || !canAfford}
-            className="mt-3 text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {pending
-              ? "Buying..."
-              : outOfStock
-                ? "Out of stock"
-                : !canAfford
-                  ? "Can't afford"
-                  : bought
-                    ? "Bought!"
-                    : "Buy"}
-          </button>
+          <>
+            {!item.isPet && (
+              <div className="flex items-center gap-2 mt-3">
+                <label htmlFor={`qty-${item.id}`} className="text-[11px] text-ink-400">
+                  Qty
+                </label>
+                <input
+                  id={`qty-${item.id}`}
+                  type="number"
+                  min={1}
+                  max={item.stock ?? 999}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+                  className="w-16 rounded-md border border-ink-600 bg-ink-800 px-2 py-1 text-xs focus:outline-none focus:border-gunmetal-500"
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleBuy}
+              disabled={pending || outOfStock || !canAfford}
+              className="mt-2 text-xs bg-gunmetal-500 text-ink-950 px-3 py-2 rounded-md font-medium hover:bg-gunmetal-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {pending
+                ? "Buying..."
+                : outOfStock
+                  ? "Out of stock"
+                  : !canAfford
+                    ? "Can't afford"
+                    : bought
+                      ? "Bought!"
+                      : "Buy"}
+            </button>
+          </>
         ) : (
           <p className="text-[11px] text-ink-500 mt-3">Pick a character to shop.</p>
         )}

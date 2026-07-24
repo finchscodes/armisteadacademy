@@ -179,15 +179,6 @@ export async function NavBar() {
               </Link>
             )}
             {current.activeCharacter && (
-              <Link
-                href="/trades"
-                data-tooltip="Trades" data-tooltip-side="bottom"
-                className="text-ink-200 hover:text-gunmetal-400 transition-colors text-xs font-medium"
-              >
-                Trades
-              </Link>
-            )}
-            {current.activeCharacter && (
               <NotificationBell
                 initial={notifications.map((n) => ({
                   ...n,

@@ -12,8 +12,10 @@ export async function getActiveTradesForCharacter(characterId: number) {
       updatedAt: trades.updatedAt,
       initiatorCharacterId: trades.initiatorCharacterId,
       initiatorItemId: trades.initiatorItemId,
+      initiatorQuantity: trades.initiatorQuantity,
       recipientCharacterId: trades.recipientCharacterId,
       recipientItemId: trades.recipientItemId,
+      recipientQuantity: trades.recipientQuantity,
     })
     .from(trades)
     .where(

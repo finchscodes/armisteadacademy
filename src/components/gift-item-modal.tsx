@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { giftItemAction } from "@/actions/shops";
+import { CharacterNameAutocomplete } from "@/components/character-name-autocomplete";
 
 export function GiftItemModal({
   inventoryId,
@@ -36,12 +37,7 @@ export function GiftItemModal({
             <label className="block text-xs font-medium mb-1" htmlFor="targetCharacterName">
               Character&apos;s name
             </label>
-            <input
-              id="targetCharacterName"
-              name="targetCharacterName"
-              required
-              className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2 text-sm focus:outline-none focus:border-gunmetal-500"
-            />
+            <CharacterNameAutocomplete id="targetCharacterName" name="targetCharacterName" required />
           </div>
           {maxQuantity > 1 && (
             <div>

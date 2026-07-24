@@ -138,10 +138,14 @@ export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: b
                   className="w-full h-28 object-cover rounded-md mb-3"
                 />
               )}
-              <p className="text-sm font-medium text-parchment-100">
-                {row.itemName}
-                {row.quantity > 1 && <span className="text-ink-400"> ×{row.quantity}</span>}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-parchment-100">{row.itemName}</p>
+                {row.quantity > 1 && (
+                  <span className="text-[11px] bg-ink-800 border border-ink-600 rounded-full px-2 py-0.5 text-gunmetal-400 shrink-0">
+                    ×{row.quantity}
+                  </span>
+                )}
+              </div>
               {row.itemDescription && (
                 <p className="text-xs text-ink-400 mt-1 flex-1">{row.itemDescription}</p>
               )}
@@ -152,7 +156,6 @@ export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: b
                   {row.thirstRestore ? `+${row.thirstRestore}% thirst` : ""}
                 </p>
               )}
-              <p className="text-[11px] text-ink-500 mt-2">From {row.shopName}</p>
               {isOwner && !selectMode && (
                 <div className="flex justify-end mt-2">
                   <ArsenalItemMenu
@@ -193,6 +196,7 @@ export function ArsenalTab({ items, isOwner }: { items: ArsenalRow[]; isOwner: b
         <TradeItemModal
           itemId={tradeTarget.itemId}
           itemName={tradeTarget.itemName}
+          maxQuantity={tradeTarget.quantity}
           onClose={() => setTradeTarget(null)}
           onSuccess={() => {
             showToast("Trade proposed", "success");

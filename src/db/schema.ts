@@ -1051,6 +1051,10 @@ export const items = pgTable("items", {
   // pets table (an individually-tracked companion) instead of a stackable
   // inventory entry.
   isPet: boolean("is_pet").notNull().default(false),
+  // Free text, admin-set — categories vary a lot from shop to shop
+  // (gadgets vs. food vs. wardrobe), so this isn't a fixed enum. Null
+  // means uncategorized; shows up under "Other" in the shop's filter.
+  category: varchar("category", { length: 60 }),
 });
 
 export const inventory = pgTable(

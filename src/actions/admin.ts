@@ -713,6 +713,7 @@ const itemSchema = z.object({
   price: z.coerce.number().int().min(0, "Price can't be negative"),
   stock: z.string().optional().or(z.literal("")), // blank = unlimited
   imageUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  category: z.string().max(60).optional().or(z.literal("")),
   hungerRestore: z.coerce.number().int().min(0).max(100).optional(),
   thirstRestore: z.coerce.number().int().min(0).max(100).optional(),
   isPet: z.coerce.boolean().optional(),
@@ -731,6 +732,7 @@ export async function adminCreateItemAction(
     price: formData.get("price"),
     stock: formData.get("stock") || undefined,
     imageUrl: formData.get("imageUrl") || undefined,
+    category: formData.get("category") || undefined,
     hungerRestore: formData.get("hungerRestore") || undefined,
     thirstRestore: formData.get("thirstRestore") || undefined,
     isPet: formData.get("isPet") === "true",
@@ -739,7 +741,8 @@ export async function adminCreateItemAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { boardId, name, description, price, stock, imageUrl, hungerRestore, thirstRestore, isPet } = parsed.data;
+  const { boardId, name, description, price, stock, imageUrl, category, hungerRestore, thirstRestore, isPet } =
+    parsed.data;
   const existing = await db.select({ id: items.id }).from(items).where(eq(items.boardId, boardId));
 
   await db.insert(items).values({
@@ -750,6 +753,7 @@ export async function adminCreateItemAction(
     stock: stock ? Number(stock) : null,
     imageUrl: imageUrl || null,
     position: existing.length,
+    category: category || null,
     hungerRestore: hungerRestore ?? null,
     thirstRestore: thirstRestore ?? null,
     isPet: isPet ?? false,
@@ -776,6 +780,7 @@ export async function adminUpdateItemAction(
     price: formData.get("price"),
     stock: formData.get("stock") || undefined,
     imageUrl: formData.get("imageUrl") || undefined,
+    category: formData.get("category") || undefined,
     hungerRestore: formData.get("hungerRestore") || undefined,
     thirstRestore: formData.get("thirstRestore") || undefined,
     isPet: formData.get("isPet") === "true",
@@ -784,7 +789,7 @@ export async function adminUpdateItemAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const { itemId, boardId, name, description, price, stock, imageUrl, hungerRestore, thirstRestore, isPet } =
+  const { itemId, boardId, name, description, price, stock, imageUrl, category, hungerRestore, thirstRestore, isPet } =
     parsed.data;
 
   await db
@@ -795,6 +800,7 @@ export async function adminUpdateItemAction(
       price,
       stock: stock ? Number(stock) : null,
       imageUrl: imageUrl || null,
+      category: category || null,
       hungerRestore: hungerRestore ?? null,
       thirstRestore: thirstRestore ?? null,
       isPet: isPet ?? false,

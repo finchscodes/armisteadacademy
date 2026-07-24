@@ -17,6 +17,7 @@ type Item = {
   price: number;
   stock: number | null;
   imageUrl: string | null;
+  category: string | null;
   hungerRestore: number | null;
   thirstRestore: number | null;
   isPet: boolean;
@@ -100,6 +101,16 @@ function ItemForm({
             className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium mb-1">Category (optional)</label>
+        <input
+          name="category"
+          placeholder="e.g. Gadgets, Wardrobe, Food"
+          defaultValue={item?.category ?? ""}
+          className="w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm focus:outline-none focus:border-gunmetal-500"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
